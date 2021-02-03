@@ -1,0 +1,5 @@
+*.so
+*.m~
+*.asv
+*no-commit*
+*.zip
