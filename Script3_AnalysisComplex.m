@@ -39,7 +39,7 @@ if nargin == 0
     % [path,name,ext]=fileparts(which(mfilename)); % path will be the folder where this file is located...
     % dir_main = [path filesep]; 
     % dir_data = dir_main;
-    dir_data = '/home/alejandro/Downloads/S_LVcacaa/';
+    dir_data = '/home/alejandro/Downloads/S_LV/';
     
     if ~isdir(dir_data)
         help Script3_AnalysisComplex
@@ -164,8 +164,8 @@ if do_behaviour
 
     % ---
     subplot(2,2,3); 
-    plot(1:n_window:length(m),PC_targetpresent); hold on; 
-    plot(1:n_window:length(m),PC_targetabsent);  
+    plot(m_presentation_nr_win,PC_targetpresent); hold on; 
+    plot(m_presentation_nr_win,PC_targetabsent);  
     xlim([1 length(m)]); xlabel(' trial #'); 
     ylabel('correct response rate'); ylim([0 1]); hold on; 
     plot([1 length(m)],[0.5 0.5],'k--'); 
@@ -196,10 +196,16 @@ if do_behaviour
     h(end+1) = gcf;
     hname{end+1} = 'Behaviour';
 
-    % trialnum = 1:n_window:length(m);
-    % save('Behavior','m_windowed','PC_targetpresent','PC_targetabsent','bias_windowed','trialnum','N_m','m_edge', 'H', 'M', 'CR', 'FA')
-    % 
-    % clear response_windowed signal_windowed m_windowed m_bin m_edge CR FA H M i_m idx_m PC_targetabsent PC_targetpresent n_window
+    f2store = [dir_data 'Behaviour.mat'];
+    
+    if exist(f2store,'file')
+        bSave = input('File already exists, type 1 to overwrite, 0 to skip this step: ');
+    else
+        bSave = 1;
+    end
+    
+    trialnum = 1:n_window:length(m);
+    save(f2store,'m_windowed','PC_targetpresent','PC_targetabsent','bias_windowed','trialnum','N_m','m_edge', 'H', 'M', 'CR', 'FA')
 end
 
 % -------------------------------------------------------------------------
@@ -853,3 +859,14 @@ end
 % % hold on
 % % plot(tE,50*ideal_template+fE','r')
 % saveas(gcf,'CItf_tp.png')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+dir_out = dir_data;
+for i = 1:length(h);
+    opts = [];
+    opts.format = 'epsc'; % vectorial format for figures
+    Saveas(h(i),[dir_out hname{i}],opts);
+        
+    opts.format = 'png'; % vectorial format for figures
+    Saveas(h(i),[dir_out hname{i}],opts);
+end
