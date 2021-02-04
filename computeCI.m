@@ -2,6 +2,7 @@ function [CI, CIrand, CIboot, ResponseMatrix, CI_targetpresent, CIrand_targetpre
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 
+error('AO: Not validated yet...')
 n_trials = length(list_response);
 if nargin < 4
     n_rand = 0;

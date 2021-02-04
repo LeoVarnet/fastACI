@@ -20,13 +20,12 @@ function Script2_Passation_EN
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Setup
-% 
+
 % close all
-% clear all
 % clc
 
 bSimulation = 0;
-bDebug      = 0;
+bDebug      = 1;
 
 % -------------------------------------------------------------------------
 % 1. Loading set-up: 
@@ -243,15 +242,16 @@ while i <= N && (cfg_game.simulation == 1 || i~=debut_i+cfg_game.sessionsN) && i
     istarget = (ListStim(n_stim).N_signal)==2;
     
     if bDebug == 1
-        fprintf(['\nm = ' num2str(m) ', istarget = ' num2str(istarget) '\n'])
+        disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+        fprintf('\nDependent variable: m = %.4f dB\n',m)
     end
     
-    cfg_game.m        = m;
-    cfg_game.istarget = istarget;
-    cfg_game.noise    = noise;
-    stim_normal = il_user(cfg_game);
+    str_inout = [];
+    str_inout.m = m;
+    str_inout.istarget = istarget;
+    str_inout.noise    = noise;
+    stim_normal = il_user(str_inout,cfg_game);
     %%% Create signal: end
-
     
     if cfg_game.experiment
         sil4playing = zeros(0.1*cfg_game.fs,1);
@@ -479,19 +479,20 @@ cfg.SPL            = 65;
 cfg_out = il_merge_structs(cfg,cfg_out);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function stim_normal = il_user(cfg)
+function stim_normal = il_user(str_inout,cfg)
 
+istarget = str_inout.istarget;
+noise = str_inout.noise;
+    
 fc   = cfg.fc;
 fmod = cfg.fm;
 dur  = cfg.stim_dur;
 fs   = cfg.fs;
-m_dB = cfg.m;
+m_dB = str_inout.m;
 m    = 10^(m_dB/10); % modulation index
-istarget = cfg.istarget;
 
 signal = create_AM(fc, fmod, m*istarget, dur, fs)';
 
-noise = cfg.noise;
 % ADD SILENCE FOR THE MODEL:
 signal = [zeros(length(noise)-length(signal),1); signal];
 
@@ -501,8 +502,13 @@ noise_type = cfg.noise_type;
 SPL = cfg.SPL;
 fadein_samples = cfg.fs*cfg.fadein_s;
 
-stim_normal = generate_stim( signal, noise, SNR, fadein_samples, noise_type);
-stim_normal = dBlvl(stim_normal,SPL);
+bUse_AMT = 0;
+if bUse_AMT == 0
+    stim_normal = generate_stim( signal, noise, SNR, fadein_samples, noise_type);
+    stim_normal = dBlvl(stim_normal,SPL);
+else
+   error('Validating now...') 
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function cfg_out = il_merge_structs(cfg_in,cfg_out)
