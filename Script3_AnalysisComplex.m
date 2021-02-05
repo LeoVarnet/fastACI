@@ -51,28 +51,31 @@ end
 h = [];     % empty handles
 hname = []; % empty figure names 
 
-do_behaviour = 1; % Set to one to analyse/plot the behavioural results
+do_behaviour = 0; % Set to one to analyse/plot the behavioural results
+do_analyse_noise = 1;
 
 % -------------------------------------------------------------------------
 % --- Load data:
-if do_behaviour
-    files = Get_filenames(dir_data,'savegame_*.mat');
-    Show_cell(files);
-    if ~isempty(files)
-        if length(files) == 1
-            idx2proc = 1;
-        else
-            idx2proc = input(['Choose the file to process (enter 1-' num2str(length(files)) '): ']);
-        end
+files = Get_filenames(dir_data,'savegame_*.mat');
+Show_cell(files);
+if ~isempty(files)
+    if length(files) == 1
+        idx2proc = 1;
     else
-        error('%s: No files to process were found. Please provide another ''dir_data'' folder and re-run this script',upper(mfilename))
+        idx2proc = input(['Choose the file to process (enter 1-' num2str(length(files)) '): ']);
     end
+else
+    error('%s: No files to process were found. Please provide another ''dir_data'' folder and re-run this script',upper(mfilename))
+end
 
-    var = load([dir_data files{idx2proc}]);
-    data_passation = var.data_passation;
+var = load([dir_data files{idx2proc}]);
+data_passation = var.data_passation;
+cfg_game       = var.cfg_game;
 
+% -------------------------------------------------------------------------
+if do_behaviour
     n_response = data_passation.n_response;
-    N_total    = var.cfg_game.N_noise*var.cfg_game.N_signal; 
+    N_total    = cfg_game.N_noise*cfg_game.N_signal; 
     N_trials   = length(n_response); % completed number of trials
 
     if N_total ~= N_trials
@@ -209,16 +212,18 @@ if do_behaviour
 end
 
 % -------------------------------------------------------------------------
-% %% Analyze noise in bands
-% 
-% fcut = ERB2f(f2ERB(1000)+[-1 1]);%ERB2f(f2ERB(1000)+[-1.5,-0.5,0.5,1.5]);%ERB2f(f2ERB(1000)+[-1.5:0.2:1.5]);%ERB2f(f2ERB(1000)+[-1 -0.6 -0.2 0.2 0.6 1]);%ERB2f(f2ERB(1000)+[-1 -0.5 -0.25 0.25 0.5 1]);%ERB2f(f2ERB(1000)+[-0.25:0.025:0.25]);%ERB2f(f2ERB(1000)+[-3 -2 -1 1 2 3]);%ERB2f(f2ERB(1000)+[-2.5 -1.5 -0.5 0.5 1.5 2.5]);% [700 950 1050 1300];%
-% Nchannel = length(fcut)-1; 
-% undersampling = 100;%10;%
-% fcut_noiseE = 10;%15;%30;%
-% foldername = cfg_game.folder_name;
-% 
-% [noise_E] = noisetone_converter(foldername, ListStim, data_passation.n_stim, fcut, undersampling, fcut_noiseE);
-% %[noise_E] = noise_converter(foldername, ListStim, data_passation.n_stim, fcut, undersampling, fcut_noiseE);
+% --- Analyse noise in bands
+if do_analyse_noise
+    
+    fcut = il_audtofreq(il_freqtoaud(1000)+[-1 1]);
+    Nchannel = length(fcut)-1; 
+    
+    undersampling = 100;% 10
+    fcut_noiseE = 10; % 15;%30;%
+    foldername = cfg_game.folder_name;
+    
+    % [noise_E] = noisetone_converter(foldername, ListStim, data_passation.n_stim, fcut, undersampling, fcut_noiseE);
+    % %[noise_E] = noise_converter(foldername, ListStim, data_passation.n_stim, fcut, undersampling, fcut_noiseE);
 % 
 % cfg.fs = cfg_game.fs;
 % cfg.save_undersmpl = undersampling;
@@ -859,6 +864,7 @@ end
 % % hold on
 % % plot(tE,50*ideal_template+fE','r')
 % saveas(gcf,'CItf_tp.png')
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 dir_out = dir_data;
@@ -869,4 +875,26 @@ for i = 1:length(h);
         
     opts.format = 'png'; % vectorial format for figures
     Saveas(h(i),[dir_out hname{i}],opts);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [f,bUsingAMT] = il_audtofreq(erb)
+
+try
+    f = audtofreq(erb);
+    bUsingAMT = 1;
+catch
+    f = ERB2f(erb);
+    bUsingAMT = 0;
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [erb,bUsingAMT] = il_freqtoaud(f)
+
+try
+    erb = freqtoaud(f);
+    bUsingAMT = 1;
+catch
+    erb = f2ERB(f);
+    bUsingAMT = 0;
 end

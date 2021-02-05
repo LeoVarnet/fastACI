@@ -11,7 +11,6 @@ function Saveas(h, filename, option)
 % Programmed by Alejandro Osses, ExpORL, KU Leuven, Belgium 2014
 % Created in    : January-March 2014-2015
 % Last update on: 20/08/2014 
-% Last use on   : 11/11/2015 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin < 3
@@ -50,11 +49,6 @@ end
 
 try
     set(h,'PaperPositionMode', 'auto')
-end
-
-if option.bPrint
-%     figure(h);
-%     Print_date_on_figure;
 end
 
 switch option.Colour
