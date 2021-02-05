@@ -1,20 +1,20 @@
-function [undersmplE] = noisetone_converter(foldername,ListStim,n_stim,fcut,undersampling,fEcut)
+function [undersmplE] = noisetone_converter(dir_where,foldername,ListStim,n_stim,fcut,undersampling,fEcut,lvl,SNR)
 
-if nargin<6
+if nargin<7
     fEcut=20;
 end
 Nchannel = length(fcut)-1;
 
 % ATTENTION BRICOLAGE %
-[tone, fs] = audioread('.\TargetStims\nontarget.wav');
+[tone, fs] = audioread([dir_where 'TargetStims' filesep 'nontarget.wav']);
 
 for i_trial=1:length(n_stim)
     fprintf(['stim #' num2str(i_trial) '\n'])
-    [noise, fs] = audioread([ '.\' foldername '\' ListStim(n_stim(i_trial)).name ]);
+    [noise, fs] = audioread([dir_where foldername filesep ListStim(n_stim(i_trial)).name]);
     
 % ATTENTION BRICOLAGE %
-    S = generate_stim( tone, noise, -10, 0, 'white');
-    S = dBlvl(S,65);
+    S = generate_stim( tone, noise, SNR, 0, 'white');
+    S = dBlvl(S,lvl);
     
     %S=S/rms(S);
     for i_channel = 1:Nchannel
@@ -28,6 +28,3 @@ for i_trial=1:length(n_stim)
          undersmplE(i_channel, :, i_trial) = E(1:undersampling:end);
     end
 end
-
-end
-

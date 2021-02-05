@@ -1,8 +1,10 @@
 function [CI, CIrand, CIboot, ResponseMatrix, CI_targetpresent, CIrand_targetpresent, CIboot_targetpresent, CI_targetabsent, CIrand_targetabsent, CIboot_targetabsent] = computeCI(list_signal,list_response,noise_E,n_rand,n_boot,is_norm)
-%UNTITLED4 Summary of this function goes here
+% function [CI, CIrand, CIboot, ResponseMatrix, CI_targetpresent, CIrand_targetpresent, CIboot_targetpresent, CI_targetabsent, CIrand_targetabsent, CIboot_targetabsent] = computeCI(list_signal,list_response,noise_E,n_rand,n_boot,is_norm)
+%
+% Summary of this function goes here
 %   Detailed explanation goes here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-error('AO: Not validated yet...')
 n_trials = length(list_response);
 if nargin < 4
     n_rand = 0;

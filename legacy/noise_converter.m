@@ -1,15 +1,13 @@
-function [undersmplE] = noise_converter(foldername,ListStim,n_stim,fcut,undersampling,fEcut)
+function [undersmplE] = noise_converter(dir_where,foldername,ListStim,n_stim,fcut,undersampling,fEcut)
 
-if nargin<6
+if nargin<7
     fEcut=20;
 end
 Nchannel = length(fcut)-1;
 
-
-
 for i_trial=1:length(n_stim)
     fprintf(['stim #' num2str(i_trial) '\n'])
-    [S, fs] = audioread([ '.\' foldername '\' ListStim(n_stim(i_trial)).name ]);
+    [S, fs] = audioread([dir_where foldername filesep ListStim(n_stim(i_trial)).name ]);
     
     S=S/rms(S);
     for i_channel = 1:Nchannel
@@ -23,6 +21,3 @@ for i_trial=1:length(n_stim)
          undersmplE(i_channel, :, i_trial) = E(1:undersampling:end);
     end
 end
-
-end
-

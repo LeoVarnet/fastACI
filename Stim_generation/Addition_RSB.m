@@ -4,7 +4,7 @@ function [outsig, A, struct_extra] = Addition_RSB(S, B, SNR)
 % le facteur A tel que somme = A*S + B;
 
 if length(S)~=length(B)
-    error('les deux sons � additioner doivent avoir la m�me longueur');
+    error('les deux sons a additioner doivent avoir la meme longueur');
 end
 
 Ps = mean(S.^2);
