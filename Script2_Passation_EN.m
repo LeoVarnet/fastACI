@@ -1,5 +1,5 @@
-function Script2_Passation_EN
-% function Script2_Passation_EN
+function Script2_Passation_EN(experiment, Subject_ID)
+% function Script2_Passation_EN(experiment, Subject_ID)
 %
 %
 % Changes by AO:
@@ -21,6 +21,13 @@ function Script2_Passation_EN
 
 %% Setup
 
+if nargin < 1
+    Subject_ID = input('Enter the Subject ID (e.g., ''S01''): ');
+end
+if nargin == 0
+    experiment = 'modulationACI'; 
+end
+
 % close all
 % clc
 
@@ -29,28 +36,33 @@ bDebug      = 1;
 
 % -------------------------------------------------------------------------
 % 1. Loading set-up: 
+%    1.1. Loads cfgcrea*.mat
 [path,name,ext]=fileparts(which(mfilename)); % path will be the folder where this file is located...
 dir_main = [path filesep];    %'C:\Users\Varnet L�o\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM';
+dir_results = [dir_main 'Interim_results' filesep];
 
-ListSavecfg = dir([dir_main 'cfgcrea*.mat']);
-if length(ListSavecfg)==1
-    var = load(ListSavecfg.name);
-    cfg_game            = var.cfg_crea;
+stored_cfg = Get_filenames(dir_results,['cfgcrea*' Subject_ID '_' experiment '.mat']);
+N_stored_cfg = length(stored_cfg);
+if N_stored_cfg==1
+    var      = load([dir_results stored_cfg{1}]);
+    cfg_game = var.cfg_crea;
     % cfg_game.cfg_crea   = var.cfg_crea;
-elseif length(ListSavecfg) > 1
+elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
     error('%s: no cfg_crea available',upper(mfilename));
 end
 cfg_game.N = cfg_game.N_noise*cfg_game.N_signal;
 
-disp('')
-%% Parameters
 if ~isfield(cfg_game,'resume')
     cfg_game.resume = []; % 'no' -> new game, 'yes' -> load last saved game, [] -> load last saved game if exists or start a new game
 end
+
+% -------------------------------------------------------------------------
+%     1.2. Loading parameters: Looks for an existing 'game' (or previous 
+%          session for the same participant)
 if isempty(cfg_game.resume)
-    ListSavegame = dir([dir_main 'savegame*.mat']);
+    ListSavegame = dir([dir_results 'savegame*.mat']);
     if isempty(ListSavegame)
         cfg_game.resume = 0; % 'non';
     else
@@ -68,12 +80,9 @@ end
 
 switch cfg_game.resume
     case {1,'oui','yes'}
-        cfg_game.simulation =  bSimulation;
-        cfg_game.experiment = ~bSimulation;
-        
         if isfield(cfg_game,'load_name')
             if isempty(cfg_game.load_name)
-                ListSavegame = dir([dir_main 'savegame*.mat']);
+                ListSavegame = dir([dir_results 'savegame*.mat']);
                 if isempty(ListSavegame)
                     error('%s: No savegame to be loaded',upper(mfilename));
                 end
@@ -85,10 +94,13 @@ switch cfg_game.resume
                         bytes = ListSavegame(j).bytes; % looks for the largest MAT file
                     end
                 end
-                load_name = [dir_main ListSavegame(index_savegame).name];
+                load_name = [dir_results ListSavegame(index_savegame).name];
             end
             
             i = [];
+            cfg_game = []; % it will be re-loaded now:
+            ListStim = [];
+            
             load(load_name);
             cfg_game.load_name = load_name;
             i_savegame=i;
@@ -97,6 +109,19 @@ switch cfg_game.resume
             msg_welcomeback
              
             cfg_game.resume = 1;
+            
+            if ~isfield(cfg_game,'dBFS')
+                warning('You are loading an ''old'' participant')
+                cfg_tmp = il_set(cfg_game);
+                cfg_game.dBFS = cfg_tmp.dBFS;
+                cfg_game.dir_stim = cfg_tmp.dir_stim;
+            end
+            if ~isfield(cfg_game,'experiment')
+                cfg_game.experiment = 'modulationACI';
+            end
+            
+            cfg_game.is_simulation =  bSimulation;
+            cfg_game.is_experiment = ~bSimulation;
         else
             error('%s: No savegame with the specified name',upper(mfilename))
         end
@@ -107,15 +132,22 @@ switch cfg_game.resume
         data_passation.startdate = {data_passation.startdate, clock_str};
         
     case {0,'non','no'}
+        if ~isfield(cfg_game,'experiment')
+            cfg_game.experiment = 'modulationACI';
+        end
+            
         % Parameters for targets
-        cfg_game = il_set(cfg_game); % experiment dependent
-        cfg_game = il_cfg(cfg_game);
+        exp2eval = sprintf('cfg_game = %s_set(cfg_game);',experiment); % experiment dependent
+        eval(exp2eval);
+        
+        exp2eval = sprintf('cfg_game = %s_cfg(cfg_game);',experiment);
+        eval(exp2eval);
         
         % Parameters for game
-        cfg_game.simulation =  bSimulation;
-        cfg_game.experiment = ~bSimulation;
+        cfg_game.is_simulation =  bSimulation;
+        cfg_game.is_experiment = ~bSimulation;
         % Simulation parameters
-        if cfg_game.simulation == 1
+        if cfg_game.is_simulation == 1
             error('Not validated yet...')
             % modelparameters;
             % cfg_game.fadein_s           = 0;
@@ -131,19 +163,20 @@ switch cfg_game.resume
     data_passation.resume_trial = 0;
     data_passation.startdate{1} = Get_date_and_time_str;
 
-	if cfg_game.simulation == 1
+	if cfg_game.is_simulation == 1
         error('Not validated yet...')
         % % display welcome message
         % msg_welcome
 	end        
 end
-  
+
+dir_stim = cfg_game.dir_stim;
 % clear temp bytes ListSavegame index_savegame clock_now
  
 %% Load stims, create templates for simulation
 
 if cfg_game.resume == 0
-    ListStim = dir(strcat([dir_main cfg_game.folder_name filesep], '*.wav'));
+    ListStim = dir(strcat([dir_stim cfg_game.folder_name filesep], '*.wav'));
     
     ListStim = rmfield(ListStim,{'date','datenum','bytes', 'isdir'});
     if cfg_game.N ~= length(ListStim)
@@ -156,12 +189,17 @@ if cfg_game.resume == 0
     end
     for i=1:cfg_game.N
         ListStim(i).N_signal = liste_signaux(i);
-    end
+    end    
 end
+
+% if ~isfield(cfg_game,'ListStim')
+%     % cfg_game.ListStim = struct([]);
+%     cfg_game.ListStim = ListStim;
+% end
 
 % Create template
  
-if cfg_game.simulation == 1
+if cfg_game.is_simulation == 1
     error('Not validated yet...')
     % Signal{1} = create_AM(cfg_game.fc, cfg_game.fm, 0, cfg_game.stim_dur, cfg_game.fs)';
     % Signal{2} = create_AM(cfg_game.fc, cfg_game.fm, 10^(cfg_game.m_start/10), cfg_game.stim_dur, cfg_game.fs)';
@@ -196,7 +234,6 @@ end
 % clear liste_signaux ordre_alea i j IRind1 IRind2
  
 %% Experiment
- 
 if cfg_game.resume == 0
     if cfg_game.randorder == 1
         cfg_game.randorder_idxs = randperm(cfg_game.N); 
@@ -208,6 +245,8 @@ else
     debut_i=i_savegame;
 end
 
+cfg_game.bDebug = bDebug;
+
 str_inout = [];
 str_inout.debut_i = debut_i;
 
@@ -216,12 +255,12 @@ str_inout = staircase_init(str_inout,cfg_game);
 response   = str_inout.response;
 n_correctinarow = str_inout.n_correctinarow;
 m          = str_inout.m;
-i          = str_inout.i;
+i_current  = str_inout.i_current;
 stepsize   = str_inout.stepsize;
 isbreak    = str_inout.isbreak;
 
 iswarmup = cfg_game.warmup;
-if cfg_game.experiment == 1
+if cfg_game.is_experiment == 1
     if iswarmup
         % display instructions warmup
         msg_warmup
@@ -232,12 +271,15 @@ if cfg_game.experiment == 1
 end
  
 N = cfg_game.N;
-while i <= N && (cfg_game.simulation == 1 || i~=debut_i+cfg_game.sessionsN) && isbreak == 0
-    n_stim = cfg_game.randorder_idxs(i);
-    file2load = [dir_main cfg_game.folder_name filesep ListStim(n_stim).name];
-    noise = audioread(file2load); 
-    noise = noise/std(noise);
-     
+
+bLevel_norm_version = 2; % 1 is 'as received'
+
+i = nan(1);
+while i_current <= N && (cfg_game.is_simulation == 1 || i~=debut_i+cfg_game.sessionsN) && isbreak == 0
+    
+    cfg_game.i_current = i_current;
+    n_stim = cfg_game.randorder_idxs(i_current);
+    
     % Create signal
     istarget = (ListStim(n_stim).N_signal)==2;
     
@@ -249,41 +291,48 @@ while i <= N && (cfg_game.simulation == 1 || i~=debut_i+cfg_game.sessionsN) && i
     str_inout = [];
     str_inout.m = m;
     str_inout.istarget = istarget;
-    str_inout.noise    = noise;
-    stim_normal = il_user(str_inout,cfg_game);
+    str_inout.bLevel_norm_version = bLevel_norm_version;
+    str_inout.filename = ListStim(i_current).name;
+    
+    str_stim = [];
+    str2eval = sprintf('str_stim=%s_user(str_inout,cfg_game);',cfg_game.experiment);
+    eval(str2eval);
+    stim_normal = str_stim.tuser;
+    
+    % stim_normal = il_user(str_inout,cfg_game);
     %%% Create signal: end
     
-    if cfg_game.experiment
+    if cfg_game.is_experiment
         sil4playing = zeros(0.1*cfg_game.fs,1);
         player = audioplayer([sil4playing; stim_normal],cfg_game.fs);
     end
-    if cfg_game.simulation
+    if cfg_game.is_simulation
         sil4playing = [];
     end
      
     % save trial data
     if ~iswarmup
-        ListStim(n_stim).n_presentation=i; 
-        data_passation.n_stim(i) = n_stim;
+        ListStim(n_stim).n_presentation=i_current; 
+        data_passation.n_stim(i_current) = n_stim;
         ListStim(n_stim).m = m; 
-        data_passation.m(i) = m;
-        data_passation.N_signal(i) = ListStim(n_stim).N_signal;
+        data_passation.m(i_current) = m;
+        data_passation.N_signal(i_current) = ListStim(n_stim).N_signal;
         clock_now = clock;
-        data_passation.date(i,:) = clock_now;
+        data_passation.date(i_current,:) = clock_now;
         ListStim(n_stim).date = clock_now;
     end
      
     % Display message, play sound and ask for response
     tic
      
-    if cfg_game.experiment
+    if cfg_game.is_experiment
         % display
         if iswarmup
             fprintf('\n    * WARM-UP PHASE *\n\n');
         else
             fprintf('\n    * MAIN EXPERIMENT *\n\n');
             if cfg_game.displayN == 1
-                fprintf('    Playing stimulus # %.0f of %.0f\n',i,cfg_game.N);
+                fprintf('    Playing stimulus # %.0f of %.0f\n',i_current,cfg_game.N);
             else
                 fprintf('    Playing stimulus\n');
             end
@@ -296,7 +345,7 @@ while i <= N && (cfg_game.simulation == 1 || i~=debut_i+cfg_game.sessionsN) && i
             response = Reponse_clavier([cfg_game.response_names {'to take a break'}], 3.14);
         end
         stop(player)
-    elseif cfg_game.simulation
+    elseif cfg_game.is_simulation
         error('Not validated yet...')
         % fprintf(['analyse stim # ' num2str(i) ' of ' num2str(cfg_game.N) '\n']);
         % Stim_IR = auditorymodel(stim_normal, cfg_game.fs, cfg_game.model);
@@ -314,7 +363,7 @@ while i <= N && (cfg_game.simulation == 1 || i~=debut_i+cfg_game.sessionsN) && i
      
     responsetime = toc;
     ListStim(n_stim).responsetime  = responsetime; 
-    data_passation.responsetime(i) = responsetime;
+    data_passation.responsetime(i_current) = responsetime;
      
     switch response
         case 3.14 % This is a ''pause''
@@ -329,22 +378,32 @@ while i <= N && (cfg_game.simulation == 1 || i~=debut_i+cfg_game.sessionsN) && i
                 isbreak = 1;
             end
         case 4 % play pure tone
-            % TODO: call il_user and request a 'REFERENCE' sound
-            signal = create_AM(cfg_game.fc, cfg_game.fm, 0, cfg_game.stim_dur, cfg_game.fs)';
-            stim_normal = dBlvl(signal,cfg_game.SPL);
+            str_stim = [];
+            cfg_tmp = cfg_game;
+            str_inout.istarget = 0;
+            str_inout.m = 0;
+            exp2eval = sprintf('str_stim =  %s_user(str_inout,cfg_tmp);',experiment);
+            eval(exp2eval);
+            stim_normal = str_stim.stim_tone_alone;
+            
             player = audioplayer([sil4playing; stim_normal],cfg_game.fs);
             playblocking(player)
-            % sound([zeros(cfg_game.fs*0.2,1); Normaliseur(Signal{1}, 'puissance')],cfg_game.fs);
+            
             fprintf(['\n    Press any key\n']);
             pause;
 
         case 5 % play modulated tone
-            % TODO: call il_user and request a 'TARGET' sound
-            signal = create_AM(cfg_game.fc, cfg_game.fm, 10^(m/10), cfg_game.stim_dur, cfg_game.fs)';
-            stim_normal = dBlvl(signal,cfg_game.SPL);
+            str_stim = [];
+            cfg_tmp = cfg_game;
+            str_inout.istarget = 1;
+            str_inout.m = m;
+            exp2eval = sprintf('str_stim =  %s_user(str_inout,cfg_tmp);',experiment);
+            eval(exp2eval);
+            stim_normal = str_stim.stim_tone_alone;
+            
             player = audioplayer([sil4playing; stim_normal],cfg_game.fs);
             playblocking(player)
-            % sound([zeros(cfg_game.fs*0.2,1); Normaliseur(Signal{1}, 'puissance')],cfg_game.fs);
+            
             fprintf(['\n    Press any key\n']);
             pause;
 
@@ -362,7 +421,7 @@ while i <= N && (cfg_game.simulation == 1 || i~=debut_i+cfg_game.sessionsN) && i
             response   = str_inout.response;
             n_correctinarow = str_inout.n_correctinarow;
             m          = str_inout.m;
-            i          = str_inout.i;
+            i_current  = str_inout.i_current;
             stepsize   = str_inout.stepsize;
             isbreak    = str_inout.isbreak;
             
@@ -374,12 +433,12 @@ while i <= N && (cfg_game.simulation == 1 || i~=debut_i+cfg_game.sessionsN) && i
             % save trial data
             if ~iswarmup
                 ListStim(n_stim).n_response = response; 
-                data_passation.n_response(i) = response;
+                data_passation.n_response(i_current) = response;
                 
                 ListStim(n_stim).response = cfg_game.response_names{ListStim(n_stim).n_response};
                 
                 ListStim(n_stim).is_correct = iscorrect; 
-                data_passation.is_correct(i) = iscorrect;
+                data_passation.is_correct(i_current) = iscorrect;
             end
             if iswarmup || bDebug
                 % ListStim(n_stim).response 
@@ -418,10 +477,11 @@ while i <= N && (cfg_game.simulation == 1 || i~=debut_i+cfg_game.sessionsN) && i
                 % plot(data_passation.m,'-'); drawnow
             end
              
-            i=i+1;
+            i_current=i_current+1;
         otherwise
             warning('%s: Keyboard response not recognised',upper(mfilename))
     end
+    
 end
  
 %% Save game
@@ -431,89 +491,3 @@ data_passation.datefin{length(data_passation.startdate)} = clock_str;
 savename = ['savegame_' clock_str];
 save([dir_main savename], 'i', 'ListStim', 'cfg_game', 'data_passation');
 msg_close
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function cfg_out = il_cfg(cfg_in)
-% function cfg_out = il_cfg(cfg_in)
-%
-% Function comparable to *_cfg.m functions from AFC toolbox
-
-cfg = [];
-cfg_out = cfg_in; % copying input to output struct
-
-cfg.response_names = {'pure tone', 'modulated tone'}; 
-cfg.warmup         = 1; % 'oui', CAUTION: Overwritten in the case of simulation
-cfg.displayN       = 1; % 'oui'
-%cfg_game.end_sessions   = [500 1000 1500 2000 2500]; 
-cfg.sessionsN      = 300; % CAUTION: Overwritten in the case of simulation
-cfg.adapt          = 1; % 'out';%
-cfg.randorder      = 1;
-
-% Staircase algorithm parameters
-if cfg.adapt == 1
-	cfg.start_stepsize     = 4;
-	cfg.min_stepsize       = 1;
-    cfg.adapt_stepsize     = 90/100;
-else
-    error('Not validated yet...')
-end
-
-cfg_out = il_merge_structs(cfg,cfg_out);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function cfg_out = il_set(cfg_in)
-% function cfg_out = il_set(cfg_in)
-%
-% Function comparable to *_set.m functions from AFC toolbox
-
-cfg = [];
-cfg_out = cfg_in; % copying input to output struct
-
-cfg.fm             = 4;
-cfg.fc             = 1000;
-cfg.SNR            = -10;
-cfg.m_start        = -8; 
-cfg.fadein_s       = 0.075; % CAUTION: Overwritten in the case of simulation
-cfg.SPL            = 65;
-
-cfg_out = il_merge_structs(cfg,cfg_out);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function stim_normal = il_user(str_inout,cfg)
-
-istarget = str_inout.istarget;
-noise = str_inout.noise;
-    
-fc   = cfg.fc;
-fmod = cfg.fm;
-dur  = cfg.stim_dur;
-fs   = cfg.fs;
-m_dB = str_inout.m;
-m    = 10^(m_dB/10); % modulation index
-
-signal = create_AM(fc, fmod, m*istarget, dur, fs)';
-
-% ADD SILENCE FOR THE MODEL:
-signal = [zeros(length(noise)-length(signal),1); signal];
-
-% create stim
-SNR = cfg.SNR;
-noise_type = cfg.noise_type;
-SPL = cfg.SPL;
-fadein_samples = cfg.fs*cfg.fadein_s;
-
-bUse_AMT = 0;
-if bUse_AMT == 0
-    stim_normal = generate_stim( signal, noise, SNR, fadein_samples, noise_type);
-    stim_normal = dBlvl(stim_normal,SPL);
-else
-   error('Validating now...') 
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function cfg_out = il_merge_structs(cfg_in,cfg_out)
-
-fn = fieldnames(cfg_in);
-for i = 1:length(fn)
-   cfg_out.(fn{i}) = cfg_in.(fn{i}); % adding recently created fields to cfg_out
-end

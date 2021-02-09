@@ -13,13 +13,13 @@ if iswarmup
 else
     m = cfg.m_start;
 end
-i = debut_i;
+i_current = debut_i;
 stepsize = cfg.start_stepsize;
 isbreak = 0;
 
 str_inout.response = response;
 str_inout.n_correctinarow = n_correctinarow;
 str_inout.m = m;
-str_inout.i = i;
+str_inout.i_current = i_current;
 str_inout.stepsize = stepsize;
 str_inout.isbreak = isbreak;

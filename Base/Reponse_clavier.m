@@ -36,5 +36,3 @@ while test_boucle
         test_boucle=~test_touche;
     end
 end
-
-end
