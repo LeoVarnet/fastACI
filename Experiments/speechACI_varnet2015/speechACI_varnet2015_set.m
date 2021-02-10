@@ -1,13 +1,12 @@
-function cfg_out = speechACI_varnet2015_set(cfg_in)
-% function cfg_out = speechACI_varnet2015_set(cfg_in)
+function cfg_inout = speechACI_varnet2015_set(cfg_inout)
+% function cfg_out = speechACI_varnet2015_set(cfg_inout)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin == 0
-    cfg_in = [];
+    cfg_inout = [];
 end
  
-cfg_out = cfg_in; % copying input to output struct
 dir_main = '/home/alejandro/Documents/Databases/data/fastACI/speechACI/';
 dir_speech = [dir_main 'speech-samples' filesep];
 dir_noise  = [dir_main 'NoiseStim_S11'  filesep];
@@ -31,10 +30,10 @@ cfg.N_noise   = 1500;  % number of stimuli / condition
 cfg.N_signal  = 2;     % Number of conditions
 cfg.N         = cfg.N_noise*cfg.N_signal;
 
-cfg_out.dir_speech = dir_speech;
-cfg_out.dir_noise  = dir_noise;
+cfg_inout.dir_speech = dir_speech;
+cfg_inout.dir_noise  = dir_noise;
 
 % TODO: change this name:
-cfg_out.dir_stim  = dir_noise;
+cfg_inout.dir_stim  = dir_noise;
  
-cfg_out = Merge_structs(cfg,cfg_out);
+cfg_inout = Merge_structs(cfg,cfg_inout);

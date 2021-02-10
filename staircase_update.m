@@ -7,17 +7,17 @@ function str_inout = staircase_update(str_inout,cfg)
 iscorrect       = str_inout.iscorrect;
 n_correctinarow = str_inout.n_correctinarow;
 stepsize        = str_inout.stepsize;
-m               = str_inout.m;
+expvar          = str_inout.expvar;
 
 % 2-down 1-up staircase method on m
 if ~iscorrect
-    m = m + stepsize;
+    expvar = expvar + stepsize;
 elseif n_correctinarow==2
-    m = m - stepsize;
+    expvar = expvar - stepsize;
     n_correctinarow=0;
 end
-if m>1
-    m=1;
+if expvar>1
+    expvar=1;
 end
 if n_correctinarow == 0 % change stepsize
     if stepsize>cfg.min_stepsize
@@ -28,4 +28,4 @@ if n_correctinarow == 0 % change stepsize
 end
 str_inout.n_correctinarow = n_correctinarow;
 str_inout.stepsize        = stepsize;
-str_inout.m               = m;
+str_inout.expvar          = expvar;

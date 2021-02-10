@@ -1,13 +1,14 @@
-function str_stim = modulationACI_user(str_inout,cfg)
-% function str_stim = modulationACI_user(str_inout,cfg)
+function str_stim = modulationACI_user(str_inout,cfg,data_passation)
+% function str_stim = modulationACI_user(str_inout,cfg,data_passation)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+bLevel_norm_version = 2; % 1 is 'as received'
 
 istarget = str_inout.istarget;
 if ~isfield(str_inout,'bLevel_norm_version')
     str_inout.bLevel_norm_version = 2;
 end
-bLevel_norm_version = str_inout.bLevel_norm_version;
 
 if ~isfield(str_inout,'filename')
     str_inout.filename = '';
@@ -20,7 +21,7 @@ fc   = cfg.fc;
 fmod = cfg.fm;
 dur  = cfg.stim_dur;
 fs   = cfg.fs;
-m_dB = str_inout.m;
+m_dB = str_inout.expvar;
 switch bLevel_norm_version
     case 1
         % Unintended denominator in the conversion from modulation depth to

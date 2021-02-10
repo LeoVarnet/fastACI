@@ -20,6 +20,11 @@ cfg.sessionsN      = 300; % CAUTION: Overwritten in the case of simulation
 cfg.adapt          = 1; % 'out';%
 cfg.randorder      = 1;
 
+cfg.startvar = -8;  % old name 'm_start'
+cfg.expvar_description = 'modulation depth (dB)';
+
+cfg.maxvar = 0;
+
 % Staircase algorithm parameters
 if cfg.adapt == 1
 	cfg.start_stepsize     = 4;

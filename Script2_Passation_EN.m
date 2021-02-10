@@ -15,21 +15,21 @@ function Script2_Passation_EN(experiment, Subject_ID)
 %   - convert displayN to silent or something comparable...
 %
 % TOASK:
-%   - 10^(m_dB/10) seems not to be the typical definition of depth
 %   - Add an additional variable 'dir_results' (splitting dir_main)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Setup
 
-if nargin < 1
+% def.expvarunit = 'dB';	% unit of the tracking variable
+% def.expvardescription = 'modulation depth';	%'modulation depth' or 'modulation frequency' %description of the tracking variable
+
+if nargin < 2
     Subject_ID = input('Enter the Subject ID (e.g., ''S01''): ');
 end
 if nargin == 0
-    experiment = 'modulationACI'; 
+    % experiment = 'modulationACI'; 
+    experiment = 'speechACI_varnet2015'; 
 end
-
-% close all
-% clc
 
 bSimulation = 0;
 bDebug      = 1;
@@ -41,7 +41,8 @@ bDebug      = 1;
 dir_main = [path filesep];    %'C:\Users\Varnet L�o\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM';
 dir_results = [dir_main 'Interim_results' filesep];
 
-stored_cfg = Get_filenames(dir_results,['cfgcrea*' Subject_ID '_' experiment '.mat']);
+filter2use = [Subject_ID '_' experiment];
+stored_cfg = Get_filenames(dir_results,['cfgcrea*' filter2use '.mat']);
 N_stored_cfg = length(stored_cfg);
 if N_stored_cfg==1
     var      = load([dir_results stored_cfg{1}]);
@@ -52,7 +53,12 @@ elseif N_stored_cfg > 1
 else
     error('%s: no cfg_crea available',upper(mfilename));
 end
-cfg_game.N = cfg_game.N_noise*cfg_game.N_signal;
+
+% TODO: integrate this into Script1
+% TODO: change N_noise and N_signal by other more relevant names...
+if ~isfield(cfg_game,'N')
+    cfg_game.N = cfg_game.N_noise*cfg_game.N_signal;
+end
 
 if ~isfield(cfg_game,'resume')
     cfg_game.resume = []; % 'no' -> new game, 'yes' -> load last saved game, [] -> load last saved game if exists or start a new game
@@ -62,7 +68,7 @@ end
 %     1.2. Loading parameters: Looks for an existing 'game' (or previous 
 %          session for the same participant)
 if isempty(cfg_game.resume)
-    ListSavegame = dir([dir_results 'savegame*.mat']);
+    ListSavegame = dir([dir_results 'savegame*' filter2use '.mat']);
     if isempty(ListSavegame)
         cfg_game.resume = 0; % 'non';
     else
@@ -82,7 +88,7 @@ switch cfg_game.resume
     case {1,'oui','yes'}
         if isfield(cfg_game,'load_name')
             if isempty(cfg_game.load_name)
-                ListSavegame = dir([dir_results 'savegame*.mat']);
+                ListSavegame = dir([dir_results 'savegame*' filter2use '.mat']);
                 if isempty(ListSavegame)
                     error('%s: No savegame to be loaded',upper(mfilename));
                 end
@@ -97,13 +103,13 @@ switch cfg_game.resume
                 load_name = [dir_results ListSavegame(index_savegame).name];
             end
             
-            i = [];
             cfg_game = []; % it will be re-loaded now:
             ListStim = [];
             
             load(load_name);
             cfg_game.load_name = load_name;
-            i_savegame=i;
+            i_current  = data_passation.i_current+1;
+            i_savegame = i_current;
             
             % display welcome message
             msg_welcomeback
@@ -112,7 +118,9 @@ switch cfg_game.resume
             
             if ~isfield(cfg_game,'dBFS')
                 warning('You are loading an ''old'' participant')
-                cfg_tmp = il_set(cfg_game);
+                cfg_tmp = [];
+                exp2eval = sprintf('cfg_tmp = %s_set(cfg_game);',experiment); % experiment dependent
+                eval(exp2eval);
                 cfg_game.dBFS = cfg_tmp.dBFS;
                 cfg_game.dir_stim = cfg_tmp.dir_stim;
             end
@@ -125,11 +133,10 @@ switch cfg_game.resume
         else
             error('%s: No savegame with the specified name',upper(mfilename))
         end
-        % cfg_game.current_folder = [cfg_game.current_folder(:)', {cd}];
-        % cfg_game.script_name = [cfg_game.script_name(:)', {mfilename}];
-        data_passation.resume_trial = [data_passation.resume_trial, i];
+        
+        data_passation.resume_trial = [data_passation.resume_trial, i_savegame];
         clock_str = Get_date_and_time_str;
-        data_passation.startdate = {data_passation.startdate, clock_str};
+        data_passation.start_date = {data_passation.date_start, clock_str};
         
     case {0,'non','no'}
         if ~isfield(cfg_game,'experiment')
@@ -157,11 +164,11 @@ switch cfg_game.resume
             % cfg_game.stim_dur           = 0.75;
         end
 
-    cfg_game.current_folder{1} = dir_main; % cd;
+    % cfg_game.current_folder{1} = dir_main; % cd;
     cfg_game.script_name{1} = [mfilename('fullpath') '.m'];
 
     data_passation.resume_trial = 0;
-    data_passation.startdate{1} = Get_date_and_time_str;
+    data_passation.date_start{1} = Get_date_and_time_str;
 
 	if cfg_game.is_simulation == 1
         error('Not validated yet...')
@@ -170,17 +177,27 @@ switch cfg_game.resume
 	end        
 end
 
+% TODO: change this name by dir_noise or something like that...
 dir_stim = cfg_game.dir_stim;
 % clear temp bytes ListSavegame index_savegame clock_now
  
 %% Load stims, create templates for simulation
 
 if cfg_game.resume == 0
+    if ~isfield(cfg_game,'folder_name')
+        disp('    No folder_name is specified...')
+        cfg_game.folder_name = '';
+    end
     ListStim = dir(strcat([dir_stim cfg_game.folder_name filesep], '*.wav'));
     
     ListStim = rmfield(ListStim,{'date','datenum','bytes', 'isdir'});
     if cfg_game.N ~= length(ListStim)
-        error('Number of stimuli does not match.')
+        switch experiment
+            case 'speechACI_varnet2015'
+                disp('    No folder_name is specified... / temporal arrangement here...')
+            otherwise
+                error('Number of stimuli does not match.')
+        end
     end
     liste_signaux = [];
     for i=1:cfg_game.N_signal
@@ -191,11 +208,6 @@ if cfg_game.resume == 0
         ListStim(i).N_signal = liste_signaux(i);
     end    
 end
-
-% if ~isfield(cfg_game,'ListStim')
-%     % cfg_game.ListStim = struct([]);
-%     cfg_game.ListStim = ListStim;
-% end
 
 % Create template
  
@@ -247,6 +259,7 @@ end
 
 cfg_game.bDebug = bDebug;
 
+%%% Initialises the staircase
 str_inout = [];
 str_inout.debut_i = debut_i;
 
@@ -254,10 +267,11 @@ str_inout = staircase_init(str_inout,cfg_game);
 
 response   = str_inout.response;
 n_correctinarow = str_inout.n_correctinarow;
-m          = str_inout.m;
+expvar     = str_inout.expvar;
 i_current  = str_inout.i_current;
 stepsize   = str_inout.stepsize;
 isbreak    = str_inout.isbreak;
+%%% Ends: Initialises
 
 iswarmup = cfg_game.warmup;
 if cfg_game.is_experiment == 1
@@ -271,31 +285,46 @@ if cfg_game.is_experiment == 1
 end
  
 N = cfg_game.N;
+if ~isfield(cfg_game,'ListStim')
+    cfg_game.ListStim = ListStim;
+end
 
-bLevel_norm_version = 2; % 1 is 'as received'
-
-i = nan(1);
-while i_current <= N && (cfg_game.is_simulation == 1 || i~=debut_i+cfg_game.sessionsN) && isbreak == 0
+while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_game.sessionsN) && isbreak == 0
     
-    cfg_game.i_current = i_current;
+    % cfg_game.i_current = i_current;
     n_stim = cfg_game.randorder_idxs(i_current);
+    
+    % Pre-stores information of the current trial
+    if ~iswarmup
+        clock_now = clock;
+        data_passation.i_current = i_current;
+        data_passation.n_stim(i_current) = n_stim;
+        data_passation.expvar(i_current) = expvar;
+        data_passation.N_signal(i_current) = ListStim(n_stim).N_signal;
+        data_passation.date(i_current,:) = clock_now;
+    end
     
     % Create signal
     istarget = (ListStim(n_stim).N_signal)==2;
     
     if bDebug == 1
         disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-        fprintf('\nDependent variable: m = %.4f dB\n',m)
+        if isfield(cfg_game,'expvar_description')
+            expvar_description = [', ' cfg_game.expvar_description];
+        else
+            expvar_description = '';
+        end
+            
+        fprintf('\nDependent variable: expvar = %.4f%s \n',expvar,expvar_description);
     end
     
     str_inout = [];
-    str_inout.m = m;
+    str_inout.expvar = expvar;
     str_inout.istarget = istarget;
-    str_inout.bLevel_norm_version = bLevel_norm_version;
     str_inout.filename = ListStim(i_current).name;
     
     str_stim = [];
-    str2eval = sprintf('str_stim=%s_user(str_inout,cfg_game);',cfg_game.experiment);
+    str2eval = sprintf('str_stim=%s_user(str_inout,cfg_game,data_passation);',cfg_game.experiment);
     eval(str2eval);
     stim_normal = str_stim.tuser;
     
@@ -308,18 +337,6 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i~=debut_i+cfg_game.sess
     end
     if cfg_game.is_simulation
         sil4playing = [];
-    end
-     
-    % save trial data
-    if ~iswarmup
-        ListStim(n_stim).n_presentation=i_current; 
-        data_passation.n_stim(i_current) = n_stim;
-        ListStim(n_stim).m = m; 
-        data_passation.m(i_current) = m;
-        data_passation.N_signal(i_current) = ListStim(n_stim).N_signal;
-        clock_now = clock;
-        data_passation.date(i_current,:) = clock_now;
-        ListStim(n_stim).date = clock_now;
     end
      
     % Display message, play sound and ask for response
@@ -361,17 +378,17 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i~=debut_i+cfg_game.sess
         % [ response ] = auditorymodel_TMdetect( Stim_IR, cfg_game.IR{2}, cfg_game.model );
     end
      
-    responsetime = toc;
-    ListStim(n_stim).responsetime  = responsetime; 
-    data_passation.responsetime(i_current) = responsetime;
+    % responsetime = toc;
+    % ListStim(n_stim).responsetime  = responsetime; 
+    data_passation.responsetime(i_current) = toc;
      
     switch response
         case 3.14 % This is a ''pause''
             clock_str = Get_date_and_time_str;
-            data_passation.datefin{length(data_passation.startdate)} = clock_str;
-            savename = ['savegame_' clock_str];
-            save([dir_main savename], 'i', 'ListStim', 'cfg_game', 'data_passation');
-            fprintf('  Saving game to "%s.mat" (folder path: %s)\n',savename,dir_main);
+            data_passation.date_end{length(data_passation.date_start)} = clock_str;
+            savename = il_get_savename(experiment,Subject_ID,clock_str);
+            save([dir_results savename], 'i_current', 'ListStim', 'cfg_game', 'data_passation');
+            fprintf('  Saving game to "%s.mat" (folder path: %s)\n',savename,dir_results);
             
         case 3 % play again (if warm-up) or take a break (if main experiment)
             if ~iswarmup
@@ -381,8 +398,8 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i~=debut_i+cfg_game.sess
             str_stim = [];
             cfg_tmp = cfg_game;
             str_inout.istarget = 0;
-            str_inout.m = 0;
-            exp2eval = sprintf('str_stim =  %s_user(str_inout,cfg_tmp);',experiment);
+            str_inout.expvar = expvar;
+            exp2eval = sprintf('str_stim =  %s_user(str_inout,cfg_tmp,data_passation);',experiment);
             eval(exp2eval);
             stim_normal = str_stim.stim_tone_alone;
             
@@ -396,8 +413,8 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i~=debut_i+cfg_game.sess
             str_stim = [];
             cfg_tmp = cfg_game;
             str_inout.istarget = 1;
-            str_inout.m = m;
-            exp2eval = sprintf('str_stim =  %s_user(str_inout,cfg_tmp);',experiment);
+            str_inout.expvar = expvar;
+            exp2eval = sprintf('str_stim =  %s_user(str_inout,cfg_tmp,data_passation);',experiment);
             eval(exp2eval);
             stim_normal = str_stim.stim_tone_alone;
             
@@ -420,7 +437,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i~=debut_i+cfg_game.sess
             
             response   = str_inout.response;
             n_correctinarow = str_inout.n_correctinarow;
-            m          = str_inout.m;
+            expvar     = str_inout.expvar;
             i_current  = str_inout.i_current;
             stepsize   = str_inout.stepsize;
             isbreak    = str_inout.isbreak;
@@ -463,18 +480,16 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i~=debut_i+cfg_game.sess
             if cfg_game.adapt
                 str_inout = [];
                 str_inout.iscorrect = iscorrect;
-                str_inout.m         = m;
+                str_inout.expvar    = expvar;
                 str_inout.stepsize  = stepsize;
                 str_inout.n_correctinarow = n_correctinarow;
                 
                 str_inout = staircase_update(str_inout,cfg_game);
                 
                 % load updated parameters
-                m         = str_inout.m;
+                expvar    = str_inout.expvar;
                 stepsize  = str_inout.stepsize;
                 n_correctinarow = str_inout.n_correctinarow;
-                
-                % plot(data_passation.m,'-'); drawnow
             end
              
             i_current=i_current+1;
@@ -485,9 +500,18 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i~=debut_i+cfg_game.sess
 end
  
 %% Save game
- 
 clock_str = Get_date_and_time_str;
-data_passation.datefin{length(data_passation.startdate)} = clock_str;
-savename = ['savegame_' clock_str];
-save([dir_main savename], 'i', 'ListStim', 'cfg_game', 'data_passation');
+data_passation.date_end{length(data_passation.date_start)} = clock_str;
+savename = il_get_savename(experiment, Subject_ID, clock_str);
+save([dir_results savename],'ListStim', 'cfg_game', 'data_passation');
 msg_close
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function fname = il_get_savename(experiment, Subject_ID, clock_str)
+
+if nargin < 3
+    clock_str = Get_date_and_time_str;
+end
+
+savename = ['savegame_' clock_str];
+fname = [savename '_' Subject_ID '_' experiment];
