@@ -55,8 +55,8 @@ hname = []; % empty figure names
 dir_out = dir_data;
 %%%
 
-do_behaviour = 1; % Set to one to analyse/plot the behavioural results
-do_analyse_noise = 0;
+do_behaviour = 0; % Set to one to analyse/plot the behavioural results
+do_analyse_noise = 1;
 
 dBFS = 93.6139; % previous knowledge
 
@@ -243,40 +243,64 @@ end
 % -------------------------------------------------------------------------
 % --- Analyse noise in bands
 if do_analyse_noise
+    %%% My notes:
+    %    - noisetone_converter.m and noise_converter.m apply the same processing
+    %        but for the non-AM tone summed to the noises or for non-AM and AM tones,
+    %        respectively. It would be better to have the same function where you
+    %        use as inputs the waveform you want to extract the envelope from...
+    %    - The ideal template (ideal_template) is just the difference in envelopes
+    %        between the non-AM and AM tones.
     
+    cfg = []; % structure to store parameters
     %%% Plot options:
     CIlim = [0.25 97.5];
-    %%%
-    
+    %%% Experiment depentendent parameters:
     lvl = 65;
     SNR = -10;
+    fc  = 1000;
+    %%%
     
-    fcut = il_audtofreq(il_freqtoaud(1000)+[-1 1]);
+    BWerb = 2;
+    fcut = il_audtofreq(il_freqtoaud(fc)+[-BWerb/2 BWerb/2]);
     Nchannel = length(fcut)-1; 
     
     undersampling = 100;% 10
-    fcut_noiseE = 10; % 15;%30;%
-    foldername = cfg_game.folder_name;
+    fcut_noiseE   = 10; % 15;%30;%
+    foldername    = cfg_game.folder_name;
     
     dir_where = dir_data; warning('AO: Temporally using another folder...')
     bLoad = 1;
+    
+    cfg.fs = cfg_game.fs;
+    cfg.save_undersmpl = undersampling;
+    
     noise_E = [];
+    
+    % ---------------------------------------------------------------------
+    % Obtains the envelope of the tone+noise intervals (no AM in the tone) by:
+    %     bandpass filtering +/- 1 ERB_N around fc, second order Butterworth 
+    %     bandpass (i.e., IIR filter of order 4). The envelope is obtained from
+    %     lowpass filtering (fcut_noiseE=10 Hz, the defaul) the absolute value
+    %     of the filtered noise. The noise is finally downsampled.
     if bLoad
+        warning('I skipped the use of noisetone_converter...I ran it once and I stored the noises...')
         load('/home/alejandro/Downloads/S_LV/tmp_vars/noise_E.mat');
     else
         [noise_E] = noisetone_converter(dir_where, foldername, ListStim, data_passation.n_stim, fcut, undersampling, fcut_noiseE,lvl,SNR);
         %[noise_E] = noise_converter(foldername, ListStim, data_passation.n_stim, fcut, undersampling, fcut_noiseE,lvl,SNR);
         % % noise_E is 1 x 360 x 3000
     end
+    % ---------------------------------------------------------------------
     
-    cfg.fs = cfg_game.fs;
-    cfg.save_undersmpl = undersampling;
-
     % Analyse targets and compute ideal template
 
     foldername = 'TargetStims';
-    ListSignals(2).name = 'target.wav';ListSignals(1).name = 'nontarget.wav';
-    mkdir(foldername);
+    ListSignals(2).name = 'target.wav';
+    ListSignals(1).name = 'nontarget.wav';
+    
+    % ---------------------------------------------------------------------
+    % Sets the levels if needed (this won't be needed anymore with Alejandro's
+    % approach):
     for i = 1:2
         fname = ListSignals(i).name;
         %signal = create_AM(cfg_game.fc, cfg_game.fm, 10^(mean(m)/10)*(i-1), cfg_game.stim_dur, cfg_game.fs)';
@@ -293,7 +317,6 @@ if do_analyse_noise
     end
 
     [signal_E] = noise_converter(dir_where,foldername,ListSignals,[1,2],fcut,undersampling,fcut_noiseE);
-
     ideal_template = signal_E(:,:,2)-signal_E(:,:,1);
 
     %% Compute CI and target-present and target-absent sub-CI
@@ -303,12 +326,13 @@ if do_analyse_noise
     n_trials = length(n_response);
 
     % Subselection of trials
-    trials2analyze = 1:n_trials; %find(m>=prctile(m,10) & m<=prctile(m,90));%%%%(iscorrect(i_trial)==0);%responsetime(i_trial)>=median(responsetime);%
-
+    trials2analyse = 1:n_trials; %find(m>=prctile(m,10) & m<=prctile(m,90));%%%%(iscorrect(i_trial)==0);%responsetime(i_trial)>=median(responsetime);%
+    is_normalised = 0; % 'no'
+    
     %[CI, CIrand, CIboot]  = computeCI(n_signal(trials2analyze),n_response(trials2analyze), noise_E(:,:,trials2analyze), n_rand, n_boot, 'yes');
     [CI , CIrand , CIboot , ResponseMatrix, ...
      CI2, CI2rand, CI2boot, ...
-     CI1, CI1rand, CI1boot] = computeCI(n_signal(trials2analyze),n_response(trials2analyze), noise_E(:,:,trials2analyze), n_rand, n_boot, 'no');
+     CI1, CI1rand, CI1boot] = computeCI(n_signal(trials2analyse),n_response(trials2analyse), noise_E(:,:,trials2analyse), n_rand, n_boot, is_normalised);
 
     tE=(1:size(CI,2))/(cfg.fs/cfg.save_undersmpl);
 
@@ -719,9 +743,9 @@ if do_analyse_noise
         fE = fE(fidx2plot);
 
         %subselection of trials
-        trials2analyze = 1:n_trials;%m(i_trial)<=median(m);%(iscorrect(i_trial)==0);%responsetime(i_trial)>=median(responsetime);%
+        trials2analyse = 1:n_trials;%m(i_trial)<=median(m);%(iscorrect(i_trial)==0);%responsetime(i_trial)>=median(responsetime);%
 
-        [CI_F, CIrand_F, CIboot_F, ~, CI2_F, CI2rand_F, CI2boot_F, CI1_F, CI1rand_F, CI1boot_F] = computeCI(n_signal(trials2analyze), n_response(trials2analyze), noise_E_cfft(:,:,trials2analyze), n_rand, n_boot, 'no');
+        [CI_F, CIrand_F, CIboot_F, ~, CI2_F, CI2rand_F, CI2boot_F, CI1_F, CI1rand_F, CI1boot_F] = computeCI(n_signal(trials2analyse), n_response(trials2analyse), noise_E_cfft(:,:,trials2analyse), n_rand, n_boot, 'no');
 
         %% phase shift from complex fft
 
@@ -777,9 +801,9 @@ if do_analyse_noise
         fE = fE(fidx2plot);
 
         %subselection of trials
-        trials2analyze = 1:n_trials;%m(i_trial)<=median(m);%(iscorrect(i_trial)==0);%responsetime(i_trial)>=median(responsetime);%
+        trials2analyse = 1:n_trials;%m(i_trial)<=median(m);%(iscorrect(i_trial)==0);%responsetime(i_trial)>=median(responsetime);%
 
-        [CI_F, CIrand_F, CIboot_F, ~, CI2_F, CI2rand_F, CI2boot_F, CI1_F, CI1rand_F, CI1boot_F] = computeCI(n_signal(trials2analyze), n_response(trials2analyze), noise_E_fft(:,:,trials2analyze), n_rand, n_boot, 'no');
+        [CI_F, CIrand_F, CIboot_F, ~, CI2_F, CI2rand_F, CI2boot_F, CI1_F, CI1rand_F, CI1boot_F] = computeCI(n_signal(trials2analyse), n_response(trials2analyse), noise_E_fft(:,:,trials2analyse), n_rand, n_boot, 'no');
 
         figure('Name', 'General kernel');
         plot_channels(fE, max(abs(CI_F(:)))*abs(ideal_templatefft')/max(max(abs(ideal_templatefft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')));%, @plot, 1, size(undersmplE,1)

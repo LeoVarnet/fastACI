@@ -17,6 +17,11 @@ else
     bLoad = 1;
 end
 
+if ~isfield(cfg,'bDebug')
+    bDebug = 0;
+else
+    bDebug = cfg.bDebug;
+end
 fc   = cfg.fc;
 fmod = cfg.fm;
 dur  = cfg.stim_dur;
@@ -85,7 +90,7 @@ switch bLevel_norm_version
         extra.stim_N = rp.*extra.stim_N;
         extra.stim_S = rp.*extra.stim_S;
         
-        if cfg.bDebug == 1
+        if bDebug == 1
             fprintf('The exact level of the noise is %.1f dB (0 dB FS=%.1f)\n',lvl_N+dBFS,dBFS);
             fprintf('The exact level of the pure tone (modulated or not) is %.1f dB\n',lvl_S+dBFS);
         end

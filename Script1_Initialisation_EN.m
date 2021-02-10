@@ -57,6 +57,7 @@ switch experiment
 
         if ~isdir(dir_where)
             mkdir(dir_where);
+            bGenerate_stimuli = 1;
         elseif ~isempty(dir(dir_where))
             warning('%s: Folder %s is not empty.',upper(mfilename),dir_where);
             bInit_participant_only = input('Do you to initialise a participant without generating new sounds? (1=yes; 0=no): ');
