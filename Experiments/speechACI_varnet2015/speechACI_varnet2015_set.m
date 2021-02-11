@@ -26,8 +26,8 @@ cfg.fs        = 48000; % Hz, sampling frequency
 cfg.dBFS      = dBFS;
 
 % Change the following names:
-cfg.N_noise   = 1500;  % number of stimuli / condition
-cfg.N_signal  = 2;     % Number of conditions
+cfg.N_noise   = 2500;  % number of stimuli / condition
+cfg.N_signal  = 4;     % Number of conditions
 cfg.N         = cfg.N_noise*cfg.N_signal;
 
 cfg_inout.dir_speech = dir_speech;

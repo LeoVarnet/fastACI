@@ -12,7 +12,10 @@ end
 cfg = [];
 cfg_out = cfg_in; % copying input to output struct
 
-cfg.response_names = {'da', 'ga'}; 
+cfg.filename_target  = {'Alda.wav','Alga.wav','Arda.wav','Arga.wav'};
+cfg.response_names   = {'da', 'ga'}; 
+cfg.response_correct_target = [1,2,1,2]; % reponse correcte pour chaque signal (signaux dans l'ordre alphabetique)
+                   % Alda is 'da', Alga is 'ga', Arda is 'da', Arga is 'ga'
 cfg.warmup         = 1; % 'oui', CAUTION: Overwritten in the case of simulation
 cfg.displayN       = 1; % 'oui'
 cfg.sessionsN      = 100; % CAUTION: Overwritten in the case of simulation

@@ -1,21 +1,17 @@
-function str_stim = modulationACI_user(str_inout,cfg,data_passation)
-% function str_stim = modulationACI_user(str_inout,cfg,data_passation)
+function str_stim = modulationACI_user(cfg,data_passation)
+% function str_stim = modulationACI_user(cfg,data_passation)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-bLevel_norm_version = 2; % 1 is 'as received'
+bLevel_norm_version = 2; % set to 1 for version 'as received'
+bLoad = 1;
 
-istarget = str_inout.istarget;
-if ~isfield(str_inout,'bLevel_norm_version')
-    str_inout.bLevel_norm_version = 2;
-end
+i_current = data_passation.i_current;
 
-if ~isfield(str_inout,'filename')
-    str_inout.filename = '';
-    bLoad = 0;
-else
-    bLoad = 1;
-end
+n_stim = data_passation.n_stim(i_current);
+istarget = (cfg.n_signals(n_stim) == 2);
+filename = cfg.ListStim(n_stim).name;
+
 
 if ~isfield(cfg,'bDebug')
     bDebug = 0;
@@ -26,7 +22,7 @@ fc   = cfg.fc;
 fmod = cfg.fm;
 dur  = cfg.stim_dur;
 fs   = cfg.fs;
-m_dB = str_inout.expvar;
+m_dB = data_passation.expvar(i_current);
 switch bLevel_norm_version
     case 1
         % Unintended denominator in the conversion from modulation depth to
@@ -37,7 +33,7 @@ switch bLevel_norm_version
 end
 
 if bLoad
-    file2load = [cfg.dir_stim cfg.folder_name filesep str_inout.filename];
+    file2load = [cfg.dir_stim cfg.folder_name filesep filename];
     noise = audioread(file2load);
 else
     fprintf('%s: Generating noise...\n',upper(mfilename));

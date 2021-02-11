@@ -28,7 +28,7 @@ if nargin < 2
 end
 if nargin == 0
     % experiment = 'modulationACI'; 
-    experiment = 'speechACI_varnet2015'; 
+    experiment = 'speechACI_varnet2015';     
 end
 
 bSimulation = 0;
@@ -199,14 +199,30 @@ if cfg_game.resume == 0
                 error('Number of stimuli does not match.')
         end
     end
-    liste_signaux = [];
+    
+    if cfg_game.N_signal > 2
+        if ~isfield(cfg_game,'response_correct_target')
+            error('A maximum of two alternatives ''1'' and ''2'' can be asked to the participants. Your experiment seems to use %.0f sounds, but they should be mapped to only two responses. Specify the field ''response_correct_target''.',cfg_game.N_signal);
+        end
+        % cfg_pass.CorrectResponses = [1,2,1,2]; % reponse correcte pour chaque signal (signaux dans l'ordre alphabetique)
+    elseif cfg_game.N_signal == 2
+        cfg_game.response_correct_target = [1 2];
+    end
+    
+    list_signals = [];
+    list_target_signals = [];
     for i=1:cfg_game.N_signal
         % for N_signal == 2 ==> first half equal to one, second half equal to two
-        liste_signaux = [liste_signaux i*ones(1,ceil(cfg_game.N/cfg_game.N_signal))];%
+        N_conditions = cfg_game.N_noise; % TODO: this is still not the most suitable naming...
+        list_signals        = [list_signals i*ones(1,ceil(N_conditions))];%
+        list_target_signals = [list_target_signals cfg_game.response_correct_target(i)*ones(1,ceil(N_conditions))];
     end
+    
     for i=1:cfg_game.N
-        ListStim(i).N_signal = liste_signaux(i);
-    end    
+        ListStim(i).n_signal = list_signals(i);
+    end
+    cfg_game.n_signals = list_signals;
+    cfg_game.n_response_correct_target = list_target_signals;
 end
 
 % Create template
@@ -265,6 +281,8 @@ str_inout.debut_i = debut_i;
 
 str_inout = staircase_init(str_inout,cfg_game);
 
+% expvar_i   = str_inout.expvar;
+
 response   = str_inout.response;
 n_correctinarow = str_inout.n_correctinarow;
 expvar     = str_inout.expvar;
@@ -278,6 +296,8 @@ if cfg_game.is_experiment == 1
     if iswarmup
         % display instructions warmup
         msg_warmup
+        
+        data_passation_init = data_passation; % initial data_passation
     else
         % display instructions main exp
         msg_mainexp
@@ -294,18 +314,23 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
     % cfg_game.i_current = i_current;
     n_stim = cfg_game.randorder_idxs(i_current);
     
+    if iswarmup
+        
+        % i_current = 1;
+        data_passation.i_current = i_current;
+        data_passation.n_stim(i_current) = n_stim;
+        data_passation.expvar(i_current) = expvar;
+    end
+        
     % Pre-stores information of the current trial
     if ~iswarmup
         clock_now = clock;
         data_passation.i_current = i_current;
         data_passation.n_stim(i_current) = n_stim;
         data_passation.expvar(i_current) = expvar;
-        data_passation.N_signal(i_current) = ListStim(n_stim).N_signal;
+        data_passation.n_signal(i_current) = ListStim(n_stim).n_signal;
         data_passation.date(i_current,:) = clock_now;
     end
-    
-    % Create signal
-    istarget = (ListStim(n_stim).N_signal)==2;
     
     if bDebug == 1
         disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
@@ -318,13 +343,8 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
         fprintf('\nDependent variable: expvar = %.4f%s \n',expvar,expvar_description);
     end
     
-    str_inout = [];
-    str_inout.expvar = expvar;
-    str_inout.istarget = istarget;
-    str_inout.filename = ListStim(i_current).name;
-    
     str_stim = [];
-    str2eval = sprintf('str_stim=%s_user(str_inout,cfg_game,data_passation);',cfg_game.experiment);
+    str2eval = sprintf('str_stim=%s_user(cfg_game,data_passation);',cfg_game.experiment);
     eval(str2eval);
     stim_normal = str_stim.tuser;
     
@@ -396,10 +416,11 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
             end
         case 4 % play pure tone
             str_stim = [];
-            cfg_tmp = cfg_game;
-            str_inout.istarget = 0;
-            str_inout.expvar = expvar;
-            exp2eval = sprintf('str_stim =  %s_user(str_inout,cfg_tmp,data_passation);',experiment);
+            data_passation_tmp = data_passation;
+            idx = find(cfg_game.n_response_correct_target == 1); % looks for all '1's
+            data_passation_tmp.n_stim(i_current) = idx(round( (length(idx)-1)*random('unif',0,1) )+1); % picks up one randomly
+                        
+            exp2eval = sprintf('str_stim =  %s_user(cfg_game,data_passation_tmp);',experiment);
             eval(exp2eval);
             stim_normal = str_stim.stim_tone_alone;
             
@@ -411,10 +432,11 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
 
         case 5 % play modulated tone
             str_stim = [];
-            cfg_tmp = cfg_game;
-            str_inout.istarget = 1;
-            str_inout.expvar = expvar;
-            exp2eval = sprintf('str_stim =  %s_user(str_inout,cfg_tmp,data_passation);',experiment);
+            data_passation_tmp = data_passation;
+            idx = find(cfg_game.n_response_correct_target == 2); % looks for all '2's
+            data_passation_tmp.n_stim(i_current) = idx(round( (length(idx)-1)*random('unif',0,1) )+1); % picks up one randomly
+            % data_passation_tmp.expvar = expvar;
+            exp2eval = sprintf('str_stim =  %s_user(cfg_game,data_passation_tmp);',experiment);
             eval(exp2eval);
             stim_normal = str_stim.stim_tone_alone;
             
@@ -442,19 +464,21 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
             stepsize   = str_inout.stepsize;
             isbreak    = str_inout.isbreak;
             
+            data_passation_init.data_training = data_passation;
+            data_passation = data_passation_init; % 'empty' data_passation to start the main experiment
             %%%% TODO %%%%
             % display instructions main exp
 
         case {1,2} % responded 1 or 2
-            iscorrect = (response == ListStim(n_stim).N_signal);
+            % iscorrect = (response == cfg_game.ListStim(n_stim).n_signal);
+            iscorrect = (response == cfg_game.n_response_correct_target(n_stim));
+            
             % save trial data
             if ~iswarmup
-                ListStim(n_stim).n_response = response; 
+                % ListStim(n_stim).n_response = response; 
                 data_passation.n_response(i_current) = response;
-                
-                ListStim(n_stim).response = cfg_game.response_names{ListStim(n_stim).n_response};
-                
-                ListStim(n_stim).is_correct = iscorrect; 
+                % ListStim(n_stim).response = cfg_game.response_names{ListStim(n_stim).n_response};
+                % ListStim(n_stim).is_correct = iscorrect; 
                 data_passation.is_correct(i_current) = iscorrect;
             end
             if iswarmup || bDebug
@@ -465,9 +489,17 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
                     case 0
                         txt_extra = 'You were wrong';
                 end
-                  
+                
+                resp_num = cfg_game.n_response_correct_target(n_stim);
+                if isfield(cfg_game,'response_names')
+                    resp_name = cfg_game.response_names{cfg_game.n_response_correct_target(n_stim)};
+                else
+                    error('Continue validating here...')
+                    resp_name = num2str(cfg_game.n_response_correct_target(n_stim));
+                end
                 % feedback
-                fprintf(['\n %s => Correct answer was : ' num2str(ListStim(n_stim).N_signal) ' ( ' cfg_game.response_names{ListStim(n_stim).N_signal} ' )\n\n   Press any key to continue.\n'],txt_extra);
+                fprintf('\n %s => Correct answer was : %.1f (%s)\n\n Press any key to continue.\n',txt_extra,resp_num,resp_name);
+                  % ListStim(n_stim).n_signal ,cfg_game.response_names{ListStim(n_stim).n_signal}
                 pause;
             end
             
