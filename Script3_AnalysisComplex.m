@@ -240,6 +240,7 @@ if do_behaviour
     save(f2store,'m_windowed','PC_targetpresent','PC_targetabsent','bias_windowed','trialnum','N_m','m_edge', 'H', 'M', 'CR', 'FA')
 end
 
+bSave = 0;
 % -------------------------------------------------------------------------
 % --- Analyse noise in bands
 if do_analyse_noise
@@ -253,7 +254,8 @@ if do_analyse_noise
     
     cfg = []; % structure to store parameters
     %%% Plot options:
-    CIlim = [0.25 97.5];
+    CI_lo =  2.5; % 'confidence intervals' lower limit
+    CI_up = 97.5; % 'confidence intervals' upper limit
     %%% Experiment depentendent parameters:
     lvl = 65;
     SNR = -10;
@@ -336,79 +338,113 @@ if do_analyse_noise
 
     tE=(1:size(CI,2))/(cfg.fs/cfg.save_undersmpl);
 
-    CIrand_ci = [prctile(CIrand,CIlim(2),3); prctile(CIrand,CIlim(1),3)];
-    CI1rand_ci = [prctile(CI1rand,CIlim(2),3); prctile(CI1rand,CIlim(1),3)];
-    CI2rand_ci = [prctile(CI2rand,CIlim(2),3); prctile(CI2rand,CIlim(1),3)];
+    dim = 3;
+    CIrand_ci  = [prctile(CIrand ,CI_up,dim); prctile(CIrand ,CI_lo,dim)];
+    CI1rand_ci = [prctile(CI1rand,CI_up,dim); prctile(CI1rand,CI_lo,dim)];
+    CI2rand_ci = [prctile(CI2rand,CI_up,dim); prctile(CI2rand,CI_lo,dim)];
 
-    save([dir_out 'CIt.mat'],'CI','CI1','CI2','CIrand_ci','CI1rand_ci','CI2rand_ci','tE','ideal_template')
+    if bSave
+        save([dir_out 'CIt.mat'],'CI','CI1','CI2','CIrand_ci','CI1rand_ci','CI2rand_ci','tE','ideal_template')
+    end
 
-    %% plot temporal revcorr
-
+    %%% Preparing further plots
+    Nchannels2plot      = 1:Nchannel;
+    
+    %%% Plot temporal revcorr
+    % 1. General kernel:
+    %    I do not understand the scaling by 'rms(ans(CI))', probably is for 
+    %    visual purposes only:
+    ideal_templ2plot = rms(abs(CI(:)))*ideal_template'/max(max(ideal_template)); 
+    
     figure('Name', 'General kernel'); hold on
-    plot_channels(tE, rms(abs(CI(:)))*ideal_template'/max(max(ideal_template)),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')))%, @plot, 1, size(undersmplE,1))
-    plot_channels(tE, zeros(size(CI')), 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k-')));
-    plot_channels(tE, CI', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b-')))%, @plot, 1, size(undersmplE,1))
+    plot_channels(tE, ideal_templ2plot, Nchannels2plot, @(x,y)(plot(x,y,'r-')))
+    plot_channels(tE, zeros(size(CI')), Nchannels2plot, @(x,y)(plot(x,y,'k-')));
+    plot_channels(tE, CI'             , Nchannels2plot, @(x,y)(plot(x,y,'b-'))); 
+    
     if ~isempty(CIrand) 
-        plot_channels(tE, prctile(CIrand,CIlim(2),3)',1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')))%, @plot, 1, size(undersmplE,1))
-        plot_channels(tE, prctile(CIrand,CIlim(1),3)',1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')))%, @plot, 1, size(undersmplE,1))
+        plot_channels(tE, prctile(CIrand,CI_lo,dim)',Nchannels2plot, @(x,y)(plot(x,y,'k:')))%, @plot, 1, size(undersmplE,1))
+        plot_channels(tE, prctile(CIrand,CI_up,dim)',Nchannels2plot, @(x,y)(plot(x,y,'k:')))%, @plot, 1, size(undersmplE,1))
     end
     if ~isempty(CIboot) 
-        plot_channels(tE, prctile(CIboot,CIlim(1),3)',1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')))%, @plot, 1, size(undersmplE,1))
-        plot_channels(tE, prctile(CIboot,CIlim(2),3)',1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')))%, @plot, 1, size(undersmplE,1))
+        plot_channels(tE, prctile(CIboot,CI_lo,dim)',Nchannels2plot, @(x,y)(plot(x,y,'b:')))%, @plot, 1, size(undersmplE,1))
+        plot_channels(tE, prctile(CIboot,CI_up,dim)',Nchannels2plot, @(x,y)(plot(x,y,'b:')))%, @plot, 1, size(undersmplE,1))
     end
     set(findobj(gcf,'type','axes'),'YLim',[-1 1]*1.1*max(abs([CI(:); CI1(:); CI2(:)])));
 
-    saveas(gcf,[dir_out 'CIt_all.png']);
+    if bSave
+        saveas(gcf,[dir_out 'CIt_all.png']);
+    end
 
+    % 2. Target-absent kernel
+    ideal_templ2plot = rms(abs(CI1(:)))*ideal_template'/max(max(ideal_template));
     figure('Name', 'Target-absent kernel');
-    plot_channels(tE, rms(abs(CI1(:)))*ideal_template'/max(max(ideal_template)),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')))%, @plot, 1, size(undersmplE,1))
-    plot_channels(tE, CI1', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b-')))%, @plot, 1, size(undersmplE,1))
-    plot_channels(tE, zeros(size(CI1')), 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k-')));
+    plot_channels(tE, ideal_templ2plot , Nchannels2plot, @(x,y)(plot(x,y,'r-')))%, @plot, 1, size(undersmplE,1))
+    plot_channels(tE, CI1'             , Nchannels2plot, @(x,y)(plot(x,y,'b-')))%, @plot, 1, size(undersmplE,1))
+    plot_channels(tE, zeros(size(CI1')), Nchannels2plot, @(x,y)(plot(x,y,'k-')));
+    
     if ~isempty(CIrand) 
-        plot_channels(tE, prctile(CI1rand,CIlim(2),3)',1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')))%, @plot, 1, size(undersmplE,1))
-        plot_channels(tE, prctile(CI1rand,CIlim(1),3)',1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')))%, @plot, 1, size(undersmplE,1))
+        plot_channels(tE, prctile(CI1rand,CI_up,dim)', Nchannels2plot, @(x,y)(plot(x,y,'k:')))%, @plot, 1, size(undersmplE,1))
+        plot_channels(tE, prctile(CI1rand,CI_lo,dim)', Nchannels2plot, @(x,y)(plot(x,y,'k:')))%, @plot, 1, size(undersmplE,1))
     end
     if ~isempty(CIboot) 
-        plot_channels(tE, prctile(CI1boot,CIlim(1),3)',1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')))%, @plot, 1, size(undersmplE,1))
-        plot_channels(tE, prctile(CI1boot,CIlim(2),3)',1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')))%, @plot, 1, size(undersmplE,1))
+        plot_channels(tE, prctile(CI1boot,CI_lo,dim)', Nchannels2plot, @(x,y)(plot(x,y,'b:')))%, @plot, 1, size(undersmplE,1))
+        plot_channels(tE, prctile(CI1boot,CI_up,dim)', Nchannels2plot, @(x,y)(plot(x,y,'b:')))%, @plot, 1, size(undersmplE,1))
     end
     set(findobj(gcf,'type','axes'),'YLim',[-1 1]*1.1*max(abs([CI(:); CI1(:); CI2(:)])));
-    saveas(gcf,[dir_out 'CIt_ta.png'])
+    
+    if bSave
+        saveas(gcf,[dir_out 'CIt_ta.png'])
+    end
 
+    ideal_templ2plot = rms(abs(CI2(:)))*ideal_template'/max(max(ideal_template)); 
     figure('Name', 'Target-present kernel');
-    plot_channels(tE, rms(abs(CI2(:)))*ideal_template'/max(max(ideal_template)),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')))%, @plot, 1, size(undersmplE,1))
-    plot_channels(tE, zeros(size(CI2')), 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k-')));
-    plot_channels(tE, CI2', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b-')))%, @plot, 1, size(undersmplE,1))
+    plot_channels(tE, ideal_templ2plot , Nchannels2plot, @(x,y)(plot(x,y,'r-')))%, @plot, 1, size(undersmplE,1))
+    plot_channels(tE, zeros(size(CI2')), Nchannels2plot, @(x,y)(plot(x,y,'k-')));
+    plot_channels(tE, CI2'             , Nchannels2plot, @(x,y)(plot(x,y,'b-')))%, @plot, 1, size(undersmplE,1))
     if ~isempty(CIrand)
-        plot_channels(tE, prctile(CI2rand,CIlim(2),3)',1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')))%, @plot, 1, size(undersmplE,1))
-        plot_channels(tE, prctile(CI2rand,CIlim(1),3)',1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')))%, @plot, 1, size(undersmplE,1))
+        plot_channels(tE, prctile(CI2rand,CI_up,dim)',Nchannels2plot, @(x,y)(plot(x,y,'k:')))%, @plot, 1, size(undersmplE,1))
+        plot_channels(tE, prctile(CI2rand,CI_lo,dim)',Nchannels2plot, @(x,y)(plot(x,y,'k:')))%, @plot, 1, size(undersmplE,1))
     end
     if ~isempty(CIboot)
-        plot_channels(tE, prctile(CI2boot,CIlim(1),3)',1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')))%, @plot, 1, size(undersmplE,1))
-        plot_channels(tE, prctile(CI2boot,CIlim(2),3)',1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')))%, @plot, 1, size(undersmplE,1))
+        plot_channels(tE, prctile(CI2boot,CI_lo,dim)',Nchannels2plot, @(x,y)(plot(x,y,'b:')))%, @plot, 1, size(undersmplE,1))
+        plot_channels(tE, prctile(CI2boot,CI_up,dim)',Nchannels2plot, @(x,y)(plot(x,y,'b:')))%, @plot, 1, size(undersmplE,1))
     end
     set(findobj(gcf,'type','axes'),'YLim',[-1 1]*1.1*max(abs([CI(:); CI1(:); CI2(:)])));
-    saveas(gcf,[dir_out 'CIt_tp.png'])
+    
+    if bSave
+        saveas(gcf,[dir_out 'CIt_tp.png'])
+    end
 
     fE=sqrt(fcut(1:end-1).*fcut(2:end));
 
     figure('Name', 'General kernel');
-    h=pcolor(tE,fcut,[CI; 1e-5*ones(1,360)]); set(h, 'edgecolor','none'); colorbar; C_axis = caxis; caxis([-1 1]*max(abs(C_axis)))
-    hold on
+    h=pcolor(tE,fcut,[CI; 1e-5*ones(1,360)]); set(h, 'edgecolor','none'); 
+    colorbar; 
+    C_axis = caxis; 
+    caxis([-1 1]*max(abs(C_axis))); hold on
     plot(tE,50*ideal_template+fE','r'); 
-    saveas(gcf,[dir_out 'CItf_all.png'])
+    
+    if bSave
+        saveas(gcf,[dir_out 'CItf_all.png'])
+    end
 
     figure('Name', 'Target-absent kernel');
     h=pcolor(tE,fcut,[CI1; 1e-5*ones(1,360)]); set(h, 'edgecolor','none'); colorbar; caxis([-1 1]*max(abs(C_axis)))
     hold on
     plot(tE,50*ideal_template+fE','r');
-    saveas(gcf,[dir_out 'CItf_ta.png'])
+    
+    if bSave
+        saveas(gcf,[dir_out 'CItf_ta.png'])
+    end
 
     figure('Name', 'Target-present kernel');
     h=pcolor(tE,fcut,[CI2; 1e-5*ones(1,360)]); set(h, 'edgecolor','none'); colorbar; caxis([-1 1]*max(abs(C_axis)))
     hold on
     plot(tE,50*ideal_template+fE','r');
-    saveas(gcf,[dir_out 'CItf_tp.png'])
+    
+    if bSave
+        saveas(gcf,[dir_out 'CItf_tp.png'])
+    end
 
     % ---------------------------------------------------------------------
     %% complex fft of revcorr
@@ -459,11 +495,13 @@ if do_analyse_noise
         CI2fftrand = CI2fftrand(:,fidx2plot,:);
         fE = fE(fidx2plot);
 
-        CIfftrand_ci = [prctile(CIfftrand,CIlim(2),3); prctile(CIfftrand,CIlim(1),3)];
-        CI1fftrand_ci = [prctile(CI1fftrand,CIlim(2),3); prctile(CI1fftrand,CIlim(1),3)];
-        CI2fftrand_ci = [prctile(CI2fftrand,CIlim(2),3); prctile(CI2fftrand,CIlim(1),3)];
+        CIfftrand_ci  = [prctile(CIfftrand ,CI_up,dim); prctile(CIfftrand ,CI_lo,dim)];
+        CI1fftrand_ci = [prctile(CI1fftrand,CI_up,dim); prctile(CI1fftrand,CI_lo,dim)];
+        CI2fftrand_ci = [prctile(CI2fftrand,CI_up,dim); prctile(CI2fftrand,CI_lo,dim)];
 
-        save([dir_out 'CIf.mat'],'CIfft','CI1fft','CI2fft','CIfftrand_ci','CI1fftrand_ci','CI2fftrand_ci','fE','ideal_templatecfft')
+        if bSave
+            save([dir_out 'CIf.mat'],'CIfft','CI1fft','CI2fft','CIfftrand_ci','CI1fftrand_ci','CI2fftrand_ci','fE','ideal_templatecfft')
+        end
     end
         if bComplex_FFT_plot
         error('Not validated yet...')
@@ -471,57 +509,57 @@ if do_analyse_noise
         figure('Name', 'General kernel, Fourier amplitude domain'); hold on
         plot_channels(fE, abs(CIfft)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b-')));%, @plot, 1, size(undersmplE,1)
         plot_channels(fE, max(abs(CIfft(:)))*abs(ideal_templatecfft)'/max(max(abs(ideal_templatecfft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CIfftrand),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CIfftboot),CIlim(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CIfftboot),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CIfftrand),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CIfftboot),CI_lo(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CIfftboot),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
         set(findobj(gcf,'type','axes'),'YLim',[-0.1 1]*1.5*max(abs([CIfft(:); CI1fft(:); CI2fft(:)])));
         saveas(gcf,[dir_out 'CI_afft_all.png'])
 
         figure('Name', 'Target-absent kernel, Fourier amplitude domain'); hold on
         plot_channels(fE, abs(CI1fft)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b-')));%, @plot, 1, size(undersmplE,1)
         plot_channels(fE, max(abs(CI1fft(:)))*abs(ideal_templatecfft)'/max(max(abs(ideal_templatecfft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CI1fftrand),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CI1fftboot),CIlim(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CI1fftboot),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CI1fftrand),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CI1fftboot),CI_lo(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CI1fftboot),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
         set(findobj(gcf,'type','axes'),'YLim',[-0.1 1]*1.5*max(abs([CIfft(:); CI1fft(:); CI2fft(:)])));
         saveas(gcf,[dir_out 'CI_afft_ta.png'])
 
         figure('Name', 'Target-present kernel, Fourier amplitude domain'); hold on
         plot_channels(fE, abs(CI2fft)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b-')));%, @plot, 1, size(undersmplE,1)
         plot_channels(fE, max(abs(CI2fft(:)))*abs(ideal_templatecfft)'/max(max(abs(ideal_templatecfft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CI2fftrand),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CI2fftboot),CIlim(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CI2fftboot),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CI2fftrand),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CI2fftboot),CI_lo(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CI2fftboot),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
         set(findobj(gcf,'type','axes'),'YLim',[-0.1 1]*1.5*max(abs([CIfft(:); CI1fft(:); CI2fft(:)])));
         saveas(gcf,[dir_out 'CI_afft_tp.png'])
 
         figure('Name', 'General kernel, Fourier phase domain'); hold on
         plot_channels(fE, angle(CIfft)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b-')));%, @plot, 1, size(undersmplE,1)
         %plot_channels(fE, max(abs(CIfft(:)))*abs(ideal_templatecfft)'/max(max(abs(ideal_templatecfft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(angle(CIfftrand),CIlim(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(angle(CIfftrand),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(angle(CIfftboot),CIlim(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(angle(CIfftboot),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(angle(CIfftrand),CI_lo(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(angle(CIfftrand),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(angle(CIfftboot),CI_lo(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(angle(CIfftboot),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
         set(findobj(gcf,'type','axes'),'YLim',[-3.5 3.5]);
         saveas(gcf,[dir_out 'CI_pfft_all.png'])
 
         figure('Name', 'Target-absent kernel, Fourier phase domain'); hold on
         plot_channels(fE, angle(CI1fft)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b-')));%, @plot, 1, size(undersmplE,1)
         %plot_channels(fE, max(abs(CIfft(:)))*abs(ideal_templatecfft)'/max(max(abs(ideal_templatecfft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(angle(CI1fftrand),CIlim(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(angle(CI1fftrand),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(angle(CI1fftboot),CIlim(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(angle(CI1fftboot),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(angle(CI1fftrand),CI_lo(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(angle(CI1fftrand),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(angle(CI1fftboot),CI_lo(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(angle(CI1fftboot),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
         set(findobj(gcf,'type','axes'),'YLim',[-3.5 3.5]);
         saveas(gcf,[dir_out 'CI1_pfft_all.png'])
 
         figure('Name', 'Target-present kernel, Fourier phase domain'); hold on
         plot_channels(fE, angle(CI2fft)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b-')));%, @plot, 1, size(undersmplE,1)
         %plot_channels(fE, max(abs(CIfft(:)))*abs(ideal_templatecfft)'/max(max(abs(ideal_templatecfft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(angle(CI2fftrand),CIlim(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(angle(CI2fftrand),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(angle(CI2fftboot),CIlim(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(angle(CI2fftboot),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(angle(CI2fftrand),CI_lo(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(angle(CI2fftrand),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(angle(CI2fftboot),CI_lo(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(angle(CI2fftboot),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
         set(findobj(gcf,'type','axes'),'YLim',[-3.5 3.5]);
         saveas(gcf,[dir_out 'CI2_pfft_all.png'])
     end
@@ -599,9 +637,9 @@ if do_analyse_noise
         phasemaxA_CI2fftrand = unwrap(phasemaxA_CI2fftrand);
 
 
-        CIfftrand_ci = [prctile(CIfftrand,CIlim(2),3); prctile(CIfftrand,CIlim(1),3)];
-        CI1fftrand_ci = [prctile(CI1fftrand,CIlim(2),3); prctile(CI1fftrand,CIlim(1),3)];
-        CI2fftrand_ci = [prctile(CI2fftrand,CIlim(2),3); prctile(CI2fftrand,CIlim(1),3)];
+        CIfftrand_ci = [prctile(CIfftrand,CI_lo(2),3); prctile(CIfftrand,CI_lo(1),3)];
+        CI1fftrand_ci = [prctile(CI1fftrand,CI_lo(2),3); prctile(CI1fftrand,CI_lo(1),3)];
+        CI2fftrand_ci = [prctile(CI2fftrand,CI_lo(2),3); prctile(CI2fftrand,CI_lo(1),3)];
 
         CIp = prctile(phaseftarget_CIfftboot(:),50);
         CI1p = prctile(phaseftarget_CI1fftboot(:),50);
@@ -615,9 +653,9 @@ if do_analyse_noise
             prctile(phaseftarget_CI1fftboot(:),50),1.1,'k*--',...
             prctile(phaseftarget_CI2fftboot(:),50),1.2,'ko',...
             [pi pi],[0 0.5],'r-',...
-            linspace(prctile(phaseftarget_CIfftboot(:),CIlim(1)),prctile(phaseftarget_CIfftboot(:),CIlim(2)),100),ones(1,100),'b-',...
-            linspace(prctile(phaseftarget_CI1fftboot(:),CIlim(1)),prctile(phaseftarget_CI1fftboot(:),CIlim(2)),100),1.1*ones(1,100),'k--',...
-            linspace(prctile(phaseftarget_CI2fftboot(:),CIlim(1)),prctile(phaseftarget_CI2fftboot(:),CIlim(2)),100),1.2*ones(1,100),'k-')
+            linspace(prctile(phaseftarget_CIfftboot(:),CI_lo(1)),prctile(phaseftarget_CIfftboot(:),CI_lo(2)),100),ones(1,100),'b-',...
+            linspace(prctile(phaseftarget_CI1fftboot(:),CI_lo(1)),prctile(phaseftarget_CI1fftboot(:),CI_lo(2)),100),1.1*ones(1,100),'k--',...
+            linspace(prctile(phaseftarget_CI2fftboot(:),CI_lo(1)),prctile(phaseftarget_CI2fftboot(:),CI_lo(2)),100),1.2*ones(1,100),'k-')
         legend({'general','target-absent','target-present'},'Location','northeast')
         set(gca, 'ThetaAxisUnits', 'radians');rticks([]);rlim([0 1.5])
         saveas(gcf,'CIphase4Hz.png')
@@ -627,23 +665,23 @@ if do_analyse_noise
             prctile(phasemaxA_CI1fftboot(:),50),1.1,'k*--',...
             prctile(phasemaxA_CI2fftboot(:),50),1.2,'ko',...
             [pi pi],[0 0.5],'r-',...
-            linspace(prctile(phasemaxA_CIfftboot(:),CIlim(1)),prctile(phasemaxA_CIfftboot(:),CIlim(2)),100),ones(1,100),'b-',...
-            linspace(prctile(phasemaxA_CI1fftboot(:),CIlim(1)),prctile(phasemaxA_CI1fftboot(:),CIlim(2)),100),1.1*ones(1,100),'k--',...
-            linspace(prctile(phasemaxA_CI2fftboot(:),CIlim(1)),prctile(phasemaxA_CI2fftboot(:),CIlim(2)),100),1.2*ones(1,100),'k-')
+            linspace(prctile(phasemaxA_CIfftboot(:),CI_lo(1)),prctile(phasemaxA_CIfftboot(:),CI_lo(2)),100),ones(1,100),'b-',...
+            linspace(prctile(phasemaxA_CI1fftboot(:),CI_lo(1)),prctile(phasemaxA_CI1fftboot(:),CI_lo(2)),100),1.1*ones(1,100),'k--',...
+            linspace(prctile(phasemaxA_CI2fftboot(:),CI_lo(1)),prctile(phasemaxA_CI2fftboot(:),CI_lo(2)),100),1.2*ones(1,100),'k-')
         legend({'general','target-absent','target-present'},'Location','northeast')
         set(gca, 'ThetaAxisUnits', 'radians');rticks([]);rlim([0 1.5])
         saveas(gcf,'CIphasemaxA.png')
 
         figure('Name', 'Amplitude at target frequency'); hold on
         plot(1,prctile(Aftarget_CIfftboot(:),50),'bs');
-        plot([1,1],[prctile(Aftarget_CIfftboot(:),CIlim(1)),prctile(Aftarget_CIfftboot(:),CIlim(2))],'b');
-        plot([1.1,1.1],[prctile(Aftarget_CIfftrand(:),CIlim(1)),prctile(Aftarget_CIfftrand(:),CIlim(2))],'b:');
+        plot([1,1],[prctile(Aftarget_CIfftboot(:),CI_lo(1)),prctile(Aftarget_CIfftboot(:),CI_lo(2))],'b');
+        plot([1.1,1.1],[prctile(Aftarget_CIfftrand(:),CI_lo(1)),prctile(Aftarget_CIfftrand(:),CI_lo(2))],'b:');
         plot(2,prctile(Aftarget_CI1fftboot(:),50),'k*');
-        plot([2,2],[prctile(Aftarget_CI1fftboot(:),CIlim(1)),prctile(Aftarget_CI1fftboot(:),CIlim(2))],'k');
-        plot([2.1,2.1],[prctile(Aftarget_CI1fftrand(:),CIlim(1)),prctile(Aftarget_CI1fftrand(:),CIlim(2))],'k:');
+        plot([2,2],[prctile(Aftarget_CI1fftboot(:),CI_lo(1)),prctile(Aftarget_CI1fftboot(:),CI_lo(2))],'k');
+        plot([2.1,2.1],[prctile(Aftarget_CI1fftrand(:),CI_lo(1)),prctile(Aftarget_CI1fftrand(:),CI_lo(2))],'k:');
         plot(3,prctile(Aftarget_CI2fftboot(:),50),'ko');
-        plot([3,3],[prctile(Aftarget_CI2fftboot(:),CIlim(1)),prctile(Aftarget_CI2fftboot(:),CIlim(2))],'k');
-        plot([3.1,3.1],[prctile(Aftarget_CI2fftrand(:),CIlim(1)),prctile(Aftarget_CI2fftrand(:),CIlim(2))],'k:');
+        plot([3,3],[prctile(Aftarget_CI2fftboot(:),CI_lo(1)),prctile(Aftarget_CI2fftboot(:),CI_lo(2))],'k');
+        plot([3.1,3.1],[prctile(Aftarget_CI2fftrand(:),CI_lo(1)),prctile(Aftarget_CI2fftrand(:),CI_lo(2))],'k:');
         title('Amplitude at target frequency'); xlim([0.5 3.5])
         set(gca, 'XTick', [1,2,3], 'XTickLabels', {'all', 'target-absent', 'target-present'})
         ylabel('Amplitude at target frequency')
@@ -651,14 +689,14 @@ if do_analyse_noise
 
         figure('Name', 'peak frequency'); hold on
         plot(1,prctile(freqmaxA_CIfftboot(:),50),'bs');
-        plot([1,1],[prctile(freqmaxA_CIfftboot(:),CIlim(1)),prctile(freqmaxA_CIfftboot(:),CIlim(2))],'b');
-        plot([1.1,1.1],[prctile(freqmaxA_CIfftrand(:),CIlim(1)),prctile(freqmaxA_CIfftrand(:),CIlim(2))],'b:');
+        plot([1,1],[prctile(freqmaxA_CIfftboot(:),CI_lo(1)),prctile(freqmaxA_CIfftboot(:),CI_lo(2))],'b');
+        plot([1.1,1.1],[prctile(freqmaxA_CIfftrand(:),CI_lo(1)),prctile(freqmaxA_CIfftrand(:),CI_lo(2))],'b:');
         plot(2,prctile(freqmaxA_CI1fftboot(:),50),'k*');
-        plot([2,2],[prctile(freqmaxA_CI1fftboot(:),CIlim(1)),prctile(freqmaxA_CI1fftboot(:),CIlim(2))],'k');
-        plot([2.1,2.1],[prctile(freqmaxA_CI1fftrand(:),CIlim(1)),prctile(freqmaxA_CI1fftrand(:),CIlim(2))],'k:');
+        plot([2,2],[prctile(freqmaxA_CI1fftboot(:),CI_lo(1)),prctile(freqmaxA_CI1fftboot(:),CI_lo(2))],'k');
+        plot([2.1,2.1],[prctile(freqmaxA_CI1fftrand(:),CI_lo(1)),prctile(freqmaxA_CI1fftrand(:),CI_lo(2))],'k:');
         plot(3,prctile(freqmaxA_CI2fftboot(:),50),'ko');
-        plot([3,3],[prctile(freqmaxA_CI2fftboot(:),CIlim(1)),prctile(freqmaxA_CI2fftboot(:),CIlim(2))],'k');
-        plot([3.1,3.1],[prctile(freqmaxA_CI2fftrand(:),CIlim(1)),prctile(freqmaxA_CI2fftrand(:),CIlim(2))],'k:');
+        plot([3,3],[prctile(freqmaxA_CI2fftboot(:),CI_lo(1)),prctile(freqmaxA_CI2fftboot(:),CI_lo(2))],'k');
+        plot([3.1,3.1],[prctile(freqmaxA_CI2fftrand(:),CI_lo(1)),prctile(freqmaxA_CI2fftrand(:),CI_lo(2))],'k:');
         plot([0 4],[4 4],'r--')
         title('peak frequency'); xlim([0.5 3.5])
         set(gca, 'XTick', [1,2,3], 'XTickLabels', {'all', 'target-absent', 'target-present'})
@@ -695,18 +733,18 @@ if do_analyse_noise
         end
 
         figure; hold on
-        plot(1,corrCI,'bo');plot([1,1],[prctile(corrCIboot(:),CIlim(1)),prctile(corrCIboot(:),CIlim(2))],'b');plot([1.1,1.1],[prctile(corrCIrand(:),CIlim(1)),prctile(corrCIrand(:),CIlim(2))],'k')
-        plot(2,corrCI1,'bo');plot([2,2],[prctile(corrCI1boot(:),CIlim(1)),prctile(corrCI1boot(:),CIlim(2))],'b');plot([2.1,2.1],[prctile(corrCI1rand(:),CIlim(1)),prctile(corrCI1rand(:),CIlim(2))],'k')
-        plot(3,corrCI2,'bo');plot([3,3],[prctile(corrCI2boot(:),CIlim(1)),prctile(corrCI2boot(:),CIlim(2))],'b');plot([3.1,3.1],[prctile(corrCI2rand(:),CIlim(1)),prctile(corrCI2rand(:),CIlim(2))],'k')
+        plot(1,corrCI,'bo');plot([1,1],[prctile(corrCIboot(:),CI_lo(1)),prctile(corrCIboot(:),CI_lo(2))],'b');plot([1.1,1.1],[prctile(corrCIrand(:),CI_lo(1)),prctile(corrCIrand(:),CI_lo(2))],'k')
+        plot(2,corrCI1,'bo');plot([2,2],[prctile(corrCI1boot(:),CI_lo(1)),prctile(corrCI1boot(:),CI_lo(2))],'b');plot([2.1,2.1],[prctile(corrCI1rand(:),CI_lo(1)),prctile(corrCI1rand(:),CI_lo(2))],'k')
+        plot(3,corrCI2,'bo');plot([3,3],[prctile(corrCI2boot(:),CI_lo(1)),prctile(corrCI2boot(:),CI_lo(2))],'b');plot([3.1,3.1],[prctile(corrCI2rand(:),CI_lo(1)),prctile(corrCI2rand(:),CI_lo(2))],'k')
         title('correlation with ideal template'); ylim([0 1]);xlim([0.5 3.5])
         set(gca, 'XTick', [1,2,3], 'XTickLabels', {'all', 'target-absent', 'target-present'})
         ylabel('correlation coefficient (r)')
         saveas(gcf,'CIcorr.png')
 
         figure; hold on
-        plot(1,phaseCI,'bo');plot([1,1],[prctile(phaseCIboot(:),CIlim(1)),prctile(phaseCIboot(:),CIlim(2))],'b');plot([1.1,1.1],[prctile(phaseCIrand(:),CIlim(1)),prctile(phaseCIrand(:),CIlim(2))],'k')
-        plot(2,phaseCI1,'bo');plot([2,2],[prctile(phaseCI1boot(:),CIlim(1)),prctile(phaseCI1boot(:),CIlim(2))],'b');plot([2.1,2.1],[prctile(phaseCI1rand(:),CIlim(1)),prctile(phaseCI1rand(:),CIlim(2))],'k')
-        plot(3,phaseCI2,'bo');plot([3,3],[prctile(phaseCI2boot(:),CIlim(1)),prctile(phaseCI2boot(:),CIlim(2))],'b');plot([3.1,3.1],[prctile(phaseCI2rand(:),CIlim(1)),prctile(phaseCI2rand(:),CIlim(2))],'k')
+        plot(1,phaseCI,'bo');plot([1,1],[prctile(phaseCIboot(:),CI_lo(1)),prctile(phaseCIboot(:),CI_lo(2))],'b');plot([1.1,1.1],[prctile(phaseCIrand(:),CI_lo(1)),prctile(phaseCIrand(:),CI_lo(2))],'k')
+        plot(2,phaseCI1,'bo');plot([2,2],[prctile(phaseCI1boot(:),CI_lo(1)),prctile(phaseCI1boot(:),CI_lo(2))],'b');plot([2.1,2.1],[prctile(phaseCI1rand(:),CI_lo(1)),prctile(phaseCI1rand(:),CI_lo(2))],'k')
+        plot(3,phaseCI2,'bo');plot([3,3],[prctile(phaseCI2boot(:),CI_lo(1)),prctile(phaseCI2boot(:),CI_lo(2))],'b');plot([3.1,3.1],[prctile(phaseCI2rand(:),CI_lo(1)),prctile(phaseCI2rand(:),CI_lo(2))],'k')
         title('phase shift with ideal template'); ylim([-1/cfg_game.fm/2-0.01 1/cfg_game.fm/2+0.01]);xlim([0.5 3.5])
         set(gca, 'XTick', [1,2,3], 'XTickLabels', {'all', 'target-absent', 'target-present'})
         ylabel('phase shift (s)')
@@ -809,9 +847,9 @@ if do_analyse_noise
         plot_channels(fE, max(abs(CI_F(:)))*abs(ideal_templatefft')/max(max(abs(ideal_templatefft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')));%, @plot, 1, size(undersmplE,1)
         %plot_channels(fE, 0.3*abs(ideal_noisytemplatefft')/max(max(abs(ideal_noisytemplatefft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'g-')));%, @plot, 1, size(undersmplE,1)
         plot_channels(fE, abs(CI_F)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b-')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CIrand_F),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CIboot_F),CIlim(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CIboot_F),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CIrand_F),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CIboot_F),CI_lo(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CIboot_F),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
         set(findobj(gcf,'type','axes'),'YLim',[-0.1 1]*1.5*max(abs([CI_F(:); CI1_F(:); CI2_F(:)])));
         saveas(gcf,'CIF_all.png')
 
@@ -819,9 +857,9 @@ if do_analyse_noise
         plot_channels(fE, abs(CI1_F)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b-')));%, @plot, 1, size(undersmplE,1)
         plot_channels(fE, max(abs(CI1_F(:)))*abs(ideal_templatefft')/max(max(abs(ideal_templatefft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')));%, @plot, 1, size(undersmplE,1)
         %plot_channels(fE, 0.3*abs(ideal_noisytemplatefft')/max(max(abs(ideal_noisytemplatefft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'g-')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CI1rand_F),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CI1boot_F),CIlim(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CI1boot_F),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CI1rand_F),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CI1boot_F),CI_lo(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CI1boot_F),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
         set(findobj(gcf,'type','axes'),'YLim',[-0.1 1]*1.5*max(abs([CI_F(:); CI1_F(:); CI2_F(:)])));
         saveas(gcf,'CIF_ta.png')
 
@@ -829,9 +867,9 @@ if do_analyse_noise
         plot_channels(fE, abs(CI2_F)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b-')));%, @plot, 1, size(undersmplE,1)
         plot_channels(fE, max(abs(CI2_F(:)))*abs(ideal_templatefft')/max(max(abs(ideal_templatefft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')));%, @plot, 1, size(undersmplE,1)
         %plot_channels(fE, 0.3*abs(ideal_noisytemplatefft')/max(max(abs(ideal_noisytemplatefft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'g-')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CI2rand_F),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CI2boot_F),CIlim(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
-        plot_channels(fE, prctile(abs(CI2boot_F),CIlim(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CI2rand_F),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'k:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CI2boot_F),CI_lo(1),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
+        plot_channels(fE, prctile(abs(CI2boot_F),CI_lo(2),3)', 1:1:size(noise_E,1), @(x,y)(plot(x,y,'b:')));%, @plot, 1, size(undersmplE,1)
         set(findobj(gcf,'type','axes'),'YLim',[-0.1 1]*1.5*max(abs([CI_F(:); CI1_F(:); CI2_F(:)])));
         saveas(gcf,'CIF_tp.png')
 

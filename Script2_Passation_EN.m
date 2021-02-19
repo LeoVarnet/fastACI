@@ -27,12 +27,14 @@ if nargin < 2
     Subject_ID = input('Enter the Subject ID (e.g., ''S01''): ');
 end
 if nargin == 0
-    % experiment = 'modulationACI'; 
-    experiment = 'speechACI_varnet2015';     
+    experiments = {'modulationACI','modulationACI_seeds','speechACI_varnet2015'};
+    Show_cell(experiments);
+    bExp = input('Choose the experiment that you want to run from the list above: ');
+    
+    experiment = experiments{bExp};
 end
 
 bSimulation = 0;
-bDebug      = 1;
 
 % -------------------------------------------------------------------------
 % 1. Loading set-up: 
@@ -51,13 +53,16 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    error('%s: no cfg_crea available',upper(mfilename));
+    try
+        cfg_game = Script1_Initialisation_EN(experiment,Subject_ID);
+    catch me
+        error('%s: no cfg_crea available',upper(mfilename));
+    end
 end
 
-% TODO: integrate this into Script1
 % TODO: change N_noise and N_signal by other more relevant names...
 if ~isfield(cfg_game,'N')
-    cfg_game.N = cfg_game.N_noise*cfg_game.N_signal;
+    error('%s: please run again Script1 to make sure the field ''N'' is created...',upper(mfilename));
 end
 
 if ~isfield(cfg_game,'resume')
@@ -164,33 +169,26 @@ switch cfg_game.resume
             % cfg_game.stim_dur           = 0.75;
         end
 
-    % cfg_game.current_folder{1} = dir_main; % cd;
-    cfg_game.script_name{1} = [mfilename('fullpath') '.m'];
+        cfg_game.script_name{1} = [mfilename('fullpath') '.m'];
 
-    data_passation.resume_trial = 0;
-    data_passation.date_start{1} = Get_date_and_time_str;
+        data_passation.resume_trial = 0;
+        data_passation.date_start{1} = Get_date_and_time_str;
 
-	if cfg_game.is_simulation == 1
-        error('Not validated yet...')
-        % % display welcome message
-        % msg_welcome
-	end        
+        if cfg_game.is_simulation == 1
+            error('Not validated yet...')
+            % % display welcome message
+            % msg_welcome
+        end        
 end
 
-% TODO: change this name by dir_noise or something like that...
-dir_stim = cfg_game.dir_stim;
-% clear temp bytes ListSavegame index_savegame clock_now
- 
 %% Load stims, create templates for simulation
-
 if cfg_game.resume == 0
     if ~isfield(cfg_game,'folder_name')
         disp('    No folder_name is specified...')
         cfg_game.folder_name = '';
     end
-    ListStim = dir(strcat([dir_stim cfg_game.folder_name filesep], '*.wav'));
-    
-    ListStim = rmfield(ListStim,{'date','datenum','bytes', 'isdir'});
+    ListStim = cfg_game.ListStim; %dir(strcat([dir_stim cfg_game.folder_name filesep], '*.wav'));
+    % ListStim = rmfield(ListStim,{'date','datenum','bytes', 'isdir'});
     if cfg_game.N ~= length(ListStim)
         switch experiment
             case 'speechACI_varnet2015'
@@ -259,21 +257,18 @@ if cfg_game.is_simulation == 1
 end
  
 %cfg_game.N = length(ListStim);
-% clear liste_signaux ordre_alea i j IRind1 IRind2
  
 %% Experiment
 if cfg_game.resume == 0
     if cfg_game.randorder == 1
-        cfg_game.randorder_idxs = randperm(cfg_game.N); 
+        cfg_game.stim_order = randperm(cfg_game.N); 
     else
-        cfg_game.randorder_idxs = 1:cfg_game.N; 
+        cfg_game.stim_order = 1:cfg_game.N; 
     end
     debut_i=1;
 else
     debut_i=i_savegame;
 end
-
-cfg_game.bDebug = bDebug;
 
 %%% Initialises the staircase
 str_inout = [];
@@ -311,12 +306,9 @@ end
 
 while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_game.sessionsN) && isbreak == 0
     
-    % cfg_game.i_current = i_current;
-    n_stim = cfg_game.randorder_idxs(i_current);
+    n_stim = cfg_game.stim_order(i_current);
     
     if iswarmup
-        
-        % i_current = 1;
         data_passation.i_current = i_current;
         data_passation.n_stim(i_current) = n_stim;
         data_passation.expvar(i_current) = expvar;
@@ -332,7 +324,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
         data_passation.date(i_current,:) = clock_now;
     end
     
-    if bDebug == 1
+    if cfg_game.displayN == 1
         disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
         if isfield(cfg_game,'expvar_description')
             expvar_description = [', ' cfg_game.expvar_description];
@@ -363,7 +355,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
     tic
      
     if cfg_game.is_experiment
-        % display
+        
         if iswarmup
             fprintf('\n    * WARM-UP PHASE *\n\n');
         else
@@ -374,7 +366,6 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
                 fprintf('    Playing stimulus\n');
             end
         end
-        % response = Reponse_clavier([cfg_game.response_names {'r\351ecouter le stim'}], 3.14);
         play(player)
         if iswarmup
             response = Reponse_clavier([cfg_game.response_names {'to play the stim again' ['to play a ' cfg_game.response_names{1}] ['to play a ' cfg_game.response_names{2}] 'to leave the warm-up phase'}]);
@@ -397,9 +388,6 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
         % % [ response ] = auditorymodel_PEMO( Stim_IR, cfg_game.IR{2}, cfg_game.model );
         % [ response ] = auditorymodel_TMdetect( Stim_IR, cfg_game.IR{2}, cfg_game.model );
     end
-     
-    % responsetime = toc;
-    % ListStim(n_stim).responsetime  = responsetime; 
     data_passation.responsetime(i_current) = toc;
      
     switch response
@@ -435,7 +423,6 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
             data_passation_tmp = data_passation;
             idx = find(cfg_game.n_response_correct_target == 2); % looks for all '2's
             data_passation_tmp.n_stim(i_current) = idx(round( (length(idx)-1)*random('unif',0,1) )+1); % picks up one randomly
-            % data_passation_tmp.expvar = expvar;
             exp2eval = sprintf('str_stim =  %s_user(cfg_game,data_passation_tmp);',experiment);
             eval(exp2eval);
             stim_normal = str_stim.stim_tone_alone;
@@ -470,18 +457,14 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
             % display instructions main exp
 
         case {1,2} % responded 1 or 2
-            % iscorrect = (response == cfg_game.ListStim(n_stim).n_signal);
             iscorrect = (response == cfg_game.n_response_correct_target(n_stim));
             
             % save trial data
             if ~iswarmup
-                % ListStim(n_stim).n_response = response; 
                 data_passation.n_response(i_current) = response;
-                % ListStim(n_stim).response = cfg_game.response_names{ListStim(n_stim).n_response};
-                % ListStim(n_stim).is_correct = iscorrect; 
                 data_passation.is_correct(i_current) = iscorrect;
             end
-            if iswarmup || bDebug
+            if iswarmup || cfg_game.displayN
                 % ListStim(n_stim).response 
                 switch iscorrect
                     case 1
