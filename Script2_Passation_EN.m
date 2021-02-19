@@ -183,19 +183,9 @@ end
 
 %% Load stims, create templates for simulation
 if cfg_game.resume == 0
-    if ~isfield(cfg_game,'folder_name')
-        disp('    No folder_name is specified...')
-        cfg_game.folder_name = '';
-    end
-    ListStim = cfg_game.ListStim; %dir(strcat([dir_stim cfg_game.folder_name filesep], '*.wav'));
-    % ListStim = rmfield(ListStim,{'date','datenum','bytes', 'isdir'});
+    ListStim = cfg_game.ListStim; 
     if cfg_game.N ~= length(ListStim)
-        switch experiment
-            case 'speechACI_varnet2015'
-                disp('    No folder_name is specified... / temporal arrangement here...')
-            otherwise
-                error('Number of stimuli does not match.')
-        end
+        error('Number of stimuli does not match.')
     end
     
     if cfg_game.N_signal > 2

@@ -12,7 +12,6 @@ dir_speech = [dir_main 'speech-samples' filesep];
 dir_noise  = [dir_main 'NoiseStim_S11'  filesep];
 
 dBFS = 100;
-% lvl_target = 65;
 
 %%% Parameters to create the targets:
 cfg.fs        = 48000; % Hz, sampling frequency
@@ -20,9 +19,9 @@ cfg.fs        = 48000; % Hz, sampling frequency
 % cfg.fc        = 1000;
 % cfg.stim_dur  = 1.5;   % s,  stimulus suration (s)
 % cfg.SNR       = -10;
-
-% cfg.fadein_s  = 0.075; % CAUTION: Overwritten in the case of simulation
-% cfg.SPL       = 65;
+cfg.dur_ramp  = 75e-3; % cosine ramp
+cfg.SPL       = 65; % target level, by default level of the noise (the speech 
+                    % level is adapted)
 cfg.dBFS      = dBFS;
 
 % Change the following names:

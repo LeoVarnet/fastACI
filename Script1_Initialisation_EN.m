@@ -15,7 +15,7 @@ if nargin < 2
     Subject_ID = input('Enter the Subject ID (e.g., ''S01''): ');
 end
 if nargin == 0
-    experiments = {'modulationACI','speechACI_varnet2015'};
+    experiments = {'modulationACI','modulationACI_seeds','speechACI_varnet2015'};
     Show_cell(experiments);
     bExp = input('Choose the experiment that you want to run from the list above: ');
     
@@ -38,11 +38,14 @@ end
 dir_main = [path filesep];    %'C:\Users\Varnet L�o\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM';
 dir_results = [dir_main 'Interim_results' filesep];
 
-switch experiment
-    case 'modulationACI'
-        dir_stim = cfg_crea.dir_stim;
-        cfg_crea.path = dir_stim;    %'C:\Users\Varnet Leo\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM';
-        cfg_crea = modulationACI_init(cfg_crea);
+%%% Checking if an *.init file is found on disc:
+script_name = sprintf('%s_init',experiment);
+if exist([script_name '.m'],'file')
+    fprintf('\tScript %.m found on disc...\n',script_name);
+    exp2eval = sprintf('cfg_crea=%s(cfg_crea);',script_name);
+    eval(exp2eval);
+else
+    fprintf('\tNo initialisation file found for experiment %s...\n',experiment);
 end
 
 %%% Save parameters

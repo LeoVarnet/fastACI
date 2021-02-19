@@ -5,7 +5,8 @@ function cfg_inout = modulationACI_init(cfg_inout)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-dir_where  = [cfg_inout.path cfg_inout.folder_name filesep]; 
+dir_where  = [cfg_inout.dir_stim cfg_inout.folder_name filesep]; 
+% dir_where = 'C:\Users\Varnet Leo\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM\'; % dir at Leo's
         
 fs         = cfg_inout.fs;
 dur        = cfg_inout.stim_dur;
