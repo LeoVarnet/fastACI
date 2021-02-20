@@ -183,11 +183,23 @@ end
 
 %% Load stims, create templates for simulation
 if cfg_game.resume == 0
-    ListStim = cfg_game.ListStim; 
-    if cfg_game.N ~= length(ListStim)
-        error('Number of stimuli does not match.')
+    if isfield(cfg_game,'ListStim')
+        %%% The field 'ListStim' must exist for experiments that load files
+        %     from disc
+        ListStim = cfg_game.ListStim; 
+        
+        if cfg_game.N ~= length(ListStim)
+            error('Number of stimuli does not match.')
+        end
+    else
+        %%% Nothing to do, the experiment is assumed to generate sounds on
+        %     on the fly
+        seed_number_max = 4*cfg_game.N; % arbitrary number, seeds will range from 0 to 4*N
+        seed_numbers = round(seed_number_max*random('unif',0,1,[1,cfg_game.N]));
+                                        % (allows repeted seed numbers)
+        cfg_game.seeds_order = seed_numbers; % to be used sequentially  
     end
-    
+        
     if cfg_game.N_signal > 2
         if ~isfield(cfg_game,'response_correct_target')
             error('A maximum of two alternatives ''1'' and ''2'' can be asked to the participants. Your experiment seems to use %.0f sounds, but they should be mapped to only two responses. Specify the field ''response_correct_target''.',cfg_game.N_signal);
@@ -206,8 +218,10 @@ if cfg_game.resume == 0
         list_target_signals = [list_target_signals cfg_game.response_correct_target(i)*ones(1,ceil(N_conditions))];
     end
     
-    for i=1:cfg_game.N
-        ListStim(i).n_signal = list_signals(i);
+    if isfield(cfg_game,'ListStim')
+        for i=1:cfg_game.N
+            ListStim(i).n_signal = list_signals(i);
+        end
     end
     cfg_game.n_signals = list_signals;
     cfg_game.n_response_correct_target = list_target_signals;
@@ -246,7 +260,7 @@ if cfg_game.is_simulation == 1
     % cfg_game.Template = cfg_game.IR{2} - cfg_game.IR{1};     
 end
  
-%cfg_game.N = length(ListStim);
+% cfg_game.N = length(ListStim);
  
 %% Experiment
 if cfg_game.resume == 0
@@ -290,9 +304,10 @@ if cfg_game.is_experiment == 1
 end
  
 N = cfg_game.N;
-if ~isfield(cfg_game,'ListStim')
-    cfg_game.ListStim = ListStim;
-end
+% if ~isfield(cfg_game,'ListStim')
+%     cfg_game.ListStim = ListStim;
+% end
+warning('This is temporary')
 
 while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_game.sessionsN) && isbreak == 0
     
@@ -310,7 +325,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
         data_passation.i_current = i_current;
         data_passation.n_stim(i_current) = n_stim;
         data_passation.expvar(i_current) = expvar;
-        data_passation.n_signal(i_current) = ListStim(n_stim).n_signal;
+        % data_passation.n_signal(i_current) = ListStim(n_stim).n_signal;
         data_passation.date(i_current,:) = clock_now;
     end
     
@@ -508,7 +523,7 @@ end
 clock_str = Get_date_and_time_str;
 data_passation.date_end{length(data_passation.date_start)} = clock_str;
 savename = il_get_savename(experiment, Subject_ID, clock_str);
-save([dir_results savename],'ListStim', 'cfg_game', 'data_passation');
+save([dir_results savename],'cfg_game', 'data_passation');
 msg_close
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

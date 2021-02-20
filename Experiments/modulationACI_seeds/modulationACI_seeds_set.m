@@ -3,7 +3,6 @@ function cfg_inout = modulationACI_seeds_set(cfg_inout)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-error('AO, 19/02/2021: Experiment in development, not operative yet...');
 if nargin == 0
     cfg_inout = [];
 end

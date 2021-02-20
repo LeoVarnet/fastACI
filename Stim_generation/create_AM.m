@@ -48,38 +48,38 @@ elseif strcmp(carrier_waveform, 'triangle')
 elseif strcmp(carrier_waveform, 'square')
     function_carrier = @square;
 end
-if strcmp(AM_waveform, 'sin')
-    function_AM = @sin;
-elseif strcmp(AM_waveform, 'triangle')
-    function_AM = @triangle;
-elseif strcmp(AM_waveform, 'square')
-    function_AM = @square;
+switch AM_waveform
+    case 'sin'
+        function_AM = @sin;
+    case 'triangle'
+        function_AM = @triangle;
+    case 'square'
+        function_AM = @square;
 end
 
 % generate t
 t = 1/fs:(1/fs):duration;
 
 % stim
-if ~strcmp(carrier_waveform, 'noise')
-    stim = (1+AM_depth*function_AM(2*pi*AM_fm*t+3*pi/2)).*function_carrier(2*pi*fc*t);
-else
-    stim = (1+AM_depth*function_AM(2*pi*AM_fm*t+3*pi/2)).*randn(size(t));
-    % bandpass noise
-    if length(fc)==2
-        [Bfilt, Afilt] = butter(2,fc/(fs/2));
-        stim=filtfilt(Bfilt, Afilt, stim);
-    end
+switch carrier_waveform
+    case 'noise'
+        stim = (1+AM_depth*function_AM(2*pi*AM_fm*t+3*pi/2)).*randn(size(t));
+        % bandpass noise
+        if length(fc)==2
+            [Bfilt, Afilt] = butter(2,fc/(fs/2));
+            stim=filtfilt(Bfilt, Afilt, stim);
+        end        
+    otherwise
+        stim = (1+AM_depth*function_AM(2*pi*AM_fm*t+3*pi/2)).*function_carrier(2*pi*fc*t);
 end
 
 % add ramps
 ramp_duration = 0.02;%(1/AM_fm)/2;%duration*0.05;
-t_ramp = 0:(1/fs):ramp_duration;
-ramp_up = cos((2*pi*t_ramp(end:-1:1))/(2*max(t_ramp)))/2+0.5;
+t_ramp    = 0:(1/fs):ramp_duration;
+ramp_up   = cos((2*pi*t_ramp(end:-1:1))/(2*max(t_ramp)))/2+0.5;
 ramp_down = cos((2*pi*t_ramp)/(2*max(t_ramp)))/2+0.5;
 weighting = ones(1,length(t));
 weighting(1:length(t_ramp)) = ramp_up;
 weighting(end-length(t_ramp)+1:end) = ramp_down;
 
 AM = A*stim.*weighting;
-
-end

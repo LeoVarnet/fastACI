@@ -5,7 +5,6 @@ function cfg_out = modulationACI_seeds_cfg(cfg_in)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-error('AO, 19/02/2021: Experiment in development, not operative yet...');
 if nargin == 0
     cfg_in = [];
 end

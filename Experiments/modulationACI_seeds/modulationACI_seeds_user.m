@@ -2,16 +2,13 @@ function str_stim = modulationACI_seeds_user(cfg,data_passation)
 % function str_stim = modulationACI_seeds_user(cfg,data_passation)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-error('AO, 19/02/2021: Experiment in development, not operative yet...');
 bLevel_norm_version = 2; % set to 1 for version 'as received'
-bLoad = 1;
+bLoad = 0;
 
 i_current = data_passation.i_current;
 
 n_stim = data_passation.n_stim(i_current);
 istarget = (cfg.n_signals(n_stim) == 2);
-filename = cfg.ListStim(n_stim).name;
-
 
 if ~isfield(cfg,'bDebug')
     bDebug = 0;
@@ -33,20 +30,37 @@ switch bLevel_norm_version
 end
 
 if bLoad
+    error('Remove this...')
+    filename = cfg.ListStim(n_stim).name;
     file2load = [cfg.dir_stim cfg.folder_name filesep filename];
     noise = audioread(file2load);
 else
-    fprintf('%s: Generating noise...\n',upper(mfilename));
+    % fprintf('%s: Generating noise...\n',upper(mfilename));
     N_samples = round(cfg.stim_dur * fs);
+    
+    %%% Fixing the seed
+    s_current = rng; % gets current seed
+    try
+        seed_number = cfg.seeds_order(i_current); % needs to be a positive integer...
+    catch
+        disp('')
+    end
+    rng(seed_number);
+    %%% 
+    
     switch cfg.noise_type
         case 'white'
-            noise=randn(N_samples,1);
+            noise = randn(N_samples,1);
         case 'pink'
             error('Not validated yet...')
-            noise=pinknoise(N_samples)';
+            noise = pinknoise(N_samples)';
         otherwise
             error('%s: Unknown type of noise. Possible options are ''pink'' or ''white''',upper(mfilename))
     end
+    
+    %%% Seed set back
+    rng(s_current);
+    %%% 
 end
 
 % ---
@@ -92,6 +106,13 @@ switch bLevel_norm_version
         end
 end
 
+try % Checking if the seed has changed since it was 'set back' and this line of the code
+    bSame = Still_same_seed_status(s_current);
+    if bSame == 0
+        warning('The seed has changed since you generated the stimuli and the end of the script %s. PLEASE CHECK THIS!',mfilename)
+    end
+end
+   
 str_stim.tuser = tuser_cal;
 str_stim.stim_noise_alone = gaindb(extra.stim_N,lvl_offset);
 str_stim.stim_tone_alone  = gaindb(extra.stim_S,lvl_offset);
