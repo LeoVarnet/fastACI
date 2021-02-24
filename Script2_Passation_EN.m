@@ -191,13 +191,6 @@ if cfg_game.resume == 0
         if cfg_game.N ~= length(ListStim)
             error('Number of stimuli does not match.')
         end
-    else
-        %%% Nothing to do, the experiment is assumed to generate sounds on
-        %     on the fly
-        seed_number_max = 4*cfg_game.N; % arbitrary number, seeds will range from 0 to 4*N
-        seed_numbers = round(seed_number_max*random('unif',0,1,[1,cfg_game.N]));
-                                        % (allows repeted seed numbers)
-        cfg_game.seeds_order = seed_numbers; % to be used sequentially  
     end
         
     if cfg_game.N_signal > 2
