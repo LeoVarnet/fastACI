@@ -13,8 +13,7 @@ function Show_cell(in)
 %
 % Programmed by Alejandro Osses, HTI, TU/e, the Netherlands, 2014-2017
 % Created on    : 12/04/2016
-% Last update on: 12/04/2016 
-% Last use on   : 20/11/2017 
+% Last update on: 03/03/2021  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 [N, M] = size(in);
@@ -22,12 +21,17 @@ function Show_cell(in)
 for j = 1:M
     for i = 1:N
         if ischar( in{i,j} ) % isstr replaced by ischar for compatibility with newer versions
-            fprintf('(%.0f,%.0f): %s\n', i,j,in{i,j});
+            
+            if N == 1
+                fprintf('(%.0f): %s\n', j,in{i,j});
+            elseif M == 1 && bShown == 0
+                fprintf('(%.0f): %s\n', i,in{i,j});
+            else
+                fprintf('(%.0f,%.0f): %s\n', i,j,in{i,j});
+            end
+            
         elseif isnumeric( in{i,j} )
             fprintf('(%.0f,%.0f): %.4f\n', i,j,in{i,j});
         end
     end
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end

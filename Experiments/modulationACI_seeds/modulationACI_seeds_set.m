@@ -29,6 +29,7 @@ cfg.dBFS      = 93.61; % Calibration with Headphones HD 650
 cfg.N_noise    = 1500;  % number of stimuli / condition
 cfg.N_signal   = 2;     % Number of conditions
 cfg.noise_type = 'white';
+cfg.randorder  = 1;
 
 % if ~isfield(cfg_inout,'experiment')
 %     fname = strsplit(mfilename,'_');

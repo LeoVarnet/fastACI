@@ -35,9 +35,16 @@ if ~isfield(cfg_crea,'N')
 end
 
 [path,name,ext]=fileparts(which(mfilename)); % path will be the folder where this file is located...
-dir_main = [path filesep];    %'C:\Users\Varnet L�o\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM';
+dir_main = [path filesep];    %'C:\Users\Varnet Leo\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM';
 dir_results = [dir_main 'Interim_results' filesep];
-
+if ~isfolder(dir_results)
+    if isfolder(dir_main)
+        % If folder Interim_results does not exist, it is created, but this 
+        %   is only done if dir_main already exists...
+        mkdir(dir_results);
+    end
+end
+    
 %%% Checking if an *.init file is found on disc:
 script_name = sprintf('%s_init',experiment);
 if exist([script_name '.m'],'file')
@@ -46,6 +53,16 @@ if exist([script_name '.m'],'file')
     eval(exp2eval);
 else
     fprintf('\tNo initialisation file found for experiment %s...\n',experiment);
+end
+
+if ~isfield(cfg_crea,'response_correct_target')
+    if cfg_crea.N_signal > 2
+        if ~isfield(cfg_crea,'response_correct_target')
+            error('A maximum of two alternatives ''1'' and ''2'' can be asked to the participants. Your experiment seems to use %.0f sounds, but they should be mapped to only two responses. Specify the field ''response_correct_target''.',cfg_game.N_signal);
+        end
+    elseif cfg_crea.N_signal == 2
+        cfg_crea.response_correct_target = [1 2];
+    end
 end
 
 %%% Save parameters

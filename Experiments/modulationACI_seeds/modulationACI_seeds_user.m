@@ -2,7 +2,7 @@ function str_stim = modulationACI_seeds_user(cfg,data_passation)
 % function str_stim = modulationACI_seeds_user(cfg,data_passation)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-bLevel_norm_version = 2; % set to 1 for version 'as received'
+bLevel_norm_version = 3; % set to 1 for version 'as received'
 bLoad = 0;
 
 i_current = data_passation.i_current;
@@ -25,7 +25,7 @@ switch bLevel_norm_version
         % Unintended denominator in the conversion from modulation depth to
         %    modulation index:
         m = 10^(m_dB/10); 
-    case 2
+    case {2,3}
         m = 10^(m_dB/20); % modulation index
 end
 
@@ -79,31 +79,42 @@ switch bLevel_norm_version
     case 1 % default in ENS 'as received'
         [stim_normalised,extra] = generate_stim(signal,noise,SNR,dur_ramp_samples,noise_type);
         [tuser_cal,dBFS,gain_factor] = dBlvl(stim_normalised,SPL);
-    case 2 % I suggest this calibration method
-        [stim_normalised,extra] = generate_stim(signal,noise,SNR,0,noise_type);
-
+    case {2,3} % I suggest this calibration method
+        
         rp    = ones(size(noise)); 
         rp(1:dur_ramp_samples)         = rampup(dur_ramp_samples);
         rp(end-dur_ramp_samples+1:end) = rampdown(dur_ramp_samples);
         
         dBFS       = cfg.dBFS;
-        lvl_before = rmsdb(stim_normalised);
-        tuser_cal  = setdbspl(stim_normalised,SPL,dBFS);
-        lvl_after  = rmsdb(tuser_cal);
+        switch bLevel_norm_version
+            case 2
+                [stim_normalised,extra] = generate_stim(signal,noise,SNR,0,noise_type);
         
-        lvl_offset = (lvl_after-lvl_before);
-        lvl_S = extra.lvl_S_dBFS+lvl_offset;
-        lvl_N = extra.lvl_N_dBFS+lvl_offset;
+                lvl_before = rmsdb(stim_normalised);
+                tuser_cal  = setdbspl(stim_normalised,SPL,dBFS);
+                lvl_after  = rmsdb(tuser_cal);
+        
+                lvl_offset = (lvl_after-lvl_before);
+                lvl_S = extra.lvl_S_dBFS+lvl_offset;
+                lvl_N = extra.lvl_N_dBFS+lvl_offset;
+                if bDebug == 1
+                    fprintf('The exact level of the noise is %.1f dB (0 dB FS=%.1f)\n',lvl_N+dBFS,dBFS);
+                    fprintf('The exact level of the pure tone (modulated or not) is %.1f dB\n',lvl_S+dBFS);
+                end
+            case 3
+                noise  = setdbspl(noise ,SPL    ,dBFS);
+                signal = setdbspl(signal,SPL+SNR,dBFS);
+                extra.stim_N = noise;
+                
+                extra.stim_S = signal;
+                tuser_cal = signal + noise;
+        end
         
         % Applying the ramp:
         tuser_cal = rp.*tuser_cal;
         extra.stim_N = rp.*extra.stim_N;
         extra.stim_S = rp.*extra.stim_S;
         
-        if bDebug == 1
-            fprintf('The exact level of the noise is %.1f dB (0 dB FS=%.1f)\n',lvl_N+dBFS,dBFS);
-            fprintf('The exact level of the pure tone (modulated or not) is %.1f dB\n',lvl_S+dBFS);
-        end
 end
 
 try % Checking if the seed has changed since it was 'set back' and this line of the code
@@ -114,5 +125,51 @@ try % Checking if the seed has changed since it was 'set back' and this line of 
 end
    
 str_stim.tuser = tuser_cal;
-str_stim.stim_noise_alone = gaindb(extra.stim_N,lvl_offset);
-str_stim.stim_tone_alone  = gaindb(extra.stim_S,lvl_offset);
+
+switch bLevel_norm_version
+    case 2
+        str_stim.stim_noise_alone = gaindb(extra.stim_N,lvl_offset);
+        str_stim.stim_tone_alone  = gaindb(extra.stim_S,lvl_offset);
+    case 3
+        str_stim.stim_noise_alone = extra.stim_N; 
+        str_stim.stim_tone_alone  = extra.stim_S;
+end
+
+bCompare_with_stored = 0;
+
+if bCompare_with_stored
+    dir_where = [data_passation.dir_results cfg.Subject_ID filesep 'NoiseStims' filesep];
+    if ~isfield(data_passation,'files_here')
+        data_passation.files_here = Get_filenames(dir_where,'Noise*.wav');
+        
+        f2load = [dir_where 'Noises_all.mat'];
+        if exist(f2load,'file')
+            var = load(f2load);
+            data_passation.noises_here = var.noise_all;
+        end
+    end
+    figure;
+    subplot(1,2,1)
+    noise_here = str_stim.stim_noise_alone;
+    plot(noise_here,'b-'); hold on;
+    
+    fname2load = [dir_where data_passation.files_here{i_current}];
+    noise_stored_wav = audioread(fname2load);
+    noise_stored_mat = data_passation.noises_here(:,i_current);
+    % plot(noise_stored,'r--');
+    
+    ha = gca;
+    
+    subplot(1,2,2)
+    plot(noise_here-noise_stored_wav,'k-'); hold on
+    plot(noise_here-noise_stored_mat,'m--','LineWidth',2);
+    legend('diff re. wav file','diff re. mat file')
+    
+    ha(end+1) = gca;
+    linkaxes(ha,'x');
+    
+    warning('Comparing noises generated on the fly with stored versions... (set bCompare_with_stored to 0 for running the experiment normally)');
+    
+    pause();
+end
+disp('')

@@ -56,13 +56,8 @@ else
     try
         cfg_game = Script1_Initialisation_EN(experiment,Subject_ID);
     catch me
-        error('%s: no cfg_crea available',upper(mfilename));
+        error('%s: no cfg_crea available\n\t%s',upper(mfilename),me.message);
     end
-end
-
-% TODO: change N_noise and N_signal by other more relevant names...
-if ~isfield(cfg_game,'N')
-    error('%s: please run again Script1 to make sure the field ''N'' is created...',upper(mfilename));
 end
 
 if ~isfield(cfg_game,'resume')
@@ -111,7 +106,7 @@ switch cfg_game.resume
             cfg_game = []; % it will be re-loaded now:
             ListStim = [];
             
-            load(load_name);
+            load(load_name); % loads: cfg_game, data_passation
             cfg_game.load_name = load_name;
             i_current  = data_passation.i_current+1;
             i_savegame = i_current;
@@ -144,9 +139,6 @@ switch cfg_game.resume
         data_passation.start_date = {data_passation.date_start, clock_str};
         
     case {0,'non','no'}
-        if ~isfield(cfg_game,'experiment')
-            cfg_game.experiment = 'modulationACI';
-        end
             
         % Parameters for targets
         exp2eval = sprintf('cfg_game = %s_set(cfg_game);',experiment); % experiment dependent
@@ -180,6 +172,9 @@ switch cfg_game.resume
             % msg_welcome
         end        
 end
+if ~isfield(cfg_game,'feedback')
+    cfg_game.feedback = 0; % feedback is disabled by default
+end
 
 %% Load stims, create templates for simulation
 if cfg_game.resume == 0
@@ -193,24 +188,8 @@ if cfg_game.resume == 0
         end
     end
         
-    if cfg_game.N_signal > 2
-        if ~isfield(cfg_game,'response_correct_target')
-            error('A maximum of two alternatives ''1'' and ''2'' can be asked to the participants. Your experiment seems to use %.0f sounds, but they should be mapped to only two responses. Specify the field ''response_correct_target''.',cfg_game.N_signal);
-        end
-        % cfg_pass.CorrectResponses = [1,2,1,2]; % reponse correcte pour chaque signal (signaux dans l'ordre alphabetique)
-    elseif cfg_game.N_signal == 2
-        cfg_game.response_correct_target = [1 2];
-    end
-    
-    list_signals = [];
-    list_target_signals = [];
-    for i=1:cfg_game.N_signal
-        % for N_signal == 2 ==> first half equal to one, second half equal to two
-        N_conditions = cfg_game.N_noise; % TODO: this is still not the most suitable naming...
-        list_signals        = [list_signals i*ones(1,ceil(N_conditions))];%
-        list_target_signals = [list_target_signals cfg_game.response_correct_target(i)*ones(1,ceil(N_conditions))];
-    end
-    
+    [list_signals, list_target_signals] = Get_n_signals(cfg_game);
+        
     if isfield(cfg_game,'ListStim')
         for i=1:cfg_game.N
             ListStim(i).n_signal = list_signals(i);
@@ -253,18 +232,27 @@ if cfg_game.is_simulation == 1
     % cfg_game.Template = cfg_game.IR{2} - cfg_game.IR{1};     
 end
  
-% cfg_game.N = length(ListStim);
- 
 %% Experiment
 if cfg_game.resume == 0
-    if cfg_game.randorder == 1
-        cfg_game.stim_order = randperm(cfg_game.N); 
-    else
-        cfg_game.stim_order = 1:cfg_game.N; 
+    if ~isfield(cfg_game,'stim_order')
+        warning('Assigning the stimulus order, this option has been moved to the _init file and will be removed from script %s soon',upper(mfilename))
+        if cfg_game.randorder == 1
+            cfg_game.stim_order = randperm(cfg_game.N); 
+        else
+            cfg_game.stim_order = 1:cfg_game.N; 
+        end
     end
     debut_i=1;
+    data_passation.next_session_stop = debut_i+cfg_game.sessionsN;
 else
     debut_i=i_savegame;
+    
+    if mod(debut_i,cfg_game.sessionsN) == 1
+        % Then we update 'next_session_stop'
+        data_passation.next_session_stop = debut_i+cfg_game.sessionsN;
+    else
+        % Nothing to do: the participant chose to take a break
+    end
 end
 
 %%% Initialises the staircase
@@ -302,7 +290,10 @@ N = cfg_game.N;
 % end
 warning('This is temporary')
 
-while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_game.sessionsN) && isbreak == 0
+data_passation.dir_path    = dir_main;
+data_passation.dir_results = dir_results;
+
+while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passation.next_session_stop) && isbreak == 0
     
     n_stim = cfg_game.stim_order(i_current);
     
@@ -462,7 +453,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
                 data_passation.n_response(i_current) = response;
                 data_passation.is_correct(i_current) = iscorrect;
             end
-            if iswarmup || cfg_game.displayN
+            if iswarmup || cfg_game.displayN || cfg_game.feedback
                 % ListStim(n_stim).response 
                 switch iscorrect
                     case 1
@@ -479,8 +470,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=debut_i+cfg_g
                     resp_name = num2str(cfg_game.n_response_correct_target(n_stim));
                 end
                 % feedback
-                fprintf('\n %s => Correct answer was : %.1f (%s)\n\n Press any key to continue.\n',txt_extra,resp_num,resp_name);
-                  % ListStim(n_stim).n_signal ,cfg_game.response_names{ListStim(n_stim).n_signal}
+                fprintf('\n\t%s => Correct answer was : %.0f (%s)\n\n Press any key to continue.\n',txt_extra,resp_num,resp_name);
                 pause;
             end
             

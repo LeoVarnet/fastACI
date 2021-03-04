@@ -9,14 +9,16 @@ if nargin == 0
     cfg_in = [];
 end
 
-bDebug = 1;
-
 cfg = [];
 cfg_out = cfg_in; % copying input to output struct
 
 cfg.response_names = {'pure tone', 'modulated tone'}; 
 cfg.warmup         = 1; % 'oui', CAUTION: Overwritten in the case of simulation
+
+bDebug             = 1;
 cfg.displayN       = bDebug; % 'oui'
+cfg.feedback       = 1;
+
 %cfg_game.end_sessions   = [500 1000 1500 2000 2500]; 
 cfg.sessionsN      = 500; % CAUTION: Overwritten in the case of simulation
 cfg.adapt          = 1; % 'out';%

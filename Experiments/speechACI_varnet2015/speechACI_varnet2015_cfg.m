@@ -17,7 +17,11 @@ cfg.response_names   = {'da', 'ga'};
 cfg.response_correct_target = [1,2,1,2]; % reponse correcte pour chaque signal (signaux dans l'ordre alphabetique)
                    % Alda is 'da', Alga is 'ga', Arda is 'da', Arga is 'ga'
 cfg.warmup         = 1; % 'oui', CAUTION: Overwritten in the case of simulation
-cfg.displayN       = 1; % 'oui'
+
+bDebug = 0; 
+cfg.displayN       = bDebug; % 'oui'
+cfg.feedback       = 1;
+
 cfg.sessionsN      = 100; % CAUTION: Overwritten in the case of simulation
 cfg.adapt          = 1; % 'out';%
 cfg.randorder      = 1;
