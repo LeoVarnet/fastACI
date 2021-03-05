@@ -349,11 +349,11 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
             fprintf('\n    * WARM-UP PHASE *\n\n');
         else
             fprintf('\n    * MAIN EXPERIMENT *\n\n');
-            if cfg_game.displayN == 1
-                fprintf('    Playing stimulus # %.0f of %.0f\n',i_current,cfg_game.N);
-            else
-                fprintf('    Playing stimulus\n');
-            end
+            % if cfg_game.displayN == 1
+            fprintf('    Playing stimulus # %.0f of %.0f\n',i_current,cfg_game.N);
+            % else
+            %     fprintf('    Playing stimulus\n');
+            % end
         end
         play(player)
         if iswarmup
