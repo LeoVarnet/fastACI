@@ -1,5 +1,5 @@
-function Script3_AnalysisComplex(dir_data)
-% function Script3_AnalysisComplex(dir_data)
+function data = Script3_AnalysisComplex(dir_main,Subject_ID)
+% function data = Script3_AnalysisComplex(dir_data,Subject_ID)
 %
 % Abbreviations in this script (alphabetic order):
 %   CR: Correct rejection
@@ -33,15 +33,20 @@ function Script3_AnalysisComplex(dir_data)
 %       Script3_AnalysisComplex(dir_data);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-close all
+data = [];
 
 if nargin == 0
-    dir_data = '/home/alejandro/Downloads/S_LV/';
+    close all
+
+    dir_main = '/home/alejandro/Downloads/';
+    Subject_ID = 'S_LV';
+end
+
+dir_data = [dir_main Subject_ID filesep];
     
-    if ~isdir(dir_data)
-        help Script3_AnalysisComplex
-        error('%s: Please specify (manually) a directory containing experimental data',upper(mfilename));
-    end
+if ~isdir(dir_data)
+    help Script3_AnalysisComplex
+    error('%s: Please specify (manually) a directory containing experimental data',upper(mfilename));
 end
 
 %%%
@@ -55,8 +60,17 @@ hname = []; % empty figure names
 dir_out = dir_data;
 %%%
 
-do_behaviour = 0; % Set to one to analyse/plot the behavioural results
-do_analyse_noise = 1;
+switch Subject_ID
+    case 'S_LV'
+        do_behaviour = 1; % Set to one to analyse/plot the behavioural results
+        do_analyse_noise = 0;
+        disp('For Subject S_LV I do not have the sound stimuli locally, running behavioural results only...');
+    case 'S_VR'
+        do_behaviour = input('do_behaviour (1=yes; 0=no): ');
+        do_analyse_noise =  input('do_analyse_noise (1=yes; 0=no): ');
+    otherwise
+        error('%s: Participant not validated yet, add manually to the script''s list and re-run...')
+end
 
 dBFS = 93.6139; % previous knowledge
 
@@ -205,7 +219,7 @@ if do_behaviour
     legend({'target present', 'target absent','chance level'},'Location','southeast');
 
     h(end+1) = gcf;
-    hname{end+1} = 'Behaviour';
+    hname{end+1} = [Subject_ID '-Behaviour'];
 
     %%%
     H_rate = 100*H./n_is_TAR; % /N_tot_signal;
@@ -224,20 +238,38 @@ if do_behaviour
     xlabel('Central bin of the tested modulation depths (dB)');
     
     h(end+1) = gcf;
-    hname{end+1} = 'Hit-and-CR-rates-per-bin';
+    hname{end+1} = [Subject_ID '-Hit-and-CR-rates-per-bin'];
     
     %%%
     
-    f2store = [dir_data 'Behaviour.mat'];
-    
-    if exist(f2store,'file')
-        bSave = input('File already exists, type 1 to overwrite, 0 to skip this step: ');
-    else
-        bSave = 1;
-    end
-    
     trialnum = 1:n_window:length(m);
-    save(f2store,'m_windowed','PC_targetpresent','PC_targetabsent','bias_windowed','trialnum','N_m','m_edge', 'H', 'M', 'CR', 'FA')
+    
+    data.trialnum = trialnum;
+    data.m_windowed = m_windowed;
+    data.PC_targetpresent = PC_targetpresent;
+    data.PC_targetabsent  = PC_targetabsent;
+    data.bias_windowed    = bias_windowed;
+    data.N_m = N_m;
+    data.m_edge = m_edge;
+    data.H = H;
+    data.M = M;
+    data.CR = CR;
+    data.FA = FA;
+    
+    data.h = h;
+    data.hname = hname;
+    
+    if nargout == 0
+        f2store = [dir_data 'Behaviour.mat'];
+
+        if exist(f2store,'file')
+            bSave = input('File already exists, type 1 to overwrite, 0 to skip this step: ');
+        else
+            bSave = 1;
+        end
+
+        save(f2store,'m_windowed','PC_targetpresent','PC_targetabsent','bias_windowed','trialnum','N_m','m_edge', 'H', 'M', 'CR', 'FA')
+    end
 end
 
 bSave = 0;
@@ -995,13 +1027,15 @@ if do_analyse_noise
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for i = 1:length(h);
-    opts = [];
-    opts.format = 'epsc'; % vectorial format for figures
-    Saveas(h(i),[dir_out hname{i}],opts);
-        
-    opts.format = 'png'; % vectorial format for figures
-    Saveas(h(i),[dir_out hname{i}],opts);
+if bSave
+    for i = 1:length(h);
+        opts = [];
+        opts.format = 'epsc'; % vectorial format for figures
+        Saveas(h(i),[dir_out hname{i}],opts);
+
+        opts.format = 'png'; % vectorial format for figures
+        Saveas(h(i),[dir_out hname{i}],opts);
+    end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
