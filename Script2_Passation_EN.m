@@ -309,7 +309,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
         data_passation.i_current = i_current;
         data_passation.n_stim(i_current) = n_stim;
         data_passation.expvar(i_current) = expvar;
-        % data_passation.n_signal(i_current) = ListStim(n_stim).n_signal;
+        data_passation.n_signal(i_current) = ListStim(n_stim).n_signal;
         data_passation.date(i_current,:) = clock_now;
     end
     
@@ -349,11 +349,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
             fprintf('\n    * WARM-UP PHASE *\n\n');
         else
             fprintf('\n    * MAIN EXPERIMENT *\n\n');
-            % if cfg_game.displayN == 1
             fprintf('    Playing stimulus # %.0f of %.0f\n',i_current,cfg_game.N);
-            % else
-            %     fprintf('    Playing stimulus\n');
-            % end
         end
         play(player)
         if iswarmup
@@ -446,11 +442,15 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
             % display instructions main exp
 
         case {1,2} % responded 1 or 2
-            iscorrect = (response == cfg_game.n_response_correct_target(n_stim));
+            
+            resp_num = cfg_game.n_response_correct_target(n_stim);
+            iscorrect = (response == resp_num);
             
             % save trial data
             if ~iswarmup
                 data_passation.n_response(i_current) = response;
+                data_passation.n_signal(i_current)   = cfg_game.n_signal(n_stim);
+                data_passation.n_response_correct_target(i_current) = resp_num;
                 data_passation.is_correct(i_current) = iscorrect;
             end
             if iswarmup || cfg_game.displayN || cfg_game.feedback
@@ -462,7 +462,6 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
                         txt_extra = 'You were wrong';
                 end
                 
-                resp_num = cfg_game.n_response_correct_target(n_stim);
                 if isfield(cfg_game,'response_names')
                     resp_name = cfg_game.response_names{cfg_game.n_response_correct_target(n_stim)};
                 else
