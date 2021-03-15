@@ -1,6 +1,9 @@
 function [data_passation,cfg_game] = Read_ACI_data(file2load,version)
 % function [data_passation,cfg_game] = Read_ACI_data(file2load,version)
 %
+% Variables with these format:
+%   2013    
+%   2015
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin < 2
@@ -22,18 +25,124 @@ if isfield(var,'i')
 end
 
 switch version
-    case {2015,'2015'}
+    % case {2015,'2015'}
+    %     cfg_game.N = length(var.correct_answer);
+        
+    case {2015.1,'2015.1'}
         cfg_game.N = cfg_game.N-1;
 end
    
-tmp = nan(1,cfg_game.N);
-str = [];
-for i = 1:cfg_game.N
-    str = [str sprintf('tmp(%.0f),',i)];
+if isfield(cfg_game,'N')
+    tmp = nan(1,cfg_game.N);
+    str = [];
+    for i = 1:cfg_game.N
+        str = [str sprintf('tmp(%.0f),',i)];
+    end
 end
 
 switch version
     case {2015,'2015'}
+        cfg_game.stim_order = var.stim_order;
+         
+        data_passation.expvar = var.SNR;
+
+        % n_stim == 1 and 3 is 'da'
+        % n_stim == 2 and 4 is 'ga'
+
+        N = length(data_passation.expvar);
+        cfg_game.N = N;
+        cfg_game.N_signal = length(unique(var.n_signal));
+        
+        if ~isfield(data_passation,'n_response')
+            target_response = nan(1,N); % memory allocation
+            target_response_wrong = nan(size(target_response)); % memory allocation
+            n_response      = nan(1,N);
+
+            idx = find(var.n_signal == 1 | var.n_signal == 3);
+            target_response(idx) = 1;
+            target_response_wrong(idx) = 2;
+            idx = find(var.n_signal == 2 | var.n_signal == 4);
+            target_response(idx) = 2;
+            target_response_wrong(idx) = 1;
+            
+            idx = find(var.correct_answer==1);
+            n_response(idx) = target_response(idx);
+            idx = find(var.correct_answer==0);
+            n_response(idx) = target_response_wrong(idx);
+            data_passation.n_reponse  = n_response;
+        else
+            data_passation.n_reponse  = data_pa.n_response;
+        end
+        
+        data_passation.n_signal   = var.n_signal;
+        
+        if ~isfield(data_passation,'is_correct')
+            data_passation.is_correct = double(var.correct_answer);
+        else
+            data_passation.is_correct = data_pa.is_correct;
+        end
+        
+        fn = Get_filenames(cd,'*Bruit*');
+        if isempty(fn)
+            fn = Get_filenames(cd,'*Noise*');
+        end
+        if isempty(fn)
+            error('No noise folder found')
+        end
+        cfg_game.FolderInBruit   = fn{1}; 
+
+        fn = Get_filenames(cd,'*Signal*');
+        if isempty(fn)
+            error('No signal folder found')
+        end
+        cfg_game.FolderInSignal  = fn{1};
+
+        cfg_game.stim_order = var.stim_order;
+        cfg_game.CorrectResponses = [1 2 1 2]; % var.correct_answer;
+        cfg_game.NameResponse = {'Da','Ga'}; % manually put
+        
+        cfg_game.NameSignal = {'Alda','Alga','Arda','Arga'}; % manually put
+                
+        ListStim = dir(strcat(cfg_game.FolderInBruit, '/*.wav'));
+        ListStim = rmfield(ListStim,{'date','datenum','bytes', 'isdir'});
+        
+        cfg_game.ListStim = ListStim;
+        
+        % data_passation.is_correct = double(var.data_passation.is_correct);
+        % var.data_passation = Remove_field(var.data_passation,'is_correct');
+        % 
+        % if isfield(var.ListStim,'n_response')
+        %     exp2eval= ['[' str(1:end-1) ']=var.ListStim(:).n_response;'];
+        %     eval(exp2eval);
+        %     data_passation.n_response = tmp;
+        % 
+        %     var.ListStim = Remove_field(var.ListStim,'n_response');
+        % end
+        % 
+        % if isfield(var.ListStim,'m')
+        %     exp2eval= ['[' str(1:end-1) ']=var.ListStim(:).m;'];
+        %     eval(exp2eval);
+        %     data_passation.expvar = tmp;
+        % 
+        %     data_passation.expvar_description = 'modulation depth (dB)';
+        % 
+        %     var.ListStim = Remove_field(var.ListStim,'m');
+        % end
+        % 
+        % if isfield(var.ListStim,'n_presentation')
+        %     exp2eval= ['[' str(1:end-1) ']=var.ListStim(:).n_presentation;'];
+        %     eval(exp2eval);
+        %     data_passation.n_stim = tmp;
+        % 
+        %     var.ListStim = Remove_field(var.ListStim,'n_presentation');
+        % end
+        % 
+        % data_passation.ListStim = var.ListStim;
+        % 
+        % disp('')
+        
+    case {2015.1,'2015.1'}
+        error('Continue here...')
         cfg_game.stim_order = var.cfg_game.ordre_aleatoire;
         var.cfg_game = Remove_field(var.cfg_game,'ordre_aleatoire');
         
@@ -110,7 +219,6 @@ switch version
                 tmp = horzcat(ListStim.n_reponse);
                 data_passation.n_response = tmp(stim_order);
                 cfg_game.n_response       = tmp;
-                
                 ListStim = Remove_field(ListStim,'n_reponse');
             end
             
@@ -165,5 +273,6 @@ switch version
             disp('')
         end
 end
+cfg_game.N_response       = length(cfg_game.NameResponse);
 
 disp('')
