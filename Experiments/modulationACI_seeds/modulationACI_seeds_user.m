@@ -3,12 +3,11 @@ function str_stim = modulationACI_seeds_user(cfg,data_passation)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 bLevel_norm_version = 3; % set to 1 for version 'as received'
-bLoad = 0;
 
 i_current = data_passation.i_current;
 
 n_stim = data_passation.n_stim(i_current);
-istarget = (cfg.n_signals(n_stim) == 2);
+istarget = (cfg.n_targets_sorted(n_stim) == 2);
 
 if ~isfield(cfg,'bDebug')
     bDebug = 0;
@@ -29,39 +28,32 @@ switch bLevel_norm_version
         m = 10^(m_dB/20); % modulation index
 end
 
-if bLoad
-    error('Remove this...')
-    filename = cfg.ListStim(n_stim).name;
-    file2load = [cfg.dir_stim cfg.folder_name filesep filename];
-    noise = audioread(file2load);
-else
-    % fprintf('%s: Generating noise...\n',upper(mfilename));
-    N_samples = round(cfg.stim_dur * fs);
-    
-    %%% Fixing the seed
-    s_current = rng; % gets current seed
-    try
-        seed_number = cfg.seeds_order(i_current); % needs to be a positive integer...
-    catch
-        disp('')
-    end
-    rng(seed_number);
-    %%% 
-    
-    switch cfg.noise_type
-        case 'white'
-            noise = randn(N_samples,1);
-        case 'pink'
-            error('Not validated yet...')
-            noise = pinknoise(N_samples)';
-        otherwise
-            error('%s: Unknown type of noise. Possible options are ''pink'' or ''white''',upper(mfilename))
-    end
-    
-    %%% Seed set back
-    rng(s_current);
-    %%% 
+% fprintf('%s: Generating noise...\n',upper(mfilename));
+N_samples = round(cfg.stim_dur * fs);
+
+%%% Fixing the seed
+s_current = rng; % gets current seed
+try
+    seed_number = cfg.seeds_order(i_current); % needs to be a positive integer...
+catch
+    disp('')
 end
+rng(seed_number);
+%%% 
+
+switch cfg.noise_type
+    case 'white'
+        noise = randn(N_samples,1);
+    case 'pink'
+        error('Not validated yet...')
+        noise = pinknoise(N_samples)';
+    otherwise
+        error('%s: Unknown type of noise. Possible options are ''pink'' or ''white''',upper(mfilename))
+end
+
+%%% Seed set back
+rng(s_current);
+%%% 
 
 % ---
 signal = create_AM(fc, fmod, m*istarget, dur, fs)';
@@ -114,6 +106,19 @@ switch bLevel_norm_version
         tuser_cal = rp.*tuser_cal;
         extra.stim_N = rp.*extra.stim_N;
         extra.stim_S = rp.*extra.stim_S;
+        
+        idx = find(cfg.sessionN_trials_validation>=i_current,1,'first');
+        next_sessionN_trial_validation = cfg.sessionN_trials_validation(idx);
+        
+        if ~isempty(next_sessionN_trial_validation)
+            if i_current == next_sessionN_trial_validation
+                data_passation.waveforms_noise_alone(:,idx) = extra.stim_N;
+                data_passation.waveforms_target_alone(:,idx) = extra.stim_S;
+                data_passation.waveforms_trial(:,idx) = tuser_cal;
+                data_passation.waveforms_i_current(:,idx) = i_current;
+                data_passation.waveforms_n_stim(:,idx) = n_stim;
+            end
+        end       
         
 end
 

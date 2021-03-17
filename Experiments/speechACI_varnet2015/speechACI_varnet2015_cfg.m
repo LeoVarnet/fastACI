@@ -22,7 +22,7 @@ bDebug = 0;
 cfg.displayN       = bDebug; % 'oui'
 cfg.feedback       = 1;
 
-cfg.sessionsN      = 100; % CAUTION: Overwritten in the case of simulation
+cfg.sessionsN      = 400; % CAUTION: Overwritten in the case of simulation
 cfg.adapt          = 1; % 'out';%
 cfg.randorder      = 1;
  

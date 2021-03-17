@@ -53,11 +53,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    try
+%     try
         cfg_game = Script1_Initialisation_EN(experiment,Subject_ID);
-    catch me
-        error('%s: no cfg_crea available\n\t%s',upper(mfilename),me.message);
-    end
+%     catch me
+%         error('%s: no cfg_crea available\n\t%s',upper(mfilename),me.message);
+%     end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -195,8 +195,8 @@ if cfg_game.resume == 0
             ListStim(i).n_signal = list_signals(i);
         end
     end
-    cfg_game.n_signals = list_signals;
-    cfg_game.n_response_correct_target = list_target_signals;
+    cfg_game.n_targets_sorted = list_signals;
+    cfg_game.n_response_correct_target_sorted = list_target_signals;
 end
 
 % Create template
@@ -309,7 +309,10 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
         data_passation.i_current = i_current;
         data_passation.n_stim(i_current) = n_stim;
         data_passation.expvar(i_current) = expvar;
-        data_passation.n_signal(i_current) = ListStim(n_stim).n_signal;
+        if isfield(ListStim,'n_signal')
+            % Non-existing field if sounds are generated on the fly (e.g., in the 'seeds' experiment)
+            data_passation.n_signal(i_current) = ListStim(n_stim).n_signal;
+        end
         data_passation.date(i_current,:) = clock_now;
     end
     
@@ -349,7 +352,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
             fprintf('\n    * WARM-UP PHASE *\n\n');
         else
             fprintf('\n    * MAIN EXPERIMENT *\n\n');
-            fprintf('    Playing stimulus # %.0f of %.0f\n',i_current,cfg_game.N);
+            fprintf('    Playing stimulus # %.0f of %.0f (Next session stop in %.0f trials)\n',i_current,cfg_game.N,data_passation.next_session_stop-i_current-1);
         end
         play(player)
         if iswarmup
@@ -373,7 +376,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
         % % [ response ] = auditorymodel_PEMO( Stim_IR, cfg_game.IR{2}, cfg_game.model );
         % [ response ] = auditorymodel_TMdetect( Stim_IR, cfg_game.IR{2}, cfg_game.model );
     end
-    data_passation.responsetime(i_current) = toc;
+    data_passation.response_time(i_current) = toc;
      
     switch response
         case 3.14 % This is a ''pause''
@@ -443,13 +446,14 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
 
         case {1,2} % responded 1 or 2
             
-            resp_num = cfg_game.n_response_correct_target(n_stim);
+            data_passation.n_response_correct_target(i_current) = cfg_game.n_response_correct_target_sorted(n_stim);
+            resp_num = data_passation.n_response_correct_target(i_current);
             iscorrect = (response == resp_num);
             
             % save trial data
             if ~iswarmup
-                data_passation.n_response(i_current) = response;
-                data_passation.n_signal(i_current)   = cfg_game.n_signal(n_stim);
+                data_passation.n_responses(i_current) = response;
+                data_passation.n_targets(i_current)   = cfg_game.n_targets_sorted(n_stim);
                 data_passation.n_response_correct_target(i_current) = resp_num;
                 data_passation.is_correct(i_current) = iscorrect;
             end
@@ -463,7 +467,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
                 end
                 
                 if isfield(cfg_game,'response_names')
-                    resp_name = cfg_game.response_names{cfg_game.n_response_correct_target(n_stim)};
+                    resp_name = cfg_game.response_names{cfg_game.n_response_correct_target_sorted(n_stim)};
                 else
                     error('Continue validating here...')
                     resp_name = num2str(cfg_game.n_response_correct_target(n_stim));

@@ -1,6 +1,9 @@
 function cfg_inout = modulationACI_set(cfg_inout)
 % function cfg_inout = modulationACI_set(cfg_inout)
 %
+% Old name: 
+%    cfg_inout.N_signal -> N_target
+%    cfg_inout.N_noise  -> N_presentation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin == 0
@@ -26,8 +29,8 @@ cfg.fadein_s  = 0.075; % CAUTION: Overwritten in the case of simulation
 cfg.SPL       = 65;
 cfg.dBFS      = 93.61; % Calibration with Headphones HD 650
 
-cfg.N_noise    = 1500;  % number of stimuli / condition
-cfg.N_signal   = 2;     % Number of conditions
+cfg.N_presentation = 1500;  % number of stimuli / condition
+cfg.N_target   = 2;     % Number of conditions
 cfg.noise_type = 'white';
 
 if ~isfield(cfg_inout,'experiment')

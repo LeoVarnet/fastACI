@@ -45,10 +45,11 @@ else
     % The original speech sounds are zero padded:
     bGenerate_stimuli = 1;
     
-    % dir_main = '/home/alejandro/Documents/Databases/data/fastACI/speechACI/';
-    if strcmp(dir_speech(end),'filesep') % if last character is \ or / (it should be the case always)
-        dir_main = [fileparts(dir_speech(1:end-1)) filesep];
+    if strcmp(dir_speech(end),filesep) % if last character is \ or / (it should be the case always)
+        dir_main = fileparts(dir_speech(1:end-1));
+        dir_main = [fileparts(dir_main) filesep];
     end
+    
     % dir_speech_orig should contain the original speech samples:
     dir_speech_orig = [dir_main 'speech-samples_orig' filesep];
     
@@ -74,22 +75,35 @@ if bGenerate_stimuli
         
         if i == 1
             sil = zeros(round(dur_ramp*fs),1);
-            mkdir(dir_speech);
         end
         audiowrite([dir_speech files{i}],[sil; insig; sil],fs);
     end
+else
+    files = Get_filenames(dir_speech,'*.wav');
+    [insig,fs] = audioread([dir_speech files{1}]); % reading one speech file
+    if fs ~= cfg_inout.fs
+        error('Sounds do not have the same sampling frequency as specified in the %s_set.m file',experiment);
+    end
 end
+N_samples = length(insig);
+
 %%% 2. Noise sounds:
 dir_noise = cfg_inout.dir_noise;
 if isdir(dir_noise)
     bGenerate_stimuli = 0;
 else
     bGenerate_stimuli = 1;
-    if strcmp(dir_noise(end),'filesep') % if last character is \ or / (it should be the case always)
+    if strcmp(dir_noise(end),filesep) % if last character is \ or / (it should be the case always)
         dir_main = [fileparts(dir_noise(1:end-1)) filesep];
     end
-    warning('%s: At this moment only a fixed NoiseStim folder is used... customise this folder in the future',upper(mfilename));
-    dir_noise_orig = [dir_main 'NoiseStim_S11_orig'  filesep];
+    
+    bMake_new_noises = 1;
+    bConvert_old_noises = ~bMake_new_noises;
+    
+    if bConvert_old_noises
+        warning('%s: At this moment only a fixed NoiseStim folder is used... customise this folder in the future',upper(mfilename));
+        dir_noise_orig = [dir_main 'NoiseStim_S11_orig'  filesep];
+    end
     
     % If you are in this part of the code, 'dir_noise' does not exist:
     mkdir(dir_noise);
@@ -98,24 +112,36 @@ end
 N_ramp = round(dur_ramp*fs); % ramp duration in samples
 
 if bGenerate_stimuli
-    files = Get_filenames(dir_noise_orig,'*.wav');
+    if bConvert_old_noises
+        files = Get_filenames(dir_noise_orig,'*.wav');
+        if length(files) ~= cfg_inout.N
+            error('The number of wavefiles in %s should match the number of noises requested for the experiment',length(files),cfg_inout.N)
+        end
+    end
 else
     files = Get_filenames(dir_noise,'*.wav');
 end
 
 ListStim = [];
-for i = 1:length(files)
+for i = 1:cfg_inout.N
     if bGenerate_stimuli
-        [insig,fs] = audioread([dir_noise_orig files{i}]);
-        if i == 1
-            if fs ~= cfg_inout.fs;
-                error('Sounds do not have the same sampling frequency as specified in the %s_set.m file',experiment);
-            end
+        
+        if bMake_new_noises
+            insig = randn(N_samples,1); % This N_samples already includes the ramp times
         end
-        noise_rampup = Randomise_insig(insig,N_ramp);
-        noise_rampdn = Randomise_insig(insig,N_ramp);
+        
+        if bConvert_old_noises
+            [insig,fs] = audioread([dir_noise_orig files{i}]);
+            if i == 1
+                if fs ~= cfg_inout.fs;
+                    error('Sounds do not have the same sampling frequency as specified in the %s_set.m file',experiment);
+                end
+            end
+            noise_rampup = Randomise_insig(insig,N_ramp);
+            noise_rampdn = Randomise_insig(insig,N_ramp);
 
-        insig = [noise_rampup; insig; noise_rampdn];
+            insig = [noise_rampup; insig; noise_rampdn];
+        end
         
         lvls_before_noise(i) = rmsdb(insig)+dBFS;
         insig = setdbspl(insig,lvl_target,dBFS);
@@ -127,13 +153,19 @@ for i = 1:length(files)
             rp(1:N_ramp)         = rampup(N_ramp);
             rp(end-N_ramp+1:end) = rampdown(N_ramp);
         end
+        
         insig = rp.*insig;
         
-        % Getting the wave file name:
-        fname_part1 = strsplit(files{i}(1:end-4),'_');
-        number = str2double(fname_part1{end});
+        if bConvert_old_noises
+            % Getting the wave file name:
+            fname_part1 = strsplit(files{i}(1:end-4),'_');
+            number = str2double(fname_part1{end});
 
-        fname_part1 = fname_part1{1};
+            fname_part1 = fname_part1{1};
+        else
+            fname_part1 = 'Noise'; % Bruit
+            number = i;
+        end
 
         % Ensuring that the noise iteration number has four characters:
         stimnumber=num2str(number);

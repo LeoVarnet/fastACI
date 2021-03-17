@@ -42,6 +42,14 @@ else
     cfg_inout.stim_order = 1:cfg_inout.N; 
 end
 
+%%% Trials for validation:
+% In each session, the waveforms of 1 trial are stored for the later validation
+% of the reconstructed waveforms, after the experimental session.
+N_sessions = cfg_inout.N/cfg_inout.sessionsN;
+% values between 1 and sessionsN:
+sessionN_trials_validation = round((cfg_inout.sessionsN-1)*random('unif',0,1,[1,N_sessions]))+1;
+cfg_inout.sessionN_trials_validation = cfg_inout.sessionsN*[0:N_sessions-1] + sessionN_trials_validation;
+
 %%% Seed set back
 rng(s_current);
 %%% 

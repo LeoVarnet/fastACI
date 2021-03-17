@@ -5,21 +5,27 @@ function cfg_inout = modulationACI_init(cfg_inout)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-dir_where  = [cfg_inout.dir_stim cfg_inout.folder_name filesep]; 
+dir_subject = [cfg_inout.dir_stim cfg_inout.Subject_ID filesep];
+
+if ~exist(dir_subject,'dir')
+    mkdir(dir_subject)
+    fprintf('Directory %s was created\n',dir_subject);
+end
+dir_where  = [dir_subject cfg_inout.folder_name filesep]; 
 % dir_where = 'C:\Users\Varnet Leo\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM\'; % dir at Leo's
         
 fs         = cfg_inout.fs;
 dur        = cfg_inout.stim_dur;
 noise_type = cfg_inout.noise_type;
-N_noise    = cfg_inout.N_noise;
-N_signal   = cfg_inout.N_signal;
-N_total    = N_noise*N_signal; 
+N_presentation  = cfg_inout.N_presentation;
+N_target   = cfg_inout.N_target;
+N_total    = N_presentation*N_target; 
 
 disp('The new stimuli will be generated using the following parameters:')
 fprintf('\tNoise type=%s\n',noise_type);
 fprintf('\tDuration=%.2f s\n',dur);
 fprintf('\tSampling frequency=%.2f Hz\n',fs);
-fprintf('\tA total of %.0f stimuli will be generated: %.0f ''noises'', %.0f ''conditions''\n',N_total,N_noise,N_signal);
+fprintf('\tA total of %.0f stimuli will be generated: %.0f ''noises'', %.0f ''conditions''\n',N_total,N_presentation,N_target);
 fprintf('\tTarget folder: %s\n',dir_where);
 disp('Press any button to continue, press ctrl+C to abort')
 disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
@@ -46,10 +52,22 @@ for i=1:N_total
 
         str_stim = [];
         str_inout = []; 
-        str_inout.istarget = 0;
-        str_inout.expvar   = 0; % idle
-        str2eval = sprintf('str_stim=%s_user(str_inout,cfg_crea);',cfg_inout.experiment);
+        % str_inout.istarget = 0;
+        str_inout.expvar(i)   = 0; % idle
+        str_inout.i_current = i; % idle
+        str_inout.n_stim(i) = i;
+        if ~isfield(cfg_inout,'n_targets_sorted');
+            bRemove_after = 1;
+            cfg_inout.n_targets_sorted(i) = 1; % we generate noises only, not important whether is actually target or not
+        else
+            bRemove_after = 0;
+        end
+        str2eval = sprintf('str_stim=%s_user(cfg_inout,str_inout);',cfg_inout.experiment);
         eval(str2eval);
+        if bRemove_after
+            cfg_inout = rmfield(cfg_inout,'n_targets_sorted');
+        end
+        
         noise_cal = str_stim.stim_noise_alone;
     end
     % Ensuring that the noise iteration number has four characters:
