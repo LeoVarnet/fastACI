@@ -27,7 +27,7 @@ if nargin < 2
     Subject_ID = input('Enter the Subject ID (e.g., ''S01''): ');
 end
 if nargin == 0
-    experiments = {'modulationACI','modulationACI_seeds','speechACI_varnet2015'};
+    experiments = {'modulationACI','modulationACI_seeds','speechACI_varnet2013','speechACI_varnet2015'};
     Show_cell(experiments);
     bExp = input('Choose the experiment that you want to run from the list above: ');
     
