@@ -309,9 +309,11 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
         data_passation.i_current = i_current;
         data_passation.n_stim(i_current) = n_stim;
         data_passation.expvar(i_current) = expvar;
-        if isfield(ListStim,'n_signal')
-            % Non-existing field if sounds are generated on the fly (e.g., in the 'seeds' experiment)
-            data_passation.n_signal(i_current) = ListStim(n_stim).n_signal;
+        if exist('ListStim','var')
+            if isfield(ListStim,'n_signal')
+                % Non-existing field if sounds are generated on the fly (e.g., in the 'seeds' experiment)
+                data_passation.n_signal(i_current) = ListStim(n_stim).n_signal;
+            end
         end
         data_passation.date(i_current,:) = clock_now;
     end

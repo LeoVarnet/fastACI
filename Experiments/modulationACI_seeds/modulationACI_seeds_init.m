@@ -21,6 +21,7 @@ method = 'perm';
 % method = 'unif';
 
 s_current = rng; % gets current seed
+rng('default');
 rng('shuffle'); % seed based on the computer's clock
 
 switch method

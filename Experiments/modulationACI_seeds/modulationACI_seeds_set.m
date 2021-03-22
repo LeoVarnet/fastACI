@@ -16,7 +16,7 @@ cfg = [];
 cfg.fs        = 48000; % Hz, sampling frequency
 cfg.fm        = 4;
 cfg.fc        = 1000;
-cfg.stim_dur  = 1.5;   % s,  stimulus suration (s)
+cfg.stim_dur  = .75;   % s,  stimulus suration (s)
 cfg.SNR       = -10;
 
 % cfg.expvar_start = -8;  % old name 'm_start'
