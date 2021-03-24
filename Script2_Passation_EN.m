@@ -19,10 +19,6 @@ function Script2_Passation_EN(experiment, Subject_ID)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Setup
-
-% def.expvarunit = 'dB';	% unit of the tracking variable
-% def.expvardescription = 'modulation depth';	%'modulation depth' or 'modulation frequency' %description of the tracking variable
-
 if nargin < 2
     Subject_ID = input('Enter the Subject ID (e.g., ''S01''): ');
 end
@@ -53,11 +49,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-%     try
+    try
         cfg_game = Script1_Initialisation_EN(experiment,Subject_ID);
-%     catch me
-%         error('%s: no cfg_crea available\n\t%s',upper(mfilename),me.message);
-%     end
+    catch me
+        error('%s: no cfg_crea available\n\t%s',upper(mfilename),me.message);
+    end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -190,11 +186,6 @@ if cfg_game.resume == 0
         
     [list_signals, list_target_signals] = Get_n_signals(cfg_game);
         
-    if isfield(cfg_game,'ListStim')
-        for i=1:cfg_game.N
-            ListStim(i).n_signal = list_signals(i);
-        end
-    end
     cfg_game.n_targets_sorted = list_signals;
     cfg_game.n_response_correct_target_sorted = list_target_signals;
 end
@@ -288,10 +279,10 @@ N = cfg_game.N;
 % if ~isfield(cfg_game,'ListStim')
 %     cfg_game.ListStim = ListStim;
 % end
-warning('This is temporary')
+% warning('This is temporary')
 
-data_passation.dir_path    = dir_main;
-data_passation.dir_results = dir_results;
+cfg_game.dir_path    = dir_main;
+cfg_game.dir_results = dir_results;
 
 while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passation.next_session_stop) && isbreak == 0
     
@@ -309,12 +300,6 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
         data_passation.i_current = i_current;
         data_passation.n_stim(i_current) = n_stim;
         data_passation.expvar(i_current) = expvar;
-        if exist('ListStim','var')
-            if isfield(ListStim,'n_signal')
-                % Non-existing field if sounds are generated on the fly (e.g., in the 'seeds' experiment)
-                data_passation.n_signal(i_current) = ListStim(n_stim).n_signal;
-            end
-        end
         data_passation.date(i_current,:) = clock_now;
     end
     
@@ -476,7 +461,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
                 end
                 % feedback
                 fprintf('\n\t%s => Correct answer was : %.0f (%s)\n\n Press any key to continue.\n',txt_extra,resp_num,resp_name);
-                pause;
+                pause(.5); % .5 s pause
             end
             
             if iscorrect
