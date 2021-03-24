@@ -30,7 +30,12 @@ if nargin == 0
     experiment = experiments{bExp};
 end
 
-bSimulation = 0;
+switch Subject_ID
+    case {'dau1997','dau1997_preproc'}
+        bSimulation = 1;
+    otherwise
+        bSimulation = 0;
+end
 
 % -------------------------------------------------------------------------
 % 1. Loading set-up: 
@@ -148,11 +153,11 @@ switch cfg_game.resume
         cfg_game.is_experiment = ~bSimulation;
         % Simulation parameters
         if cfg_game.is_simulation == 1
-            error('Not validated yet...')
+            warning('Modelling under construction: Not validated yet...')
             % modelparameters;
             % cfg_game.fadein_s           = 0;
             % cfg_game.N_template         = 0;
-            % cfg_game.warmup             = 'no';
+            cfg_game.warmup = 0; % warm up is disabled
             % cfg_game.sessionsN          = 500;
             % cfg_game.stim_dur           = 0.75;
         end
@@ -163,7 +168,7 @@ switch cfg_game.resume
         data_passation.date_start{1} = Get_date_and_time_str;
 
         if cfg_game.is_simulation == 1
-            error('Not validated yet...')
+            warning('Modelling under construction: Not validated yet...')
             % % display welcome message
             % msg_welcome
         end        
@@ -193,7 +198,8 @@ end
 % Create template
  
 if cfg_game.is_simulation == 1
-    error('Not validated yet...')
+    
+    warning('Modelling under construction: Not validated yet...')
     % Signal{1} = create_AM(cfg_game.fc, cfg_game.fm, 0, cfg_game.stim_dur, cfg_game.fs)';
     % Signal{2} = create_AM(cfg_game.fc, cfg_game.fm, 10^(cfg_game.m_start/10), cfg_game.stim_dur, cfg_game.fs)';
     % 
@@ -349,7 +355,12 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
         end
         stop(player)
     elseif cfg_game.is_simulation
-        error('Not validated yet...')
+        warning('Modelling under construction: Not validated yet...')
+        
+        def_sim = [];
+        def_sim.template_script = '';
+        
+        aci_detect(cfg_game,data_passation,def_sim);
         % fprintf(['analyse stim # ' num2str(i) ' of ' num2str(cfg_game.N) '\n']);
         % Stim_IR = auditorymodel(stim_normal, cfg_game.fs, cfg_game.model);
         % % redefine the template
