@@ -153,13 +153,17 @@ switch cfg_game.resume
         cfg_game.is_experiment = ~bSimulation;
         % Simulation parameters
         if cfg_game.is_simulation == 1
-            warning('Modelling under construction: Not validated yet...')
             % modelparameters;
             % cfg_game.fadein_s           = 0;
             % cfg_game.N_template         = 0;
             cfg_game.warmup = 0; % warm up is disabled
             % cfg_game.sessionsN          = 500;
             % cfg_game.stim_dur           = 0.75;
+            def_sim = [];
+            def_sim.template_script = 'model_template';
+            simwork = [];
+            
+            cfg_game.sessionsN = cfg_game.N;
         end
 
         cfg_game.script_name{1} = [mfilename('fullpath') '.m'];
@@ -168,7 +172,6 @@ switch cfg_game.resume
         data_passation.date_start{1} = Get_date_and_time_str;
 
         if cfg_game.is_simulation == 1
-            warning('Modelling under construction: Not validated yet...')
             % % display welcome message
             % msg_welcome
         end        
@@ -309,7 +312,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
         data_passation.date(i_current,:) = clock_now;
     end
     
-    if cfg_game.displayN == 1
+    if cfg_game.displayN == 1 || cfg_game.is_simulation
         disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
         if isfield(cfg_game,'expvar_description')
             expvar_description = [', ' cfg_game.expvar_description];
@@ -339,14 +342,15 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
     % Display message, play sound and ask for response
     tic
      
+    if iswarmup
+        fprintf('\n    * WARM-UP PHASE *\n\n');
+    else
+        fprintf('\n    * MAIN EXPERIMENT *\n\n');
+        fprintf('    Playing stimulus # %.0f of %.0f (Next session stop in %.0f trials)\n',i_current,cfg_game.N,data_passation.next_session_stop-i_current-1);
+    end
+    
     if cfg_game.is_experiment
         
-        if iswarmup
-            fprintf('\n    * WARM-UP PHASE *\n\n');
-        else
-            fprintf('\n    * MAIN EXPERIMENT *\n\n');
-            fprintf('    Playing stimulus # %.0f of %.0f (Next session stop in %.0f trials)\n',i_current,cfg_game.N,data_passation.next_session_stop-i_current-1);
-        end
         play(player)
         if iswarmup
             response = Reponse_clavier([cfg_game.response_names {'to play the stim again' ['to play a ' cfg_game.response_names{1}] ['to play a ' cfg_game.response_names{2}] 'to leave the warm-up phase'}]);
@@ -355,12 +359,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
         end
         stop(player)
     elseif cfg_game.is_simulation
-        warning('Modelling under construction: Not validated yet...')
-        
-        def_sim = [];
-        def_sim.template_script = '';
-        
-        aci_detect(cfg_game,data_passation,def_sim);
+        [response,simwork] = aci_detect(cfg_game,data_passation,def_sim,simwork);
         % fprintf(['analyse stim # ' num2str(i) ' of ' num2str(cfg_game.N) '\n']);
         % Stim_IR = auditorymodel(stim_normal, cfg_game.fs, cfg_game.model);
         % % redefine the template
