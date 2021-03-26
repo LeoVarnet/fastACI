@@ -1,5 +1,5 @@
-function str_stim = modulationACI_user(cfg,data_passation)
-% function str_stim = modulationACI_user(cfg,data_passation)
+function [str_stim,data_passation] = modulationACI_user(cfg,data_passation)
+% function [str_stim,data_passation] = modulationACI_user(cfg,data_passation)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -1,5 +1,5 @@
-function str_stim = modulationACI_seeds_user(cfg,data_passation)
-% function str_stim = modulationACI_seeds_user(cfg,data_passation)
+function [str_stim,data_passation] = modulationACI_seeds_user(cfg,data_passation)
+% function [str_stim,data_passation] = modulationACI_seeds_user(cfg,data_passation)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 bLevel_norm_version = 3; % set to 1 for version 'as received'

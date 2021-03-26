@@ -1,5 +1,5 @@
-function str_stim = speechACI_varnet2015_user(cfg,data_passation)
-% function str_stim = speechACI_varnet2015_user(cfg,data_passation)
+function [str_stim,data_passation] = speechACI_varnet2015_user(cfg,data_passation)
+% function [str_stim,data_passation] = speechACI_varnet2015_user(cfg,data_passation)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

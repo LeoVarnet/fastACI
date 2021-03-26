@@ -293,7 +293,7 @@ N = cfg_game.N;
 cfg_game.dir_path    = dir_main;
 cfg_game.dir_results = dir_results;
 
-while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passation.next_session_stop) && isbreak == 0
+while i_current <= N && i_current~=data_passation.next_session_stop && isbreak == 0
     
     n_stim = cfg_game.stim_order(i_current);
     
@@ -324,7 +324,7 @@ while i_current <= N && (cfg_game.is_simulation == 1 || i_current~=data_passatio
     end
     
     str_stim = [];
-    str2eval = sprintf('str_stim=%s_user(cfg_game,data_passation);',cfg_game.experiment);
+    str2eval = sprintf('[str_stim,data_passation]=%s_user(cfg_game,data_passation);',cfg_game.experiment);
     eval(str2eval);
     stim_normal = str_stim.tuser;
     
