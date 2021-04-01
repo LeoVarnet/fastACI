@@ -161,7 +161,7 @@ switch cfg_game.resume
             % cfg_game.stim_dur           = 0.75;
             def_sim = [];
             def_sim.template_script = 'model_template';
-            simwork = [];
+            sim_work = [];
             
             cfg_game.sessionsN = cfg_game.N;
         end
@@ -359,7 +359,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
         end
         stop(player)
     elseif cfg_game.is_simulation
-        [response,simwork] = aci_detect(cfg_game,data_passation,def_sim,simwork);
+        [response,sim_work] = aci_detect(cfg_game,data_passation,def_sim,sim_work);
         % fprintf(['analyse stim # ' num2str(i) ' of ' num2str(cfg_game.N) '\n']);
         % Stim_IR = auditorymodel(stim_normal, cfg_game.fs, cfg_game.model);
         % % redefine the template
