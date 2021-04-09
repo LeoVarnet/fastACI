@@ -79,6 +79,14 @@ end
 [clock_str, clock_now] = Get_date_and_time_str;
 cfg_crea.date = clock_now;
 
+% if isfield(cfg_crea,'Condition')
+%     Cond = ['_' cfg_crea.Condition];
+% else
+%     Cond = '';
+% end
+% 
+% Subject_ID = [Subject_ID Cond];
+
 savename = ['cfgcrea_' clock_str '_' Subject_ID '_' cfg_crea.experiment];
 save([dir_results savename], 'cfg_crea');
 fprintf(['cfg file saved: ' savename '.mat\n\n']);
