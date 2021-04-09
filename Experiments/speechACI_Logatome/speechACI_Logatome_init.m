@@ -28,7 +28,9 @@ function cfg_inout = speechACI_Logatome_init(cfg_inout)
 %        in speech perception. The noises are, therefore, stored at an SNR=0 dB
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
-dir_speech_orig = [cfg_inout.dir_main 'As-received-20210408' filesep];
+% dir_speech_orig = [cfg_inout.dir_main 'As-received-20210408' filesep]; bNormalisation_date = '20210428';
+dir_speech_orig = [cfg_inout.dir_main 'As-received-20210409' filesep]; bNormalisation_date = '';
+
 dir_noise_spectrum = [cfg_inout.dir_logatome_src 'Noisesff' filesep];
 
 if ~exist(dir_speech_orig,'dir')
@@ -83,9 +85,6 @@ if bGenerate_stimuli
         rp(end-N_ramp+1:end) = rampdown(N_ramp);
         insig  = rp.*insig;
         
-        sil = zeros(round(dur_ramp*fs),1);
-        insig  = [sil; insig];
-        
         if i == 1
             if fs ~= cfg_inout.fs
                 error('Sounds do not have the same sampling frequency as specified in the *._set.m file');
@@ -93,10 +92,13 @@ if bGenerate_stimuli
         end
         lvls_before(i) = rmsdb(insig)+dBFS;
  
-        insig = setdbspl(insig,lvl_target,dBFS);
-         
+        insig = setdbspl(insig,lvl_target,dBFS); % level adjustment before the silence is added
+                 
         lvls_after(i) = rmsdb(insig)+dBFS;
-         
+        
+        sil = zeros(round(dur_ramp*fs),1);
+        insig  = [sil; insig];
+        
         audiowrite([dir_speech files{i}],insig,fs);
     end
 else
