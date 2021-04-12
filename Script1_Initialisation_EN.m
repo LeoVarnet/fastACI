@@ -1,5 +1,5 @@
-function cfg_crea = Script1_Initialisation_EN(experiment,Subject_ID)
-% function cfg_crea = Script1_Initialisation_EN(experiment,Subject_ID)
+function cfg_crea = Script1_Initialisation_EN(experiment,Subject_ID, Condition)
+% function cfg_crea = Script1_Initialisation_EN(experiment,Subject_ID, Condition)
 %
 % Description:
 %       It creates a new participant file.
@@ -11,6 +11,9 @@ function cfg_crea = Script1_Initialisation_EN(experiment,Subject_ID)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clc, close all
+if nargin < 3
+    Condition = [];
+end
 if nargin < 2
     Subject_ID = input('Enter the Subject ID (e.g., ''S01''): ');
 end
@@ -22,11 +25,19 @@ if nargin == 0
     experiment = experiments{bExp};
 end
 
-fprintf('Running %s.m (experiment=%s, subject=%s)\n',mfilename,experiment,Subject_ID);
+if ~isempty(Condition)
+    str_cond = sprintf(', condition=%s',Condition);
+else
+    str_cond = '';
+end
+fprintf('Running %s.m (experiment=%s, subject=%s%s)\n',mfilename,experiment,Subject_ID,str_cond);
 
 cfg_crea = [];
 cfg_crea.experiment  = experiment;
 cfg_crea.Subject_ID  = Subject_ID;
+if ~isempty(Condition)
+    cfg_crea.Condition = Condition;
+end
 exp2eval = sprintf('cfg_crea=%s_set(cfg_crea);',experiment);
 eval(exp2eval);
 
@@ -87,6 +98,13 @@ cfg_crea.date = clock_now;
 % 
 % Subject_ID = [Subject_ID Cond];
 
-savename = ['cfgcrea_' clock_str '_' Subject_ID '_' cfg_crea.experiment];
-save([dir_results savename], 'cfg_crea');
+filter2use = [Subject_ID '_' experiment];
+if ~isempty(Condition)
+    filter2use = [filter2use '_' Condition];
+end
+savename = ['cfgcrea_' clock_str '_' filter2use];
+
+dir_results_subj = [dir_results Subject_ID filesep];
+mkdir(dir_results_subj); % makes sure the folder for the participant exists...
+save([dir_results_subj savename], 'cfg_crea');
 fprintf(['cfg file saved: ' savename '.mat\n\n']);

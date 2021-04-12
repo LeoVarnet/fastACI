@@ -75,6 +75,14 @@ if exist(dir_noise,'dir')
     bGenerate_stimuli = 0;
 else
     bGenerate_stimuli = 1;
+    if isfield(cfg,'Condition')
+        switch cfg.Condition
+            case 'white'
+                % Nothing to do...just continue
+            otherwise
+                error('Creation of SSN not validated yet...')
+        end
+    end
     if strcmp(dir_noise(end),filesep) % if last character is \ or / (it should be the case always)
         dir_main = [fileparts(dir_noise(1:end-1)) filesep];
     end

@@ -1,5 +1,5 @@
-function Script2_Passation_EN(experiment, Subject_ID)
-% function Script2_Passation_EN(experiment, Subject_ID)
+function Script2_Passation_EN(experiment, Subject_ID, Condition)
+% function Script2_Passation_EN(experiment, Subject_ID, Condition)
 %
 %
 % Changes by AO:
@@ -19,6 +19,9 @@ function Script2_Passation_EN(experiment, Subject_ID)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Setup
+if nargin < 3
+    Condition = []; % No condition
+end
 if nargin < 2
     Subject_ID = input('Enter the Subject ID (e.g., ''S01''): ');
 end
@@ -43,19 +46,23 @@ end
 [path,name,ext]=fileparts(which(mfilename)); % path will be the folder where this file is located...
 dir_main = [path filesep];    %'C:\Users\Varnet L�o\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM';
 dir_results = [dir_main 'Interim_results' filesep];
+dir_results_subj = [dir_results Subject_ID filesep];
 
 filter2use = [Subject_ID '_' experiment];
-stored_cfg = Get_filenames(dir_results,['cfgcrea*' filter2use '.mat']);
+if ~isempty(Condition)
+    filter2use = [filter2use '_' Condition];
+end
+stored_cfg = Get_filenames(dir_results_subj,['cfgcrea*' filter2use '.mat']);
 N_stored_cfg = length(stored_cfg);
 if N_stored_cfg==1
-    var      = load([dir_results stored_cfg{1}]);
+    var      = load([dir_results_subj stored_cfg{1}]);
     cfg_game = var.cfg_crea;
     % cfg_game.cfg_crea   = var.cfg_crea;
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
     try
-        cfg_game = Script1_Initialisation_EN(experiment,Subject_ID);
+        cfg_game = Script1_Initialisation_EN(experiment,Subject_ID, Condition);
     catch me
         error('%s: no cfg_crea available\n\t%s',upper(mfilename),me.message);
     end
@@ -69,7 +76,7 @@ end
 %     1.2. Loading parameters: Looks for an existing 'game' (or previous 
 %          session for the same participant)
 if isempty(cfg_game.resume)
-    ListSavegame = dir([dir_results 'savegame*' filter2use '.mat']);
+    ListSavegame = Get_filenames(dir_results, ['savegame*' filter2use '.mat']);
     if isempty(ListSavegame)
         cfg_game.resume = 0; % 'non';
     else
@@ -95,13 +102,26 @@ switch cfg_game.resume
                 end
                 index_savegame = 0;
                 bytes = 0;
-                for j=1:length(ListSavegame)
+                
+                index_all = 1:length(ListSavegame); % index of all the files that were found
+                for j=index_all
                     if ListSavegame(j).bytes > bytes
                         index_savegame=j;
                         bytes = ListSavegame(j).bytes; % looks for the largest MAT file
                     end
                 end
                 load_name = [dir_results ListSavegame(index_savegame).name];
+                
+                % --- Now we will move the old (completed sessions) to the 
+                %     subject's folder.
+                index_all(index_savegame) = [];
+                if ~isempty(index_all)
+                    for j=1:length(index_all)
+                        movefile([dir_results      ListSavegame(index_all(j)).name], ... % src
+                                 [dir_results_subj ListSavegame(index_all(j)).name]);
+                    end
+                end
+                % ---
             end
             
             cfg_game = []; % it will be re-loaded now:
