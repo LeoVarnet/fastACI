@@ -525,16 +525,22 @@ end
 %% Save game
 clock_str = Get_date_and_time_str;
 data_passation.date_end{length(data_passation.date_start)} = clock_str;
-savename = il_get_savename(experiment, Subject_ID, clock_str);
+savename = il_get_savename(experiment, Subject_ID, Condition, clock_str);
 save([dir_results savename],'cfg_game', 'data_passation');
 msg_close
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function fname = il_get_savename(experiment, Subject_ID, clock_str)
+function fname = il_get_savename(experiment, Subject_ID, Condition, clock_str)
 
 if nargin < 3
     clock_str = Get_date_and_time_str;
 end
+filter2use = [Subject_ID '_' experiment];
+
+if ~isempty(Condition)
+    filter2use = [filter2use '_' Condition];
+end
 
 savename = ['savegame_' clock_str];
-fname = [savename '_' Subject_ID '_' experiment];
+fname = [savename '_' filter2use];
+
