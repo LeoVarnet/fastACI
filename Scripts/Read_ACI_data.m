@@ -4,6 +4,7 @@ function [data_passation,cfg_game] = Read_ACI_data(file2load,version)
 % Variables with these format:
 %   2013    
 %   2015
+%   2015.1 (use g20210226_Script)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin < 2
@@ -148,7 +149,7 @@ switch version
                 % disp('')
 
             case {2015.1,'2015.1'}
-                error('Continue here...')
+                % error('Continue here...')
                 cfg_game.stim_order = var.cfg_game.ordre_aleatoire;
                 var.cfg_game = Remove_field(var.cfg_game,'ordre_aleatoire');
 
@@ -279,7 +280,11 @@ switch version
                     disp('')
                 end
         end
-        cfg_game.N_response       = length(cfg_game.NameResponse);
+        try
+            cfg_game.N_response       = length(cfg_game.NameResponse);
+        catch me
+            warning('cfg_game.N_response not assigned')
+        end
 end
 
 disp('')
