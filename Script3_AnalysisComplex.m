@@ -1,5 +1,5 @@
-function data = Script3_AnalysisComplex(dir_main,Subject_ID)
-% function data = Script3_AnalysisComplex(dir_data,Subject_ID)
+function data = Script3_AnalysisComplex(file_savegame,opts)
+% function data = Script3_AnalysisComplex(file_savegame,opts)
 %
 % Abbreviations in this script (alphabetic order):
 %   CR: Correct rejection
@@ -31,74 +31,51 @@ function data = Script3_AnalysisComplex(dir_main,Subject_ID)
 %       % If your data is the current directory:
 %       dir_data = [pwd filesep];
 %       Script3_AnalysisComplex(dir_data);
+%
+% Other scripts from where this processing is called:
+%       g20210211_learning_revcorr;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if nargin < 2
+    opts = [];
+end
+opts = Ensure_field(opts,'do_behaviour',1);
+opts = Ensure_field(opts,'do_analyse_noise',1);
+
 data = [];
-
-if nargin == 0
-    close all
-
-    dir_main = '/home/alejandro/Downloads/';
-    Subject_ID = 'S_LV';
-end
-
-dir_data = [dir_main Subject_ID filesep];
-    
-if ~isdir(dir_data)
-    help Script3_AnalysisComplex
-    error('%s: Please specify (manually) a directory containing experimental data',upper(mfilename));
-end
-
-%%%
-% [path,name,ext]=fileparts(which(mfilename)); % path will be the folder where this file is located...
-% dir_main = [path filesep]; 
-%%%
 
 %%% Variables for storing figures:
 h = [];     % empty handles
 hname = []; % empty figure names 
-dir_out = dir_data;
+% dir_out = dir_data;
 %%%
 
-switch Subject_ID
-    case 'S_LV'
-        do_behaviour = 1; % Set to one to analyse/plot the behavioural results
-        do_analyse_noise = 0;
-        disp('For Subject S_LV I do not have the sound stimuli locally, running behavioural results only...');
-    case 'S_VR'
-        do_behaviour = input('do_behaviour (1=yes; 0=no): ');
-        do_analyse_noise =  input('do_analyse_noise (1=yes; 0=no): ');
-    otherwise
-        error('%s: Participant not validated yet, add manually to the script''s list and re-run...')
-end
+do_behaviour = opts.do_behaviour; % Set to one to analyse/plot the behavioural results
+do_analyse_noise = opts.do_analyse_noise;
 
 dBFS = 93.6139; % previous knowledge
 
 % -------------------------------------------------------------------------
 % --- Load data:
-files = Get_filenames(dir_data,'savegame_*.mat');
-Show_cell(files);
-if ~isempty(files)
-    if length(files) == 1
-        idx2proc = 1;
-    else
-        idx2proc = input(['Choose the file to process (enter 1-' num2str(length(files)) '): ']);
-    end
-else
-    error('%s: No files to process were found. Please provide another ''dir_data'' folder and re-run this script',upper(mfilename))
-end
+var = load(file_savegame);
+data_passation_old = var.data_passation;
+cfg_game_old   = var.cfg_game;
+ListStim_old   = var.ListStim; % used in do_analyse_noise
 
-var = load([dir_data files{idx2proc}]);
-data_passation = var.data_passation;
-cfg_game       = var.cfg_game;
-ListStim       = var.ListStim; % used in do_analyse_noise
+[cfg_game, data_passation, ListStim] = Convert_ACI_data_type(file_savegame);
 
-n_response = data_passation.n_response;
-N_trials   = length(n_response); % completed number of trials
-n_signal   = data_passation.N_signal(1:N_trials);
+n_responses = data_passation.n_responses;
+N_trials    = length(n_responses); % completed number of trials
+n_signal    = data_passation.n_targets(1:N_trials);
+
+Subject_ID = cfg_game.Subject_ID;
 % -------------------------------------------------------------------------
 if do_behaviour
-    N_total    = cfg_game.N_noise*cfg_game.N_signal; 
+    if isfield(cfg_game,'N')
+        N_total = cfg_game.N; 
+    else
+        N_total = cfg_game.N_presentation*cfg_game.N_target; 
+    end
     
     if N_total ~= N_trials
         disp('This participant did not complete the experiment...')
@@ -106,10 +83,17 @@ if do_behaviour
         fprintf('\tN_trials is being truncated to a multiple of 100 trials: %.0f\n',N_trials);
     end
 
-    m          = data_passation.m(1:N_trials);
-    % is_correct = data_passation.is_correct;
-    RT         = data_passation.responsetime(1:N_trials);
+    expvar     = data_passation.expvar(1:N_trials);
+    is_correct = data_passation.is_correct;
+    RT         = data_passation.response_time(1:N_trials);
 
+    if isfield(cfg_game.expvar_description)
+        unit   = cfg_game.expvar_description;
+    else
+        unit = 'm (dB)';
+        warning('Default x-axis variable label');
+    end
+    
     resp_if_tar = 2; % 'if target' (AM)       - 2 modulated tone
     resp_if_ref = 1; % 'if reference' (no AM) - 1 pure tone
 
@@ -121,19 +105,19 @@ if do_behaviour
     m_bin = -15.5:1:-0.5;
     % [N_m,m_edge] = histcounts(m, nbins); % Only in newer MATLAB versions
     % N_m = hist(m,m_bin); m_edge = m_bin; % In older MATLAB versions
-    [N_m,m_edge] = my_hist(m,m_bin); % this really provides edges
+    [N_m,m_edge] = my_hist(expvar,m_bin); % this really provides edges
 
     for i_m = 1:length(m_bin)
-        idx_m   = find(m>=m_edge(i_m) & m<m_edge(i_m+1));
+        idx_m   = find(expvar>=m_edge(i_m) & expvar<m_edge(i_m+1));
         idxs_m(i_m) = length(idx_m);
         
         n_is_TAR(i_m)  = sum(n_signal(idx_m)==resp_if_tar); 
         n_is_REF(i_m)  = sum(n_signal(idx_m)==resp_if_ref);
         
-        H(i_m)  = sum(n_signal(idx_m)==resp_if_tar & n_response(idx_m)==resp_if_tar); % Hit
-        M(i_m)  = sum(n_signal(idx_m)==resp_if_tar & n_response(idx_m)==resp_if_ref); % Miss
-        CR(i_m) = sum(n_signal(idx_m)==resp_if_ref & n_response(idx_m)==resp_if_ref); % Correct rejection
-        FA(i_m) = sum(n_signal(idx_m)==resp_if_ref & n_response(idx_m)==resp_if_tar); % False alarm
+        H(i_m)  = sum(n_signal(idx_m)==resp_if_tar & n_responses(idx_m)==resp_if_tar); % Hit
+        M(i_m)  = sum(n_signal(idx_m)==resp_if_tar & n_responses(idx_m)==resp_if_ref); % Miss
+        CR(i_m) = sum(n_signal(idx_m)==resp_if_ref & n_responses(idx_m)==resp_if_ref); % Correct rejection
+        FA(i_m) = sum(n_signal(idx_m)==resp_if_ref & n_responses(idx_m)==resp_if_tar); % False alarm
     end
     H_tot  = sum(H); 
     M_tot  = sum(M);
@@ -150,7 +134,7 @@ if do_behaviour
         error('%s: Not all responses were classified as H, M, CR, or FA. Check whether this is correct. If yes, convert this message into a warning only...',upper(mfilename))
     end
 
-    N_windows = length(n_response)/n_window;
+    N_windows = length(n_responses)/n_window;
 
     % Memory allocation:
     m_windowed       = nan(1,N_windows);
@@ -161,10 +145,10 @@ if do_behaviour
 
     for i = 1:N_windows
         idxs_here = (i-1)*n_window+1:i*n_window; % indexes of the trials within each window
-        response_windowed  = n_response(idxs_here);
+        response_windowed  = n_responses(idxs_here);
         signal_windowed    = n_signal(idxs_here);
 
-        m_windowed(i)      = mean(m(idxs_here));
+        m_windowed(i)      = mean(expvar(idxs_here));
         bias_windowed(i)   = mean(response_windowed);
         PC_targetpresent(i)= mean(response_windowed(signal_windowed==2))-1;
         PC_targetabsent(i) = 2-mean(response_windowed(signal_windowed==1));
@@ -177,13 +161,14 @@ if do_behaviour
 
     figure('Position', [100 100 800 500]); 
     subplot(2,2,1); 
-    plot(m_presentation_nr    , m         ,'g'); hold on; 
+    plot(m_presentation_nr    , expvar         ,'g'); hold on; 
     plot(m_presentation_nr_win, m_windowed,'k'); 
     ylim([m_edge(1) m_edge(end)]); 
-    xlabel(' trial #'); ylabel('m (dB)'); 
-    xlim([1 length(m)]); ylimits=ylim;
+    xlabel(' trial #'); ylabel(unit); 
+    xlim([1 length(expvar)]); ylimits=ylim;
 
-    for i = 1:length(data_passation.resume_trial)
+    N_sessions = length(data_passation.resume_trial);
+    for i = 1:N_sessions
         plot(data_passation.resume_trial(i)*[1 1],ylimits,'k:');
     end
 
@@ -191,9 +176,9 @@ if do_behaviour
     subplot(2,2,3); 
     plot(m_presentation_nr_win,PC_targetpresent); hold on; 
     plot(m_presentation_nr_win,PC_targetabsent);  
-    xlim([1 length(m)]); xlabel(' trial #'); 
+    xlim([1 length(expvar)]); xlabel(' trial #'); 
     ylabel('correct response rate'); ylim([0 1]); hold on; 
-    plot([1 length(m)],[0.5 0.5],'k--'); 
+    plot([1 length(expvar)],[0.5 0.5],'k--'); 
     ylimits=ylim;
 
     for i = 1:length(data_passation.resume_trial)
@@ -235,14 +220,14 @@ if do_behaviour
     
     legend('H rate','CR rate','Location','NorthWest');
     ylabel(sprintf('Percentage correct\n(ref. # of presentations per m interval)'));
-    xlabel('Central bin of the tested modulation depths (dB)');
+    xlabel(['Central bin of the tested ' unit]);
     
     h(end+1) = gcf;
     hname{end+1} = [Subject_ID '-Hit-and-CR-rates-per-bin'];
     
     %%%
     
-    trialnum = 1:n_window:length(m);
+    trialnum = 1:n_window:length(expvar);
     
     data.trialnum = trialnum;
     data.m_windowed = m_windowed;
@@ -276,6 +261,7 @@ bSave = 0;
 % -------------------------------------------------------------------------
 % --- Analyse noise in bands
 if do_analyse_noise
+    error('AO: Not validated recently')
     %%% My notes:
     %    - noisetone_converter.m and noise_converter.m apply the same processing
     %        but for the non-AM tone summed to the noises or for non-AM and AM tones,
@@ -357,7 +343,7 @@ if do_analyse_noise
 
     n_rand = 200;
     n_boot = 200;
-    n_trials = length(n_response);
+    n_trials = length(n_responses);
 
     % Subselection of trials
     trials2analyse = 1:n_trials; %find(m>=prctile(m,10) & m<=prctile(m,90));%%%%(iscorrect(i_trial)==0);%responsetime(i_trial)>=median(responsetime);%
@@ -366,7 +352,7 @@ if do_analyse_noise
     %[CI, CIrand, CIboot]  = computeCI(n_signal(trials2analyze),n_response(trials2analyze), noise_E(:,:,trials2analyze), n_rand, n_boot, 'yes');
     [CI , CIrand , CIboot , ResponseMatrix, ...
      CI2, CI2rand, CI2boot, ...
-     CI1, CI1rand, CI1boot] = computeCI(n_signal(trials2analyse),n_response(trials2analyse), noise_E(:,:,trials2analyse), n_rand, n_boot, is_normalised);
+     CI1, CI1rand, CI1boot] = computeCI(n_signal(trials2analyse),n_responses(trials2analyse), noise_E(:,:,trials2analyse), n_rand, n_boot, is_normalised);
 
     tE=(1:size(CI,2))/(cfg.fs/cfg.save_undersmpl);
 
@@ -788,7 +774,7 @@ if do_analyse_noise
         error('Not validated yet...')
         clear noise_E_fft noise_E_cfft ideal_templatefft ideal_templatecfft
 
-        n_trials = length(n_response);
+        n_trials = length(n_responses);
         Nfft = 512*100;
         xl = [0 fcut_noiseE];
         fE = (1:Nfft)/Nfft*(cfg.fs/cfg.save_undersmpl);
@@ -815,7 +801,7 @@ if do_analyse_noise
         %subselection of trials
         trials2analyse = 1:n_trials;%m(i_trial)<=median(m);%(iscorrect(i_trial)==0);%responsetime(i_trial)>=median(responsetime);%
 
-        [CI_F, CIrand_F, CIboot_F, ~, CI2_F, CI2rand_F, CI2boot_F, CI1_F, CI1rand_F, CI1boot_F] = computeCI(n_signal(trials2analyse), n_response(trials2analyse), noise_E_cfft(:,:,trials2analyse), n_rand, n_boot, 'no');
+        [CI_F, CIrand_F, CIboot_F, ~, CI2_F, CI2rand_F, CI2boot_F, CI1_F, CI1rand_F, CI1boot_F] = computeCI(n_signal(trials2analyse), n_responses(trials2analyse), noise_E_cfft(:,:,trials2analyse), n_rand, n_boot, 'no');
 
         %% phase shift from complex fft
 
@@ -844,7 +830,7 @@ if do_analyse_noise
 
         clear noise_E_fft noise_E_cfft ideal_templatefft ideal_templatecfft
 
-        n_trials = length(n_response);
+        n_trials = length(n_responses);
         Nfft = 512*100;
         xl = [0 fcut_noiseE];
         fE = (1:Nfft)/Nfft*(cfg.fs/cfg.save_undersmpl);
@@ -873,7 +859,7 @@ if do_analyse_noise
         %subselection of trials
         trials2analyse = 1:n_trials;%m(i_trial)<=median(m);%(iscorrect(i_trial)==0);%responsetime(i_trial)>=median(responsetime);%
 
-        [CI_F, CIrand_F, CIboot_F, ~, CI2_F, CI2rand_F, CI2boot_F, CI1_F, CI1rand_F, CI1boot_F] = computeCI(n_signal(trials2analyse), n_response(trials2analyse), noise_E_fft(:,:,trials2analyse), n_rand, n_boot, 'no');
+        [CI_F, CIrand_F, CIboot_F, ~, CI2_F, CI2rand_F, CI2boot_F, CI1_F, CI1rand_F, CI1boot_F] = computeCI(n_signal(trials2analyse), n_responses(trials2analyse), noise_E_fft(:,:,trials2analyse), n_rand, n_boot, 'no');
 
         figure('Name', 'General kernel');
         plot_channels(fE, max(abs(CI_F(:)))*abs(ideal_templatefft')/max(max(abs(ideal_templatefft))),1:1:size(noise_E,1), @(x,y)(plot(x,y,'r-')));%, @plot, 1, size(undersmplE,1)
@@ -1002,7 +988,7 @@ if do_analyse_noise
         [noise_spec,f_spec,t_spec] = noisetone_tf_converter(foldername, ListStim, data_passation.n_stim, [700 1300]);
         %[noise_spec,f_spec,t_spec] = noise_tf_converter(foldername, ListStim, data_passation.n_stim, [700 1300]);
 
-        [CI, ~, ~, ResponseMatrix, CI2, ~, ~, CI1, ~, ~] = computeCI(n_signal,n_response, noise_spec, 0, 0, 'no');
+        [CI, ~, ~, ResponseMatrix, CI2, ~, ~, CI1, ~, ~] = computeCI(n_signal,n_responses, noise_spec, 0, 0, 'no');
         %%
         %fE=sqrt(fcut(1:end-1).*fcut(2:end));
 

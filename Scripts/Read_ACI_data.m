@@ -5,6 +5,14 @@ function [data_passation,cfg_game] = Read_ACI_data(file2load,version)
 %   2013    
 %   2015
 %   2015.1 (use g20210226_Script)
+
+% Ascii for e (as in module): 0232
+% UTF   for e               = 351 (seems to be)
+%
+% fprintf('Química, Matemáticas, Español.\n')
+% disp('Química, Matemáticas, Español.\n')
+% fprintf(native2unicode('Química, Matemáticas, Español.','latin1'))
+% encoding = slCharacterEncoding()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin < 2
@@ -17,7 +25,6 @@ data_passation = [];
 
 var = load(file2load);
 
-% n_signal = data_passation.N_signal(1:length(n_response));
 % foldername = 'NoiseStims';
 
 switch version
@@ -35,7 +42,7 @@ switch version
             % case {2015,'2015'}
             %     cfg_game.N = length(var.correct_answer);
 
-            case {2015.1,'2015.1'}
+            case {2015.1,'2015.1',2021.1,'2021.1'}
                 cfg_game.N = cfg_game.N-1;
         end
 
@@ -58,7 +65,8 @@ switch version
 
                 N = length(data_passation.expvar);
                 cfg_game.N = N;
-                cfg_game.N_signal = length(unique(var.n_signal));
+                cfg_game.N_target = length(unique(var.n_signal));
+                cfg_game.N_presentation = round(cfg_game.N/cfg_game.N_target);
 
                 if ~isfield(data_passation,'n_response')
                     target_response = nan(1,N); % memory allocation
@@ -107,13 +115,14 @@ switch version
                 cfg_game.stim_order = var.stim_order;
                 cfg_game.CorrectResponses = [1 2 1 2]; % var.correct_answer;
                 cfg_game.NameResponse = {'Da','Ga'}; % manually put
-
+                cfg_game.target_names = cfg_game.NameResponse;
+                
                 cfg_game.NameSignal = {'Alda','Alga','Arda','Arga'}; % manually put
-
+                
                 ListStim = dir(strcat(cfg_game.FolderInBruit, '/*.wav'));
                 ListStim = rmfield(ListStim,{'date','datenum','bytes', 'isdir'});
 
-                cfg_game.ListStim = ListStim;
+                data_passation.ListStim = ListStim;
 
                 % data_passation.is_correct = double(var.data_passation.is_correct);
                 % var.data_passation = Remove_field(var.data_passation,'is_correct');
@@ -147,8 +156,9 @@ switch version
                 % data_passation.ListStim = var.ListStim;
                 % 
                 % disp('')
+                cfg_game.N_response = length(cfg_game.target_names);
 
-            case {2015.1,'2015.1'}
+            case {2015.1,'2015.1',2021.1,'2021.1'}
                 % error('Continue here...')
                 cfg_game.stim_order = var.cfg_game.ordre_aleatoire;
                 var.cfg_game = Remove_field(var.cfg_game,'ordre_aleatoire');
@@ -156,10 +166,33 @@ switch version
                 data_passation.is_correct = double(var.data_passation.is_correct);
                 var.data_passation = Remove_field(var.data_passation,'is_correct');
 
+                if isfield(var.data_passation,'N_signal')
+                    data_passation.n_targets = var.data_passation.N_signal;
+                    var.data_passation = Remove_field(var.data_passation,'N_signal');
+                end
+                if isfield(var.cfg_game,'N_signal')
+                    cfg_game.N_target = var.cfg_game.N_signal;
+                    var.cfg_game = Remove_field(var.cfg_game,'N_signal');
+                end
+                
+                if isfield(var.cfg_game,'N_noise')
+                    cfg_game.N_presentation = var.cfg_game.N_noise;
+                    var.cfg_game = Remove_field(var.cfg_game,'N_noise');
+                else
+                    cfg_game.N_presentation = round(cfg_game.N/cfg_game.N_target);
+                end
+                
+                if isfield(var.cfg_game,'response_names')
+                    cfg_game.target_names = var.cfg_game.response_names;
+                    var.cfg_game = Remove_field(var.cfg_game,'response_names');
+                    
+                    cfg_game.N_response = length(cfg_game.target_names);
+                end
+                
                 if isfield(var.ListStim,'n_response')
                     exp2eval= ['[' str(1:end-1) ']=var.ListStim(:).n_response;'];
                     eval(exp2eval);
-                    data_passation.n_response = tmp;
+                    data_passation.n_responses = tmp;
 
                     var.ListStim = Remove_field(var.ListStim,'n_response');
                 end
@@ -169,7 +202,7 @@ switch version
                     eval(exp2eval);
                     data_passation.expvar = tmp;
 
-                    data_passation.expvar_description = 'modulation depth (dB)';
+                    cfg_game.expvar_description = 'modulation depth (dB)';
 
                     var.ListStim = Remove_field(var.ListStim,'m');
                 end
@@ -181,8 +214,61 @@ switch version
 
                     var.ListStim = Remove_field(var.ListStim,'n_presentation');
                 end
+                
+                if isfield(var.data_passation,'responsetime')
+                    data_passation.response_time = var.data_passation.responsetime;
+                    var.data_passation = Remove_field(var.data_passation,'responsetime');
+                end
 
-                data_passation.ListStim = var.ListStim;
+                if isfield(var.data_passation,'resume_trial')
+                    data_passation.resume_trial = var.data_passation.resume_trial;
+                    var.data_passation = Remove_field(var.data_passation,'resume_trial');
+                end
+                
+                if isfield(var.cfg_game,'fs')
+                    cfg_game.fs = var.cfg_game.fs;
+                    var.cfg_game = Remove_field(var.cfg_game,'fs');
+                end
+                if isfield(var.cfg_game,'m_start')
+                    cfg_game.startvar = var.cfg_game.m_start;
+                    var.cfg_game = Remove_field(var.cfg_game,'m_start');
+                end
+                if isfield(var.cfg_game,'min_stepsize')
+                    cfg_game.min_stepsize = var.cfg_game.min_stepsize;
+                    var.cfg_game = Remove_field(var.cfg_game,'min_stepsize');
+                end
+                if isfield(var.cfg_game,'adapt_stepsize')
+                    cfg_game.adapt_stepsize = var.cfg_game.adapt_stepsize;
+                    var.cfg_game = Remove_field(var.cfg_game,'adapt_stepsize');
+                end
+                
+                if isfield(var.cfg_game,'simulation')
+                    switch var.cfg_game.simulation
+                        case {1,'yes','oui'}
+                            cfg_game.is_simulation = 1;
+                        case {0,'no','non'}    
+                            cfg_game.is_simulation = 0;
+                    end
+                    cfg_game.is_experiment = ~cfg_game.is_simulation;
+                    
+                    var.cfg_game = Remove_field(var.cfg_game,'simulation');
+                end
+                
+                cfg_game.Subject_ID = '';
+                if isfield(var.cfg_game,'path')
+                    try
+                        tmp = strsplit(var.cfg_game.path,'/'); % tmp = strsplit(var.cfg_game.path,'\');
+                        if length(tmp) == 1
+                            tmp = strsplit(var.cfg_game.path,'\'); % assuming windows-formatted path
+                        end
+                        cfg_game.Subject_ID = tmp{end};
+                    catch
+                        warning('Subject_ID could not be extracted');
+                    end
+                end
+                                
+                cfg_game.ListStim = var.ListStim;
+                var = Remove_field(var,'ListStim');
 
                 disp('')
 
@@ -216,7 +302,7 @@ switch version
                         % eval(exp2eval);
                         % data_passation.expvar = tmp;
 
-                        data_passation.expvar_description = 'signal-to-noise ratio';
+                        cfg_game.expvar_description = 'signal-to-noise ratio';
 
                         ListStim = Remove_field(ListStim,'RSB');
                     end
@@ -276,15 +362,42 @@ switch version
                         data_passation.is_correct = double(data_passation.n_signals == data_passation.n_response_correct_target);
                         % cfg_game.is_correct = double(cfg_game.n_signals == cfg_game.n_response_correct_target);
                     end
-                    cfg_game.ListStim = ListStim;
+                    data_passation.ListStim = ListStim;
                     disp('')
                 end
+                
+                try
+                    cfg_game.N_response       = length(cfg_game.NameResponse);
+                catch me
+                    warning('cfg_game.N_response not assigned')
+                end
         end
-        try
-            cfg_game.N_response       = length(cfg_game.NameResponse);
-        catch me
-            warning('cfg_game.N_response not assigned')
+end
+
+try
+    if isfield(cfg_game,'target_names')
+        for i = 1:length(cfg_game.target_names)
+            tmp = strsplit(cfg_game.target_names{i},'\'); 
+            if length(tmp) > 1
+                % if there is this separator, then there is an unrecognised format:
+                
+                disp('')
+                switch tmp{end}
+                    case '351' % this is an e'
+                        % Mapping between 232 (ASCII - I believe) and 351 was done manually
+                        str = [];
+                        for j = 1:length(tmp)-1
+                            str = [str tmp{j}];
+                        end
+                        str = [str native2unicode(232,'ISO-8859-1')];
+                        cfg_game.target_names{i} = str; 
+                        
+                    otherwise
+                        warning('Unrecognised character was not fixed')
+                end
+            end
         end
+    end
 end
 
 disp('')
