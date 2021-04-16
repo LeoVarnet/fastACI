@@ -208,4 +208,11 @@ for i = 1:cfg_inout.N
     end
 end
 
+if isfield(cfg_inout,'bRove_level')
+    
+    max_rove = cfg_inout.Rove_range; % dB
+    cfg_inout.Rove_level = (rand(1,cfg_inout.N)-0.5)*2*max_rove;
+
+end
+
 cfg_inout.ListStim = ListStim;
