@@ -3,3 +3,4 @@
 *.asv
 *no-commit*
 *.zip
+Interim_results/*.mat
