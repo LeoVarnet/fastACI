@@ -20,7 +20,8 @@ end
 
 [signal,fs] = audioread([cfg.dir_speech cfg.filename_target{n_signal}]); % will load one of the four utterances
  
-noise = audioread([cfg.dir_noise cfg.ListStim(n_signal).name]);
+fname_noise = [cfg.dir_noise cfg.ListStim(n_stim).name];
+noise = audioread(fname_noise);
  
 bSpeech_level_variable = 1;
 bNoise_level_variable = ~bSpeech_level_variable;
