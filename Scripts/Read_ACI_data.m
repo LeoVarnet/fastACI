@@ -301,7 +301,7 @@ switch version
                         % exp2eval= ['[' str(1:end-1) ']=ListStim(:).RSB;'];
                         % eval(exp2eval);
                         % data_passation.expvar = tmp;
-
+                        cfg_game.experiment = 'speechACI_varnet2013';
                         cfg_game.expvar_description = 'signal-to-noise ratio';
 
                         ListStim = Remove_field(ListStim,'RSB');

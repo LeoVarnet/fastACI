@@ -172,12 +172,19 @@ switch version
             data_passation.is_correct  = data_pa.is_correct;
         end
         
+        if ~isfield(cfg_pa,'Subject_ID')
+            disp('No Subject_ID found...')
+            cfg_pass.Subject_ID  = '';
+        else
+            cfg_pass.Subject_ID  = cfg_pa.Subject_ID;
+        end
+        
         cfg_pass.N_target = N_target;
         cfg_pass.N = length(data_pa.expvar);
         
         disp('')
         
-        ListStim = data_passation.ListStim;
+        ListStim = data_pa.ListStim;
         cfg_pass.N_response = length(cfg_pass.response_names);
         
     case {2015,'2015'}
@@ -258,4 +265,8 @@ switch version
         % ListStim = rmfield(ListStim,{'date','datenum','bytes', 'isdir'});
         
         ListStim = data_passation.ListStim;
+end
+
+if isfield(cfg_pa,'experiment')
+    cfg_pass.experiment = cfg_pa.experiment;
 end

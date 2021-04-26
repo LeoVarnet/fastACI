@@ -280,6 +280,7 @@ str_inout = [];
 str_inout.debut_i = debut_i;
 
 str_inout = staircase_init(str_inout,cfg_game);
+data_passation.reversal_current = str_inout.reversal_current; % always initialised
 
 % expvar_i   = str_inout.expvar;
 
@@ -458,6 +459,8 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
             
             data_passation_init.data_training = data_passation;
             data_passation = data_passation_init; % 'empty' data_passation to start the main experiment
+            
+            data_passation.reversal_current = str_inout.reversal_current;
             %%%% TODO %%%%
             % display instructions main exp
 
@@ -506,6 +509,10 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
                 str_inout.expvar    = expvar;
                 str_inout.stepsize  = stepsize;
                 str_inout.n_correctinarow = n_correctinarow;
+                str_inout.reversal_current = data_passation.reversal_current;
+                if isfield(data_passation,'staircase_direction')
+                    str_inout.staircase_direction = data_passation.staircase_direction;
+                end
                 
                 str_inout = staircase_update(str_inout,cfg_game);
                 
@@ -513,6 +520,9 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
                 expvar    = str_inout.expvar;
                 stepsize  = str_inout.stepsize;
                 n_correctinarow = str_inout.n_correctinarow;
+                
+                data_passation.reversal_current = str_inout.reversal_current;
+                data_passation.staircase_direction = str_inout.staircase_direction;
             end
              
             i_current=i_current+1;

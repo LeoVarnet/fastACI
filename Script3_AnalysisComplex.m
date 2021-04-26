@@ -69,6 +69,11 @@ N_trials    = length(n_responses); % completed number of trials
 n_signal    = data_passation.n_targets(1:N_trials);
 
 Subject_ID = cfg_game.Subject_ID;
+
+if do_behaviour
+    Script3_AnalysisComplex_functions;
+end
+
 % -------------------------------------------------------------------------
 if do_behaviour
     if isfield(cfg_game,'N')

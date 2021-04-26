@@ -27,3 +27,5 @@ str_inout.expvar = expvar;
 str_inout.i_current = i_current;
 str_inout.stepsize = stepsize;
 str_inout.isbreak = isbreak;
+
+str_inout.reversal_current = 0;
