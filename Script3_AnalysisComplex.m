@@ -32,6 +32,9 @@ function data = Script3_AnalysisComplex(file_savegame,opts)
 %       dir_data = [pwd filesep];
 %       Script3_AnalysisComplex(dir_data);
 %
+%       file = '/home/alejandro/Documents/MATLAB/MATLAB_ENS/fastACI_sim/Results/20210421-SAO-5000-trials_speech_varnet2013/savegame_2021_04_22_14_46_SAO-5000-trials_speechACI_varnet2013.mat';
+%       Script3_AnalysisComplex(file);
+%
 % Other scripts from where this processing is called:
 %       g20210211_learning_revcorr;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -57,10 +60,10 @@ dBFS = 93.6139; % previous knowledge
 
 % -------------------------------------------------------------------------
 % --- Load data:
-var = load(file_savegame);
-data_passation_old = var.data_passation;
-cfg_game_old   = var.cfg_game;
-ListStim_old   = var.ListStim; % used in do_analyse_noise
+% var = load(file_savegame);
+% data_passation_old = var.data_passation;
+% cfg_game_old   = var.cfg_game;
+% ListStim_old   = var.ListStim; % used in do_analyse_noise
 
 [cfg_game, data_passation, ListStim] = Convert_ACI_data_type(file_savegame);
 
@@ -70,195 +73,35 @@ n_signal    = data_passation.n_targets(1:N_trials);
 
 Subject_ID = cfg_game.Subject_ID;
 
-if do_behaviour
-    Script3_AnalysisComplex_functions;
-end
-
 % -------------------------------------------------------------------------
 if do_behaviour
-    if isfield(cfg_game,'N')
-        N_total = cfg_game.N; 
-    else
-        N_total = cfg_game.N_presentation*cfg_game.N_target; 
-    end
+    data = Script3_AnalysisComplex_functions(cfg_game,data_passation,'histogram-leo');
     
-    if N_total ~= N_trials
-        disp('This participant did not complete the experiment...')
-        N_trials = floor(N_trials/100)*100;
-        fprintf('\tN_trials is being truncated to a multiple of 100 trials: %.0f\n',N_trials);
-    end
-
-    expvar     = data_passation.expvar(1:N_trials);
-    is_correct = data_passation.is_correct;
-    RT         = data_passation.response_time(1:N_trials);
-
-    if isfield(cfg_game.expvar_description)
-        unit   = cfg_game.expvar_description;
-    else
-        unit = 'm (dB)';
-        warning('Default x-axis variable label');
-    end
-    
-    resp_if_tar = 2; % 'if target' (AM)       - 2 modulated tone
-    resp_if_ref = 1; % 'if reference' (no AM) - 1 pure tone
-
-    % -------------------------------------------------------------------------
-    % --- First figure: Behavioural results
-    n_window = 100;
-    minNformean = 50;
-
-    m_bin = -15.5:1:-0.5;
-    % [N_m,m_edge] = histcounts(m, nbins); % Only in newer MATLAB versions
-    % N_m = hist(m,m_bin); m_edge = m_bin; % In older MATLAB versions
-    [N_m,m_edge] = my_hist(expvar,m_bin); % this really provides edges
-
-    for i_m = 1:length(m_bin)
-        idx_m   = find(expvar>=m_edge(i_m) & expvar<m_edge(i_m+1));
-        idxs_m(i_m) = length(idx_m);
-        
-        n_is_TAR(i_m)  = sum(n_signal(idx_m)==resp_if_tar); 
-        n_is_REF(i_m)  = sum(n_signal(idx_m)==resp_if_ref);
-        
-        H(i_m)  = sum(n_signal(idx_m)==resp_if_tar & n_responses(idx_m)==resp_if_tar); % Hit
-        M(i_m)  = sum(n_signal(idx_m)==resp_if_tar & n_responses(idx_m)==resp_if_ref); % Miss
-        CR(i_m) = sum(n_signal(idx_m)==resp_if_ref & n_responses(idx_m)==resp_if_ref); % Correct rejection
-        FA(i_m) = sum(n_signal(idx_m)==resp_if_ref & n_responses(idx_m)==resp_if_tar); % False alarm
-    end
-    H_tot  = sum(H); 
-    M_tot  = sum(M);
-    CR_tot = sum(CR);
-    FA_tot = sum(FA);
-    tot_classified    = H_tot + CR_tot + M_tot + FA_tot;
-    counted_responses = sum(idxs_m);
-
-    % Sanity check (to know that all responses were processed):
-    if counted_responses ~= N_total
-        error('%s: Not all responses were processed. Check whether the participant indeed completed the whole session...',upper(mfilename))
-    end
-    if tot_classified ~= N_total
-        error('%s: Not all responses were classified as H, M, CR, or FA. Check whether this is correct. If yes, convert this message into a warning only...',upper(mfilename))
-    end
-
-    N_windows = length(n_responses)/n_window;
-
-    % Memory allocation:
-    m_windowed       = nan(1,N_windows);
-    bias_windowed    = nan(1,N_windows);
-    PC_targetpresent = nan(1,N_windows);
-    PC_targetabsent  = nan(1,N_windows);
-    RT_windowed      = nan(1,N_windows);
-
-    for i = 1:N_windows
-        idxs_here = (i-1)*n_window+1:i*n_window; % indexes of the trials within each window
-        response_windowed  = n_responses(idxs_here);
-        signal_windowed    = n_signal(idxs_here);
-
-        m_windowed(i)      = mean(expvar(idxs_here));
-        bias_windowed(i)   = mean(response_windowed);
-        PC_targetpresent(i)= mean(response_windowed(signal_windowed==2))-1;
-        PC_targetabsent(i) = 2-mean(response_windowed(signal_windowed==1));
-        RT_windowed(i)     = mean(RT(idxs_here));
-    end
-
-    % ---
-    m_presentation_nr     = 1:N_trials;
-    m_presentation_nr_win = 1:n_window:N_trials;
-
-    figure('Position', [100 100 800 500]); 
-    subplot(2,2,1); 
-    plot(m_presentation_nr    , expvar         ,'g'); hold on; 
-    plot(m_presentation_nr_win, m_windowed,'k'); 
-    ylim([m_edge(1) m_edge(end)]); 
-    xlabel(' trial #'); ylabel(unit); 
-    xlim([1 length(expvar)]); ylimits=ylim;
-
-    N_sessions = length(data_passation.resume_trial);
-    for i = 1:N_sessions
-        plot(data_passation.resume_trial(i)*[1 1],ylimits,'k:');
-    end
-
-    % ---
-    subplot(2,2,3); 
-    plot(m_presentation_nr_win,PC_targetpresent); hold on; 
-    plot(m_presentation_nr_win,PC_targetabsent);  
-    xlim([1 length(expvar)]); xlabel(' trial #'); 
-    ylabel('correct response rate'); ylim([0 1]); hold on; 
-    plot([1 length(expvar)],[0.5 0.5],'k--'); 
-    ylimits=ylim;
-
-    for i = 1:length(data_passation.resume_trial)
-        % Vertical dotted lines at the points where a new session was started:
-        plot(data_passation.resume_trial(i)*[1 1],ylimits,'k:','LineWidth',2);
-    end
-
-    subplot(2,2,2); 
-    bar(m_bin, [H', M', CR', FA']); 
-    xlim([m_edge(1) m_edge(end)]); 
-    xlabel('m (dB)'); 
-    ylabel('Nb of trials'); hold on; 
-    plot([m_edge(1) m_edge(end)],[minNformean minNformean]/2,'k:');
-    legend({'H', 'M', 'CR', 'FA', 'Nmin'});
-
-    subplot(2,2,4); 
-    bar(m_bin, [H'./(M'+H'), CR'./(CR'+FA')].*[M'+H'>minNformean,CR'+FA'>minNformean]);
-    xlim([m_edge(1) m_edge(end)]); 
-    xlabel('m (dB)'); 
-    ylabel('correct response rate'); 
-    hold on; 
-    plot([m_edge(1) m_edge(end)],[0.5 0.5],'k--'); 
-    legend({'target present', 'target absent','chance level'},'Location','southeast');
-
-    h(end+1) = gcf;
-    hname{end+1} = [Subject_ID '-Behaviour'];
-
-    %%%
-    H_rate = 100*H./n_is_TAR; % /N_tot_signal;
-    CR_rate = 100*CR./n_is_REF; % /N_tot_absent;
-    
-    figure;
-    plot(m_bin,H_rate,'bo-'); hold on;
-    plot(m_bin,CR_rate,'rs--','LineWidth',2);
-    ylim([-3 103]);
-    set(gca,'YTick',0:5:100); grid on
-    xlim([-17 1])
-    set(gca,'XTick',-16:0);
-    
-    legend('H rate','CR rate','Location','NorthWest');
-    ylabel(sprintf('Percentage correct\n(ref. # of presentations per m interval)'));
-    xlabel(['Central bin of the tested ' unit]);
-    
-    h(end+1) = gcf;
-    hname{end+1} = [Subject_ID '-Hit-and-CR-rates-per-bin'];
-    
-    %%%
-    
-    trialnum = 1:n_window:length(expvar);
-    
-    data.trialnum = trialnum;
-    data.m_windowed = m_windowed;
-    data.PC_targetpresent = PC_targetpresent;
-    data.PC_targetabsent  = PC_targetabsent;
-    data.bias_windowed    = bias_windowed;
-    data.N_m = N_m;
-    data.m_edge = m_edge;
-    data.H = H;
-    data.M = M;
-    data.CR = CR;
-    data.FA = FA;
-    
-    data.h = h;
-    data.hname = hname;
+    %%%    
+    trialnum   = data.trialnum;
+    m_windowed = data.m_windowed;
+    % data.PC_targetpresent = PC_targetpresent;
+    % data.PC_targetabsent  = PC_targetabsent;
+    % data.bias_windowed    = bias_windowed;
+    % data.N_m = N_m;
+    bin_edges = data.bin_edges;
+    H = data.H;
+    M = data.M;
+    CR = data.CR;
+    FA = data.FA;
     
     if nargout == 0
-        f2store = [dir_data 'Behaviour.mat'];
-
-        if exist(f2store,'file')
-            bSave = input('File already exists, type 1 to overwrite, 0 to skip this step: ');
-        else
-            bSave = 1;
-        end
-
-        save(f2store,'m_windowed','PC_targetpresent','PC_targetabsent','bias_windowed','trialnum','N_m','m_edge', 'H', 'M', 'CR', 'FA')
+        warning('Skipping the save...')
+    %     f2store = [dir_data 'Behaviour.mat'];
+    % 
+    %     if exist(f2store,'file')
+    %         bSave = input('File already exists, type 1 to overwrite, 0 to skip this step: ');
+    %     else
+    %         bSave = 1;
+    %     end
+    % 
+    %     % save(f2store,'m_windowed','PC_targetpresent','PC_targetabsent','bias_windowed','trialnum','N_m','m_edge', 'H', 'M', 'CR', 'FA')
+    %     save(f2store,'m_windowed','trialnum','bin_edges', 'H', 'M', 'CR', 'FA')
     end
 end
 
