@@ -50,7 +50,9 @@ switch version
             
         end
         
-        if isfield(data_passation,'ListStim')
+        if isfield(cfg_pass,'ListStim')
+            ListStim = cfg_pass.ListStim;
+        elseif isfield(data_passation,'ListStim')
             ListStim = data_passation.ListStim;
         else
             ListStim = dir(strcat(cfg_pass.dir_noise, '/*.wav'));
