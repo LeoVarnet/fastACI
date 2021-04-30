@@ -7,12 +7,12 @@ if nargin == 0
     cfg_inout = [];
 end
  
-dir_main = '/home/alejandro/Documents/Databases/data/fastACI/speechACI_Logatome/';
+dir_main = 'C:\Users\Varnet Léo\Dropbox\Data\Projet fastACI\';%'/home/alejandro/Documents/Databases/data/fastACI/speechACI_Logatome/';
 dir_logatome_src = '/media/alejandro/My Passport/Databases/data-Speech/french/Logatome/'; % Logatome-average-power-speaker-S46M_FR.mat
 
 dir_speech = [dir_main cfg_inout.Subject_ID filesep 'speech-samples' filesep];
-noise_type = 'SSN';
-% noise_type = 'white';
+%noise_type = 'SSN';
+ noise_type = 'white';
 
 switch noise_type
     case 'SSN'
