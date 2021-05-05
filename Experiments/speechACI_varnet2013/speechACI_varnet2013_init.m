@@ -75,8 +75,8 @@ if exist(dir_noise,'dir')
     bGenerate_stimuli = 0;
 else
     bGenerate_stimuli = 1;
-    if isfield(cfg,'Condition')
-        switch cfg.Condition
+    if isfield(cfg_inout,'Condition')
+        switch cfg_inout.Condition
             case 'white'
                 % Nothing to do...just continue
             otherwise

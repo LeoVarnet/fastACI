@@ -69,7 +69,7 @@ end
 %%% Checking if an *.init file is found on disc:
 script_name = sprintf('%s_init',experiment);
 if exist([script_name '.m'],'file')
-    fprintf('\tScript %.m found on disc...\n',script_name);
+    fprintf('\tScript %s.m found on disc...\n',script_name);
     exp2eval = sprintf('cfg_crea=%s(cfg_crea);',script_name);
     eval(exp2eval);
 else
