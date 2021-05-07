@@ -52,10 +52,10 @@ elseif n_correctinarow == 1
     end
 end
 
-if expvar>1
-    error('This line should be removed')
-    % expvar=1;
-end
+% if expvar>1
+%     error('This line should be removed')
+%     % expvar=1;
+% end
 
 if reversal_current ~= 0 && mod(reversal_current,2) == 0
     % if n_correctinarow == 0 % change stepsize
