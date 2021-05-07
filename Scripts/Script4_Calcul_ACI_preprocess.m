@@ -61,15 +61,6 @@ for i=cfg_ACI.n_signal_analysis
 end
 idx_analysis = find(select_n_trials & select_SNR & select_n_signal);
 
-% % Egalisation du nbr de reponses , si demandé
-% if isyes(cfg_ACI.egalisation)
-%     error('Not validated yet...')
-%     % idx_1=find(n_reponse_here==1);
-%     % idx_2=find(n_reponse_here==2);
-%     % min_nidx=min(length(idx_1),length(idx_2));
-%     % idx_analysis=[idx_1(1:min_nidx),idx_2(1:min_nidx)];
-% end
-
 cfg_ACI.N_trials = length(idx_analysis);
 y         = double((n_response_here(idx_analysis)==1)');
 y_correct = double((cfg_ACI.response_correct_target(n_targets_here(idx_analysis))==1)');
@@ -99,12 +90,7 @@ end
 
 %%% End: Testing Alejandro on 27/04/2021
     
-switch cfg_ACI.withX
-    case {1,'yes','oui'}
-        X = Data_matrix(idx_analysis,:);
-    otherwise
-        X = [];
-end
+X = Data_matrix(idx_analysis,:);
     
 switch cfg_ACI.withU
     case {1,'yes','oui'}

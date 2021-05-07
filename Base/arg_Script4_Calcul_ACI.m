@@ -6,8 +6,8 @@ function definput = arg_Script4_Calcul_ACI(definput)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 definput.flags.DimCI  = {'tf','lyon','noise_logspect'};
-definput.flags.glmfct = {'CI_glmqpoptim_fct','lassoglm','classic_revcorr'};
-
+definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','classic_revcorr'};
+% Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','classic_revcorr'};
 definput.flags.permutation = {'permutation','no_permutation'};
 definput.flags.recreate_validation = {'no_recreate_validation','recreate_validation'};
 

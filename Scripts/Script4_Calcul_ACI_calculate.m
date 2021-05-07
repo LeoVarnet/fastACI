@@ -40,7 +40,7 @@ fprintf('Starting the ACI assessment\n');% ,Analysis_condition);
 tic
 
 switch glmfct
-    case 'CI_glmqpoptim_fct'
+    case 'glmfitqp'
         [ACI, results, cfg_ACI] = CI_glmqpoptim_fct(cfg_ACI, y, y_correct, X, U); 
 
         if cfg_ACI.flags.do_permutation
