@@ -144,9 +144,12 @@ switch version
         end
         
         stim_order = cfg_pa.stim_order;
+        cfg_pass.n_response_correct_target_sorted = cfg_pa.n_response_correct_target;
         cfg_pass.stim_order  = stim_order;
         cfg_pass.response_correct_target = cfg_pa.CorrectResponses;
         cfg_pass.response_names   = cfg_pa.NameResponse;
+        
+        data_passation.n_response_correct_target = cfg_pa.n_response_correct_target(stim_order);
         
         N_target = length(cfg_pass.response_correct_target);
         
