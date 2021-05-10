@@ -7,7 +7,16 @@ if nargin == 0
     cfg_inout = [];
 end
  
-dir_main = '/Users/leovarnet/ownCloud/Data/Projet fastACI/';%'C:\Users\Varnet L�o\Dropbox\Data\Projet fastACI/';%'/home/alejandro/Documents/Databases/data/fastACI/speechACI_varnet2013/';
+if ismac % lab's computer
+    dir_main = '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
+end
+if iswindows % Leo's computer
+    dir_main = 'C:\Users\Varnet L�o\Dropbox\Data\Projet fastACI/';
+end
+if isunix % Alejandro's computer
+   dir_main = '/home/alejandro/Documents/Databases/data/fastACI/speechACI_varnet2013/';
+end
+
 dir_speech = [dir_main cfg_inout.Subject_ID filesep 'speech-samples' filesep];
 if ~isfield(cfg_inout,'Condition')
     dir_name_noise = 'NoiseStim';
