@@ -18,7 +18,11 @@ end
 
 % Default number of permutations N_perm (if do_permutation == 1):
 switch flags.glmfct
-    case 'CI_glmqpoptim_fct'
+    case {'glmfitqp','CI_glmqpoptim_fct'}
+        
+        if strcmp(flags.glmfct,'CI_glmqpoptim_fct')
+            warning('glmfct name ''%s'' will be soon deprecated, please use ''glmfitqp'' instead...',flags.glmfct)
+        end
         
         prior = 'smoothness';
         lambda0 = 5;

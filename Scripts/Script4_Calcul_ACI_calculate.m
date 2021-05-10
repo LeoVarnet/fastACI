@@ -39,18 +39,23 @@ N_t = length(cfg_ACI.t);
 fprintf('Starting the ACI assessment\n');% ,Analysis_condition);
 tic
 
+do_permutation = cfg_ACI.flags.do_permutation;
+if do_permutation
+    cfg_perm = cfg_ACI.cfg_perm;
+    N_perm = cfg_perm.N_perm;
+end
+
 switch glmfct
     case 'glmfitqp'
         [ACI, results, cfg_ACI] = CI_glmqpoptim_fct(cfg_ACI, y, y_correct, X, U); 
 
-        if cfg_ACI.flags.do_permutation
-            cfg_perm = cfg_ACI.cfg_perm;
+        if do_permutation
             cfg_perm = Merge_structs(cfg_perm,cfg_ACI);
             cfg_perm.maxiter = 1;
             cfg_perm.lambda0 = results.finallambda * sqrt(cfg_ACI.stepsize); % crossValidate.m: stepsize will be 'compensated'
 
-            for i = 1:cfg_perm.N_perm
-                fprintf('\t Assessing permuted ACI: %.0f of %.0f\n',i,cfg_perm.N_perm);
+            for i = 1:N_perm
+                fprintf('\t Assessing permuted ACI: %.0f of %.0f\n',i,N_perm);
 
                 U_perm_here = squeeze(cfg_perm.U_perm(:,:,i));
                 [ACI_perm_here, results_perm, cfg_perm] = CI_glmqpoptim_fct(cfg_perm, cfg_perm.y_perm(:,i), [], X, U_perm_here); 

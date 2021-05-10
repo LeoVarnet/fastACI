@@ -6,9 +6,10 @@ function [y, y_correct, X, U, cfg_ACI] = Script4_Calcul_ACI_preprocess(cfg_ACI, 
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-n_response_here = data_passation.n_responses(cfg_ACI.IdxTrialsLoad);
-n_targets_here  = data_passation.n_targets(cfg_ACI.IdxTrialsLoad);
-expvar          = data_passation.expvar(cfg_ACI.IdxTrialsLoad);
+idx_trialselect = cfg_ACI.idx_trialselect;
+n_responses = data_passation.n_responses(idx_trialselect); % responses given by the participant (trial order)
+n_targets   = data_passation.n_targets(idx_trialselect); % expected responses (trial order)
+expvar      = data_passation.expvar(idx_trialselect); % value of the experimental variable (trial order)
     
 % Selection of the condition
 % cfg_ACI.NameCond = Condition;
@@ -48,22 +49,23 @@ end
 %         error(['Condition inconnue : ' cfg_ACI.NameCond])
 % end
 
-cfg_ACI = set_default_cfg(cfg_ACI, 'SNR_analysis', [min(expvar) max(expvar)], 'n_signal_analysis', 1:cfg_ACI.N_target, 'n_trials_analysis', [1 cfg_ACI.N_TrialsLoad]);
+cfg_ACI = set_default_cfg(cfg_ACI, 'SNR_analysis', [min(expvar) max(expvar)], ...
+    'n_signal_analysis', 1:cfg_ACI.N_target, 'n_trials_analysis', [1 cfg_ACI.N_trialselect]);
 
-N_TrialsLoad = cfg_ACI.N_TrialsLoad;
-select_n_trials = (1:N_TrialsLoad>=cfg_ACI.n_trials_analysis(1) & 1:N_TrialsLoad<=cfg_ACI.n_trials_analysis(2));
+N_trialselect = cfg_ACI.N_trialselect;
+select_n_trials = (1:N_trialselect>=cfg_ACI.n_trials_analysis(1) & 1:N_trialselect<=cfg_ACI.n_trials_analysis(2));
  
 select_SNR = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_analysis(2));
-select_n_signal = zeros(1,N_TrialsLoad);
+select_n_signal = zeros(1,N_trialselect);
 
 for i=cfg_ACI.n_signal_analysis
-    select_n_signal = ((n_targets_here==i) | select_n_signal);
+    select_n_signal = ((n_targets==i) | select_n_signal);
 end
 idx_analysis = find(select_n_trials & select_SNR & select_n_signal);
 
 cfg_ACI.N_trials = length(idx_analysis);
-y         = double((n_response_here(idx_analysis)==1)');
-y_correct = double((cfg_ACI.response_correct_target(n_targets_here(idx_analysis))==1)');
+y         = double((n_responses(idx_analysis)==1)');
+y_correct = double((cfg_ACI.response_correct_target(n_targets(idx_analysis))==1)');
 % y_correct indicates the trials where target '1' has been expected to 
 %     be chosen or 'target 1 present' trials
     
@@ -74,7 +76,7 @@ if do_permutation
     for i = 1:N_perm
         cfg_perm.idxs_perm(:,i) = transpose(randperm(cfg_ACI.N_trials));
         cfg_perm.y_perm(:,i)    = y(cfg_perm.idxs_perm(:,i)); % random answers
-        n_targets_perm = n_targets_here(cfg_perm.idxs_perm(:,i));
+        n_targets_perm = n_targets(cfg_perm.idxs_perm(:,i));
         cfg_perm.y_correct_perm(:,i) = double((cfg_ACI.response_correct_target(n_targets_perm(idx_analysis))==1)');
 
         n_responses_perm = data_passation.n_responses(idx_analysis);
