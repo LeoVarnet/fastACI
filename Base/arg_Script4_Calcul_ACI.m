@@ -13,5 +13,22 @@ definput.flags.recreate_validation = {'no_recreate_validation','recreate_validat
 
 % Default number of permutations N_perm (if do_permutation == 1):
 definput.keyvals.N_perm = 20; % default number of ACI assessments for the permutation test
+definput.keyvals.N_folds = 10; 
 
+definput.keyvals.dir_noise = []; 
+definput.keyvals.idx_trialselect = []; 
+
+definput.keyvals.f_limits = [1 10000]; % Hz, arbitrary frequencies to be used as limits 
+definput.keyvals.t_limits = [0 1]; 
 % %definput.groups.adt_dau = {'tau',[0.005 0.050 0.129 0.253 0.500]};
+
+% % Managing some default values: time and frequency limits
+% if flags.do_tf
+%     opts_ACI = Ensure_field(opts_ACI,'freq_analysis',[1 10000]);
+%     opts_ACI = Ensure_field(opts_ACI,'time_analysis',[0 0.6]);
+% end
+% 
+% if flags.do_lyon
+%     opts_ACI = Ensure_field(opts_ACI,'freq_analysis',[1  8000]);
+%     opts_ACI = Ensure_field(opts_ACI,'time_analysis',[0 1]); 
+% end

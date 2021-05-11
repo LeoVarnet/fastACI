@@ -1,5 +1,5 @@
-function [ACI,cfg_ACI,results] = Script4_Calcul_ACI(savegame_file,TF_type,opts_ACI,varargin)
-% function [ACI,cfg_ACI,results] = Script4_Calcul_ACI(savegame_file,TF_type,opts_ACI,varargin)
+function [ACI,cfg_ACI,results] = Script4_Calcul_ACI(savegame_file,varargin)
+% function [ACI,cfg_ACI,results] = Script4_Calcul_ACI(savegame_file,varargin)
 %
 % 1. Description (FR):
 %       Se placer dans le dossier contenant le dossier contenant les donnees 
@@ -36,10 +36,8 @@ function [ACI,cfg_ACI,results] = Script4_Calcul_ACI(savegame_file,TF_type,opts_A
 if nargin == 0
     error('%s: Please spefify the identifier of the subject from whom you want to process the data',upper(mfilename));
 end
-if nargin < 3
-    opts_ACI = [];
-end
 
+opts_ACI = []; warning('Temporal')
 %% 1. Reading the experimental data (*.mat file):
 [cfg_game, data_passation, ListStim] = Convert_ACI_data_type(savegame_file,opts_ACI);
 N = cfg_game.N;
@@ -57,22 +55,9 @@ else
 end
 
 %% 2. Reading or setting options for calculation:
-if isfield(opts_ACI,'IdxTrialsLoad')
-    error('%s: Please redefine the field ''IdxTrialsLoad'' (deprecated name) to ''idx_trialselect'' (new name)',upper(mfilename));
-end
-
-if isfield(opts_ACI,'idx_trialselect')
-    idx_trialselect = opts_ACI.idx_trialselect;
-    if ~isempty(idx_trialselect)
-        str_last_trial = ['-up-to-trial-' num2str(length(idx_trialselect))];
-    else
-        idx_trialselect = 1:N; % length(data_passation.n_reponse);
-        str_last_trial = '';
-    end
-else
-    idx_trialselect = [];
-    str_last_trial = '';
-end
+% if isfield(opts_ACI,'IdxTrialsLoad')
+%     error('%s: Please redefine the field ''IdxTrialsLoad'' (deprecated name) to ''idx_trialselect'' (new name)',upper(mfilename));
+% end
 
 %%% 2.1 Options for the ACI calculation: ----------------------------------
 
@@ -80,20 +65,22 @@ end
 opts_ACI = Ensure_field(opts_ACI,'Analysis_condition','total'); % tableau de cellules contenant les noms de la ou des conditions à calculer
 Analysis_condition = opts_ACI.Analysis_condition;
 
-opts_ACI = Ensure_field(opts_ACI,'glmfct','glmfitqp'); % old name: CI_glmqpoptim_fct
-glmfct = opts_ACI.glmfct;
-
-varextra = {TF_type,glmfct};
-
 % From argument function:
 definput.import={'Script4_Calcul_ACI'}; % arg_Script4_Calcul_ACI
-varin = [varargin,varextra];
-[flags,keyvals]  = ltfatarghelper([],definput,varin);
+[flags,keyvals]  = ltfatarghelper([],definput,varargin);
 
 % do_permutation = flags.do_permutation; % By default the permutation test is 'on'
 do_recreate_validation = flags.do_recreate_validation;
-
+TF_type = flags.TF_type;
+glmfct  = flags.glmfct;
 % END: From argument function:
+
+if isempty(keyvals.idx_trialselect)
+    keyvals.idx_trialselect = 1:N;
+    str_last_trial = '';
+else
+    str_last_trial = ['-up-to-trial-' num2str(length(keyvals.idx_trialselect))];
+end
 
 Condition = '';
 if isfield(cfg_game,'Condition')
@@ -141,7 +128,7 @@ cfg_ACI.flags = flags;
 cfg_ACI.keyvals = keyvals;
 cfg_ACI.fnameACI = fnameACI;
 
-cfg_ACI.idx_trialselect   = idx_trialselect; % numeros des essais utilises pour le calcul (defaut = 1:cfg_ACI.N), si possible les essais sont pris dans l'ordre de presentation
+cfg_ACI.idx_trialselect   = cfg_ACI.keyvals.idx_trialselect; % numeros des essais utilises pour le calcul (defaut = 1:cfg_ACI.N), si possible les essais sont pris dans l'ordre de presentation
 
 cfg_ACI.WithSNR           = 'no'; % baser le calcul sur les échantillons de bruit uniquement, au niveau de bruit de l'essai (default 'non')
 cfg_ACI.WithSignal        = 'no'; % baser le calcul sur le stimulus complet (signal + bruit) (default 'non'). Si WithSNR et WithSignal sont négatifs, le calcul se base sur le bruit uniquement, sans prise en compte du SNR
@@ -149,24 +136,14 @@ cfg_ACI.dB                = 'no'; % Utiliser des prédicteurs en dB plutôt qu'e
 
 cfg_ACI.withU             = 1; % 'yes'; % Ajouter deux paramètres U au modèle
  
-if isfield(opts_ACI,'N_folds')
-    N_folds = opts_ACI.N_folds;
-else
-    switch cfg_ACI.glmfct
-        case {'glmqfitqp','lassoglm'}
-            % Common parameters:
-            N_folds = 10; % Number of randomisations at each iteration
-    end
-end
-
 switch cfg_ACI.glmfct
     case 'glmfitqp'
         check_cfg(cfg_ACI, 'prior','lambda0', 'stepsize', 'maxiter', 'nobreak', 'minDiffSecondRound');
-        cfg_ACI.N_folds   = N_folds;
+        cfg_ACI.N_folds   = cfg_ACI.keyvals.N_folds;
         
     case 'lassoglm'
         cfg_ACI.lambda0   = [];
-        cfg_ACI.N_folds    = N_folds; 
+        cfg_ACI.N_folds    = cfg_ACI.keyvals.N_folds; 
         
     case 'classic_revcorr'
         
@@ -182,19 +159,8 @@ end
 %     cfg_ACI.flt_quefrcoup = 1/500;   % quefrence de coupure en s
 % end
 
-% Managing some default values: time and frequency limits
-if flags.do_tf
-    opts_ACI = Ensure_field(opts_ACI,'freq_analysis',[1 10000]);
-    opts_ACI = Ensure_field(opts_ACI,'time_analysis',[0 0.6]);
-end
-
-if flags.do_lyon
-    opts_ACI = Ensure_field(opts_ACI,'freq_analysis',[1  8000]);
-    opts_ACI = Ensure_field(opts_ACI,'time_analysis',[0 1]); 
-end
-
-cfg_ACI.freq_analysis = opts_ACI.freq_analysis; % bande de frequences pour analyse
-cfg_ACI.time_analysis = opts_ACI.time_analysis; % bande de temps pour analyse
+cfg_ACI.freq_analysis = cfg_ACI.keyvals.f_limits; % bande de frequences pour analyse
+cfg_ACI.time_analysis = cfg_ACI.keyvals.t_limits; % bande de temps pour analyse
  
 if flags.do_tf
     check_cfg(cfg_ACI, 'freq_analysis', 'time_analysis', 'overlap', 'Nwindow', 'NFFT');
@@ -214,10 +180,10 @@ cfg_ACI = set_default_cfg(cfg_ACI, 'N_trialselect', length(cfg_ACI.idx_trialsele
 % ADD HERE: RECONSTRUCTION OF NOISE WAVEFORMS FOR SEEDS EXPERIMENTS
 if bCalculation || do_recreate_validation
     
-    if isfield(opts_ACI,'dir_noise')
+    if ~isempty(cfg_ACI.keyvals.dir_noise)
         fprintf('%s: Using dir_noise specified as input parameter by the user\n',upper(mfilename));
-        fprintf('\tNew cfg_game.dir_noise=%s\n',opts_ACI.dir_noise);
-        cfg_ACI.dir_noise = opts_ACI.dir_noise;
+        fprintf('\tNew cfg_game.dir_noise=%s\n',cfg_ACI.keyvals.dir_noise);
+        cfg_ACI.dir_noise = cfg_ACI.keyvals.dir_noise;
     end
     
     if ~exist(cfg_ACI.dir_noise,'dir')
