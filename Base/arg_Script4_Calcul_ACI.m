@@ -5,7 +5,7 @@ function definput = arg_Script4_Calcul_ACI(definput)
 %   'permutation' or 'no_permutation': to perform or not the permutation test
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-definput.flags.DimCI  = {'tf','lyon','noise_logspect'};
+definput.flags.TF_type = {'tf','lyon','noise_logspect'};
 definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','classic_revcorr'};
 % Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','classic_revcorr'};
 definput.flags.permutation = {'permutation','no_permutation'};
