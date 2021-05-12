@@ -85,9 +85,11 @@ switch glmfct
         % results.evaluation.opts
 
     case 'classic_revcorr'
-        ACI = corr(y,X);
+        [ACI, pval_ACI] = corr(y,X);
         ACI = reshape(ACI, [N_f,N_t]);
+        pval_ACI = reshape(pval_ACI, [N_f,N_t]);
         results.ACI = ACI;
+        results.pval_ACI = pval_ACI;
 
         if do_permutation
             for i = 1:N_perm
