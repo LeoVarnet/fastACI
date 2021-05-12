@@ -62,8 +62,8 @@ end
 %%% 2.1 Options for the ACI calculation: ----------------------------------
 
 % General parameters
-opts_ACI = Ensure_field(opts_ACI,'Analysis_condition','total'); % tableau de cellules contenant les noms de la ou des conditions à calculer
-Analysis_condition = opts_ACI.Analysis_condition;
+% opts_ACI = Ensure_field(opts_ACI,'Analysis_condition','total'); % tableau de cellules contenant les noms de la ou des conditions à calculer
+Analysis_condition = 'total'; warning('Remove soon...')
 
 % From argument function:
 definput.import={'Script4_Calcul_ACI'}; % arg_Script4_Calcul_ACI
@@ -183,18 +183,17 @@ if bCalculation || do_recreate_validation
     if ~isempty(cfg_ACI.keyvals.dir_noise)
         fprintf('%s: Using dir_noise specified as input parameter by the user\n',upper(mfilename));
         fprintf('\tNew cfg_game.dir_noise=%s\n',cfg_ACI.keyvals.dir_noise);
+        if isfield(cfg_ACI,'dir_noise')
+            fprintf('\t The directory used during the experiments has been stored as dir_noise_original=%s\n',cfg_ACI.dir_noise);
+            cfg_ACI.dir_noise_original = cfg_ACI.dir_noise;
+        end
         cfg_ACI.dir_noise = cfg_ACI.keyvals.dir_noise;
+        
     end
     
     if ~exist(cfg_ACI.dir_noise,'dir')
         % If it does not exist
-        if isfield(opts_ACI,'dir_noise')
-            dir_noise = opts_ACI.dir_noise;
-            if ~exist(dir_noise,'dir')
-                error('%s: No valid noise directory (''dir_noise''). cfg_game contains a folder that was not found, please a valid opts_ACI.dir_noise.',upper(mfilename))
-            end
-            cfg_ACI.dir_noise = dir_noise;
-        end
+        error('%s: No valid noise directory (''dir_noise''). cfg_game contains a folder that was not found, please enter a valid dir_noise.',upper(mfilename))
     end
         
     [Data_matrix,cfg_ACI] = data_load(cfg_ACI, ListStim, 'WithSNR', cfg_ACI.WithSNR, 'WithSignal', cfg_ACI.WithSignal, 'dB', cfg_ACI.dB);
