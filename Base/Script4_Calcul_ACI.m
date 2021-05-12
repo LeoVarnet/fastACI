@@ -121,6 +121,13 @@ end
 % cfg_game = Ensure_field(cfg_game,'response_names',{'Signal#1','Signal#2'});
 cfg_ACI = import_cfg(cfg_game, 'dir_noise', 'N', 'N_target', ... % 'dir_target', 'N_response'
     'stim_order', 'target_names', 'response_correct_target','response_names');
+
+%Added by Leo:
+cfg_ACI.Subject_ID = cfg_game.Subject_ID;
+cfg_ACI.experiment = cfg_game.experiment;
+cfg_ACI.Condition = cfg_game.Condition;
+%
+
 cfg_ACI = arg_TF_type(cfg_ACI, flags);
 cfg_ACI = arg_glmfct(cfg_ACI, flags);
 
