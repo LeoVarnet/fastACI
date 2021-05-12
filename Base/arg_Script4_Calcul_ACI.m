@@ -20,7 +20,7 @@ definput.keyvals.idx_trialselect = [];
 
 definput.keyvals.f_limits = [1 10000]; % Hz, arbitrary frequencies to be used as limits 
 definput.keyvals.t_limits = [0 1]; 
-% %definput.groups.adt_dau = {'tau',[0.005 0.050 0.129 0.253 0.500]};
+definput.keyvals.expvar_limits = [];
 
 % % Managing some default values: time and frequency limits
 % if flags.do_tf

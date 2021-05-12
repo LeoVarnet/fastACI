@@ -14,7 +14,11 @@ expvar      = data_passation.expvar(idx_trialselect); % value of the experimenta
 % Selection of the condition
 % cfg_ACI.NameCond = Condition;
 cfg_ACI.n_signal_analysis = []; % perform analysis only on trials corresponding to specific signals numbers
-cfg_ACI.SNR_analysis      = []; % select a range of SNR
+if ~isempty(cfg_ACI.keyvals.expvar_limits)
+    cfg_ACI.SNR_analysis  = cfg_ACI.keyvals.expvar_limits; % select a range of SNR
+else
+    cfg_ACI.SNR_analysis  = [min(expvar) max(expvar)];
+end
 cfg_ACI.n_trials_analysis = []; % select a range of trial numbers
 
 do_permutation = cfg_ACI.flags.do_permutation; % By default the permutation test is 'on'
@@ -49,23 +53,33 @@ end
 %         error(['Condition inconnue : ' cfg_ACI.NameCond])
 % end
 
-cfg_ACI = set_default_cfg(cfg_ACI, 'SNR_analysis', [min(expvar) max(expvar)], ...
+cfg_ACI = set_default_cfg(cfg_ACI, ...
     'n_signal_analysis', 1:cfg_ACI.N_target, 'n_trials_analysis', [1 cfg_ACI.N_trialselect]);
 
 N_trialselect = cfg_ACI.N_trialselect;
 select_n_trials = (1:N_trialselect>=cfg_ACI.n_trials_analysis(1) & 1:N_trialselect<=cfg_ACI.n_trials_analysis(2));
  
-select_SNR = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_analysis(2));
-select_n_signal = zeros(1,N_trialselect);
+expvar_trialselect = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_analysis(2));
 
-for i=cfg_ACI.n_signal_analysis
-    select_n_signal = ((n_targets==i) | select_n_signal);
+%%% select_n_signal: to process target 1 or 2, or 1 and 2
+% select_n_signal = zeros(1,N_trialselect);
+% 
+% for i=cfg_ACI.n_signal_analysis
+%     select_n_signal = ((n_targets==i) | select_n_signal);
+% end
+idx_analysis = find(select_n_trials & expvar_trialselect); % & select_n_signal);
+
+if length(idx_analysis) ~= size(Data_matrix,1)
+    fprintf('\t%s: Selecting a subset of the experimental trials:\n',upper(mfilename));
+    fprintf('\t\t %.0f trials out of %.0f are being processed (expvar_limits between %.1f and %.1f)\n',length(idx_analysis),size(Data_matrix,1),cfg_ACI.SNR_analysis);
 end
-idx_analysis = find(select_n_trials & select_SNR & select_n_signal);
 
 cfg_ACI.N_trials = length(idx_analysis);
-y         = double((n_responses(idx_analysis)==1)');
-y_correct = double((cfg_ACI.response_correct_target(n_targets(idx_analysis))==1)');
+y_all     = double((n_responses==1)'); % all trials that for which target 1 has been chosen
+y         = y_all(idx_analysis);
+
+n_targets_select = n_targets(idx_analysis);
+y_correct = double((cfg_ACI.response_correct_target(n_targets_select)==1)');
 % y_correct indicates the trials where target '1' has been expected to 
 %     be chosen or 'target 1 present' trials
     
@@ -76,8 +90,8 @@ if do_permutation
     for i = 1:N_perm
         cfg_perm.idxs_perm(:,i) = transpose(randperm(cfg_ACI.N_trials));
         cfg_perm.y_perm(:,i)    = y(cfg_perm.idxs_perm(:,i)); % random answers
-        n_targets_perm = n_targets(cfg_perm.idxs_perm(:,i));
-        cfg_perm.y_correct_perm(:,i) = double((cfg_ACI.response_correct_target(n_targets_perm(idx_analysis))==1)');
+        n_targets_perm = n_targets_select(cfg_perm.idxs_perm(:,i));
+        cfg_perm.y_correct_perm(:,i) = double((cfg_ACI.response_correct_target(n_targets_perm)==1)');
 
         n_responses_perm = data_passation.n_responses(idx_analysis);
         n_responses_perm = n_responses_perm(cfg_perm.idxs_perm(:,i));
