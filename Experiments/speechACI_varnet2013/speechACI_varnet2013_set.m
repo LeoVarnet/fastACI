@@ -10,8 +10,8 @@ end
 if ismac % lab's computer
     dir_main = '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
 end
-if iswindows % Leo's computer
-    dir_main = 'C:\Users\Varnet Lï¿½o\Dropbox\Data\Projet fastACI/';
+if ispc % Leo's computer
+    dir_main = 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';%'C:\Users\Varnet Lï¿½o\Dropbox\Data\Projet fastACI/';
 end
 if isunix % Alejandro's computer
    dir_main = '/home/alejandro/Documents/Databases/data/fastACI/speechACI_varnet2013/';
