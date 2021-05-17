@@ -37,12 +37,15 @@ if nargin == 0
     error('%s: Please spefify the identifier of the subject from whom you want to process the data',upper(mfilename));
 end
 
-opts_ACI = []; warning('Temporal')
+% From argument function:
+definput.import={'Script4_Calcul_ACI'}; % arg_Script4_Calcul_ACI
+[flags,keyvals]  = ltfatarghelper([],definput,varargin);
+
 %% 1. Reading the experimental data (*.mat file):
-[cfg_game, data_passation, ListStim] = Convert_ACI_data_type(savegame_file,opts_ACI);
+[cfg_game, data_passation, ListStim] = Convert_ACI_data_type(savegame_file,keyvals);
 N = cfg_game.N;
 
-if ~isfield(opts_ACI,'dir_out')
+if isempty(keyvals.dir_out)
     warning('No output directory (opts_ACI.dir_out) has been specified, the same folder where the MAT file is will be used...');
     % dir_subject = [dir_where Subject_ID filesep];
     % 
@@ -51,7 +54,7 @@ if ~isfield(opts_ACI,'dir_out')
     path = [path filesep];
     dir_out = path;
 else
-    dir_out = opts.dir_out;
+    dir_out = keyvals.dir_out;
 end
 
 %% 2. Reading or setting options for calculation:
@@ -65,9 +68,9 @@ end
 % opts_ACI = Ensure_field(opts_ACI,'Analysis_condition','total'); % tableau de cellules contenant les noms de la ou des conditions à calculer
 Analysis_condition = 'total'; warning('Remove soon...')
 
-% From argument function:
-definput.import={'Script4_Calcul_ACI'}; % arg_Script4_Calcul_ACI
-[flags,keyvals]  = ltfatarghelper([],definput,varargin);
+% % From argument function:
+% definput.import={'Script4_Calcul_ACI'}; % arg_Script4_Calcul_ACI
+% [flags,keyvals]  = ltfatarghelper([],definput,varargin);
 
 % do_permutation = flags.do_permutation; % By default the permutation test is 'on'
 do_recreate_validation = flags.do_recreate_validation;
@@ -122,13 +125,18 @@ end
 cfg_ACI = import_cfg(cfg_game, 'dir_noise', 'N', 'N_target', ... % 'dir_target', 'N_response'
     'stim_order', 'target_names', 'response_correct_target','response_names');
 
-%Added by Leo:
-cfg_ACI.Subject_ID = cfg_game.Subject_ID;
-cfg_ACI.experiment = cfg_game.experiment;
-cfg_ACI.Condition = cfg_game.Condition;
+if isfield(cfg_game,'Subject_ID')
+    cfg_ACI.Subject_ID = cfg_game.Subject_ID;
+end
+if isfield(cfg_game,'experiment')
+    cfg_ACI.experiment = cfg_game.experiment;
+end
+if isfield(cfg_game,'Condition')
+    cfg_ACI.Condition = cfg_game.Condition;
+end
 %
 
-cfg_ACI = arg_TF_type(cfg_ACI, flags);
+cfg_ACI = arg_TF_type(cfg_ACI, flags, keyvals);
 cfg_ACI = arg_glmfct(cfg_ACI, flags);
 
 cfg_ACI.flags = flags;
@@ -136,10 +144,6 @@ cfg_ACI.keyvals = keyvals;
 cfg_ACI.fnameACI = fnameACI;
 
 cfg_ACI.idx_trialselect   = cfg_ACI.keyvals.idx_trialselect; % numeros des essais utilises pour le calcul (defaut = 1:cfg_ACI.N), si possible les essais sont pris dans l'ordre de presentation
-
-cfg_ACI.WithSNR           = 'no'; % baser le calcul sur les échantillons de bruit uniquement, au niveau de bruit de l'essai (default 'non')
-cfg_ACI.WithSignal        = 'no'; % baser le calcul sur le stimulus complet (signal + bruit) (default 'non'). Si WithSNR et WithSignal sont négatifs, le calcul se base sur le bruit uniquement, sans prise en compte du SNR
-cfg_ACI.dB                = 'no'; % Utiliser des prédicteurs en dB plutôt qu'en amplitude
 
 cfg_ACI.withU             = 1; % 'yes'; % Ajouter deux paramètres U au modèle
  
@@ -166,20 +170,13 @@ end
 %     cfg_ACI.flt_quefrcoup = 1/500;   % quefrence de coupure en s
 % end
 
-cfg_ACI.freq_analysis = cfg_ACI.keyvals.f_limits; % bande de frequences pour analyse
-cfg_ACI.time_analysis = cfg_ACI.keyvals.t_limits; % bande de temps pour analyse
+cfg_ACI.f_limits = cfg_ACI.keyvals.f_limits; % bande de frequences pour analyse
+cfg_ACI.t_limits = cfg_ACI.keyvals.t_limits; % bande de temps pour analyse
  
-if flags.do_tf
-    check_cfg(cfg_ACI, 'freq_analysis', 'time_analysis', 'overlap', 'Nwindow', 'NFFT');
-end
-   
 if flags.do_lyon
     check_cfg(cfg_ACI, 'freq_analysis', 'time_analysis', 'decimation', 'earQ', 'stepfactor');
 end
 
-% cfg_ACI = set_default_cfg(cfg_ACI, 'dir_noise', 'ListeBruit', 'dir_target', ... 
-%     'ListeSignal', 'N', N, 'N_target', N_target, 'N_response', N_response, 'target_names', {'signal#1', 'signal#2'}, 'response_names', {'signal#1', 'signal#2'}, ...
-%     'IdxTrialsLoad', 1:N, 'WithSNR', 'non'); %'Basis', 'laplacian', 'folds', 5
 cfg_ACI = set_default_cfg(cfg_ACI, 'N_trialselect', length(cfg_ACI.idx_trialselect));
 
 %% 3. Loading the data: Reading the sound waveforms
@@ -203,7 +200,7 @@ if bCalculation || do_recreate_validation
         error('%s: No valid noise directory (''dir_noise''). cfg_game contains a folder that was not found, please enter a valid dir_noise.',upper(mfilename))
     end
         
-    [Data_matrix,cfg_ACI] = data_load(cfg_ACI, ListStim, 'WithSNR', cfg_ACI.WithSNR, 'WithSignal', cfg_ACI.WithSignal, 'dB', cfg_ACI.dB);
+    [Data_matrix,cfg_ACI] = data_load(cfg_ACI, ListStim);
 end
  
 %% 4. Preprocessing of the data, before the ACI calculation
@@ -311,24 +308,7 @@ Max_here = max(max(ACI));
 Min_here = min(min(ACI));
 ACI_norm = 2*(ACI-Min_here)/(Max_here-Min_here)-1;
 
-% if isfield(results,'cvgofs')
-%     % determination du lambda optimal
-%     [mincvgof, idx_lambdaoptim] = min(mean(results.cvgofs,1));
-% 
-%     figure
-%     plot(results.lambdas,results.cvgofs)
-%     hold on;
-%     plot(results.lambdas,mean(results.cvgofs,1),'k','LineWidth',2.5);
-%     plot(results.lambdas(idx_lambdaoptim),mincvgof,'k*','MarkerSize',10)
-%     set(gca, 'XScale', 'log'); set(gca,'YGrid','on') ;
-%     title('CV deviance and optimal lambda'); 
-%     ylabel(['CV deviance (' num2str(cfg_ACI.N_folds) '-fold)']); xlabel('lambda')
-% 
-%     fprintf(['Valeur du lambda optimal : ' num2str(results.lambdas(idx_lambdaoptim)) '\n'])
-% end
-
-bPlot = 1;
-if bPlot || nargout == 0
+if flags.do_plot || nargout == 0
     if isfield(results,'ACI_perm')
         disp('Plotting permuation test results...')
         %%% Plotting permutation test:

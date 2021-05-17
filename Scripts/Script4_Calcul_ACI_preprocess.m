@@ -49,8 +49,6 @@ end
 %         cfg_ACI.n_trials_analysis = [1 N/2];
 %     case 'lasttrials'
 %         cfg_ACI.n_trials_analysis = [N/2+1 N];
-%     otherwise
-%         error(['Condition inconnue : ' cfg_ACI.NameCond])
 % end
 
 cfg_ACI = set_default_cfg(cfg_ACI, ...

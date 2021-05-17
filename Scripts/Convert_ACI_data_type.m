@@ -54,6 +54,7 @@ switch version
             ListStim = cfg_pass.ListStim;
         elseif isfield(data_passation,'ListStim')
             ListStim = data_passation.ListStim;
+            cfg_pass.ListStim = data_passation.ListStim;
         else
             ListStim = dir(strcat(cfg_pass.dir_noise, '/*.wav'));
             ListStim = rmfield(ListStim,{'date','datenum','bytes', 'isdir'});
@@ -61,8 +62,13 @@ switch version
             if isfield(ListStim,'folder')
                 ListStim = rmfield(ListStim,'folder');
             end
+            cfg_pass.ListStim = ListStim; 
         end
                 
+        if isfield(data_passation,'ListStim')
+            data_passation = Remove_field(data_passation,'ListStim');
+        end
+        
         if length(cfg_pass.response_names) == cfg_pass.N_target
             cfg_pass.target_names = cfg_pa.response_names;
         else
@@ -94,6 +100,8 @@ switch version
         
         if isfield(data_passation,'ListStim')
             ListStim = data_passation.ListStim;
+            cfg_pass.ListStim = data_passation.ListStim;
+            data_passation = Remove_field(data_passation,'ListStim');
         else
             ListStim = dir(strcat(cfg_pass.dir_noise, '/*.wav'));
             ListStim = rmfield(ListStim,{'date','datenum','bytes', 'isdir'});
@@ -101,7 +109,9 @@ switch version
             if isfield(ListStim,'folder')
                 ListStim = rmfield(ListStim,'folder');
             end
+            cfg_pass.ListStim = ListStim;
         end
+        
                 
         % if length(cfg_pass.response_names) == cfg_pass.N_target
         %     cfg_pass.target_names = cfg_pa.response_names;
@@ -190,6 +200,7 @@ switch version
         disp('')
         
         ListStim = data_pa.ListStim;
+        cfg_pass.ListStim = data_pa.ListStim;
         cfg_pass.N_response = length(cfg_pass.response_names);
         
     case {2015,'2015'}
@@ -270,6 +281,9 @@ switch version
         % ListStim = rmfield(ListStim,{'date','datenum','bytes', 'isdir'});
         
         ListStim = data_passation.ListStim;
+        cfg_pass.ListStim = data_passation.ListStim;
+        data_passation = Remove_field(data_passation,'ListStim');
+        
 end
 
 if isfield(cfg_pa,'experiment')
