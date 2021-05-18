@@ -225,10 +225,10 @@ else
     results = [];
     load(fnameACI,'ACI','cfg_ACI','results');
  
-    if isfield(results,'lambdas')
-        % This data display is just to make the user aware what for data are being loaded
-        [round(results.lambdas') round(10*results.cvgofs')/10]
-    end
+    % if isfield(results,'lambdas')
+    %     % This data display is just to make the user aware what for data are being loaded
+    %     [round(results.lambdas') round(10*results.cvgofs')/10]
+    % end
 end
  
 results.fnameACI = fnameACI;
@@ -295,10 +295,10 @@ switch cfg_ACI.glmfct
         % ACI=reshape(results.finalfit.w(1:end-2),length(cfg_ACI.f),length(cfg_ACI.t));
 
     case {'lassoglm','lasso'}
-        w = ACI;
-        if size(ACI,1)~=N_f || size(ACI,2)~=N_t
-            ACI=reshape(w,N_f,N_t);
-        end
+        % w = ACI;
+        % if size(ACI,1)~=N_f || size(ACI,2)~=N_t
+        %     ACI=reshape(w,N_f,N_t);
+        % end
         
     case 'classic_revcorr'
         % Nothing to do, ACI should already be reshaped
