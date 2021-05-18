@@ -104,8 +104,99 @@ end
 
 %%% End: Testing Alejandro on 27/04/2021
     
-X = Data_matrix(idx_analysis,:);
-    
+switch cfg_ACI.flags.glmfct
+    case {'lassoglm','lasso'}
+        
+        preX = Data_matrix(idx_analysis,:,:);
+        %% Create Gaussian pyramid (modified_impyramid)
+        %computes a Gaussian pyramid reduction of preX. 
+
+        Nlevel = 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
+        Nlevelmin = 2; % level minimum considered in the analysis
+ 
+        % The following step ensures that Nf and Nt have M*2^(Nlevel) elements (with M
+        % integer) by discarding samples (or adding dummy samples if needed). This
+        % is mandatory for accurate reconstruction of the pyramid.
+
+        Nt_X = 256;% = 8*2^5
+        Nf_X = 128;% = 7*2^5
+        t_X = cfg_ACI.t;
+        f_X = cfg_ACI.f;
+
+        N_t = cfg_ACI.N_t;
+        N_f = cfg_ACI.N_f;
+        
+        if Nt_X>N_t % Along time dimension, zero padding
+            [N,M,P] = size(preX);
+            nullMatrix = zeros(N,M,Nt_X-P);
+            preX = cat(3,preX,nullMatrix);
+            dt = diff(cfg_ACI.t(1:2));
+            t_X = (1:Nt_X)*dt;
+        end
+        
+        if Nt_X<N_t % Along time dimension, truncating
+            preX = preX(:,:,1:Nt_X);
+            t_X = cfg_ACI.t(1:Nt_X);
+        end
+        if Nf_X<N_f % Along frequency dimension, truncating
+            preX = preX(:,1:Nf_X,:);
+            f_X = cfg_ACI.f(1:Nf_X);
+        else
+            error('Choose a higher value for NFFT')
+        end
+        
+        % Gaussian pyramid reduction
+
+        Pyramid = {preX}; % structure containing the different levels of the pyramid
+
+        % Filters the matrix level by level into a Nlevel Gaussian pyramid
+
+        for i_level = 2:Nlevel
+            Pyramid{i_level} = Script4_Calcul_ACI_modified_impyramid(Pyramid{i_level-1}, 'reduce'); 
+        end
+
+        %% Reconstructing the Pyramid 
+        % for illustration purpose, reconstructing the pyramid to compare the 1st
+        % noise example at the different smoothness levels 
+
+        RePyramid{1} = Pyramid{1};
+        for i_level = 2:Nlevel
+            temp = Pyramid{i_level};
+            for j_level = 1:i_level-1
+                temp = Script4_Calcul_ACI_modified_impyramid(temp, 'expand');
+            end
+            RePyramid{i_level} = temp(:,:,:);
+        end
+
+        % figure; 
+        % for i_level = 1:Nlevel
+        %     subplot(2,4,i_level)
+        %     h = pcolor(t_X, f_X,  squeeze(RePyramid{i_level}(:,:,1))); set(h,'EdgeColor','none'); xlabel('time (s)'); ylabel('freq (Hz)'); %caxis([-80, -45]);
+        %     title({['noise #1'],['pyramid level ' num2str(i_level)]})
+        % end
+
+        X = [];
+        for i_level = Nlevelmin:Nlevel
+            Pyra_here = squeeze(Pyramid{i_level});
+            Pyra_size(i_level,:) = [size(Pyra_here,2) size(Pyra_here,3)];
+            X = cat(2, X, reshape(Pyra_here,N_trialselect,[])); % along Dim=2
+        end
+
+        cfg_ACI.lasso_Nlevelmin = Nlevelmin;
+        cfg_ACI.lasso_Nlevel    = Nlevel;
+        cfg_ACI.lasso_Pyra_size = Pyra_size;
+        
+        cfg_ACI.t_X = t_X;
+        cfg_ACI.f_X = f_X;
+        % X = X';
+        % X = (X - mean(X,1))./std(X,[],1);
+        % X(isnan(X)) = 0;
+
+    otherwise 
+        % Nothing to do
+        X = Data_matrix(idx_analysis,:); % 
+end
+
 switch cfg_ACI.withU
     case {1,'yes','oui'}
         U = [y_correct ones(cfg_ACI.N_trials, 1)];
@@ -144,3 +235,7 @@ if cfg_ACI.zscore
     X = zscore(X,[],1);
     % U = zscore(U,[],1);
 end
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Inline functions:

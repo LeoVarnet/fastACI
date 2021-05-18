@@ -7,8 +7,8 @@ function definput = arg_Script4_Calcul_ACI(definput)
 
 definput.flags.TF_type = {'spect','lyon','noise_logspect', ...
                           'tf'};
-definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','classic_revcorr'};
-% Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','classic_revcorr'};
+definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','lasso','classic_revcorr'};
+% Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','lasso','classic_revcorr'};
 definput.flags.permutation = {'permutation','no_permutation'};
 definput.flags.recreate_validation = {'no_recreate_validation','recreate_validation'};
 definput.flags.plot = {'plot','no_plot'};

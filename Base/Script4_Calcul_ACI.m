@@ -152,7 +152,7 @@ switch cfg_ACI.glmfct
         check_cfg(cfg_ACI, 'prior','lambda0', 'stepsize', 'maxiter', 'nobreak', 'minDiffSecondRound');
         cfg_ACI.N_folds   = cfg_ACI.keyvals.N_folds;
         
-    case 'lassoglm'
+    case {'lassoglm','lasso'}
         cfg_ACI.lambda0   = [];
         cfg_ACI.N_folds    = cfg_ACI.keyvals.N_folds; 
         
@@ -281,8 +281,8 @@ end
 % affichage de l'ACI
 
 %%% TODO: check that ACI is already reshaped after the ACI calculation...
-N_f = length(cfg_ACI.f);
-N_t = length(cfg_ACI.t);
+N_f = cfg_ACI.N_f;
+N_t = cfg_ACI.N_t;
 switch cfg_ACI.glmfct
     case {'glmfitqp','CI_glmqp_fct'}
         % %%% results.fits{1,idx_lambdaoptim}.w(1:end-2) is incorrect, as that
@@ -294,7 +294,7 @@ switch cfg_ACI.glmfct
         % 
         % ACI=reshape(results.finalfit.w(1:end-2),length(cfg_ACI.f),length(cfg_ACI.t));
 
-    case 'lassoglm'
+    case {'lassoglm','lasso'}
         w = ACI;
         if size(ACI,1)~=N_f || size(ACI,2)~=N_t
             ACI=reshape(w,N_f,N_t);
