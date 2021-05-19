@@ -24,6 +24,8 @@ else
     switch lower(cfg_inout.Condition) % lower case
         case 'white'
             dir_name_noise = 'NoiseStim';
+        case 'pink'
+            dir_name_noise = 'NoiseStim-pink';
         case 'ssn'
             dir_name_noise = 'NoiseStim-SSN';
         otherwise

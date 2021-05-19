@@ -77,7 +77,7 @@ else
     bGenerate_stimuli = 1;
     if isfield(cfg_inout,'Condition')
         switch cfg_inout.Condition
-            case 'white'
+            case {'white','pink'}
                 % Nothing to do...just continue
             otherwise
                 error('Creation of SSN not validated yet...')
@@ -103,7 +103,12 @@ ListStim = [];
 for i = 1:cfg_inout.N
     if bGenerate_stimuli
         
-        insig = randn(N_samples,1); % This N_samples already includes the ramp times
+        switch cfg_inout.Condition
+            case 'white'
+                insig = randn(N_samples,1); % This N_samples already includes the ramp times
+            case 'pink'
+                insig = noise(N_samples,'pink'); % function from LTFAT toolbox
+        end
         
         insig = setdbspl(insig,lvl_target,dBFS);
         
