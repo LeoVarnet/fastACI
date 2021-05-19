@@ -6,22 +6,41 @@ function cfg_inout = speechACI_Logatome_set(cfg_inout)
 if nargin == 0
     cfg_inout = [];
 end
- 
-dir_main = 'C:\Users\Varnet Léo\Dropbox\Data\Projet fastACI\';%'/home/alejandro/Documents/Databases/data/fastACI/speechACI_Logatome/';
+
+if ismac % lab's computer
+    dir_main = '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
+    % dir_main = 'C:\Users\Varnet Léo\Dropbox\Data\Projet fastACI\';
+elseif isunix % Alejandro's computer
+    dir_main = '/home/alejandro/Documents/Databases/data/fastACI/speechACI_Logatome/';
+elseif ispc % Leo's computer
+    dir_main = 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';%'C:\Users\Varnet Lï¿½o\Dropbox\Data\Projet fastACI/';
+    % dir_main = 'C:\Users\Varnet Léo\Dropbox\Data\Projet fastACI\';
+end
+
 dir_logatome_src = '/media/alejandro/My Passport/Databases/data-Speech/french/Logatome/'; % Logatome-average-power-speaker-S46M_FR.mat
 
 dir_speech = [dir_main cfg_inout.Subject_ID filesep 'speech-samples' filesep];
-%noise_type = 'SSN';
- noise_type = 'white';
 
-switch noise_type
-    case 'SSN'
-        dir_noise  = [dir_main cfg_inout.Subject_ID filesep 'NoiseStim-SSN'    filesep];
-    case 'white'
-        dir_noise  = [dir_main cfg_inout.Subject_ID filesep 'NoiseStim-white'  filesep];
+if ~isfield(cfg_inout,'Condition')
+    cfg_inout.Condition = 'SSN'; % by default it is speech-shaped noise
 end
+    
+% cfg_inout.Condition = noise_type;
 
-cfg_inout.Condition = noise_type;
+switch lower(cfg_inout.Condition) % lower case
+    case 'white'
+        dir_name_noise = 'NoiseStim-white';
+        noise_type = 'white';
+    case 'pink'
+        dir_name_noise = 'NoiseStim-pink';
+        noise_type = 'pink';
+    case 'ssn'
+        dir_name_noise = 'NoiseStim-SSN';
+        noise_type = 'SSN';
+    otherwise
+        error('%s: Condition not recognised',upper(mfilename));
+end
+dir_noise  = [dir_main cfg_inout.Subject_ID filesep dir_name_noise filesep];
 
 dBFS = 100;
  

@@ -135,11 +135,9 @@ end
 ListStim = [];
 for i = 1:cfg_inout.N
     if bGenerate_stimuli
-         
-        insig = randn(N_samples,1); % This N_samples already includes the ramp times
         
         if i == 1
-            noise_type = cfg_inout.noise_type;
+            noise_type = cfg_inout.Condition;
             switch noise_type
                 case 'SSN' % apply the SSN
                     % See g20210401_generate_LTASS.m
@@ -158,7 +156,15 @@ for i = 1:cfg_inout.N
                     
                     [~,~,~,b_fir] = Create_LTASS_noise(var.f,var.Pxx,fs);
             end
-        end 
+        end
+        
+        switch lower(noise_type)
+            case {'white','ssn'}
+                insig = randn(N_samples,1); % This N_samples already includes the ramp times
+            case 'pink'
+                insig = noise(N_samples,'pink'); % function from LTFAT toolbox
+        end
+        
         switch noise_type
             case 'SSN' % apply the SSN
                 insig = filter(b_fir,1,insig);

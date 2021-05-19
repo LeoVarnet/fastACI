@@ -9,12 +9,10 @@ end
  
 if ismac % lab's computer
     dir_main = '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
-end
-if ispc % Leo's computer
+elseif isunix % Alejandro's computer
+    dir_main = '/home/alejandro/Documents/Databases/data/fastACI/speechACI_varnet2013/';
+elseif ispc % Leo's computer
     dir_main = 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';%'C:\Users\Varnet Lï¿½o\Dropbox\Data\Projet fastACI/';
-end
-if isunix % Alejandro's computer
-   dir_main = '/home/alejandro/Documents/Databases/data/fastACI/speechACI_varnet2013/';
 end
 
 dir_speech = [dir_main cfg_inout.Subject_ID filesep 'speech-samples' filesep];
