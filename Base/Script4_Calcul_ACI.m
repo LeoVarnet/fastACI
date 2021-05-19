@@ -280,30 +280,6 @@ end
  
 % affichage de l'ACI
 
-%%% TODO: check that ACI is already reshaped after the ACI calculation...
-N_f = cfg_ACI.N_f;
-N_t = cfg_ACI.N_t;
-switch cfg_ACI.glmfct
-    case {'glmfitqp','CI_glmqp_fct'}
-        % %%% results.fits{1,idx_lambdaoptim}.w(1:end-2) is incorrect, as that
-        % % is the fitting for the first fold using the 'lambdaoptim', however
-        % % with lambdaoptim there is a very final fit, after finishing with
-        % % the folds and those results are stored in 'results.finalfit':
-        % %
-        % % % ACI=reshape(results.fits{1,idx_lambdaoptim}.w(1:end-2),length(cfg_ACI.f),length(cfg_ACI.t));
-        % 
-        % ACI=reshape(results.finalfit.w(1:end-2),length(cfg_ACI.f),length(cfg_ACI.t));
-
-    case {'lassoglm','lasso'}
-        % w = ACI;
-        % if size(ACI,1)~=N_f || size(ACI,2)~=N_t
-        %     ACI=reshape(w,N_f,N_t);
-        % end
-        
-    case 'classic_revcorr'
-        % Nothing to do, ACI should already be reshaped
-end
-
 Max_here = max(max(ACI));
 Min_here = min(min(ACI));
 ACI_norm = 2*(ACI-Min_here)/(Max_here-Min_here)-1;

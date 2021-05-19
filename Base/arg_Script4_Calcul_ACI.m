@@ -33,10 +33,14 @@ definput.keyvals.dir_out    = [];
 
 definput.groups.varnet2013 = {'spect','glmfitqp','f_limits',[0 4050],'t_limits',[0 0.3425]};
 
+%%% Only used in 'spect' is used:
 definput.keyvals.spect_overlap = 0;    % Parametres de calcul du spectrogramme
 definput.keyvals.spect_Nwindow = 512;  %
 definput.keyvals.spect_NFFT    = 512;  %
 definput.keyvals.spect_unit    = 'dB'; % 'linear'
+
+%%% Only used in 'noise_logspect' is used:
+definput.keyvals.logspect_unit = 'dB'; % 'linear'
 
 % % Managing some default values: time and frequency limits
 % if flags.do_tf

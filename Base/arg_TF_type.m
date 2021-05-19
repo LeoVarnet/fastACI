@@ -58,6 +58,9 @@ switch flags.TF_type
                 fprintf('\t%s: non-default value for field ''stepfactor'' is being used\n',flags.DimCI);
             end
         end
+        
+    case 'noise_logspect'
+        cfg_inout.logspect_unit = keyvals.logspect_unit; % default = 'dB'
 end
 
 % definput.keyvals.zscore = 1;
