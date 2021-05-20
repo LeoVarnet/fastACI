@@ -70,6 +70,9 @@ idx_analysis = find(select_n_trials & expvar_trialselect); % & select_n_signal);
 if length(idx_analysis) ~= size(Data_matrix,1)
     fprintf('\t%s: Selecting a subset of the experimental trials:\n',upper(mfilename));
     fprintf('\t\t %.0f trials out of %.0f are being processed (expvar_limits between %.1f and %.1f)\n',length(idx_analysis),size(Data_matrix,1),cfg_ACI.SNR_analysis);
+    
+    N_trialselect = length(idx_analysis);
+    cfg_ACI.N_trialselect = N_trialselect;
 end
 
 cfg_ACI.N_trials = length(idx_analysis);
@@ -156,25 +159,12 @@ switch cfg_ACI.flags.glmfct
         end
 
         %% Reconstructing the Pyramid 
-        % for illustration purpose, reconstructing the pyramid to compare the 1st
-        % noise example at the different smoothness levels 
-
-%         RePyramid{1} = Pyramid{1};
-%         for i_level = 2:Nlevel
-%             temp = Pyramid{i_level};
-%             for j_level = 1:i_level-1
-%                 temp = Script4_Calcul_ACI_modified_impyramid(temp, 'expand');
-%             end
-%             RePyramid{i_level} = temp(:,:,:);
-%         end
-
-        % figure; 
-        % for i_level = 1:Nlevel
-        %     subplot(2,4,i_level)
-        %     h = pcolor(t_X, f_X,  squeeze(RePyramid{i_level}(:,:,1))); set(h,'EdgeColor','none'); xlabel('time (s)'); ylabel('freq (Hz)'); %caxis([-80, -45]);
-        %     title({['noise #1'],['pyramid level ' num2str(i_level)]})
-        % end
-
+        % Refer to Script4_Calcul_ACI_calculate.m ['%%% 2. Getting the 
+        %    'expanded' ACIs per level (Expand the weight matrix) %%%] to
+        %    see how to reconstruct the 'Pyramid'. In the _calculate.m 
+        %    script, the resulting ACI is obtained from the expansion of the
+        %    resulting pyramid.
+           
         X = [];
         for i_level = Nlevelmin:Nlevel
             Pyra_here = squeeze(Pyramid{i_level});
