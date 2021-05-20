@@ -159,14 +159,14 @@ switch cfg_ACI.flags.glmfct
         % for illustration purpose, reconstructing the pyramid to compare the 1st
         % noise example at the different smoothness levels 
 
-        RePyramid{1} = Pyramid{1};
-        for i_level = 2:Nlevel
-            temp = Pyramid{i_level};
-            for j_level = 1:i_level-1
-                temp = Script4_Calcul_ACI_modified_impyramid(temp, 'expand');
-            end
-            RePyramid{i_level} = temp(:,:,:);
-        end
+%         RePyramid{1} = Pyramid{1};
+%         for i_level = 2:Nlevel
+%             temp = Pyramid{i_level};
+%             for j_level = 1:i_level-1
+%                 temp = Script4_Calcul_ACI_modified_impyramid(temp, 'expand');
+%             end
+%             RePyramid{i_level} = temp(:,:,:);
+%         end
 
         % figure; 
         % for i_level = 1:Nlevel
