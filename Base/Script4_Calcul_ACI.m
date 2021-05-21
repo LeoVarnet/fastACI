@@ -38,7 +38,7 @@ if nargin == 0
 end
 
 % From argument function:
-definput.import={'Script4_Calcul_ACI'}; % arg_Script4_Calcul_ACI
+definput.import={'Script4_getACI'}; % arg_Script4_getACI
 [flags,keyvals]  = ltfatarghelper([],definput,varargin);
 
 %% 1. Reading the experimental data (*.mat file):
@@ -67,10 +67,6 @@ end
 % General parameters
 % opts_ACI = Ensure_field(opts_ACI,'Analysis_condition','total'); % tableau de cellules contenant les noms de la ou des conditions à calculer
 Analysis_condition = 'total'; warning('Remove soon...')
-
-% % From argument function:
-% definput.import={'Script4_Calcul_ACI'}; % arg_Script4_Calcul_ACI
-% [flags,keyvals]  = ltfatarghelper([],definput,varargin);
 
 % do_permutation = flags.do_permutation; % By default the permutation test is 'on'
 do_recreate_validation = flags.do_recreate_validation;
@@ -144,7 +140,6 @@ cfg_ACI.keyvals = keyvals;
 cfg_ACI.fnameACI = fnameACI;
 
 cfg_ACI.idx_trialselect   = cfg_ACI.keyvals.idx_trialselect; % numeros des essais utilises pour le calcul (defaut = 1:cfg_ACI.N), si possible les essais sont pris dans l'ordre de presentation
-
 cfg_ACI.withU             = 1; % 'yes'; % Ajouter deux paramètres U au modèle
  
 switch cfg_ACI.glmfct
@@ -200,20 +195,20 @@ if bCalculation || do_recreate_validation
         error('%s: No valid noise directory (''dir_noise''). cfg_game contains a folder that was not found, please enter a valid dir_noise.',upper(mfilename))
     end
         
-    [Data_matrix,cfg_ACI] = data_load(cfg_ACI, ListStim);
+    [Data_matrix,cfg_ACI] = Script4_getACI_dataload(cfg_ACI, ListStim);
 end
  
 %% 4. Preprocessing of the data, before the ACI calculation
 if bCalculation || do_recreate_validation        
     
-    [y, y_correct, X, U, cfg_ACI] = Script4_Calcul_ACI_preprocess(cfg_ACI, data_passation, Data_matrix);
+    [y, y_correct, X, U, cfg_ACI] = Script4_getACI_preprocess(cfg_ACI, data_passation, Data_matrix);
     
 end
 
 %% 5. Calculation of the ACI
 if bCalculation
     
-    [ACI, results, cfg_ACI] = Script4_Calcul_ACI_calculate(cfg_ACI, y, y_correct, X, U);
+    [ACI, results, cfg_ACI] = Script4_getACI_calculate(cfg_ACI, y, y_correct, X, U);
     
     save(fnameACI, 'ACI', 'cfg_ACI', 'results')
     results.fnameACI = fnameACI;

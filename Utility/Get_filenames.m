@@ -39,15 +39,14 @@ end
 
 ytmp = dir([directory filesep exp2filter]);
 
-if length(ytmp) == 0
-    % disp('No files found');
+if isempty(ytmp)
     y = [];
 end
 
 id2remove = [];
 for i = 1:length(ytmp)
     
-    if strcmp(ytmp(i).name,'.') | strcmp(ytmp(i).name,'..') % current and parent directories...
+    if strcmp(ytmp(i).name,'.') || strcmp(ytmp(i).name,'..') % current and parent directories...
         id2remove(end+1) = i;
     end
     

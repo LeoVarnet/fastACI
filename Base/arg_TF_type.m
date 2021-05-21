@@ -8,7 +8,6 @@ function cfg_inout = arg_TF_type(cfg_inout,flags,keyvals)
 % definput.flags.permutation = {'permutation','no_permutation'};
 % definput.flags.recreate_validation = {'no_recreate_validation','recreate_validation'};
 
-
 % Default number of permutations N_perm (if do_permutation == 1):
 switch flags.TF_type
     case {'spect','tf'}

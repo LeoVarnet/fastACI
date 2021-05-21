@@ -1,9 +1,10 @@
-function [y, y_correct, X, U, cfg_ACI] = Script4_Calcul_ACI_preprocess(cfg_ACI, data_passation, Data_matrix)
-% function [y, y_correct, X, U, cfg_ACI] = Script4_Calcul_ACI_preprocess(cfg_ACI, data_passation, Data_matrix)
+function [y, y_correct, X, U, cfg_ACI] = Script4_getACI_preprocess(cfg_ACI, data_passation, Data_matrix)
+% function [y, y_correct, X, U, cfg_ACI] = Script4_getACI_preprocess(cfg_ACI, data_passation, Data_matrix)
 %
 % Changing the parameter names:
 % New name      Old name        Changed on:
 %
+% Old name: Script4_Calcul_ACI_preprocess.m (changed on 21/05/2021)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 idx_trialselect = cfg_ACI.idx_trialselect;

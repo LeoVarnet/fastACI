@@ -1,8 +1,9 @@
-function definput = arg_Script4_Calcul_ACI(definput)
-% function definput = arg_Script4_Calcul_ACI(definput)
+function definput = arg_Script4_getACI(definput)
+% function definput = arg_Script4_getACI(definput)
 %
 % Enabled so far:
 %   'permutation' or 'no_permutation': to perform or not the permutation test
+% Old name: arg_Script4_Calcul_ACI.m (changed on 21/05/2021)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 definput.flags.TF_type = {'spect','lyon','noise_logspect', ...

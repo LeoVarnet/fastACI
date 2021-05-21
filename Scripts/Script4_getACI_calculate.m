@@ -1,5 +1,5 @@
-function [ACI,results,cfg_ACI] = Script4_Calcul_ACI_calculate(cfg_ACI, y, y_correct, X, U)
-% function [ACI,results,cfg_ACI] = Script4_Calcul_ACI_calculate(cfg_ACI)
+function [ACI,results,cfg_ACI] = Script4_getACI_calculate(cfg_ACI, y, y_correct, X, U)
+% function [ACI,results,cfg_ACI] = Script4_getACI_calculate(cfg_ACI)
 %
 % 1. Description (FR):
 %       Se placer dans le dossier contenant le dossier contenant les donnees 
@@ -27,6 +27,7 @@ function [ACI,results,cfg_ACI] = Script4_Calcul_ACI_calculate(cfg_ACI, y, y_corr
 % Changing the parameter names:
 % New name      Old name        Changed on:
 %
+% Old name: Script4_Calcul_ACI_calculate.m (changed on 21/05/2021)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 glmfct = cfg_ACI.glmfct;
