@@ -3,15 +3,6 @@ function cfg_inout = speechACI_Logatome_init(cfg_inout)
 %
 % This should only be run once, to create the wave files.
 %
-% This script assumes that the sounds 'Alda.wav', 'Alga.wav', Arda.wav','Arga.wav'
-%     are located in the folder: '/home/alejandro/Documents/Databases/data/fastACI/speechACI/speech-samples_orig/Alda.wav'
-%
-% This script assumes that the noises are located in:
-%     /home/alejandro/Documents/Databases/data/fastACI/speechACI/NoiseStim_S11_orig/
-%     i.e., temporarily I pick up the noises of participant S11 only, it will be
-%     solved in the future to pick up the wavefiles (or the seeds) of the correct
-%     and customised participant.
-%
 % The following processing is introduced here:
 %     1. The speech samples are zero padded at the beginning and end by 
 %        according to the duration of 'dur_ramp'
@@ -28,20 +19,9 @@ function cfg_inout = speechACI_Logatome_init(cfg_inout)
 %        in speech perception. The noises are, therefore, stored at an SNR=0 dB
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
-% dir_speech_orig = [cfg_inout.dir_main 'As-received-20210408' filesep]; bNormalisation_date = '20210428';
-dir_speech_orig = [cfg_inout.dir_main 'As-received-20210409' filesep]; bNormalisation_date = '';
-dir_noise_spectrum = [cfg_inout.dir_logatome_src 'Noises' filesep];
+dir_speech_orig = [fastACI_paths('dir_fastACI') 'Stimuli' filesep 'Logatome' filesep];
+dir_noise_spectrum = []; warning('Temporal'); % [cfg_inout.dir_logatome_src 'Noises' filesep];
 
-if ~exist(dir_speech_orig,'dir')
-    dir_speech_orig = uigetdir(pwd,'Select the directory where ''ap_pa.wav'' and ''at_ta.wav'' are located');
-    dir_speech_orig = [dir_speech_orig filesep]; % file separator is the last character
-end
-
-% % cfg = [];
-% % cfg_out = cfg_in; % copying input to output struct
- 
-%%% Values that are defined in speechACI_varnet2015_set.m:
-%     These parameters are used only if the sounds need to be re-stored
 dBFS       = cfg_inout.dBFS;
 lvl_target = cfg_inout.SPL;
 dur_ramp   = cfg_inout.dur_ramp; 
@@ -58,32 +38,17 @@ else
     % The original speech sounds are zero padded:
     bGenerate_stimuli = 1;
 
-    if strcmp(dir_speech(end),filesep) % if last character is \ or / (it should be the case always)
-        dir_main = fileparts(dir_speech(1:end-1));
-        dir_main = [fileparts(dir_main) filesep];
-    end
-   
     % If you are in this part of the code, 'dir_speech' does not exist
     mkdir(dir_speech);
 end
  
 if bGenerate_stimuli
-    files = Get_filenames(dir_speech_orig,'*.wav');
+    
+    Speaker_ID = cfg_inout.Cond_extra_2;
+    files = Get_filenames(dir_speech_orig,[Speaker_ID '*.wav']);
     for i = 1:length(files)
         [insig,fs]  = audioread([dir_speech_orig files{i}]);
-        
-        t_f = 0.675; % s
-        N_f = round(t_f*fs);
-        insig  = insig(1:N_f);
-        
-        % Short ramp to avoid clicks:
-        rp = ones(size(insig)); 
-
-        N_ramp = round(10e-3*fs); % 10 ms
-        rp(1:N_ramp)         = rampup(N_ramp);
-        rp(end-N_ramp+1:end) = rampdown(N_ramp);
-        insig  = rp.*insig;
-        
+                
         if i == 1
             if fs ~= cfg_inout.fs
                 error('Sounds do not have the same sampling frequency as specified in the *._set.m file');
@@ -96,7 +61,7 @@ if bGenerate_stimuli
         lvls_after(i) = rmsdb(insig)+dBFS;
         
         sil = zeros(round(dur_ramp*fs),1);
-        insig  = [sil; insig];
+        insig  = [sil; insig; sil];
         
         audiowrite([dir_speech files{i}],insig,fs);
     end
@@ -115,8 +80,8 @@ if exist(dir_noise,'dir')
     bGenerate_stimuli = 0;
 else
     bGenerate_stimuli = 1;
-    if strcmp(dir_noise(end),filesep) % if last character is \ or / (it should be the case always)
-        dir_main = [fileparts(dir_noise(1:end-1)) filesep];
+    if ~strcmp(dir_noise(end),filesep) % if last character is \ or / (it should be the case always)
+        dir_noise = [fileparts(dir_noise(1:end-1)) filesep];
     end
      
     % If you are in this part of the code, 'dir_noise' does not exist:
@@ -140,6 +105,8 @@ for i = 1:cfg_inout.N
             switch noise_type
                 case 'SSN' % apply the SSN
                     % See g20210401_generate_LTASS.m
+                    
+                    error('We are working for you: the option SSN will be enabled back soon...')
                     
                     if ~exist(dir_noise_spectrum,'dir')
                         dir_noise_spectrum = uigetdir(pwd,'Select the directory where ''Logatome-average-power-speaker-S46M_FR.mat'' is located');

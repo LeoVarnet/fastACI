@@ -12,8 +12,15 @@ end
 cfg = [];
 cfg_out = cfg_in; % copying input to output struct
 
-cfg.filename_target  = {'ap_pa.wav','at_ta.wav'};
-cfg.response_names   = {'pa', 'ta'}; 
+cfg.filename_target = Get_filenames(cfg_in.dir_speech,[cfg_in.Cond_extra_2 '*.wav']);
+% cfg.filename_target  = {'ap_pa.wav','at_ta.wav'};
+if ~isempty(cfg.filename_target)
+    for i = 1:length(cfg.filename_target)
+        ftarget = strsplit(cfg.filename_target{i}(1:end-4),'_'); % excludes the '.wav'
+        cfg.response_names{i} = ftarget{end}; % second syllable
+        % cfg.response_names   = {'pa', 'ta'}; 
+    end
+end
 cfg.response_correct_target = [1,2];
 cfg.warmup         = 1; % 'oui', CAUTION: Overwritten in the case of simulation
  

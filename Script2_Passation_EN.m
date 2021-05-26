@@ -40,6 +40,15 @@ switch Subject_ID
         bSimulation = 0;
 end
 
+experiment_full = experiment; % it will be used for file naming
+
+%%% Checking whether there are separable conditions (separator='-')
+if sum(experiment=='-') % Checking whether it contains an hyphen
+    experiment   = strsplit(experiment,'-');
+    experiment = experiment{1};
+end
+%%%
+
 % -------------------------------------------------------------------------
 % 1. Loading set-up: 
 %    1.1. Loads cfgcrea*.mat
@@ -48,7 +57,7 @@ dir_main = [path filesep];
 dir_results = [dir_main 'Interim_results' filesep];
 dir_results_subj = [dir_results Subject_ID filesep];
 
-filter2use = [Subject_ID '_' experiment];
+filter2use = [Subject_ID '_' experiment_full];
 if ~isempty(Condition)
     filter2use = [filter2use '_' Condition];
 end
@@ -61,11 +70,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    try
-        cfg_game = Script1_Initialisation_EN(experiment,Subject_ID, Condition);
-    catch me
-        error('%s: no cfg_crea available\n\t%s',upper(mfilename),me.message);
-    end
+    % try
+        cfg_game = Script1_Initialisation_EN(experiment_full,Subject_ID, Condition);
+    % catch me
+    %     error('%s: no cfg_crea available\n\t%s',upper(mfilename),me.message);
+    % end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -400,7 +409,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
         case 3.14 % This is a ''pause''
             clock_str = Get_date_and_time_str;
             data_passation.date_end{length(data_passation.date_start)} = clock_str;
-            savename = il_get_savename(experiment,Subject_ID,clock_str);
+            savename = il_get_savename(experiment_full,Subject_ID,clock_str);
             save([dir_results savename], 'i_current', 'ListStim', 'cfg_game', 'data_passation');
             fprintf('  Saving game to "%s.mat" (folder path: %s)\n',savename,dir_results);
             
@@ -535,7 +544,7 @@ end
 %% Save game
 clock_str = Get_date_and_time_str;
 data_passation.date_end{length(data_passation.date_start)} = clock_str;
-savename = il_get_savename(experiment, Subject_ID, Condition, clock_str);
+savename = il_get_savename(experiment_full, Subject_ID, Condition, clock_str);
 save([dir_results savename],'cfg_game', 'data_passation');
 msg_close
 

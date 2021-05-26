@@ -1,5 +1,5 @@
-function cfg_crea = Script1_Initialisation_EN(experiment,Subject_ID, Condition)
-% function cfg_crea = Script1_Initialisation_EN(experiment,Subject_ID, Condition)
+function cfg_crea = Script1_Initialisation_EN(experiment_full,Subject_ID, Condition)
+% function cfg_crea = Script1_Initialisation_EN(experiment_full,Subject_ID, Condition)
 %
 % Description:
 %       It creates a new participant file.
@@ -17,23 +17,42 @@ end
 if nargin < 2
     Subject_ID = input('Enter the Subject ID (e.g., ''S01''): ');
 end
-if nargin == 0
-    experiments = {'modulationACI','modulationACI_seeds','speechACI_varnet2013','speechACI_varnet2015'};
-    Show_cell(experiments);
-    bExp = input('Choose the experiment that you want to run from the list above: ');
-    
-    experiment = experiments{bExp};
-end
+
+%%% AO: Commented on 26/05/2021
+% if nargin == 0
+    % experiments = {'modulationACI','modulationACI_seeds','speechACI_varnet2013','speechACI_varnet2015'};
+    % Show_cell(experiments);
+    % bExp = input('Choose the experiment that you want to run from the list above: ');
+    % 
+    % experiment = experiments{bExp};
+% end
 
 if ~isempty(Condition)
     str_cond = sprintf(', condition=%s',Condition);
 else
     str_cond = '';
 end
-fprintf('Running %s.m (experiment=%s, subject=%s%s)\n',mfilename,experiment,Subject_ID,str_cond);
+fprintf('Running %s.m (experiment=%s, subject=%s%s)\n',mfilename,experiment_full,Subject_ID,str_cond);
+
+%%% Checking whether there are separable conditions (separator='-')
+if sum(experiment_full=='-') % Checking whether it contains an hyphen
+    experiment   = strsplit(experiment_full,'-');
+    N_Cond_extra = length(experiment)-1;
+    Cond_extra   = experiment(2:end);
+    experiment = experiment{1};
+else
+    N_Cond_extra = 0;
+    Cond_extra = [];
+    experiment = experiment_full;
+end
 
 cfg_crea = [];
 cfg_crea.experiment  = experiment;
+cfg_crea.experiment_full = experiment_full;
+for i = 1:N_Cond_extra
+    exp2eval = sprintf('cfg_crea.Cond_extra_%.0f = Cond_extra{%.0f};',i,i);
+    eval(exp2eval);
+end
 cfg_crea.Subject_ID  = Subject_ID;
 if ~isempty(Condition)
     cfg_crea.Condition = Condition;
@@ -90,15 +109,7 @@ end
 [clock_str, clock_now] = Get_date_and_time_str;
 cfg_crea.date = clock_now;
 
-% if isfield(cfg_crea,'Condition')
-%     Cond = ['_' cfg_crea.Condition];
-% else
-%     Cond = '';
-% end
-% 
-% Subject_ID = [Subject_ID Cond];
-
-filter2use = [Subject_ID '_' experiment];
+filter2use = [Subject_ID '_' experiment_full];
 if ~isempty(Condition)
     filter2use = [filter2use '_' Condition];
 end

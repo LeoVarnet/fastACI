@@ -9,24 +9,36 @@ end
 
 if ismac % lab's computer
     dir_main = fastACI_paths('dir_data'); % '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
-    warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_main,dir_main,filesep);
+    warning('Leo: please copy what you have in %s into %s%s%s (remove this warning once you have already done that)',dir_main,cfg_inout.experiment_full,filesep);
         
 elseif isunix % Alejandro's computer
-    dir_main = [fastACI_paths('dir_data') 'speechACI_Logatome' filesep];
+    dir_main = [fastACI_paths('dir_data') cfg_inout.experiment_full filesep];
     
 elseif ispc % Leo's computer
     dir_main = fastACI_paths('dir_data'); % 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';
-    warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_main,dir_main,filesep);
+    warning('Leo: please copy what you have in %s into %s%s%s (remove this warning once you have already done that)',dir_main,cfg_inout.experiment_full,filesep);
 end
 
 % dir_logatome_src = '/media/alejandro/My Passport/Databases/data-Speech/french/Logatome/'; % Logatome-average-power-speaker-S46M_FR.mat
 dir_speech = [dir_main cfg_inout.Subject_ID filesep 'speech-samples' filesep];
 
-if ~isfield(cfg_inout,'Condition')
-    cfg_inout.Condition = 'SSN'; % by default it is speech-shaped noise
+%%% First checking point:
+if ~isfield(cfg_inout,'Cond_extra_1')
+    str2use  = ['Script2_Passation_EN(' cfg_inout.experiment '-abda, ' cfg_inout.Subject_ID ', Condition);'];
+    error('%s.m: You need to specify the test speech samples (''abda'' for ab-ba vs ad-da; or ''apta'' for ap-pa vs at-ta), for instance:\n\t %s',upper(mfilename),str2use);
 end
-    
-% cfg_inout.Condition = noise_type;
+
+if ~isfield(cfg_inout,'Cond_extra_2')
+    str2use  = ['Script2_Passation_EN(' cfg_inout.experiment_full '-abda-S41F, ' cfg_inout.Subject_ID ', Condition);'];
+    error('%s.m: You need to specify the speaker (''S41F'' for abda; or ''S46M'' for apta), for instance:\n\t %s',upper(mfilename),str2use);
+end
+
+%%% Second checking point:
+if ~isfield(cfg_inout,'Condition')
+    str2use  = ['Script2_Passation_EN(' cfg_inout.experiment_full ', ' cfg_inout.Subject_ID ', Condition);'];
+    str2use2 = '''white'' (default), ''pink'', or ''SSN''';
+    error('%s.m: Please enter one of the experimental conditions. %s\n\tCondition can be %s',upper(mfilename),str2use,str2use2);
+end
 
 switch lower(cfg_inout.Condition) % lower case
     case 'white'
@@ -53,7 +65,7 @@ cfg.SPL       = 65; % target level, by default level of the noise (the speech
 cfg.dBFS      = dBFS;
 
 cfg.bRove_level = 1; % New option as of 16/04/2021
-cfg.Rove_range  = 4; % plus/minus this value
+cfg.Rove_range  = 2.5; % plus/minus this value, changed from 4 to 2.5 dB on 26/025/2021
 
 % Change the following names:
 cfg.N_presentation = 2500;  % number of stimuli / condition
