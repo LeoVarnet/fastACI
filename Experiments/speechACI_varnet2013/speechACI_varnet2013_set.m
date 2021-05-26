@@ -8,11 +8,15 @@ if nargin == 0
 end
  
 if ismac % lab's computer
-    dir_main = '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
+    dir_main = fastACI_paths('dir_data'); % '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
+    warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_main,dir_main,filesep);
+    
 elseif isunix % Alejandro's computer
-    dir_main = '/home/alejandro/Documents/Databases/data/fastACI/speechACI_varnet2013/';
+    dir_main = [fastACI_paths('dir_data') 'speechACI_varnet2013' filesep];
+    
 elseif ispc % Leo's computer
-    dir_main = 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';%'C:\Users\Varnet Lï¿½o\Dropbox\Data\Projet fastACI/';
+    dir_main = fastACI_paths('dir_data'); % 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';
+    warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_main,dir_main,filesep);
 end
 
 dir_speech = [dir_main cfg_inout.Subject_ID filesep 'speech-samples' filesep];

@@ -44,7 +44,7 @@ end
 % 1. Loading set-up: 
 %    1.1. Loads cfgcrea*.mat
 [path,name,ext]=fileparts(which(mfilename)); % path will be the folder where this file is located...
-dir_main = [path filesep];    %'C:\Users\Varnet L�o\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM';
+dir_main = [path filesep];
 dir_results = [dir_main 'Interim_results' filesep];
 dir_results_subj = [dir_results Subject_ID filesep];
 
@@ -411,7 +411,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
         case 4 % play pure tone
             str_stim = [];
             data_passation_tmp = data_passation;
-            idx = find(cfg_game.n_response_correct_target == 1); % looks for all '1's
+            idx = find(cfg_game.n_response_correct_target_sorted == 1); % looks for all '1's
             data_passation_tmp.n_stim(i_current) = idx(round( (length(idx)-1)*random('unif',0,1) )+1); % picks up one randomly
                         
             exp2eval = sprintf('str_stim =  %s_user(cfg_game,data_passation_tmp);',experiment);
@@ -427,7 +427,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
         case 5 % play modulated tone
             str_stim = [];
             data_passation_tmp = data_passation;
-            idx = find(cfg_game.n_response_correct_target == 2); % looks for all '2's
+            idx = find(cfg_game.n_response_correct_target_sorted == 2); % looks for all '2's
             data_passation_tmp.n_stim(i_current) = idx(round( (length(idx)-1)*random('unif',0,1) )+1); % picks up one randomly
             exp2eval = sprintf('str_stim =  %s_user(cfg_game,data_passation_tmp);',experiment);
             eval(exp2eval);

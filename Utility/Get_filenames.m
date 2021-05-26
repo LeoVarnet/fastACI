@@ -23,10 +23,10 @@ function [y,ypd] = Get_filenames(directory, exp2filter, extra)
 %   directory = uigetdir('Select a directory with wav-files');
 %   file_orig = Get_filenames(directory,['*.wav']);
 % 
-% Programmed by Alejandro Osses, ExpORL, KU Leuven, Belgium, 2014-2016
+% Programmed by Alejandro Osses
+%
 % Created in     : 2013-2014
-% Last update on : 30/07/2014
-% Last use on    : 20/09/2017
+% Last update on : 26/05/2021
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin < 3
@@ -67,6 +67,10 @@ end
 if ~isempty(id2remove)
     y(id2remove) = [];
     ypd(id2remove) = [];
+end
+
+try
+    Check_readme(directory);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

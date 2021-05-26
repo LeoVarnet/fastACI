@@ -8,17 +8,18 @@ if nargin == 0
 end
 
 if ismac % lab's computer
-    dir_main = '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
-    % dir_main = 'C:\Users\Varnet Léo\Dropbox\Data\Projet fastACI\';
+    dir_main = fastACI_paths('dir_data'); % '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
+    warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_main,dir_main,filesep);
+        
 elseif isunix % Alejandro's computer
-    dir_main = '/home/alejandro/Documents/Databases/data/fastACI/speechACI_Logatome/';
+    dir_main = [fastACI_paths('dir_data') 'speechACI_Logatome' filesep];
+    
 elseif ispc % Leo's computer
-    dir_main = 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';%'C:\Users\Varnet Lï¿½o\Dropbox\Data\Projet fastACI/';
-    % dir_main = 'C:\Users\Varnet Léo\Dropbox\Data\Projet fastACI\';
+    dir_main = fastACI_paths('dir_data'); % 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';
+    warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_main,dir_main,filesep);
 end
 
-dir_logatome_src = '/media/alejandro/My Passport/Databases/data-Speech/french/Logatome/'; % Logatome-average-power-speaker-S46M_FR.mat
-
+% dir_logatome_src = '/media/alejandro/My Passport/Databases/data-Speech/french/Logatome/'; % Logatome-average-power-speaker-S46M_FR.mat
 dir_speech = [dir_main cfg_inout.Subject_ID filesep 'speech-samples' filesep];
 
 if ~isfield(cfg_inout,'Condition')
@@ -60,7 +61,7 @@ cfg.N_target  = 2;     % Number of conditions
 cfg.N         = cfg.N_target*cfg.N_presentation;
 
 cfg_inout.dir_main   = dir_main;
-cfg_inout.dir_logatome_src = dir_logatome_src;
+% cfg_inout.dir_logatome_src = dir_logatome_src;
 
 cfg_inout.dir_speech = dir_speech;
 cfg_inout.dir_noise  = dir_noise;

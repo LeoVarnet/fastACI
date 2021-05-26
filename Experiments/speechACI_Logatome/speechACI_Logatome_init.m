@@ -30,8 +30,7 @@ function cfg_inout = speechACI_Logatome_init(cfg_inout)
  
 % dir_speech_orig = [cfg_inout.dir_main 'As-received-20210408' filesep]; bNormalisation_date = '20210428';
 dir_speech_orig = [cfg_inout.dir_main 'As-received-20210409' filesep]; bNormalisation_date = '';
-
-dir_noise_spectrum = [cfg_inout.dir_logatome_src 'Noisesff' filesep];
+dir_noise_spectrum = [cfg_inout.dir_logatome_src 'Noises' filesep];
 
 if ~exist(dir_speech_orig,'dir')
     dir_speech_orig = uigetdir(pwd,'Select the directory where ''ap_pa.wav'' and ''at_ta.wav'' are located');

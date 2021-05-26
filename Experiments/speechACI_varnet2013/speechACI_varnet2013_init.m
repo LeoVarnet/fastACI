@@ -18,6 +18,11 @@ dBFS       = cfg_inout.dBFS;
 lvl_target = cfg_inout.SPL;
 dur_ramp   = cfg_inout.dur_ramp; 
 fs         = cfg_inout.fs;    
+if ~isfield(cfg_inout,'Condition')
+    cfg_inout.Condition = 'white';
+    fprintf('%s.m: Using default noise background condition: %s\n',upper(mfilename),cfg_inout.Condition);
+end
+
 %%% 1. Speech sounds:
 dir_speech = cfg_inout.dir_speech;
 if exist(dir_speech,'dir')
@@ -32,7 +37,7 @@ else
     end
     
     % dir_speech_orig should contain the original speech samples:
-    dir_speech_orig = [dir_main 'speech-samples_orig' filesep];
+    dir_speech_orig = [fastACI_paths('dir_fastACI') 'Stimuli' filesep 'varnet2013' filesep]; % [dir_main 'speech-samples_orig' filesep];
     
     if ~exist(dir_speech_orig,'dir')
         error('The original speech samples (aba and ada) were not found in your computer...');
