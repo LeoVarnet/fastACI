@@ -21,7 +21,10 @@ end
 
 dir_speech = [dir_main cfg_inout.Subject_ID filesep 'speech-samples' filesep];
 if ~isfield(cfg_inout,'Condition')
-    dir_name_noise = 'NoiseStim';
+    str2use  = ['Script2_Passation_EN(' cfg_inout.experiment ', ' cfg_inout.Subject_ID ', Condition);'];
+    str2use2 = ['''white'' (default), ''pink'', or ''SSN'''];
+    error('%s.m: Please enter one of the experimental conditions. %s\n\tCondition can be %s',upper(mfilename),str2use,str2use2);
+    % dir_name_noise = 'NoiseStim';
 else
     switch lower(cfg_inout.Condition) % lower case
         case 'white'
