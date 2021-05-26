@@ -15,9 +15,15 @@ else
     staircase_direction = [];
 end
 
+n_up   = cfg.rule(1);
+n_down = cfg.rule(2);
+
+if n_up ~= 1
+    error('%s: Only one-up ''n''-down adaptation rules have been validated...',upper(mfilename))
+end
 % 2-down 1-up staircase method on m
 if ~iscorrect
-    expvar = expvar + stepsize;
+    expvar = expvar + stepsize*cfg.step_up;
     
     if ~isempty(staircase_direction)
         if strcmp(staircase_direction,'down') 
@@ -26,12 +32,11 @@ if ~iscorrect
             staircase_direction = 'up';
         end
     else
-        % if reversal_current == 0
         % Then we define the direction
         staircase_direction = 'up';
     end
-elseif n_correctinarow == 2
-    expvar = expvar - stepsize;
+elseif n_correctinarow == n_down
+    expvar = expvar - stepsize*cfg.step_down;
     n_correctinarow=0;
     
     if reversal_current == 0

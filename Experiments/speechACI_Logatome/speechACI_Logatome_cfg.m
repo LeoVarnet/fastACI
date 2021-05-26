@@ -29,21 +29,31 @@ cfg.displayN       = bDebug; % 'oui'
 cfg.feedback       = 1;
  
 cfg.sessionsN      = 400; % CAUTION: Overwritten in the case of simulation
-cfg.adapt          = 1; % 'out';%
-cfg_out.randorder      = 1;
+cfg.adapt          = 2; warning('default is 1 - now we are only testing')% 'out';%
+cfg_out.randorder  = 1;
   
 cfg.startvar = 0;  % old name 'm_start'
 cfg.expvar_description = 'SNR (dB)';
  
 % cfg.maxvar = 10;
- 
+cfg.start_stepsize = 2; % dB
+cfg.adapt_stepsize = 50/100;
+cfg.min_stepsize = 1;
 % Staircase algorithm parameters
-if cfg.adapt == 1
-	cfg.start_stepsize     = 4;
-    cfg.min_stepsize       = 1;
-    cfg.adapt_stepsize     = 50/100;
-else
-    error('Not validated yet...')
+switch cfg.adapt
+    case {1, 'transformed-up-down'}
+        cfg.rule = [1 2]; % [up down]-rule: [1 2] = 1-up 2-down   
+        cfg.step_up    = 1;
+        cfg.step_down  = 1;
+        
+    case {2, 'weighted-up-down'}
+        cfg.rule = [1 1]; 
+        target_score = .707;
+        cfg.step_up    = target_score/(1-target_score);
+        cfg.step_down  = 1;
+        
+    otherwise
+        error('Not validated yet...')
 end
 
 cfg_out = Merge_structs(cfg,cfg_out);
