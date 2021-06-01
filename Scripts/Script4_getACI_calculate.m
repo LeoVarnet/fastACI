@@ -204,6 +204,7 @@ switch glmfct
         % ACI = ACI(:,cfg_ACI.t_limits_idx);
         
         results.ACI = ACI;
+        results.ACIs = sumReWeight;
         
         bPlot = 1; warning('This is temporal here...')
         if bPlot
