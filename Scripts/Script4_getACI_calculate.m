@@ -221,6 +221,7 @@ switch glmfct
         % ACI = ACI(:,cfg_ACI.t_limits_idx);
         
         results.ACI = ACI;
+        results.ACIs = sumReWeight;
         
         if flags.do_plot
             figure; 
