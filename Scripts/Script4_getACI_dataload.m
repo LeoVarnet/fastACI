@@ -94,6 +94,9 @@ switch TF_type
         spect_unit = cfg_inout.spect_unit;
         [~,f,t,~] = spectrogram(bruit, Nwindow, Nwindow*overlap,NFFT,fs);
         
+        t_correction = ((Nwindow/fs)/2)/2; % first time sample will be at 1/fs
+        t = t-t_correction;
+        
     case 'lyon'
         path = fileparts(which('data_load'));
         path = fileparts(path); % one level up

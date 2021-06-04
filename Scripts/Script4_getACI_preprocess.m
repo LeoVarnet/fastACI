@@ -179,10 +179,7 @@ switch cfg_ACI.flags.glmfct
         
         cfg_ACI.t_X = t_X;
         cfg_ACI.f_X = f_X;
-        % X = X';
-        % X = (X - mean(X,1))./std(X,[],1);
-        % X(isnan(X)) = 0;
-
+        
     otherwise 
         % Nothing to do
         X = Data_matrix(idx_analysis,:); % 

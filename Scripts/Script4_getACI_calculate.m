@@ -32,6 +32,8 @@ function [ACI,results,cfg_ACI] = Script4_getACI_calculate(cfg_ACI, y, y_correct,
 
 glmfct = cfg_ACI.glmfct;
 
+flags = cfg_ACI.flags; 
+
 %% 5. Calculation of the ACI
 
 N_f = length(cfg_ACI.f);
@@ -40,7 +42,7 @@ N_t = length(cfg_ACI.t);
 fprintf('Starting the ACI assessment\n');% ,Analysis_condition);
 tic
 
-do_permutation = cfg_ACI.flags.do_permutation;
+do_permutation = flags.do_permutation;
 if do_permutation
     cfg_perm = cfg_ACI.cfg_perm;
     N_perm = cfg_perm.N_perm;
@@ -195,9 +197,24 @@ switch glmfct
             sumReWeight = sumReWeight + ReWeightPyramid{i_level};
         end
         
-        if length(cfg_ACI.t_limits_idx) < size(sumReWeight,3) % Dim 3 is time  
-            sumReWeight = sumReWeight(:,:,cfg_ACI.t_limits_idx);    
-            cfg_ACI.t_X = cfg_ACI.t_X(cfg_ACI.t_limits_idx);
+        if length(cfg_ACI.t_limits_idx) < size(sumReWeight,3) % Dim 3 is time 
+            % time was padded for the pyramid calculation, so we truncate it back
+            sumReWeight = sumReWeight(:,:,cfg_ACI.t_limits_idx);
+            if cfg_ACI.t_X(1) == cfg_ACI.t(1) && cfg_ACI.t_X(N_t) == cfg_ACI.t(N_t)
+                % then t_X is equal (but longer than) t
+                cfg_ACI = rmfield(cfg_ACI,'t_X');
+            end
+        end
+        
+        if length(cfg_ACI.f_limits_idx) > size(sumReWeight,2) % Dim 2 is frequency
+            % we need to truncate the frequency .f
+            
+            if cfg_ACI.f(1)==cfg_ACI.f_X(1) && cfg_ACI.f(length(cfg_ACI.f_X))==cfg_ACI.f_X(end)
+                cfg_ACI.f = cfg_ACI.f_X;
+                cfg_ACI.f_limits_idx = cfg_ACI.f_limits_idx(1:length(cfg_ACI.f_X));
+                
+                cfg_ACI = rmfield(cfg_ACI,'f_X');
+            end
         end
         
         ACI = squeeze( sumReWeight(idxlambda,:,:) );
@@ -205,11 +222,10 @@ switch glmfct
         
         results.ACI = ACI;
         
-        bPlot = 1; warning('This is temporal here...')
-        if bPlot
+        if flags.do_plot
             figure; 
             % h=pcolor(t_X, f_X, -sumReWeight(:,:,idxlambda)); set(h, 'EdgeColor', 'none'); xlabel('time (s)'); ylabel('freq (Hz)'); colorbar; title('betaSmooth: ACI obtained with a lasso regression on smooth basis'); colorbar; caxis([-1 1]*max(abs(caxis)));
-            h=pcolor(cfg_ACI.t_X, cfg_ACI.f_X, ACI); 
+            h=pcolor(cfg_ACI.t, cfg_ACI.f, ACI); 
             set(h, 'EdgeColor', 'none'); 
             xlabel('time (s)'); 
             ylabel('freq (Hz)'); colorbar; 
@@ -217,63 +233,54 @@ switch glmfct
             colorbar; % caxis([-1 1]*max(abs(caxis)));
             % %set(gca, 'YScale', 'log');
             
-            Nt = length(cfg_ACI.t_X);
-            Nf = length(cfg_ACI.f_X);
-            
-            t_spec = cfg_ACI.t_X;
-            f_spec = cfg_ACI.f_X;
-            figure;
-            if N_iterations >= 50
-                betalasso50 = reshape(sumReWeight(50,:,:), [Nf,Nt]);
-                
-                subplot(5,1,1)
-                hp = pcolor(t_spec, f_spec, betalasso50); 
-                xlabel('time (s)'); 
-                ylabel('freq (Hz)');colorbar
-                set(hp, 'EdgeColor', 'none'); 
-                title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(50))])
-            end
-            if N_iterations >= 60
-                betalasso60 = reshape(sumReWeight(60,:,:), [Nf,Nt]);
-                
-                subplot(5,1,2)
-                hp = pcolor(t_spec, f_spec, betalasso60); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
-                set(hp, 'EdgeColor', 'none'); 
-                title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(60))])
-            end
-            if N_iterations >= 70
-                betalasso70 = reshape(sumReWeight(70,:,:), [Nf,Nt]);
-                
-                subplot(5,1,3)
-                hp = pcolor(t_spec, f_spec, betalasso70); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
-                set(hp, 'EdgeColor', 'none'); 
-                title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(70))])
-            end
-            if N_iterations >= 80
-                betalasso80 = reshape(sumReWeight(80,:,:), [Nf,Nt]);
-                
-                subplot(5,1,4)
-                hp = pcolor(t_spec, f_spec, betalasso80); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
-                set(hp, 'EdgeColor', 'none'); 
-                title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(80))])
-            end
-            if N_iterations >= 90
-                betalasso90 = reshape(sumReWeight(90,:), [Nf,Nt]);
-                
-                subplot(5,1,5)
-                hp = pcolor(t_spec, f_spec, betalasso90); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
-                set(hp, 'EdgeColor', 'none'); 
-                title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(90))])
-            end
-            % % [~,bestlambda] = min(FitInfo.Deviance);
-            % betalassobest = reshape(B(:,idxlambda), [Nf,Nt]);
+            % Nt = length(cfg_ACI.t);
+            % Nf = length(cfg_ACI.f);
             % 
+            % t_spec = cfg_ACI.t;
+            % f_spec = cfg_ACI.f;
             % figure;
-            % plot(FitInfo.Lambda,FitInfo.Deviance,'-');hold on;plot(FitInfo.Lambda([50,60,70,80,90]),FitInfo.Deviance([50,60,70,80,90]),'ro');plot(FitInfo.Lambda(bestlambda),FitInfo.Deviance(bestlambda),'b*')
+            % if N_iterations >= 50
+            %     betalasso50 = reshape(sumReWeight(50,:,:), [Nf,Nt]);
             % 
-            % figure;
-            % pcolor(t_spec, f_spec, betalassobest); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
-            % title(['ACI obtained with a lasso regression, best \lambda = ' num2str(FitInfo.Lambda(bestlambda))])
+            %     subplot(5,1,1)
+            %     hp = pcolor(t_spec, f_spec, betalasso50); 
+            %     xlabel('time (s)'); 
+            %     ylabel('freq (Hz)');colorbar
+            %     set(hp, 'EdgeColor', 'none'); 
+            %     title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(50))])
+            % end
+            % if N_iterations >= 60
+            %     betalasso60 = reshape(sumReWeight(60,:,:), [Nf,Nt]);
+            % 
+            %     subplot(5,1,2)
+            %     hp = pcolor(t_spec, f_spec, betalasso60); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
+            %     set(hp, 'EdgeColor', 'none'); 
+            %     title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(60))])
+            % end
+            % if N_iterations >= 70
+            %     betalasso70 = reshape(sumReWeight(70,:,:), [Nf,Nt]);
+            % 
+            %     subplot(5,1,3)
+            %     hp = pcolor(t_spec, f_spec, betalasso70); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
+            %     set(hp, 'EdgeColor', 'none'); 
+            %     title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(70))])
+            % end
+            % if N_iterations >= 80
+            %     betalasso80 = reshape(sumReWeight(80,:,:), [Nf,Nt]);
+            % 
+            %     subplot(5,1,4)
+            %     hp = pcolor(t_spec, f_spec, betalasso80); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
+            %     set(hp, 'EdgeColor', 'none'); 
+            %     title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(80))])
+            % end
+            % if N_iterations >= 90
+            %     betalasso90 = reshape(sumReWeight(90,:), [Nf,Nt]);
+            % 
+            %     subplot(5,1,5)
+            %     hp = pcolor(t_spec, f_spec, betalasso90); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
+            %     set(hp, 'EdgeColor', 'none'); 
+            %     title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(90))])
+            % end
         end
 
     otherwise
