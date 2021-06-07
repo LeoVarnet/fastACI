@@ -82,7 +82,7 @@ if flags.do_fig1
     %   on Gaussian pyramid"... nice, isn't it ? (5000 trials each, lines 
     %   show formants and f0 trajectory)''
     
-    type = 1;
+    type = input('Enter 1 to process Logatome data; 3 to process varnet2013 data: ');
     switch type
         case 1
             fprintf('SLeo, Logatome, white noise data\n')
@@ -90,15 +90,35 @@ if flags.do_fig1
             data_mat_file = 'savegame_2021_05_05_13_51_SLeoWN_speechACI_Logatome.mat';
             dir_noise  = [paths.dir_data 'speechACI_Logatome-apta-S46M' filesep 'SLeo' filesep 'NoiseStim-white' filesep];
             dir_target = [paths.dir_data 'speechACI_Logatome-apta-S46M' filesep 'SLeo' filesep 'speech-samples'  filesep];
+            
+            t_limits = [0.0 1]; % No limit at all
+            f_limits = [1 10000];
+            fname_results = [paths_results data_folder filesep data_mat_file];
+            
         case 2
             fprintf('SLeo, Logatome, SSN data\n')
             data_folder   = '20210421-SLeo_speechACI_Logatome';
             data_mat_file = 'savegame_2021_04_28_13_10_SLeo_speechACI_Logatome.mat';
             dir_noise = [paths.dir_data 'speechACI_Logatome-apta-S46M'  filesep 'SLeo' filesep 'NoiseStim-SSN'  filesep];
             dir_target = [paths.dir_data 'speechACI_Logatome-apta-S46M' filesep 'SLeo' filesep 'speech-samples' filesep];
+            
+            t_limits = [0.0 1]; % No limit at all
+            f_limits = [1 10000];
+            fname_results = [paths_results data_folder filesep data_mat_file];
+            
+        case 3
+            fprintf('SLeo, Logatome, white noise data\n')
+            % '/home/alejandro/Documents/Databases/data/fastACI/data_varnet2013/'
+            data_folder   = 'Sujet_Leo_S1';
+            data_mat_file = 'savegame_final.mat';
+            data_folder_full = [paths.dir_data 'data_varnet2013' filesep data_folder filesep];
+            dir_noise  = [data_folder_full 'ListeBruit'  filesep];
+            dir_target = [data_folder_full 'ListeSignal' filesep];
+            
+            f_limits = [1 10000];
+            t_limits = [0.0 342.5e-3]; 
+            fname_results = [data_folder_full filesep data_mat_file];
     end
-    
-    fname_results = [paths_results data_folder filesep data_mat_file];
     
     glm_functions = {   'classic_revcorr', ...
                         'glmfitqp', ...
@@ -107,7 +127,7 @@ if flags.do_fig1
     for i = 1:length(glm_functions)
         glmfct = glm_functions{i};
     
-        % t_limits = [0.0 1]; % No limit at all
+        
         DimCI = 'spect'; % 'tf'
     
         %%% Extra flags used by AO:
@@ -120,12 +140,19 @@ if flags.do_fig1
                 
                 flags = {'dir_noise', dir_noise, 'dir_target', dir_target, 'dir_out', dir_out, 'no_plot', ...
                   'idx_trialselect',[], ... % 'idx_trialselect',1:2400, ...
-                  'f_limits',f_limits, ...
+                  'f_limits',f_limits,'t_limits',t_limits, ...
                   'spect_NFFT',512,'spect_Nwindow',512,'spect_overlap',0, ... %'spect_NFFT',1024,'spect_Nwindow',1024,'spect_overlap',.5...
                 }; 
             case {'lasso','classic_revcorr'}
+                
+                if type == 3 && strcmp(glmfct,'lasso')
+                    f_limits = [1 12000]; warning('Temporal arrangement...')
+                end
+                
                 flags = {'dir_noise', dir_noise, 'dir_target', dir_target, 'dir_out', dir_out, 'no_plot', ...
                   'idx_trialselect',[], ... % 'idx_trialselect',1:2400, ...
+                  'f_limits',f_limits, ...
+                  't_limits',t_limits, ...
                   'spect_NFFT',512,'spect_Nwindow',512,'spect_overlap',.75 ... %'spect_NFFT',1024,'spect_Nwindow',1024,'spect_overlap',.5...
                 };
         end
@@ -152,8 +179,14 @@ if flags.do_fig1
             ACI_ex = zeros(size(ACI));
             ACI_ex(idxs) = ACI(idxs);
             figure;
-            affichage_tf(ACI_ex, 'CI', 'cfg',cfg_ACI);            
+            affichage_tf(ACI_ex, 'CI', 'cfg',cfg_ACI);  
         end
+        
+        YL = [-40 4100];
+        ylim(YL)
+        YT = 0:500:4000;
+        set(gca,'YTick',YT);
+        set(gca,'YTickLabel',YT);
         title([prefix_title{i} name2figname(glmfct) str_suf])
         
         h(end+1) = gcf;
