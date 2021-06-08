@@ -74,16 +74,19 @@ if ~isfield(cfg_crea,'N')
     cfg_crea.N = cfg_crea.N_target*cfg_crea.N_presentation;
 end
 
-[path,name,ext]=fileparts(which(mfilename)); % path will be the folder where this file is located...
-dir_main = [path filesep];    %'C:\Users\Varnet Leo\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM';
-dir_results = [dir_main 'Interim_results' filesep];
-if ~isfolder(dir_results)
-    if isfolder(dir_main)
-        % If folder Interim_results does not exist, it is created, but this 
-        %   is only done if dir_main already exists...
-        mkdir(dir_results);
-    end
-end
+% [dir_results, dir_results_completed] = Check_local_dir_data(experiment,Subject_ID);
+dir_results = Check_local_dir_data(experiment,Subject_ID);
+
+% [path,name,ext]=fileparts(which(mfilename)); % path will be the folder where this file is located...
+% dir_main = [path filesep];    %'C:\Users\Varnet Leo\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM';
+% dir_results = [dir_main 'Interim_results' filesep];
+% if ~isfolder(dir_results)
+%     if isfolder(dir_main)
+%         % If folder Interim_results does not exist, it is created, but this 
+%         %   is only done if dir_main already exists...
+%         mkdir(dir_results);
+%     end
+% end
     
 %%% Checking if an *.init file is found on disc:
 script_name = sprintf('%s_init',experiment);
@@ -115,7 +118,7 @@ if ~isempty(Condition)
 end
 savename = ['cfgcrea_' clock_str '_' filter2use];
 
-dir_results_subj = [dir_results Subject_ID filesep];
-mkdir(dir_results_subj); % makes sure the folder for the participant exists...
-save([dir_results_subj savename], 'cfg_crea');
+% dir_results_subj = [dir_results Subject_ID filesep];
+mkdir(dir_results); % makes sure the folder for the participant exists...
+save([dir_results savename], 'cfg_crea');
 fprintf(['cfg file saved: ' savename '.mat\n\n']);

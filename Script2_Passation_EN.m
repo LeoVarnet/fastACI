@@ -52,29 +52,26 @@ end
 % -------------------------------------------------------------------------
 % 1. Loading set-up: 
 %    1.1. Loads cfgcrea*.mat
-[path,name,ext]=fileparts(which(mfilename)); % path will be the folder where this file is located...
-dir_main = [path filesep];
-dir_results = [dir_main 'Interim_results' filesep];
-dir_results_subj = [dir_results Subject_ID filesep];
+[dir_results, dir_results_completed] = Check_local_dir_data(experiment,Subject_ID);
 
 filter2use = [Subject_ID '_' experiment_full];
 if ~isempty(Condition)
     filter2use = [filter2use '_' Condition];
 end
-stored_cfg = Get_filenames(dir_results_subj,['cfgcrea*' filter2use '.mat']);
+stored_cfg = Get_filenames(dir_results,['cfgcrea*' filter2use '.mat']);
 N_stored_cfg = length(stored_cfg);
 if N_stored_cfg==1
-    var      = load([dir_results_subj stored_cfg{1}]);
+    var      = load([dir_results stored_cfg{1}]);
     cfg_game = var.cfg_crea;
     % cfg_game.cfg_crea   = var.cfg_crea;
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    % try
+    try
         cfg_game = Script1_Initialisation_EN(experiment_full,Subject_ID, Condition);
-    % catch me
-    %     error('%s: no cfg_crea available\n\t%s',upper(mfilename),me.message);
-    % end
+    catch me
+        error('%s: Script1_Initialisation_EN failed\n\t%s',upper(mfilename),me.message);
+    end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -127,7 +124,7 @@ switch cfg_game.resume
                 if ~isempty(index_all)
                     for j=1:length(index_all)
                         movefile([dir_results      ListSavegame(index_all(j)).name], ... % src
-                                 [dir_results_subj ListSavegame(index_all(j)).name]);
+                                 [dir_results_completed ListSavegame(index_all(j)).name]);
                     end
                 end
                 % ---
@@ -315,13 +312,10 @@ if cfg_game.is_experiment == 1
 end
  
 N = cfg_game.N;
-% if ~isfield(cfg_game,'ListStim')
-%     cfg_game.ListStim = ListStim;
-% end
-% warning('This is temporary')
 
-cfg_game.dir_path    = dir_main;
+% cfg_game.dir_path    = dir_main;
 cfg_game.dir_results = dir_results;
+cfg_game.dir_results_completed = dir_results_completed;
 
 while i_current <= N && i_current~=data_passation.next_session_stop && isbreak == 0
     
