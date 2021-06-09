@@ -94,8 +94,8 @@ switch bLevel_norm_version
                     fprintf('The exact level of the pure tone (modulated or not) is %.1f dB\n',lvl_S+dBFS);
                 end
             case 3
-                noise  = setdbspl(noise ,SPL    ,dBFS);
-                signal = setdbspl(signal,SPL+SNR,dBFS);
+                noise  = scaletodbspl(noise ,SPL    ,dBFS); % setdbspl(noise ,SPL    ,dBFS);
+                signal = scaletodbspl(signal,SPL+SNR,dBFS); % setdbspl(signal,SPL+SNR,dBFS);
                 extra.stim_N = noise;
                 
                 extra.stim_S = signal;

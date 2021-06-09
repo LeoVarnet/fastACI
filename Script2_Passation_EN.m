@@ -34,8 +34,11 @@ if nargin == 0
 end
 
 switch Subject_ID
-    case {'dau1997','dau1997_preproc'}
+    case {'dau1997','king2019','osses2021'} % alphabetical order
         bSimulation = 1;
+        
+    case {'dau1997_preproc'}
+        error('Model %s is deprecated...',Subject_ID);
     otherwise
         bSimulation = 0;
 end
@@ -186,7 +189,13 @@ switch cfg_game.resume
             % cfg_game.sessionsN          = 500;
             % cfg_game.stim_dur           = 0.75;
             def_sim = [];
-            def_sim.template_script = 'model_template';
+            switch Subject_ID
+                case 'king2019'
+                    def_sim.template_script = 'king2019_template'; % this can be later automated
+                otherwise
+                    % Generic 'model_template', so far to be used with XCorr approach
+                    def_sim.template_script = 'model_template';
+            end
             sim_work = [];
             
             cfg_game.sessionsN = cfg_game.N;
@@ -224,40 +233,6 @@ if cfg_game.resume == 0
     cfg_game.n_response_correct_target_sorted = list_target_signals;
 end
 
-% Create template
- 
-if cfg_game.is_simulation == 1
-    
-    warning('Modelling under construction: Not validated yet...')
-    % Signal{1} = create_AM(cfg_game.fc, cfg_game.fm, 0, cfg_game.stim_dur, cfg_game.fs)';
-    % Signal{2} = create_AM(cfg_game.fc, cfg_game.fm, 10^(cfg_game.m_start/10), cfg_game.stim_dur, cfg_game.fs)';
-    % 
-    % if cfg_game.N_template>0 
-    %     cfg_game.IR{1} = 0; cfg_game.IR{2} = 0;
-    %     for i=1:cfg_game.N_template
-    %         fprintf(['Template: stim #' num2str(i) ' of ' num2str(cfg_game.N_template) '\n']);
-    % 
-    %         WavFile = strcat(cfg_game.folder_name, '/', ListStim(i).name);
-    %         [noise,cfg_game.fs] = audioread(WavFile); noise = noise/std(noise);
-    %         fadein_samples = cfg_game.fs*cfg_game.fadein_s;
-    %         Target{1} = generate_stim( Signal{1}, noise, cfg_game.SNR, fadein_samples);
-    %         Target{2} = generate_stim( Signal{2}, noise, cfg_game.SNR, fadein_samples);
-    % 
-    %         %plot_modep(cfg_game.fc,cfg_game.fmc, auditorymodel(Target{1}, cfg_game.fs, cfg_game.model)/cfg_game.N_template)
-    % 
-    %         IRind1(:,:,:,i) = auditorymodel(Target{1}, cfg_game.fs, cfg_game.model)/cfg_game.N_template; %cfg_game.IR{1} +
-    %         IRind2(:,:,:,i) = auditorymodel(Target{2}, cfg_game.fs, cfg_game.model)/cfg_game.N_template; %cfg_game.IR{2} +
-    %     end
-    %     cfg_game.IR{1} = mean(IRind1,4);
-    %     cfg_game.IR{2} = mean(IRind2,4);
-    % else
-    %     cfg_game.IR{1} = auditorymodel(Signal{1}, cfg_game.fs, cfg_game.model);
-    %     cfg_game.IR{2} = auditorymodel(Signal{2}, cfg_game.fs, cfg_game.model);
-    % end
-    % %cfg_game.IR{1} = zeros(size(cfg_game.IR{2}));
-    % cfg_game.Template = cfg_game.IR{2} - cfg_game.IR{1};     
-end
- 
 %% Experiment
 if cfg_game.resume == 0
     if ~isfield(cfg_game,'stim_order')
@@ -383,7 +358,20 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
         end
         stop(player)
     elseif cfg_game.is_simulation
-        [response,sim_work] = aci_detect(cfg_game,data_passation,def_sim,sim_work);
+        % warning('Temporal')
+        switch Subject_ID
+            case {'dau1997','osses2021'} % fixed detector depending on the model (this is a temporal solution)
+                [response,sim_work] = aci_detect(cfg_game,data_passation,def_sim,sim_work);
+                
+            case 'king2019'
+                [response,sim_work,def_sim] = king2019_detect(cfg_game,data_passation,def_sim,sim_work);
+        end
+        disp('')
+        
+        %%% Template:
+        %%% Simulation in itself
+        % [response,ir,cfg ] = auditorymodel_TMdetect( in, template, cfg );
+        
         % fprintf(['analyse stim # ' num2str(i) ' of ' num2str(cfg_game.N) '\n']);
         % Stim_IR = auditorymodel(stim_normal, cfg_game.fs, cfg_game.model);
         % % redefine the template
@@ -507,6 +495,29 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
             end
              
             if cfg_game.adapt
+                
+                switch cfg_game.adapt
+                    case {1,'transformed-up-down'}
+                        cfg_game = Ensure_field(cfg_game,'rule',[1 2]); % [up down]-rule: [1 2] = 1-up 2-down   
+                        cfg_game = Ensure_field(cfg_game,'step_up',1);
+                        cfg_game = Ensure_field(cfg_game,'step_down',1);
+                        
+                    case {2, 'weighted-up-down'}
+                        if ~isfield(cfg_gae,'rule')
+                            error('Check defaults')
+                            cfg_game.rule = [1 1]; 
+                        end
+                        target_score = .707;
+                        if ~isfield(cfg_game,'step_up')
+                            cfg_game.step_up    = target_score/(1-target_score);
+                        end
+                        if ~isfield(cfg_game,'step_down')
+                            cfg_game.step_down  = 1;
+                        end
+                    otherwise
+                        error('Not validated yet...')
+                end
+                
                 str_inout = [];
                 str_inout.iscorrect = iscorrect;
                 str_inout.expvar    = expvar;
