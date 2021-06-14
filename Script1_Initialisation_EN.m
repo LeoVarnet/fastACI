@@ -75,7 +75,7 @@ if ~isfield(cfg_crea,'N')
 end
 
 % [dir_results, dir_results_completed] = Check_local_dir_data(experiment,Subject_ID);
-dir_results = Check_local_dir_data(experiment,Subject_ID);
+dir_results = Check_local_dir_data(experiment_full,Subject_ID);
 
 % [path,name,ext]=fileparts(which(mfilename)); % path will be the folder where this file is located...
 % dir_main = [path filesep];    %'C:\Users\Varnet Leo\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM';
