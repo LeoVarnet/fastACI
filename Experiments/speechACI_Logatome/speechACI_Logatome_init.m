@@ -56,7 +56,7 @@ if bGenerate_stimuli
         end
         lvls_before(i) = rmsdb(insig)+dBFS;
  
-        insig = setdbspl(insig,lvl_target,dBFS); % level adjustment before the silence is added
+        insig = scaletodbspl(insig,lvl_target,dBFS); % level adjustment before the silence is added
                  
         lvls_after(i) = rmsdb(insig)+dBFS;
         
@@ -91,9 +91,42 @@ end
 N_ramp = round(dur_ramp*fs); % ramp duration in samples
  
 if bGenerate_stimuli
+    % Initialises the seed numbers on the fly:
+    seed_number_max = 4*cfg_inout.N; % arbitrary number, seeds will range from 0 to 4*N
+    method = 'perm';
+    s_current = rng; % gets current seed
+    type_seed = 'shuffle';
+    
+    try
+        rng(type_seed); % seed based on the computer's clock
+    catch me
+        rng('default');
+        rng(type_seed); % seed based on the computer's clock
+    end
+    
+    switch method
+        case 'unif'
+            error('Not tested recently')
+        case 'perm'
+            numbers = randperm(seed_number_max);
+            seed_numbers = numbers(1:cfg_inout.N); % takes only the first 'N' numbers
+    end
+
+    cfg_inout.seeds_order = seed_numbers; % to be used sequentially
+    cfg_inout.seeds_order_method = method;
+
+    if cfg_inout.randorder == 1
+        cfg_inout.stim_order = randperm(cfg_inout.N); 
+    else
+        error('Not tested recently')
+    end
     
 else
     files = Get_filenames(dir_noise,'*.wav');
+end
+
+if bGenerate_stimuli
+    s_current = rng; % gets current seed
 end
 
 ListStim = [];
@@ -124,6 +157,9 @@ for i = 1:cfg_inout.N
             end
         end
         
+        seed_number = cfg_inout.seeds_order(i);
+        rng(seed_number); % insig = randn(N_samples,1); rng(seed_number)
+        
         switch lower(noise_type)
             case {'white','ssn'}
                 insig = randn(N_samples,1); % This N_samples already includes the ramp times
@@ -137,7 +173,7 @@ for i = 1:cfg_inout.N
         end
         
         lvls_before_noise(i) = rmsdb(insig)+dBFS;
-        insig = setdbspl(insig,lvl_target,dBFS);
+        insig = scaletodbspl(insig,lvl_target,dBFS);
         lvls_after_noise(i) = rmsdb(insig)+dBFS;
          
         if i == 1
@@ -188,3 +224,9 @@ if isfield(cfg_inout,'bRove_level')
 end
 
 cfg_inout.ListStim = ListStim;
+
+%%% Seed set back
+if bGenerate_stimuli
+    rng(s_current);
+end
+%%% 

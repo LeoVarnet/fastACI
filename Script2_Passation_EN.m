@@ -55,7 +55,7 @@ end
 % -------------------------------------------------------------------------
 % 1. Loading set-up: 
 %    1.1. Loads cfgcrea*.mat
-[dir_results, dir_results_completed] = Check_local_dir_data(experiment,Subject_ID);
+[dir_results, dir_results_completed] = Check_local_dir_data(experiment_full,Subject_ID);
 
 filter2use = [Subject_ID '_' experiment_full];
 if ~isempty(Condition)
@@ -70,11 +70,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    try
+    % try
         cfg_game = Script1_Initialisation_EN(experiment_full,Subject_ID, Condition);
-    catch me
-        error('%s: Script1_Initialisation_EN failed\n\t%s',upper(mfilename),me.message);
-    end
+    % catch me
+    %     error('%s: Script1_Initialisation_EN failed\n\t%s',upper(mfilename),me.message);
+    % end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -503,7 +503,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
                         cfg_game = Ensure_field(cfg_game,'step_down',1);
                         
                     case {2, 'weighted-up-down'}
-                        if ~isfield(cfg_gae,'rule')
+                        if ~isfield(cfg_game,'rule')
                             error('Check defaults')
                             cfg_game.rule = [1 1]; 
                         end

@@ -66,6 +66,7 @@ if reversal_current ~= 0 && mod(reversal_current,2) == 0
     % if n_correctinarow == 0 % change stepsize
     if stepsize>cfg.min_stepsize
         stepsize = stepsize*cfg.adapt_stepsize;
+        stepsize = max(stepsize,cfg.min_stepsize);
     else
         stepsize = cfg.min_stepsize;
     end

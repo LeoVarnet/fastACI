@@ -44,12 +44,50 @@ elseif ~isempty(dir(dir_where))
     end
 end
 
+% Initialises the seed numbers on the fly:
+seed_number_max = 4*cfg_inout.N; % arbitrary number, seeds will range from 0 to 4*N
+
+method = 'perm';
+% method = 'unif';
+
+s_current = rng; % gets current seed
+
+type_seed = 'suffle';
+try
+    rng(type_seed); % seed based on the computer's clock
+catch me
+    rng('default');
+    rng(type_seed); % seed based on the computer's clock
+end
+
+switch method
+    case 'unif'
+        error('Not tested recently')
+    case 'perm'
+        numbers = randperm(seed_number_max);
+        seed_numbers = numbers(1:cfg_inout.N); % takes only the first 'N' numbers
+end
+
+cfg_inout.seeds_order = seed_numbers; % to be used sequentially
+cfg_inout.seeds_order_method = method;
+
+if cfg_inout.randorder == 1
+    cfg_inout.stim_order = randperm(cfg_inout.N); 
+else
+    error('Not tested recently')
+end
+
+%%% Seed set back
+rng(s_current);
+%%% 
+
 %% Noise samples generation
 for i=1:N_total
     clc
     if bGenerate_stimuli
         fprintf('Creating noise stimulus # %.0f of %.0f\n',i,N_total);
 
+        %%% Fixing the seed
         str_stim = [];
         str_inout = []; 
         % str_inout.istarget = 0;
@@ -62,6 +100,11 @@ for i=1:N_total
         else
             bRemove_after = 0;
         end
+        
+        s_current = rng; % gets current seed
+        seed_number = cfg_inout.seeds_order(i);
+        rng(seed_number,type_seed); % N_samples = round(cfg_inout.stim_dur * fs); noise = randn(N_samples,1); rng(seed_number,type_seed)
+        
         str2eval = sprintf('str_stim=%s_user(cfg_inout,str_inout);',cfg_inout.experiment);
         eval(str2eval);
         if bRemove_after

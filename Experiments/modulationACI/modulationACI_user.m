@@ -77,7 +77,7 @@ switch bLevel_norm_version
         
         dBFS       = cfg.dBFS;
         lvl_before = rmsdb(stim_normalised);
-        tuser_cal  = setdbspl(stim_normalised,SPL,dBFS);
+        tuser_cal  = scaletodbspl(stim_normalised,SPL,dBFS);
         lvl_after  = rmsdb(tuser_cal);
         
         lvl_offset = (lvl_after-lvl_before);
