@@ -158,8 +158,8 @@ switch cfg_game.resume
                 cfg_game.experiment = 'modulationACI';
             end
             
-            cfg_game.is_simulation =  bSimulation;
-            cfg_game.is_experiment = ~bSimulation;
+            % cfg_game.is_simulation =  bSimulation;
+            % cfg_game.is_experiment = ~bSimulation;
         else
             error('%s: No savegame with the specified name',upper(mfilename))
         end
@@ -177,40 +177,48 @@ switch cfg_game.resume
         exp2eval = sprintf('cfg_game = %s_cfg(cfg_game);',experiment);
         eval(exp2eval);
         
-        % Parameters for game
-        cfg_game.is_simulation =  bSimulation;
-        cfg_game.is_experiment = ~bSimulation;
-        % Simulation parameters
-        if cfg_game.is_simulation == 1
-            % modelparameters;
-            % cfg_game.fadein_s           = 0;
-            % cfg_game.N_template         = 0;
-            cfg_game.warmup = 0; % warm up is disabled
-            % cfg_game.sessionsN          = 500;
-            % cfg_game.stim_dur           = 0.75;
-            def_sim = [];
-            switch Subject_ID
-                case 'king2019'
-                    def_sim.template_script = 'king2019_template'; % this can be later automated
-                otherwise
-                    % Generic 'model_template', so far to be used with XCorr approach
-                    def_sim.template_script = 'model_template';
-            end
-            sim_work = [];
-            
-            cfg_game.sessionsN = cfg_game.N;
-        end
-
+        % % Parameters for game
+        % cfg_game.is_simulation =  bSimulation;
+        % cfg_game.is_experiment = ~bSimulation;
+        
         cfg_game.script_name{1} = [mfilename('fullpath') '.m'];
 
         data_passation.resume_trial = 0;
         data_passation.date_start{1} = Get_date_and_time_str;
-
-        if cfg_game.is_simulation == 1
-            % % display welcome message
-            % msg_welcome
-        end        
 end
+
+cfg_game.is_simulation =  bSimulation;
+cfg_game.is_experiment = ~bSimulation;
+
+%%%
+% Simulation parameters
+if cfg_game.is_simulation == 1
+    % modelparameters;
+    % cfg_game.fadein_s           = 0;
+    % cfg_game.N_template         = 0;
+    cfg_game.warmup = 0; % warm up is disabled
+    % cfg_game.sessionsN          = 500;
+    % cfg_game.stim_dur           = 0.75;
+    def_sim = [];
+    def_sim.modelname = Subject_ID;
+    switch Subject_ID
+        case {'king2019'} % ,'osses2021'}
+            def_sim.template_script = 'king2019_template'; % this can be later automated
+        otherwise
+            % Generic 'model_template', so far to be used with XCorr approach
+            def_sim.template_script = 'model_template';
+    end
+    sim_work = [];
+
+    cfg_game.sessionsN = cfg_game.N;
+end
+
+if cfg_game.is_simulation == 1
+    % % display welcome message
+    % msg_welcome
+end
+%%%
+
 if ~isfield(cfg_game,'feedback')
     cfg_game.feedback = 0; % feedback is disabled by default
 end
@@ -363,7 +371,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
             case {'dau1997','osses2021'} % fixed detector depending on the model (this is a temporal solution)
                 [response,sim_work] = aci_detect(cfg_game,data_passation,def_sim,sim_work);
                 
-            case 'king2019'
+            case 'king2019' % {'king2019','osses2021'}
                 [response,sim_work,def_sim] = king2019_detect(cfg_game,data_passation,def_sim,sim_work);
         end
         disp('')

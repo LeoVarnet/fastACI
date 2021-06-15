@@ -75,8 +75,14 @@ cfg.N         = cfg.N_target*cfg.N_presentation;
 cfg_inout.dir_main   = dir_main;
 % cfg_inout.dir_logatome_src = dir_logatome_src;
 
-cfg_inout.dir_speech = dir_speech;
-cfg_inout.dir_noise  = dir_noise;
-cfg_inout.noise_type = noise_type;
+if ~isfield(cfg_inout,'dir_speech')
+    cfg_inout.dir_speech = dir_speech;
+end
+if ~isfield(cfg_inout,'dir_noise')
+    cfg_inout.dir_noise  = dir_noise;
+end
+if ~isfield(cfg_inout,'noise_type')
+    cfg_inout.noise_type = noise_type;
+end
  
 cfg_inout = Merge_structs(cfg,cfg_inout);

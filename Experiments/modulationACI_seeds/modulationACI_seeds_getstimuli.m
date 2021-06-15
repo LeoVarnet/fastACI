@@ -1,5 +1,5 @@
-function cfg_out = modulationACI_seeds_getstimuli(file, dir_subject) %(cfg_in)
-% function str_stim = modulationACI_seeds_getstimuli(file, dir_where)
+function noise_waveforms = modulationACI_seeds_getstimuli(file, dir_subject) %(cfg_in)
+% function noise_waveforms = modulationACI_seeds_getstimuli(file, dir_where)
 %
 % Function comparable to *_cfg.m functions from AFC toolbox
 %
@@ -53,7 +53,7 @@ N = input(['Enter the number of trial noises that you want to generate (max=' nu
  
 fs = cfg.fs;
 
-noise_all = [];
+noise_waveforms = [];
 
 for i_current = 1:N
     
@@ -63,7 +63,14 @@ for i_current = 1:N
     if i_current<10;   stimnumber=['0' stimnumber]; end
     
     fname = [dir_audio 'Noise_' stimnumber '.wav'];
-    if ~exist(fname,'file')
+    if nargout == 0
+        bDo = ~exist(fname,'file');
+    end
+    if nargout >= 0
+        bDo = 1;
+    end
+    
+    if bDo
         n_stim = cfg.stim_order(i_current); % copied from Script2, as of 3 March 2021
     
         data_passation.i_current = i_current;
@@ -72,9 +79,12 @@ for i_current = 1:N
         signals = modulationACI_seeds_user(cfg,data_passation);
 
         noise = signals.stim_noise_alone;
-        % noise_all(:,end+1) = noise;
-        
-        audiowrite(fname,noise,fs); % ,'BitsPerSample',24);
+        if nargout >= 1
+            noise_waveforms(:,end+1) = noise;
+        end
+        if nargout == 0
+            audiowrite(fname,noise,fs); % ,'BitsPerSample',24);
+        end
     else
         fprintf('\t%s. file %s found on disk\n',stimnumber,fname)
         % error('Directory %s is not empty, remove the wave files and re-run this script',dir_audio);

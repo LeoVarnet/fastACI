@@ -83,49 +83,22 @@ else
     if ~strcmp(dir_noise(end),filesep) % if last character is \ or / (it should be the case always)
         dir_noise = [fileparts(dir_noise(1:end-1)) filesep];
     end
-     
-    % If you are in this part of the code, 'dir_noise' does not exist:
-    mkdir(dir_noise);
 end
  
 N_ramp = round(dur_ramp*fs); % ramp duration in samples
  
 if bGenerate_stimuli
-    % Initialises the seed numbers on the fly:
-    seed_number_max = 4*cfg_inout.N; % arbitrary number, seeds will range from 0 to 4*N
-    method = 'perm';
-    s_current = rng; % gets current seed
-    type_seed = 'shuffle';
-    
-    try
-        rng(type_seed); % seed based on the computer's clock
-    catch me
-        rng('default');
-        rng(type_seed); % seed based on the computer's clock
-    end
-    
-    switch method
-        case 'unif'
-            error('Not tested recently')
-        case 'perm'
-            numbers = randperm(seed_number_max);
-            seed_numbers = numbers(1:cfg_inout.N); % takes only the first 'N' numbers
-    end
-
-    cfg_inout.seeds_order = seed_numbers; % to be used sequentially
-    cfg_inout.seeds_order_method = method;
-
-    if cfg_inout.randorder == 1
-        cfg_inout.stim_order = randperm(cfg_inout.N); 
-    else
-        error('Not tested recently')
-    end
-    
-else
-    files = Get_filenames(dir_noise,'*.wav');
+    [cfg_inout,s_current, bGenerate_stimuli] = Check_seeds_and_initialise(cfg_inout);
 end
 
-if bGenerate_stimuli
+if bGenerate_stimuli == 0
+    dir_noise = cfg_inout.dir_noise;
+    
+    files = Get_filenames(dir_noise,'*.wav');
+else
+    % If you are in this part of the code, 'dir_noise' does not exist:
+    mkdir(dir_noise);
+    
     s_current = rng; % gets current seed
 end
 
@@ -218,8 +191,10 @@ end
 
 if isfield(cfg_inout,'bRove_level')
     
-    max_rove = cfg_inout.Rove_range; % dB
-    cfg_inout.Rove_level = (rand(1,cfg_inout.N)-0.5)*2*max_rove;
+    if ~isfield(cfg_inout,'Rove_level')
+        max_rove = cfg_inout.Rove_range; % dB
+        cfg_inout.Rove_level = (rand(1,cfg_inout.N)-0.5)*2*max_rove;
+    end
 
 end
 
