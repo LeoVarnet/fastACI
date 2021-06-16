@@ -39,7 +39,7 @@ dur_ramp   = cfg_inout.dur_ramp;
 fs         = cfg_inout.fs;    
 %%% 1. Speech sounds:
 dir_speech = cfg_inout.dir_speech;
-if isdir(dir_speech)
+if exist(dir_speech,'dir')
     bGenerate_stimuli = 0;
 else
     % The original speech sounds are zero padded:
@@ -87,12 +87,19 @@ else
 end
 N_samples = length(insig);
 
+switch cfg_inout.Condition
+    case {'white',''} % white or empty
+    otherwise
+        error('%s: noise type=%s not validated for this experiment yet',upper(mfilename),cfg_inout.Condition);
+end
+    
 %%% 2. Noise sounds:
 dir_noise = cfg_inout.dir_noise;
-if isdir(dir_noise)
+if exist(dir_noise,'dir')
     bGenerate_stimuli = 0;
 else
     bGenerate_stimuli = 1;
+    
     if strcmp(dir_noise(end),filesep) % if last character is \ or / (it should be the case always)
         dir_main = [fileparts(dir_noise(1:end-1)) filesep];
     end
@@ -144,7 +151,7 @@ for i = 1:cfg_inout.N
         end
         
         lvls_before_noise(i) = rmsdb(insig)+dBFS;
-        insig = setdbspl(insig,lvl_target,dBFS);
+        insig = scaletodbspl(insig,lvl_target,dBFS);
         lvls_after_noise(i) = rmsdb(insig)+dBFS;
         
         if i == 1

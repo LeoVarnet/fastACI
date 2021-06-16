@@ -31,7 +31,7 @@ disp('Press any button to continue, press ctrl+C to abort')
 disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
 pause()
 
-if ~isdir(dir_where)
+if ~exist(dir_where,'dir')
     mkdir(dir_where);
     bGenerate_stimuli = 1;
 elseif ~isempty(dir(dir_where))
@@ -52,7 +52,7 @@ method = 'perm';
 
 s_current = rng; % gets current seed
 
-type_seed = 'suffle';
+type_seed = 'shuffle';
 try
     rng(type_seed); % seed based on the computer's clock
 catch me
@@ -103,8 +103,7 @@ for i=1:N_total
         
         s_current = rng; % gets current seed
         seed_number = cfg_inout.seeds_order(i);
-        rng(seed_number,type_seed); % N_samples = round(cfg_inout.stim_dur * fs); noise = randn(N_samples,1); rng(seed_number,type_seed)
-        
+        rng(seed_number); % N_samples = round(cfg_inout.stim_dur * fs); noise = randn(N_samples,1); rng(seed_number,type_seed)
         str2eval = sprintf('str_stim=%s_user(cfg_inout,str_inout);',cfg_inout.experiment);
         eval(str2eval);
         if bRemove_after

@@ -39,8 +39,8 @@ if ~isfield(cfg_inout,'experiment')
     cfg_inout.experiment = fname;
 end
 
-dir_stim = ['/home/alejandro/Documents/Databases/data/fastACI/' cfg_inout.experiment filesep];
-if ~isdir(dir_stim)
+dir_stim = [fastACI_paths('dir_data')  cfg_inout.experiment filesep];
+if ~exist(dir_stim,'dir')
     error('%s: The specified stimulus directory does not exist, please indicate an existing directory...')
 end
 cfg.folder_name = ['NoiseStims-' cfg.noise_type]; % nom du dossier a creer contenant les noises
