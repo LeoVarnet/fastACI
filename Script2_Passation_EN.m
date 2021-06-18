@@ -33,6 +33,12 @@ if nargin == 0
     experiment = experiments{bExp};
 end
 
+Subject_ID_full = Subject_ID;
+if sum(Subject_ID=='_')
+    idx = find(Subject_ID=='_');
+    Subject_ID = Subject_ID(1:idx-1);
+end
+
 switch Subject_ID
     case {'dau1997','king2019','osses2021'} % alphabetical order
         bSimulation = 1;
@@ -41,6 +47,10 @@ switch Subject_ID
         error('Model %s is deprecated...',Subject_ID);
     otherwise
         bSimulation = 0;
+end
+
+if sum(Subject_ID=='_') && bSimulation == 0
+    error('%s: Subject name (Subject_ID) with the character ''_'' is reserved for the use of auditory models. Please define a new Subject_ID without that character',upper(mfilename))
 end
 
 experiment_full = experiment; % it will be used for file naming
@@ -70,11 +80,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    % try
+    try
         cfg_game = Script1_Initialisation_EN(experiment_full,Subject_ID, Condition);
-    % catch me
-    %     error('%s: Script1_Initialisation_EN failed\n\t%s',upper(mfilename),me.message);
-    % end
+    catch me
+        error('%s: Script1_Initialisation_EN failed\n\t%s',upper(mfilename),me.message);
+    end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -134,9 +144,11 @@ switch cfg_game.resume
             end
             
             cfg_game = []; % it will be re-loaded now:
+            data_passation = []; % it will be re-loaded now:
             ListStim = [];
             
-            load(load_name); % loads: cfg_game, data_passation
+            load(load_name,'cfg_game'); % loads: cfg_game, data_passation
+            load(load_name,'data_passation');
             cfg_game.load_name = load_name;
             i_current  = data_passation.i_current+1;
             i_savegame = i_current;
@@ -185,6 +197,8 @@ switch cfg_game.resume
 
         data_passation.resume_trial = 0;
         data_passation.date_start{1} = Get_date_and_time_str;
+        
+        i_current = 0; % dummy variable
 end
 
 cfg_game.is_simulation =  bSimulation;
@@ -193,6 +207,16 @@ cfg_game.is_experiment = ~bSimulation;
 %%%
 % Simulation parameters
 if cfg_game.is_simulation == 1
+    
+    if cfg_game.resume
+        % Check wether it already completed the task
+        if i_current >= cfg_game.N
+            % Then we need to start a new 'run'
+            cfg_game.resume = 0; % setting back to 0 to start a new simulation
+            data_passation = []; % emptying data_passation
+            data_passation.date_start{1} = Get_date_and_time_str;
+        end
+    end
     % modelparameters;
     % cfg_game.fadein_s           = 0;
     % cfg_game.N_template         = 0;
@@ -203,13 +227,20 @@ if cfg_game.is_simulation == 1
     def_sim.modelname = Subject_ID;
     switch Subject_ID
         case {'king2019'} % ,'osses2021'}
-            def_sim.template_script = 'king2019_template'; % this can be later automated
+            if input('Choose 0 to use king2019_template/king2019_detect (default) or 1 to choose model_template/aci_detect: ')
+                def_sim.template_script = 'model_template';
+                def_sim.decision_script = 'aci_detect';
+            else
+                def_sim.template_script = 'king2019_template'; % this can be later automated
+                def_sim.decision_script = 'king2019_detect'; 
+            end
         otherwise
             % Generic 'model_template', so far to be used with XCorr approach
             def_sim.template_script = 'model_template';
+            def_sim.decision_script = 'aci_detect';
     end
     sim_work = [];
-
+    cfg_game.def_sim = def_sim;
     cfg_game.sessionsN = cfg_game.N;
 end
 
@@ -270,8 +301,6 @@ str_inout.debut_i = debut_i;
 
 str_inout = staircase_init(str_inout,cfg_game);
 data_passation.reversal_current = str_inout.reversal_current; % always initialised
-
-% expvar_i   = str_inout.expvar;
 
 response   = str_inout.response;
 n_correctinarow = str_inout.n_correctinarow;
@@ -367,15 +396,17 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
         stop(player)
     elseif cfg_game.is_simulation
         % warning('Temporal')
-        switch Subject_ID
-            case {'dau1997','osses2021'} % fixed detector depending on the model (this is a temporal solution)
+        switch def_sim.decision_script
+            case 'aci_detect' 
+                % Default for 'dau1997' and 'osses2021'
                 [response,sim_work] = aci_detect(cfg_game,data_passation,def_sim,sim_work);
                 
-            case 'king2019' % {'king2019','osses2021'}
+            case 'king2019_detect'
+                % Default for 'king2019'
                 [response,sim_work,def_sim] = king2019_detect(cfg_game,data_passation,def_sim,sim_work);
         end
-        disp('')
-        
+        cfg_game.def_sim = def_sim;
+                
         %%% Template:
         %%% Simulation in itself
         % [response,ir,cfg ] = auditorymodel_TMdetect( in, template, cfg );
@@ -557,7 +588,7 @@ end
 %% Save game
 clock_str = Get_date_and_time_str;
 data_passation.date_end{length(data_passation.date_start)} = clock_str;
-savename = il_get_savename(experiment_full, Subject_ID, Condition, clock_str);
+savename = il_get_savename(experiment_full, Subject_ID_full, Condition, clock_str);
 save([dir_results savename],'cfg_game', 'data_passation');
 msg_close
 

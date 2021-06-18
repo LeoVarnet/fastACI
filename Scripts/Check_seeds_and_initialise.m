@@ -13,9 +13,16 @@ for i = length(list_other_subjects):-1:1
         list_other_subjects(i) = [];
     end
 end
-disp('Do you want to copy the seeds from any of the following subjects?')
-Show_cell(list_other_subjects);
-bInput = input('Type the number of the subject you want to copy (default = 0, new seed): ');
+
+if ~isempty(files)
+    % In case there are completed participants found on disk:
+    disp('Do you want to copy the seeds from any of the following subjects?')
+    Show_cell(list_other_subjects);
+    bInput = input('Type the number of the subject you want to copy (default = 0, new seed): ');
+else
+    % Then seeds will be newly generated:
+    bInput = 0;
+end
 
 %%%
 s_current = rng; % gets current seed
