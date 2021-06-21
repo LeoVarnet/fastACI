@@ -11,22 +11,41 @@ idx_trialselect = cfg_ACI.idx_trialselect;
 n_responses = data_passation.n_responses(idx_trialselect); % responses given by the participant (trial order)
 n_targets   = data_passation.n_targets(idx_trialselect); % expected responses (trial order)
 expvar      = data_passation.expvar(idx_trialselect); % value of the experimental variable (trial order)
-    
+is_correct  = data_passation.is_correct(idx_trialselect);
 % Selection of the condition
 % cfg_ACI.NameCond = Condition;
-cfg_ACI.n_signal_analysis = []; % perform analysis only on trials corresponding to specific signals numbers
+%cfg_ACI.n_signal_analysis = []; % perform analysis only on trials corresponding to specific signals numbers
 if ~isempty(cfg_ACI.keyvals.expvar_limits)
     cfg_ACI.SNR_analysis  = cfg_ACI.keyvals.expvar_limits; % select a range of SNR
 else
     cfg_ACI.SNR_analysis  = [min(expvar) max(expvar)];
 end
-cfg_ACI.n_trials_analysis = []; % select a range of trial numbers
+%cfg_ACI.n_trials_analysis = []; % select a range of trial numbers
 
 do_permutation = cfg_ACI.flags.do_permutation; % By default the permutation test is 'on'
 if do_permutation
     N_perm = cfg_ACI.keyvals.N_perm; 
 end 
 
+%cfg_ACI.trialtype_analysis = [];
+switch cfg_ACI.keyvals.trialtype_analysis
+    case 'incorrect'
+        select_trialtype = ~is_correct;
+    case 'correct'
+        select_trialtype = is_correct;
+    case ''
+        %nothing to do
+    otherwise
+        if cfg_ACI.keyvals.trialtype_analysis(1) == 't' 
+            if str2num(cfg_ACI.keyvals.trialtype_analysis(2:end))<=cfg_ACI.N_target
+                select_trialtype = (n_targets == str2num(cfg_ACI.keyvals.trialtype_analysis(2:end)));
+            else
+                error(['Trialtype condition unrecognized: ' cfg_ACI.trialtype_analysis ' (but there are only ' num2str(cfg_ACI.N_target) ' targets)\n'])
+            end
+        else
+            error(['Trialtype condition unrecognized: ' cfg_ACI.trialtype_analysis '\n'])
+        end
+end
 % switch Analysis_condition % cfg_ACI.NameCond
 %     case 'total'
         % nothing to do
@@ -66,7 +85,7 @@ expvar_trialselect = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_anal
 % for i=cfg_ACI.n_signal_analysis
 %     select_n_signal = ((n_targets==i) | select_n_signal);
 % end
-idx_analysis = find(select_n_trials & expvar_trialselect); % & select_n_signal);
+idx_analysis = find(select_n_trials & expvar_trialselect & select_trialtype); % & select_n_signal);
 
 if length(idx_analysis) ~= size(Data_matrix,1)
     fprintf('\t%s: Selecting a subset of the experimental trials:\n',upper(mfilename));

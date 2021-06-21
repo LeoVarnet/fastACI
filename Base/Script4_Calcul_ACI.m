@@ -66,7 +66,7 @@ end
 
 % General parameters
 % opts_ACI = Ensure_field(opts_ACI,'Analysis_condition','total'); % tableau de cellules contenant les noms de la ou des conditions à calculer
-Analysis_condition = ''; % '_total'; warning('Remove soon...')
+%Analysis_condition = ''; % '_total'; warning('Remove soon...')
 
 % do_permutation = flags.do_permutation; % By default the permutation test is 'on'
 do_recreate_validation = flags.do_recreate_validation;
@@ -98,7 +98,7 @@ if isempty(cfg_game.Subject_ID)
     cfg_game.Subject_ID = Subject_ID;
 end
 
-fnameACI = [dir_out cfg_game.Subject_ID '_' cfg_game.experiment Condition '-ACI' Analysis_condition '-' TF_type '-' glmfct str_last_trial '.mat'];
+fnameACI = [dir_out cfg_game.Subject_ID '_' cfg_game.experiment Condition '-ACI' keyvals.trialtype_analysis '-' TF_type '-' glmfct str_last_trial '.mat'];
 
 bCalculation = ~exist(fnameACI,'file');
 
