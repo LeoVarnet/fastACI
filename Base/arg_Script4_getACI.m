@@ -24,7 +24,7 @@ definput.keyvals.N_folds = 10;
 definput.keyvals.dir_noise = []; 
 definput.keyvals.idx_trialselect = []; 
 
-definput.keyvals.trialtype_analysis = []; 
+definput.keyvals.trialtype_analysis = 'total'; 
 
 definput.keyvals.f_limits = [1 10000]; % Hz, arbitrary frequencies to be used as limits 
 definput.keyvals.t_limits = [0 1]; 

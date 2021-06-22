@@ -33,8 +33,8 @@ switch cfg_ACI.keyvals.trialtype_analysis
         select_trialtype = ~is_correct;
     case 'correct'
         select_trialtype = is_correct;
-    case ''
-        %nothing to do
+    case 'total'
+        select_trialtype = ones(size(is_correct));
     otherwise
         if cfg_ACI.keyvals.trialtype_analysis(1) == 't' 
             if str2num(cfg_ACI.keyvals.trialtype_analysis(2:end))<=cfg_ACI.N_target
