@@ -71,10 +71,17 @@ cfg_inout = Ensure_field(cfg_inout,'decimation',1);
 WithSNR    = cfg_inout.keyvals.apply_SNR;
 WithSignal = cfg_inout.keyvals.add_signal;
 
+if ~strcmp(cfg_inout.dir_noise(end),filesep)
+    cfg_inout.dir_noise = [cfg_inout.dir_noise filesep];
+end
 % -------------------------------------------------------------------------
 % Extract time and/or frequency index
-WavFile = [cfg_inout.dir_noise filesep ListStim(1).name];
-[bruit,fs] = audioread(WavFile);
+WavFile = [cfg_inout.dir_noise ListStim(1).name];
+if exist(WavFile,'file')
+    [bruit,fs] = audioread(WavFile);
+else
+    speechACI_Logatome_init
+end
 bruit=mean(bruit,2);
 
 switch TF_type

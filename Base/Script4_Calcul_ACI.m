@@ -179,7 +179,21 @@ cfg_ACI = set_default_cfg(cfg_ACI, 'N_trialselect', length(cfg_ACI.idx_trialsele
 % ADD HERE: RECONSTRUCTION OF NOISE WAVEFORMS FOR SEEDS EXPERIMENTS
 if bCalculation || do_recreate_validation
     
-    if ~isempty(cfg_ACI.keyvals.dir_noise)
+    if ~exist(cfg_ACI.dir_noise,'dir') && isempty(cfg_ACI.keyvals.dir_noise)
+        % If it does not exist
+        if isfield(cfg_game,'seeds_order')
+            % Nothing to do, the waveforms will be generated inside data_load
+            cfg_ACI.cfg_game = cfg_game;
+            error('Under development...')            
+        else
+            error('%s: No valid noise directory (''dir_noise''). cfg_game contains a folder that was not found, please enter a valid dir_noise.',upper(mfilename))
+        end
+        
+        if isfield(cfg_game,'Rove_level')
+            cfg_ACI.Rove_level = cfg_game.Rove_level;
+        end
+        
+    elseif ~isempty(cfg_ACI.keyvals.dir_noise)
         fprintf('%s: Using dir_noise specified as input parameter by the user\n',upper(mfilename));
         fprintf('\tNew cfg_game.dir_noise=%s\n',cfg_ACI.keyvals.dir_noise);
         if isfield(cfg_ACI,'dir_noise')
@@ -188,11 +202,6 @@ if bCalculation || do_recreate_validation
         end
         cfg_ACI.dir_noise = cfg_ACI.keyvals.dir_noise;
         
-    end
-    
-    if ~exist(cfg_ACI.dir_noise,'dir')
-        % If it does not exist
-        error('%s: No valid noise directory (''dir_noise''). cfg_game contains a folder that was not found, please enter a valid dir_noise.',upper(mfilename))
     end
         
     [Data_matrix,cfg_ACI] = Script4_getACI_dataload(cfg_ACI, ListStim);
