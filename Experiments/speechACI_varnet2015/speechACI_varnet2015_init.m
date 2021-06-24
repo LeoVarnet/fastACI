@@ -134,7 +134,7 @@ for i = 1:cfg_inout.N
     if bGenerate_stimuli
         
         if bMake_new_noises
-            insig = randn(N_samples,1); % This N_samples already includes the ramp times
+            insig = Generate_noise(N_samples,'white'); % This N_samples already includes the ramp times
         end
         
         if bConvert_old_noises

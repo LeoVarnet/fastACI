@@ -37,8 +37,8 @@ switch cfg_ACI.keyvals.trialtype_analysis
         %nothing to do
     otherwise
         if cfg_ACI.keyvals.trialtype_analysis(1) == 't' 
-            if str2num(cfg_ACI.keyvals.trialtype_analysis(2:end))<=cfg_ACI.N_target
-                select_trialtype = (n_targets == str2num(cfg_ACI.keyvals.trialtype_analysis(2:end)));
+            if str2double(cfg_ACI.keyvals.trialtype_analysis(2:end))<=cfg_ACI.N_target
+                select_trialtype = (n_targets == str2double(cfg_ACI.keyvals.trialtype_analysis(2:end)));
             else
                 error(['Trialtype condition unrecognized: ' cfg_ACI.trialtype_analysis ' (but there are only ' num2str(cfg_ACI.N_target) ' targets)\n'])
             end

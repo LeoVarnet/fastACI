@@ -108,11 +108,12 @@ ListStim = [];
 for i = 1:cfg_inout.N
     if bGenerate_stimuli
         
-        switch cfg_inout.Condition
-            case 'white'
-                insig = randn(N_samples,1); % This N_samples already includes the ramp times
-            case 'pink'
-                insig = noise(N_samples,'pink'); % function from LTFAT toolbox
+        switch noise_type
+            case 'SSN' % apply the SSN
+                % insig = Generate_noise(N_samples,'white');
+                % insig = filter(b_fir,1,insig);
+            otherwise
+                insig = Generate_noise(N_samples,noise_type);
         end
         
         insig = setdbspl(insig,lvl_target,dBFS);
