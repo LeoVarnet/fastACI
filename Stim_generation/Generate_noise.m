@@ -16,7 +16,9 @@ switch lower(noise_type)
         insig = noise(N_samples,'pink'); % function from LTFAT toolbox
     case 'smps'
         % temporary built-in parameters
-        refAMPS = load('mAMPS.mat');
+        var = load('mAMPS','mAMPS');
+        refAMPS = var.mAMPS; % = [];
+        
         gam = 239766.68634682; 
         fr = 16.3;
         
