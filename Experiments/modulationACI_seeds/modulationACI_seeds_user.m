@@ -19,14 +19,7 @@ fmod = cfg.fm;
 dur  = cfg.stim_dur;
 fs   = cfg.fs;
 m_dB = data_passation.expvar(i_current);
-switch bLevel_norm_version
-    case 1
-        % Unintended denominator in the conversion from modulation depth to
-        %    modulation index:
-        m = 10^(m_dB/10); 
-    case {2,3}
-        m = 10^(m_dB/20); % modulation index
-end
+m    = 10^(m_dB/20); % modulation index
 
 % fprintf('%s: Generating noise...\n',upper(mfilename));
 N_samples = round(cfg.stim_dur * fs);
@@ -41,15 +34,7 @@ end
 rng(seed_number);
 %%% 
 
-switch cfg.noise_type
-    case 'white'
-        noise = randn(N_samples,1);
-    case 'pink'
-        error('Not validated yet...')
-        noise = pinknoise(N_samples)';
-    otherwise
-        error('%s: Unknown type of noise. Possible options are ''pink'' or ''white''',upper(mfilename))
-end
+noise = Generate_noise(N_samples,cfg.noise_type);
 
 %%% Seed set back
 rng(s_current);
@@ -68,9 +53,6 @@ SPL = cfg.SPL;
 dur_ramp_samples = cfg.fs*cfg.fadein_s;
 
 switch bLevel_norm_version
-    case 1 % default in ENS 'as received'
-        [stim_normalised,extra] = generate_stim(signal,noise,SNR,dur_ramp_samples,noise_type);
-        [tuser_cal,dBFS,gain_factor] = dBlvl(stim_normalised,SPL);
     case {2,3} % I suggest this calibration method
         
         rp    = ones(size(noise)); 
@@ -94,8 +76,8 @@ switch bLevel_norm_version
                     fprintf('The exact level of the pure tone (modulated or not) is %.1f dB\n',lvl_S+dBFS);
                 end
             case 3
-                noise  = scaletodbspl(noise ,SPL    ,dBFS); % setdbspl(noise ,SPL    ,dBFS);
-                signal = scaletodbspl(signal,SPL+SNR,dBFS); % setdbspl(signal,SPL+SNR,dBFS);
+                noise  = scaletodbspl(noise ,SPL    ,dBFS); 
+                signal = scaletodbspl(signal,SPL+SNR,dBFS); 
                 extra.stim_N = noise;
                 
                 extra.stim_S = signal;

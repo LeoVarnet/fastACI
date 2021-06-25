@@ -18,15 +18,6 @@ if nargin < 2
     Subject_ID = input('Enter the Subject ID (e.g., ''S01''): ');
 end
 
-%%% AO: Commented on 26/05/2021
-% if nargin == 0
-    % experiments = {'modulationACI','modulationACI_seeds','speechACI_varnet2013','speechACI_varnet2015'};
-    % Show_cell(experiments);
-    % bExp = input('Choose the experiment that you want to run from the list above: ');
-    % 
-    % experiment = experiments{bExp};
-% end
-
 if ~isempty(Condition)
     str_cond = sprintf(', condition=%s',Condition);
 else
@@ -77,17 +68,6 @@ end
 % [dir_results, dir_results_completed] = Check_local_dir_data(experiment,Subject_ID);
 dir_results = Check_local_dir_data(experiment_full,Subject_ID);
 
-% [path,name,ext]=fileparts(which(mfilename)); % path will be the folder where this file is located...
-% dir_main = [path filesep];    %'C:\Users\Varnet Leo\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM';
-% dir_results = [dir_main 'Interim_results' filesep];
-% if ~isfolder(dir_results)
-%     if isfolder(dir_main)
-%         % If folder Interim_results does not exist, it is created, but this 
-%         %   is only done if dir_main already exists...
-%         mkdir(dir_results);
-%     end
-% end
-    
 %%% Checking if an *.init file is found on disc:
 script_name = sprintf('%s_init',experiment);
 if exist([script_name '.m'],'file')

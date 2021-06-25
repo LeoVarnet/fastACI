@@ -3,8 +3,6 @@ function [str_stim,data_passation] = modulationACI_user(cfg,data_passation)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-bLevel_norm_version = 2; % set to 1 for version 'as received'
-
 i_current = data_passation.i_current;
 
 n_stim = data_passation.n_stim(i_current);
@@ -21,22 +19,16 @@ if ~isfield(cfg,'bDebug')
 else
     bDebug = cfg.bDebug;
 end
+
 fc   = cfg.fc;
 fmod = cfg.fm;
 dur  = cfg.stim_dur;
 fs   = cfg.fs;
 m_dB = data_passation.expvar(i_current);
-switch bLevel_norm_version
-    case 1
-        % Unintended denominator in the conversion from modulation depth to
-        %    modulation index:
-        m = 10^(m_dB/10); 
-    case 2
-        m = 10^(m_dB/20); % modulation index
-end
+m    = 10^(m_dB/20); % modulation index
 
 if bLoad
-    file2load = [cfg.dir_stim cfg.Subject_ID filesep cfg.folder_name filesep filename];
+    file2load = [cfg.dir_noise filename];
     noise = audioread(file2load);
 else
     fprintf('%s: Generating noise...\n',upper(mfilename));
@@ -64,35 +56,30 @@ noise_type = cfg.noise_type;
 SPL = cfg.SPL;
 dur_ramp_samples = cfg.fs*cfg.fadein_s;
 
-switch bLevel_norm_version
-    case 1 % default in ENS 'as received'
-        [stim_normalised,extra] = generate_stim(signal,noise,SNR,dur_ramp_samples,noise_type);
-        [tuser_cal,dBFS,gain_factor] = dBlvl(stim_normalised,SPL);
-    case 2 % I suggest this calibration method
-        [stim_normalised,extra] = generate_stim(signal,noise,SNR,0,noise_type);
+%%% bLevel_norm_version, option '2' in the old versions of this script:
+[stim_normalised,extra] = generate_stim(signal,noise,SNR,0,noise_type);
 
-        rp    = ones(size(noise)); 
-        rp(1:dur_ramp_samples)         = rampup(dur_ramp_samples);
-        rp(end-dur_ramp_samples+1:end) = rampdown(dur_ramp_samples);
-        
-        dBFS       = cfg.dBFS;
-        lvl_before = rmsdb(stim_normalised);
-        tuser_cal  = scaletodbspl(stim_normalised,SPL,dBFS);
-        lvl_after  = rmsdb(tuser_cal);
-        
-        lvl_offset = (lvl_after-lvl_before);
-        lvl_S = extra.lvl_S_dBFS+lvl_offset;
-        lvl_N = extra.lvl_N_dBFS+lvl_offset;
-        
-        % Applying the ramp:
-        tuser_cal = rp.*tuser_cal;
-        extra.stim_N = rp.*extra.stim_N;
-        extra.stim_S = rp.*extra.stim_S;
-        
-        if bDebug == 1
-            fprintf('The exact level of the noise is %.1f dB (0 dB FS=%.1f)\n',lvl_N+dBFS,dBFS);
-            fprintf('The exact level of the pure tone (modulated or not) is %.1f dB\n',lvl_S+dBFS);
-        end
+rp    = ones(size(noise)); 
+rp(1:dur_ramp_samples)         = rampup(dur_ramp_samples);
+rp(end-dur_ramp_samples+1:end) = rampdown(dur_ramp_samples);
+
+dBFS       = cfg.dBFS;
+lvl_before = rmsdb(stim_normalised);
+tuser_cal  = scaletodbspl(stim_normalised,SPL,dBFS);
+lvl_after  = rmsdb(tuser_cal);
+
+lvl_offset = (lvl_after-lvl_before);
+lvl_S = extra.lvl_S_dBFS+lvl_offset;
+lvl_N = extra.lvl_N_dBFS+lvl_offset;
+
+% Applying the ramp:
+tuser_cal = rp.*tuser_cal;
+extra.stim_N = rp.*extra.stim_N;
+extra.stim_S = rp.*extra.stim_S;
+
+if bDebug == 1
+    fprintf('The exact level of the noise is %.1f dB (0 dB FS=%.1f)\n',lvl_N+dBFS,dBFS);
+    fprintf('The exact level of the pure tone (modulated or not) is %.1f dB\n',lvl_S+dBFS);
 end
 
 str_stim.tuser = tuser_cal;

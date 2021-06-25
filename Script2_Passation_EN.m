@@ -75,6 +75,13 @@ stored_cfg = Get_filenames(dir_results,['cfgcrea*' filter2use '.mat']);
 N_stored_cfg = length(stored_cfg);
 if N_stored_cfg==1
     var      = load([dir_results stored_cfg{1}]);
+    %%% Check compatibility:
+    script_legacy = [experiment '_legacy'];
+    if exist([script_legacy '.m'],'file')
+        fprintf('%s: Checking forward-compatibility of the stored creation file\n',upper(mfilename))
+        exp2eval = sprintf('var.cfg_crea = %s(var.cfg_crea);',script_legacy);
+        eval(exp2eval);
+    end
     cfg_game = var.cfg_crea;
     % cfg_game.cfg_crea   = var.cfg_crea;
 elseif N_stored_cfg > 1
@@ -148,6 +155,12 @@ switch cfg_game.resume
             ListStim = [];
             
             load(load_name,'cfg_game'); % loads: cfg_game, data_passation
+            script_legacy = [experiment '_legacy'];
+            if exist([script_legacy '.m'],'file')
+                exp2eval = sprintf('cfg_game = %s(cfg_game,0);',script_legacy);
+                eval(exp2eval);
+            end
+            
             load(load_name,'data_passation');
             cfg_game.load_name = load_name;
             i_current  = data_passation.i_current+1;

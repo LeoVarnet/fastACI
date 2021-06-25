@@ -1,4 +1,4 @@
-function noise_waveforms = modulationACI_seeds_getstimuli(file, dir_subject) %(cfg_in)
+function noise_waveforms = modulationACI_seeds_getstimuli(file, dir_subject) 
 % function noise_waveforms = modulationACI_seeds_getstimuli(file, dir_where)
 %
 % Function comparable to *_cfg.m functions from AFC toolbox

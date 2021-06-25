@@ -8,19 +8,19 @@ if nargin == 0
 end
 
 if ismac % lab's computer
-    dir_main = fastACI_paths('dir_data'); % '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
-    warning('Leo: please copy what you have in %s into %s%s%s (remove this warning once you have already done that)',dir_main,cfg_inout.experiment_full,filesep);
+    dir_data_experiment = fastACI_paths('dir_data'); % '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
+    warning('Leo: please copy what you have in %s into %s%s%s (remove this warning once you have already done that)',dir_data_experiment,cfg_inout.experiment_full,filesep);
         
 elseif isunix % Alejandro's computer
-    dir_main = [fastACI_paths('dir_data') cfg_inout.experiment_full filesep];
+    dir_data_experiment = [fastACI_paths('dir_data') cfg_inout.experiment_full filesep];
     
 elseif ispc % Leo's computer
-    dir_main = fastACI_paths('dir_data'); % 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';
-    warning('Leo: please copy what you have in %s into %s%s%s (remove this warning once you have already done that)',dir_main,cfg_inout.experiment_full,filesep);
+    dir_data_experiment = fastACI_paths('dir_data'); % 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';
+    warning('Leo: please copy what you have in %s into %s%s%s (remove this warning once you have already done that)',dir_data_experiment,cfg_inout.experiment_full,filesep);
 end
 
 % dir_logatome_src = '/media/alejandro/My Passport/Databases/data-Speech/french/Logatome/'; % Logatome-average-power-speaker-S46M_FR.mat
-dir_speech = [dir_main cfg_inout.Subject_ID filesep 'speech-samples' filesep];
+dir_target = [dir_data_experiment cfg_inout.Subject_ID filesep 'speech-samples' filesep];
 
 %%% First checking point:
 if ~isfield(cfg_inout,'Cond_extra_1')
@@ -53,7 +53,7 @@ switch lower(cfg_inout.Condition) % lower case
     otherwise
         error('%s: Condition not recognised',upper(mfilename));
 end
-dir_noise  = [dir_main cfg_inout.Subject_ID filesep dir_name_noise filesep];
+dir_noise  = [dir_data_experiment cfg_inout.Subject_ID filesep dir_name_noise filesep];
 
 dBFS = 100;
  
@@ -72,11 +72,10 @@ cfg.N_presentation = 2500;  % number of stimuli / condition
 cfg.N_target  = 2;     % Number of conditions
 cfg.N         = cfg.N_target*cfg.N_presentation;
 
-cfg_inout.dir_main   = dir_main;
-% cfg_inout.dir_logatome_src = dir_logatome_src;
+cfg_inout.dir_data_experiment = dir_data_experiment;
 
-if ~isfield(cfg_inout,'dir_speech')
-    cfg_inout.dir_speech = dir_speech;
+if ~isfield(cfg_inout,'dir_target')
+    cfg_inout.dir_target = dir_target;
 end
 if ~isfield(cfg_inout,'dir_noise')
     cfg_inout.dir_noise  = dir_noise;
