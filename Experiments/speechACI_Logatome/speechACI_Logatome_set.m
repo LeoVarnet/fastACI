@@ -50,6 +50,9 @@ switch lower(cfg_inout.Condition) % lower case
     case 'ssn'
         dir_name_noise = 'NoiseStim-SSN';
         noise_type = 'SSN';
+    case 'smps'
+        dir_name_noise = 'NoiseStim-sMPS';
+        noise_type = 'smps';
     otherwise
         error('%s: Condition not recognised',upper(mfilename));
 end

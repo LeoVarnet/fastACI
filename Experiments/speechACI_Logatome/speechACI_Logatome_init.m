@@ -26,25 +26,25 @@ dBFS       = cfg_inout.dBFS;
 lvl_target = cfg_inout.SPL;
 dur_ramp   = cfg_inout.dur_ramp; 
 
-if ~exist(cfg_inout.dir_main,'dir')
-    error('Please define an existing cfg_inout.dir_main (Not found: %s)',cfg_inout.dir_main);
+if ~exist(cfg_inout.dir_data_experiment,'dir')
+    error('Please define an existing cfg_inout.dir_data_experiment (Not found: %s)',cfg_inout.dir_data_experiment);
 end
-dir_subject = [cfg_inout.dir_main cfg_inout.Subject_ID filesep];
+dir_subject = [cfg_inout.dir_data_experiment cfg_inout.Subject_ID filesep];
 if ~exist(dir_subject,'dir')
     mkdir(dir_subject);
 end
 
 %%% 1. Speech sounds:
-dir_speech = cfg_inout.dir_speech;
+dir_target = cfg_inout.dir_target;
  
-if exist(dir_speech,'dir')
+if exist(dir_target,'dir')
     bGenerate_stimuli = 0;
 else
     % The original speech sounds are zero padded:
     bGenerate_stimuli = 1;
 
     % If you are in this part of the code, 'dir_speech' does not exist
-    mkdir(dir_speech);
+    mkdir(dir_target);
 end
  
 if bGenerate_stimuli
@@ -68,11 +68,11 @@ if bGenerate_stimuli
         sil = zeros(round(dur_ramp*fs),1);
         insig  = [sil; insig; sil];
         
-        audiowrite([dir_speech files{i}],insig,fs);
+        audiowrite([dir_target files{i}],insig,fs);
     end
 else
-    files = Get_filenames(dir_speech,'*.wav');
-    [insig,fs] = audioread([dir_speech files{1}]); % reading one speech file
+    files = Get_filenames(dir_target,'*.wav');
+    [insig,fs] = audioread([dir_target files{1}]); % reading one speech file
     if fs ~= cfg_inout.fs
         error('Sounds do not have the same sampling frequency as specified in the %s_set.m file');
     end
@@ -143,7 +143,7 @@ for i = 1:cfg_inout.N
                 insig = Generate_noise(N_samples,'white');
                 insig = filter(b_fir,1,insig);
             otherwise
-                insig = Generate_noise(N_samples,noise_type);
+                insig = Generate_noise(N_samples,noise_type,fs);
         end
         
         lvls_before_noise(i) = rmsdb(insig)+dBFS;

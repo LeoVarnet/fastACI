@@ -26,9 +26,9 @@ end
 s_current = rng; % gets current seed
 %%%
 if bDo_the_check
-    list_other_subjects = Get_filenames(cfg_inout.dir_main,'*');
+    list_other_subjects = Get_filenames(cfg_inout.dir_data_experiment,'*');
     for i = length(list_other_subjects):-1:1
-        crea_extern = [cfg_inout.dir_main list_other_subjects{i} filesep 'Results' filesep];
+        crea_extern = [cfg_inout.dir_data_experiment list_other_subjects{i} filesep 'Results' filesep];
         files = Get_filenames(crea_extern,['cfgcrea*' cfg_inout.Condition '.mat']);
 
         if isempty(files)
@@ -79,7 +79,7 @@ if bDo_the_check
         bGenerate_stimuli = 1; % not changed
     else
 
-        crea_extern = [cfg_inout.dir_main list_other_subjects{bInput} filesep 'Results' filesep];
+        crea_extern = [cfg_inout.dir_data_experiment list_other_subjects{bInput} filesep 'Results' filesep];
         files = Get_filenames(crea_extern,['cfgcrea*' cfg_inout.Condition '.mat']);
 
         if length(files) ~= 1

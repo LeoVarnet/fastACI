@@ -87,11 +87,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    try
+    % try
         cfg_game = Script1_Initialisation_EN(experiment_full,Subject_ID, Condition);
-    catch me
-        error('%s: Script1_Initialisation_EN failed\n\t%s',upper(mfilename),me.message);
-    end
+    % catch me
+    %     error('%s: Script1_Initialisation_EN failed\n\t%s',upper(mfilename),me.message);
+    % end
 end
 
 if ~isfield(cfg_game,'resume')

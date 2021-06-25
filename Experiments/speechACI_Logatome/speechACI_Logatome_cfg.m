@@ -12,7 +12,7 @@ end
 cfg = [];
 cfg_out = cfg_in; % copying input to output struct
 
-cfg.filename_target = Get_filenames(cfg_in.dir_speech,[cfg_in.Cond_extra_2 '*.wav']);
+cfg.filename_target = Get_filenames(cfg_in.dir_target,[cfg_in.Cond_extra_2 '*.wav']);
 % cfg.filename_target  = {'ap_pa.wav','at_ta.wav'};
 if ~isempty(cfg.filename_target)
     for i = 1:length(cfg.filename_target)
