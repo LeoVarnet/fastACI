@@ -98,7 +98,18 @@ if isempty(cfg_game.Subject_ID)
     cfg_game.Subject_ID = Subject_ID;
 end
 
-fnameACI = [dir_out cfg_game.Subject_ID '_' cfg_game.experiment Condition '-ACI' keyvals.trialtype_analysis '-' TF_type '-' glmfct str_last_trial '.mat'];
+%%%
+trialtype_analysis = [];
+if ~isempty(keyvals.trialtype_analysis)
+    switch keyvals.trialtype_analysis
+        case 'total'
+            %%% Nothing to do: just an empty name
+        otherwise
+            trialtype_analysis = ['-' keyvals.trialtype_analysis];
+    end
+end
+fnameACI = [dir_out cfg_game.Subject_ID '_' cfg_game.experiment Condition '-ACI' trialtype_analysis '-' TF_type '-' glmfct str_last_trial '.mat'];
+%%%
 
 bCalculation = ~exist(fnameACI,'file');
 

@@ -107,7 +107,7 @@ if flags.do_fig1
             fname_results = [paths_results data_folder filesep data_mat_file];
             
         case 3
-            fprintf('SLeo, Logatome, white noise data\n')
+            fprintf('SLeo, speechACI_varnet2013, white noise data\n')
             % '/home/alejandro/Documents/Databases/data/fastACI/data_varnet2013/'
             data_folder   = 'Sujet_Leo_S1';
             data_mat_file = 'savegame_final.mat';
