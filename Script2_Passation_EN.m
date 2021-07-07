@@ -323,6 +323,11 @@ stepsize   = str_inout.stepsize;
 isbreak    = str_inout.isbreak;
 %%% Ends: Initialises
 
+if ~isfield(cfg_game,'Language')
+    cfg_game.Language = 'EN';
+    warning('Using the default language (''EN''). Please specify in the *_cfg.m file another interface language if required.');
+end
+
 iswarmup = cfg_game.warmup;
 if cfg_game.is_experiment == 1
     if iswarmup

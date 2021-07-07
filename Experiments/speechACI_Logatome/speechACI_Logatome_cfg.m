@@ -24,6 +24,8 @@ end
 cfg.response_correct_target = [1,2];
 cfg.warmup         = 1; % 'oui', CAUTION: Overwritten in the case of simulation
  
+cfg.Language       = 'FR'; % or 'EN'
+
 bDebug = 1; 
 cfg.displayN       = bDebug; % 'oui'
 cfg.feedback       = 1;

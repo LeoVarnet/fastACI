@@ -109,7 +109,8 @@ if flags.do_fig1
             f_limits = [1 10000];
             fname_results = [paths_results data_folder filesep data_mat_file];
             
-            % flags_extra = {'trialtype_analysis', 'incorrect'};
+            flags_extra = {'trialtype_analysis', 'incorrect'};
+            
         case 2.1
             fprintf('SLeo, Logatome, pink noise data\n')
             data_folder   = '20210531-SLeo_abdaS41Fpink';

@@ -4,3 +4,4 @@
 *no-commit*
 *.zip
 Interim_results/*.mat
+*.DS_Store

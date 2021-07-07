@@ -18,6 +18,7 @@ cfg.response_correct_target = [1,2,1,2]; % reponse correcte pour chaque signal (
                    % Alda is 'da', Alga is 'ga', Arda is 'da', Arga is 'ga'
 cfg.warmup         = 1; % 'oui', CAUTION: Overwritten in the case of simulation
 
+cfg.Language       = 'FR'; % or 'EN'
 bDebug = 0; 
 cfg.displayN       = bDebug; % 'oui'
 cfg.feedback       = 1;
