@@ -12,7 +12,7 @@ end
 cfg = [];
 cfg_out = cfg_in; % copying input to output struct
 
-cfg.Language       = 'FR'; % or 'EN'
+cfg.Language       = 'EN'; % or 'EN' or 'FR'
 cfg.response_names = {'pure tone', 'modulated tone'}; 
 cfg.warmup         = 1; % 'oui', CAUTION: Overwritten in the case of simulation
 

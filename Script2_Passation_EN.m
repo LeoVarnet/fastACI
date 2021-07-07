@@ -118,6 +118,11 @@ else
     error('Not validated yet...')
 end
 
+if ~isfield(cfg_game,'Language')
+    cfg_game.Language = 'EN';
+    warning('Using the default language (''EN''). Please specify in the *_cfg.m file another interface language if required.');
+end
+
 switch cfg_game.resume
     case {1,'oui','yes'}
         if isfield(cfg_game,'load_name')
@@ -150,6 +155,8 @@ switch cfg_game.resume
                 % ---
             end
             
+            Language = cfg_game.Language;
+            
             cfg_game = []; % it will be re-loaded now:
             data_passation = []; % it will be re-loaded now:
             ListStim = [];
@@ -165,6 +172,10 @@ switch cfg_game.resume
             cfg_game.load_name = load_name;
             i_current  = data_passation.i_current+1;
             i_savegame = i_current;
+            
+            if ~isfield(cfg_game,'Language')
+                cfg_game.Language = Language;
+            end
             
             % display welcome message
             msg_welcomeback
@@ -323,11 +334,6 @@ stepsize   = str_inout.stepsize;
 isbreak    = str_inout.isbreak;
 %%% Ends: Initialises
 
-if ~isfield(cfg_game,'Language')
-    cfg_game.Language = 'EN';
-    warning('Using the default language (''EN''). Please specify in the *_cfg.m file another interface language if required.');
-end
-
 iswarmup = cfg_game.warmup;
 if cfg_game.is_experiment == 1
     if iswarmup
@@ -397,19 +403,44 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
     tic
      
     if iswarmup
-        fprintf('\n    * WARM-UP PHASE *\n\n');
+        switch cfg_game.Language
+            case 'EN'
+                fprintf('\n    * WARM-UP PHASE *\n\n');
+            case 'FR'
+                fprintf('\n    * PHASE D''ECHAUFFEMENT *\n\n');
+        end
     else
-        fprintf('\n    * MAIN EXPERIMENT *\n\n');
-        fprintf('    Playing stimulus # %.0f of %.0f (Next session stop in %.0f trials)\n',i_current,cfg_game.N,data_passation.next_session_stop-i_current-1);
+        switch cfg_game.Language
+            case 'EN'
+                fprintf('\n    * MAIN EXPERIMENT *\n\n');
+                fprintf('    Playing stimulus # %.0f of %.0f (Next session stop in %.0f trials)\n',i_current,cfg_game.N,data_passation.next_session_stop-i_current-1);
+            case 'FR'
+                fprintf('\n    * EXPERIENCE PRINCIPALE *\n\n');
+                fprintf('    Ecoute numero %.0f de %.0f (prochaine pause dans %.0f ecoutes)\n',i_current,cfg_game.N,data_passation.next_session_stop-i_current-1);
+        end
     end
     
     if cfg_game.is_experiment
         
         play(player)
         if iswarmup
-            response = Reponse_clavier([cfg_game.response_names {'to play the stim again' ['to play a ' cfg_game.response_names{1}] ['to play a ' cfg_game.response_names{2}] 'to leave the warm-up phase'}]);
+            
+            switch cfg_game.Language
+                case 'EN'
+                    text2show = {'to play the stim again' ['to play a ' cfg_game.response_names{1}] ['to play a ' cfg_game.response_names{2}] 'to leave the warm-up phase'};
+                case 'FR'
+                    text2show = {'pour rejouer le son' ['pour ecouter un ' cfg_game.response_names{1}] ['pour ecouter un ' cfg_game.response_names{2}] 'pour quitter l''echauffement'};
+            end
+            response = Reponse_clavier([cfg_game.response_names text2show]);
+            
         else
-            response = Reponse_clavier([cfg_game.response_names {'to take a break'}], 3.14);
+            switch cfg_game.Language
+                case 'EN'
+                    text2show = {'to take a break'};
+                case 'FR'
+                    text2show = {'pour faire une pause'};
+            end
+            response = Reponse_clavier([cfg_game.response_names text2show], 3.14);
         end
         stop(player)
     elseif cfg_game.is_simulation
@@ -469,7 +500,12 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
             player = audioplayer([sil4playing; stim_normal],cfg_game.fs);
             playblocking(player)
             
-            fprintf(['\n    Press any key\n']);
+            switch cfg_game.Language
+                case 'EN'
+                    fprintf('\n    Press any key\n');
+                case 'FR'
+                    fprintf('\n    Appuyez sur une touche\n');
+            end
             pause;
 
         case 5 % play modulated tone
@@ -484,7 +520,12 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
             player = audioplayer([sil4playing; stim_normal],cfg_game.fs);
             playblocking(player)
             
-            fprintf(['\n    Press any key\n']);
+            switch cfg_game.Language
+                case 'EN'
+                    fprintf('\n    Press any key\n');
+                case 'FR'
+                    fprintf('\n    Appuyez sur une touche\n');
+            end
             pause;
 
         case 6 % escape training
@@ -529,9 +570,19 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
                 % ListStim(n_stim).response 
                 switch iscorrect
                     case 1
-                        txt_extra = 'You were right';
+                        switch cfg_game.Language
+                            case 'EN'
+                                txt_extra = 'You were right';
+                            case 'FR'
+                                txt_extra = 'Correct';
+                        end
                     case 0
-                        txt_extra = 'You were wrong';
+                        switch cfg_game.Language
+                            case 'EN'
+                                txt_extra = 'You were wrong';
+                            case 'FR'
+                                txt_extra = 'Erreur';
+                        end
                 end
                 
                 if isfield(cfg_game,'response_names')
@@ -541,7 +592,12 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
                     resp_name = num2str(cfg_game.n_response_correct_target(n_stim));
                 end
                 % feedback
-                fprintf('\n\t%s => Correct answer was : %.0f (%s)\n\n Press any key to continue.\n',txt_extra,resp_num,resp_name);
+                switch cfg_game.Language
+                    case 'EN'
+                        fprintf('\n\t%s => Correct answer was : %.0f (%s)\n\n Press any key to continue.\n',txt_extra,resp_num,resp_name);
+                    case 'FR'
+                        fprintf('\n\t%s => La bonne reponse etait : %.0f (%s)\n\n Appuyez sur une touche pour continuer.\n',txt_extra,resp_num,resp_name);
+                end
                 pause(.5); % .5 s pause
             end
             
