@@ -16,11 +16,13 @@ test_boucle=1;
 while test_boucle
     Reponse=[];
     
-    fprintf('    Press:\n');
+    %fprintf('    Press:\n');
+    fprintf('    Appuyez sur :\n');
     for idx=1:length(Liste_Reponses)
         fprintf(['     - ' num2str(idx) ' ' Liste_Reponses{idx} '\n']);
         if idx == length(Liste_Reponses)
-            Reponse = input('    then press Enter\n','s');
+            %Reponse = input('    then press Enter\n','s');
+            Reponse = input('    puis appuyez sur Entree\n','s');
         end
     end
     Reponse=str2double(Reponse);
