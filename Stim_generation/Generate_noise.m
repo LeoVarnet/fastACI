@@ -16,18 +16,30 @@ switch lower(noise_type)
         insig = noise(N_samples,'pink'); % function from LTFAT toolbox
     case 'smps'
         % temporary built-in parameters
-        var = load('mAMPS','mAMPS');
-        refAMPS = var.mAMPS; % = [];
+        % N_samples = 10432
+        N_samples_temp = 15664;
+        
+        tmod_lim = [-200 200];%2*[-200 200];%
+        smod_lim = [-3 3]/1000;%5*[-3 3]/1000;%
+%         
+%         var = load('mAMPS','refAMPS');
+%         refAMPS = var.refAMPS; % = [];
         
         gam = 239766.68634682; 
         fr = 16.3;
         
-        tempnoise = randn(N_samples,1);%noise(N_samples,'pink'); % function from LTFAT toolbox
-        [~,PMPSN,tmodN,smodN] = MPSpec(tempnoise,fs);
-        if any(size(PMPSN)~=size(refAMPS))
-            error(['Incompatible MPS sizes. Please check that your reference MPS has been generated from sounds with sampling frequency = ' num2str(fs) ' and number of samples = ' num2str(N_samples) '.\n'])
-        end
-        insig = MPS_gen(refAMPS, PMPSN, tmodN, smodN, N_samples, fs, gam, fr);
+        N = randn(N_samples_temp,1);%N = noise(N_samples_temp,'pink');%
+        [AMPSN,PMPSN,tmodN,smodN] = MPSpec(N,fs);
+        
+        tmodN_idx = tmodN>tmod_lim(1) & tmodN<tmod_lim(2);
+        smodN_idx = smodN>smod_lim(1) & smodN<smod_lim(2);
+        filterMPS = smodN_idx'*tmodN_idx;
+        
+        % generate noise with the filtered AMPS
+        insig = MPS_gen(AMPSN.*filterMPS, PMPSN, tmodN, smodN, length(N), fs);%AMPSN.*(refAMPS/max(refAMPS(:)))
+        
+        % Cut stim to desired length        
+        insig = insig(1:N_samples);
 end
 
 disp('')

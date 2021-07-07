@@ -177,6 +177,7 @@ for i = 1:cfg_inout.N
             stimnumber=['0' stimnumber];
         end
         % Ensuring 'End'
+        fprintf(['Generating noise #' stimnumber '\n']);
 
         fname = [fname_part1 '_' stimnumber '.wav'];
     else
