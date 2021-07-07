@@ -8,6 +8,13 @@ function [y, y_correct, X, U, cfg_ACI] = Script4_getACI_preprocess(cfg_ACI, data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 idx_trialselect = cfg_ACI.idx_trialselect;
+if length(idx_trialselect) > length(data_passation.n_responses)
+    fprintf('\t%s: incomplete data_passation structure, not all trials seem to have been completed\n',upper(mfilename));
+    cfg_ACI.idx_trialselect = cfg_ACI.idx_trialselect(1:length(data_passation.n_responses));
+    idx_trialselect = cfg_ACI.idx_trialselect;
+    
+    cfg_ACI.N_trialselect = length(data_passation.n_responses);
+end
 n_responses = data_passation.n_responses(idx_trialselect); % responses given by the participant (trial order)
 n_targets   = data_passation.n_targets(idx_trialselect); % expected responses (trial order)
 expvar      = data_passation.expvar(idx_trialselect); % value of the experimental variable (trial order)
@@ -40,36 +47,12 @@ switch cfg_ACI.keyvals.trialtype_analysis
             if str2double(cfg_ACI.keyvals.trialtype_analysis(2:end))<=cfg_ACI.N_target
                 select_trialtype = (n_targets == str2double(cfg_ACI.keyvals.trialtype_analysis(2:end)));
             else
-                error(['Trialtype condition unrecognized: ' cfg_ACI.trialtype_analysis ' (but there are only ' num2str(cfg_ACI.N_target) ' targets)\n'])
+                error(['Trialtype condition unrecognised: ' cfg_ACI.trialtype_analysis ' (but there are only ' num2str(cfg_ACI.N_target) ' targets)\n'])
             end
         else
-            error(['Trialtype condition unrecognized: ' cfg_ACI.trialtype_analysis '\n'])
+            error(['Trialtype condition unrecognised: ' cfg_ACI.trialtype_analysis '\n'])
         end
 end
-% switch Analysis_condition % cfg_ACI.NameCond
-%     case 'total'
-        % nothing to do
-%     case 'Al'
-%         cfg_ACI.n_signal_analysis = [1 2];
-%     case 'Ar'
-%         cfg_ACI.n_signal_analysis = [3 4];
-%     case 'Alda'
-%         cfg_ACI.n_signal_analysis = [1];
-%     case 'Alga'
-%         cfg_ACI.n_signal_analysis = [2];
-%     case 'Arda'
-%         cfg_ACI.n_signal_analysis = [3];
-%     case 'Arga'
-%         cfg_ACI.n_signal_analysis = [4];
-%     case 'lowSNR'
-%         cfg_ACI.SNR_analysis = [min(expvar) median(expvar)];
-%     case 'highSNR'
-%         cfg_ACI.SNR_analysis = [median(expvar) max(expvar)];
-%     case 'firsttrials'
-%         cfg_ACI.n_trials_analysis = [1 N/2];
-%     case 'lasttrials'
-%         cfg_ACI.n_trials_analysis = [N/2+1 N];
-% end
 
 cfg_ACI = set_default_cfg(cfg_ACI, ...
     'n_signal_analysis', 1:cfg_ACI.N_target, 'n_trials_analysis', [1 cfg_ACI.N_trialselect]);

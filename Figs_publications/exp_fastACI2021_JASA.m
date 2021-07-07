@@ -13,7 +13,7 @@ function data = exp_fastACI2021_JASA(varargin)
 
 %   #Author: Alejandro Osses and Leo Varnet (2020-2021)
 
-% data = [];
+data = [];
  
 h = []; % to store figure handles
 hname = []; % to store figure names
@@ -69,11 +69,6 @@ paths_results = [paths.dir_fastACI_sim 'Results' filesep];
 %% ------ FIG 1 Osses and Varnet 2021 (in preparation) --------------------
 if flags.do_fig1
     
-    dir_out = [fastACI_paths('dir_output_fastACI2021_JASA') 'Data_proc' filesep];
-    if ~exist(dir_out,'dir')
-        mkdir(dir_out);
-    end
-    
     % fname_results = [paths_results '20210421-SAO-5000-trials_speech_varnet2013' filesep 'savegame_2021_04_22_14_46_SAO-5000-trials_speechACI_varnet2013.mat'];
     
     % From Slack (#proj-fastaci), from Leo on 20/05/2021 at 8:51:
@@ -82,29 +77,56 @@ if flags.do_fig1
     %   on Gaussian pyramid"... nice, isn't it ? (5000 trials each, lines 
     %   show formants and f0 trajectory)''
     
-    type = input('Enter 1 to process Logatome data; 3 to process varnet2013 data: ');
+    YL = [-40 4100];
+    
+    %%% SLeo: types 1, 2, 3, 5
+    
+    type = input('Enter 1 to process Logatome data; 3 to process varnet2013 data; 6 PH white: ');
+    flags_extra = {};
     switch type
         case 1
             fprintf('SLeo, Logatome, white noise data\n')
             data_folder   = '20210428-SLeoWN-speechACI_Logatome';
             data_mat_file = 'savegame_2021_05_05_13_51_SLeoWN_speechACI_Logatome.mat';
-            dir_noise  = [paths.dir_data 'speechACI_Logatome-apta-S46M' filesep 'SLeo' filesep 'NoiseStim-white' filesep];
-            dir_target = [paths.dir_data 'speechACI_Logatome-apta-S46M' filesep 'SLeo' filesep 'speech-samples'  filesep];
+            data_folder_full = [paths.dir_data 'speechACI_Logatome-apta-S46M' filesep 'SLeo' filesep];
+            dir_noise  = [data_folder_full 'NoiseStim-white' filesep];
+            dir_target = [data_folder_full 'speech-samples'  filesep];
             
             t_limits = [0.0 1]; % No limit at all
             f_limits = [1 10000];
             fname_results = [paths_results data_folder filesep data_mat_file];
             
+            flags_extra = {'trialtype_analysis', 'incorrect'};
         case 2
             fprintf('SLeo, Logatome, SSN data\n')
             data_folder   = '20210421-SLeo_speechACI_Logatome';
             data_mat_file = 'savegame_2021_04_28_13_10_SLeo_speechACI_Logatome.mat';
-            dir_noise = [paths.dir_data 'speechACI_Logatome-apta-S46M'  filesep 'SLeo' filesep 'NoiseStim-SSN'  filesep];
-            dir_target = [paths.dir_data 'speechACI_Logatome-apta-S46M' filesep 'SLeo' filesep 'speech-samples' filesep];
+            data_folder_full = [paths.dir_data 'speechACI_Logatome-apta-S46M'  filesep 'SLeo' filesep];
+            dir_noise  = [data_folder_full 'NoiseStim-SSN'  filesep];
+            dir_target = [data_folder_full 'speech-samples' filesep];
             
             t_limits = [0.0 1]; % No limit at all
             f_limits = [1 10000];
             fname_results = [paths_results data_folder filesep data_mat_file];
+            
+            % flags_extra = {'trialtype_analysis', 'incorrect'};
+        case 2.1
+            fprintf('SLeo, Logatome, pink noise data\n')
+            data_folder   = '20210531-SLeo_abdaS41Fpink';
+            data_mat_file = 'savegame_2021_05_31_15_39_SLeo_speechACI_Logatome-abda-S41F_pink.mat';
+            data_folder_full = [paths.dir_data 'speechACI_Logatome-abda-S41F'  filesep 'SLeo' filesep];
+            dir_noise = [data_folder_full 'NoiseStim-pink'  filesep];
+            dir_target = [data_folder_full 'speech-samples' filesep];
+            
+            t_limits = [0.0 1]; % No limit at all
+            f_limits = [1 10000];
+            fname_results = [paths_results data_folder filesep data_mat_file];
+            
+            type = type*10; % 21
+            
+            YL = [-40 8100];
+            
+            flags_extra = {'trialtype_analysis', 'incorrect'};
             
         case 3
             fprintf('SLeo, speechACI_varnet2013, white noise data\n')
@@ -118,7 +140,73 @@ if flags.do_fig1
             f_limits = [1 10000];
             t_limits = [0.0 342.5e-3]; 
             fname_results = [data_folder_full filesep data_mat_file];
+            
+        case 4
+            fprintf('SAOtest, speechACI_varnet2013, white noise data\n')
+            data_folder   = 'SAO-5000-trials'; 
+            data_mat_file = ['Results' filesep 'savegame_2021_04_22_14_46_SAO-5000-trials_speechACI_varnet2013.mat'];
+            data_folder_full = [paths.dir_data 'speechACI_varnet2013' filesep data_folder filesep]; %  data/fastACI/speechACI_varnet2013/SAO-5000-trials/NoiseStim
+            dir_noise  = [data_folder_full 'NoiseStim'      filesep];
+            dir_target = [data_folder_full 'speech-samples' filesep];
+            
+            f_limits = [1 10000];
+            t_limits = [0.0 342.5e-3]; 
+            fname_results = [data_folder_full filesep data_mat_file];     
+            
+            % flags_extra = {'trialtype_analysis', 'incorrect'};
+            
+        case 5
+            fprintf('SLeo, speechACI_varnet2013, white noise data (new pilot data)\n')
+            data_folder   = 'SLeo';
+            % /home/alejandro/Documents/Databases/data/fastACI/speechACI_varnet2013/SLeo/Results/
+            data_mat_file = ['Results' filesep 'savegame_2021_05_10_12_45_SLeo_speechACI_varnet2013_white.mat'];
+            data_folder_full = [paths.dir_data 'speechACI_varnet2013' filesep data_folder filesep];
+            dir_noise  = [data_folder_full 'NoiseStim'      filesep];
+            dir_target = [data_folder_full 'speech-samples' filesep];
+            
+            f_limits = [1 10000];
+            t_limits = [0.0 342.5e-3]; 
+            fname_results = [data_folder_full filesep data_mat_file];
+            
+            % flags_extra = {'trialtype_analysis', 'incorrect'};
+            
+        case 6 
+            fprintf('PH, speechACI_varnet2013, white noise data (new pilot data)\n')
+            data_folder   = 'S_PH';
+            data_mat_file = ['Results' filesep 'savegame_2021_06_16_15_15_S_PH_speechACI_Logatome-abda-S41F_white.mat'];
+            data_folder_full = [paths.dir_data 'speechACI_Logatome-abda-S41F' filesep data_folder filesep];
+            dir_noise  = [data_folder_full 'NoiseStim-white' filesep];
+            dir_target = [data_folder_full 'speech-samples'  filesep];
+            
+            f_limits = [1 10000];
+            t_limits = [0 1]; 
+            fname_results = [data_folder_full filesep data_mat_file];
+       
+            %%% From l20210617_testScript4debug.m
+            % % testScript4debug
+            
+            % flags = {'dir_out', fullpath,'no_plot','spect_NFFT',512,'spect_Nwindow',512,'spect_overlap',.75... %
+            %     'f_limits', [0 4050],...
+            %     };
+             
+            % flags_extra = {'trialtype_analysis', 't1', 'expvar_limits',[-20, -5]};
+            flags_extra = {'trialtype_analysis', 'incorrect'};
     end
+   
+    %%%
+    bUse_global_dir_out = 0;
+    if bUse_global_dir_out
+        dir_out = [fastACI_paths('dir_output_fastACI2021_JASA') 'Data_proc' filesep];
+        if ~exist(dir_out,'dir')
+            mkdir(dir_out);
+        end
+    else
+        dir_out = [data_folder_full filesep 'Results_ACI' filesep];
+    end
+    if ~exist(dir_out,'dir')
+        mkdir(dir_out);
+    end
+    %%%
     
     glm_functions = {   'classic_revcorr', ...
                         'glmfitqp', ...
@@ -127,7 +215,6 @@ if flags.do_fig1
     for i = 1:length(glm_functions)
         glmfct = glm_functions{i};
     
-        
         DimCI = 'spect'; % 'tf'
     
         %%% Extra flags used by AO:
@@ -138,7 +225,7 @@ if flags.do_fig1
             case 'glmfitqp'
                 f_limits = [0 4050];
                 
-                flags = {'dir_noise', dir_noise, 'dir_target', dir_target, 'dir_out', dir_out, 'no_plot', ...
+                fg_ACI = {'dir_noise', dir_noise, 'dir_target', dir_target, 'dir_out', dir_out, 'no_plot', ...
                   'idx_trialselect',[], ... % 'idx_trialselect',1:2400, ...
                   'f_limits',f_limits,'t_limits',t_limits, ...
                   'spect_NFFT',512,'spect_Nwindow',512,'spect_overlap',0, ... %'spect_NFFT',1024,'spect_Nwindow',1024,'spect_overlap',.5...
@@ -148,8 +235,11 @@ if flags.do_fig1
                 if type == 3 && strcmp(glmfct,'lasso')
                     f_limits = [1 12000]; warning('Temporal arrangement...')
                 end
+                if (type == 21 || type == 4 || type == 5 || type == 6) && strcmp(glmfct,'lasso')
+                    f_limits = [1 12000]; warning('Temporal arrangement...')
+                end
                 
-                flags = {'dir_noise', dir_noise, 'dir_target', dir_target, 'dir_out', dir_out, 'no_plot', ...
+                fg_ACI = {'dir_noise', dir_noise, 'dir_target', dir_target, 'dir_out', dir_out, 'no_plot', ...
                   'idx_trialselect',[], ... % 'idx_trialselect',1:2400, ...
                   'f_limits',f_limits, ...
                   't_limits',t_limits, ...
@@ -157,7 +247,8 @@ if flags.do_fig1
                 };
         end
 
-        [ACI,cfg_ACI,results] = Script4_Calcul_ACI(fname_results,DimCI,glmfct,flags{:});
+        flags_to_use = [fg_ACI flags_extra];
+        [ACI,cfg_ACI,results] = fastACI_getACI(fname_results,DimCI,glmfct,flags_to_use{:});
 
         if isfield(results,'ACI_perm')
             bPermutation = 1;
@@ -182,9 +273,8 @@ if flags.do_fig1
             affichage_tf(ACI_ex, 'CI', 'cfg',cfg_ACI);  
         end
         
-        YL = [-40 4100];
         ylim(YL)
-        YT = 0:500:4000;
+        YT = 0:500:YL(2);
         set(gca,'YTick',YT);
         set(gca,'YTickLabel',YT);
         title([prefix_title{i} name2figname(glmfct) str_suf])

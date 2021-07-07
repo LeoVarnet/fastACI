@@ -1,5 +1,5 @@
-function [ACI,results,cfg_ACI] = Script4_getACI_calculate(cfg_ACI, y, y_correct, X, U)
-% function [ACI,results,cfg_ACI] = Script4_getACI_calculate(cfg_ACI)
+function [ACI,results,cfg_ACI] = fastACI_getACI_calculate(cfg_ACI, y, y_correct, X, U)
+% function [ACI,results,cfg_ACI] = fastACI_getACI_calculate(cfg_ACI)
 %
 % 1. Description (FR):
 %       Se placer dans le dossier contenant le dossier contenant les donnees 
@@ -202,6 +202,15 @@ switch glmfct
             sumReWeight = sumReWeight(:,:,cfg_ACI.t_limits_idx);
             if cfg_ACI.t_X(1) == cfg_ACI.t(1) && cfg_ACI.t_X(N_t) == cfg_ACI.t(N_t)
                 % then t_X is equal (but longer than) t
+                cfg_ACI = rmfield(cfg_ACI,'t_X');
+            end
+        else
+            if length(cfg_ACI.t_X) ~= length(cfg_ACI.t)
+                
+                if length(cfg_ACI.t_X) < length(cfg_ACI.t)
+                    cfg_ACI.t = cfg_ACI.t(1:length(cfg_ACI.t_X));
+                end
+                
                 cfg_ACI = rmfield(cfg_ACI,'t_X');
             end
         end

@@ -215,7 +215,7 @@ if bCalculation || do_recreate_validation
         
     end
         
-    [Data_matrix,cfg_ACI] = Script4_getACI_dataload(cfg_ACI, ListStim);
+    [Data_matrix,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI, ListStim);
 end
  
 %% 4. Preprocessing of the data, before the ACI calculation
@@ -228,7 +228,7 @@ end
 %% 5. Calculation of the ACI
 if bCalculation
     
-    [ACI, results, cfg_ACI] = Script4_getACI_calculate(cfg_ACI, y, y_correct, X, U);
+    [ACI, results, cfg_ACI] = fastACI_getACI_calculate(cfg_ACI, y, y_correct, X, U);
     
     save(fnameACI, 'ACI', 'cfg_ACI', 'results')
     results.fnameACI = fnameACI;

@@ -1,5 +1,6 @@
-function [Data_matrix, cfg_inout] = Script4_getACI_dataload(cfg_inout, ListStim, varargin)
-% [Data_matrix, tf] = Script4_getACI_dataload(cfg, ListStim) 
+function [Data_matrix, cfg_inout] = fastACI_getACI_dataload(cfg_inout, ListStim, varargin)
+% [Data_matrix, tf] = fastACI_getACI_dataload(cfg, ListStim) 
+%
 % Load stimuli data and generates appropriate matrix Data_matrix for the
 % calculation of classification image
 % Data_matrix is a N_TrialsLoad X DimCI matrix (Data_matrix(i,f,t) or
@@ -13,7 +14,7 @@ function [Data_matrix, cfg_inout] = Script4_getACI_dataload(cfg_inout, ListStim,
 % matrix_crea(cfg, ListStim, 'zscore', 'no') does not perform a z-scoring
 % on the resulting Data_matrix
 %
-% - zscore option removed from this script on 8/04/2021, as that woould be
+% - zscore option removed from this script on 8/04/2021, as that would be
 %       a preprocessing of the data and not a 'data load'
 %
 % Authors: Leo Varnet and Alejandro Osses
@@ -80,10 +81,13 @@ WavFile = [cfg_inout.dir_noise ListStim(1).name];
 if exist(WavFile,'file')
     [bruit,fs] = audioread(WavFile);
 else
-    speechACI_Logatome_init
+    error('Sounds not found on disk, redefine dir_noise and/or dir_target')
+    % speechACI_Logatome_init
 end
 bruit=mean(bruit,2);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% gets 't' and 'f' for each T-F representation:
 switch TF_type
     case {'spect','tf'}
         if strcmp(cfg_inout.flags.TF_type,'tf')
@@ -156,6 +160,9 @@ switch TF_type
             T(:,i_freq) = freqidx;freqidx/sum(freqidx);
         end
 
+    case 'gammatone'
+        error('Under construction')
+        
     case 'king2019'
         error('Under construction')
         
@@ -163,6 +170,7 @@ switch TF_type
         error('Under construction')
         
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 cfg_inout.f_limits_idx = find(f>=cfg_inout.f_limits(1) & f<=cfg_inout.f_limits(2));
 f = f(cfg_inout.f_limits_idx);
