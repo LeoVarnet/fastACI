@@ -155,7 +155,22 @@ if flags.do_fig1
             fname_results = [data_folder_full filesep data_mat_file];     
             
             % flags_extra = {'trialtype_analysis', 'incorrect'};
+        
+        case 4.1
+            fprintf('SAOtest, speechACI_varnet2013, speech-shaped noise data\n')
+            data_folder   = 'SAO-5000-trials'; 
+            data_mat_file = ['Results' filesep 'savegame_2021_04_21_15_21_SAO-5000-trials_speechACI_varnet2013_SSN.mat'];
+            data_folder_full = [paths.dir_data 'speechACI_varnet2013' filesep data_folder filesep]; %  data/fastACI/speechACI_varnet2013/SAO-5000-trials/NoiseStim
+            dir_noise  = [data_folder_full 'NoiseStim-SSN'  filesep];
+            dir_target = [data_folder_full 'speech-samples' filesep];
             
+            f_limits = [1 10000];
+            t_limits = [0.0 342.5e-3]; 
+            fname_results = [data_folder_full filesep data_mat_file];     
+            
+            flags_extra = {'trialtype_analysis', 'incorrect'};
+            
+            type = type*10; % 21
         case 5
             fprintf('SLeo, speechACI_varnet2013, white noise data (new pilot data)\n')
             data_folder   = 'SLeo';
@@ -236,7 +251,7 @@ if flags.do_fig1
                 if type == 3 && strcmp(glmfct,'lasso')
                     f_limits = [1 12000]; warning('Temporal arrangement...')
                 end
-                if (type == 21 || type == 4 || type == 5 || type == 6) && strcmp(glmfct,'lasso')
+                if (type == 21 || type == 4 || type == 4.1 || type == 5 || type == 6) && strcmp(glmfct,'lasso')
                     f_limits = [1 12000]; warning('Temporal arrangement...')
                 end
                 
