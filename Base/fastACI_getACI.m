@@ -1,5 +1,5 @@
-function [ACI,cfg_ACI,results] = Script4_Calcul_ACI(savegame_file,varargin)
-% function [ACI,cfg_ACI,results] = Script4_Calcul_ACI(savegame_file,varargin)
+function [ACI,cfg_ACI,results] = fastACI_getACI(savegame_file,varargin)
+% function [ACI,cfg_ACI,results] = fastACI_getACI(savegame_file,varargin)
 %
 % 1. Description (FR):
 %       Se placer dans le dossier contenant le dossier contenant les donnees 
@@ -29,6 +29,8 @@ function [ACI,cfg_ACI,results] = Script4_Calcul_ACI(savegame_file,varargin)
 % -- (removed)    withX                7/05/2021
 %                 CI_glmqpoptim_fct
 % TF_type         DimCI
+%
+% Old name: Script4_Calcul_ACI.m (changed on 7 July 2021)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Condition can be renamed to NameCond

@@ -87,11 +87,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    % try
-        cfg_game = Script1_Initialisation_EN(experiment_full,Subject_ID, Condition);
-    % catch me
-    %     error('%s: Script1_Initialisation_EN failed\n\t%s',upper(mfilename),me.message);
-    % end
+    try
+        cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
+    catch me
+        error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
+    end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -431,7 +431,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
                 case 'FR'
                     text2show = {'pour rejouer le son' ['pour ecouter un ' cfg_game.response_names{1}] ['pour ecouter un ' cfg_game.response_names{2}] 'pour quitter l''echauffement'};
             end
-            response = Reponse_clavier([cfg_game.response_names text2show]);
+            response = Response_keyboard([cfg_game.response_names text2show], cfg_game);
             
         else
             switch cfg_game.Language
@@ -440,7 +440,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
                 case 'FR'
                     text2show = {'pour faire une pause'};
             end
-            response = Reponse_clavier([cfg_game.response_names text2show], 3.14);
+            response = Response_keyboard([cfg_game.response_names text2show], cfg_game, 3.14);
         end
         stop(player)
     elseif cfg_game.is_simulation
