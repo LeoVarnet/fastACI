@@ -1,5 +1,5 @@
-function Script2_Passation_EN(experiment, Subject_ID, Condition)
-% function Script2_Passation_EN(experiment, Subject_ID, Condition)
+function fastACI_experiment(experiment, Subject_ID, Condition)
+% function fastACI_experiment(experiment, Subject_ID, Condition)
 %
 %
 % Changes by AO:
@@ -16,6 +16,8 @@ function Script2_Passation_EN(experiment, Subject_ID, Condition)
 %
 % TOASK:
 %   - Add an additional variable 'dir_results' (splitting dir_main)
+%
+% Old name: Script2_Passation_EN.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Setup
