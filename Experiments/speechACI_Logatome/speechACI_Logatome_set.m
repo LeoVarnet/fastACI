@@ -71,20 +71,20 @@ cfg.bRove_level = 1; % New option as of 16/04/2021
 cfg.Rove_range  = 2.5; % plus/minus this value, changed from 4 to 2.5 dB on 26/025/2021
 
 % Change the following names:
-cfg.N_presentation = 20;%2500;  % number of stimuli / condition
+cfg.N_presentation = 2500;  % number of stimuli / condition
 cfg.N_target  = 2;     % Number of conditions
 cfg.N         = cfg.N_target*cfg.N_presentation;
 
 cfg_inout.dir_data_experiment = dir_data_experiment;
 
-if ~isfield(cfg_inout,'dir_target')
+%if ~isfield(cfg_inout,'dir_target')
     cfg_inout.dir_target = dir_target;
-end
-if ~isfield(cfg_inout,'dir_noise')
+%end
+%if ~isfield(cfg_inout,'dir_noise')
     cfg_inout.dir_noise  = dir_noise;
-end
-if ~isfield(cfg_inout,'noise_type')
+%end
+%if ~isfield(cfg_inout,'noise_type')
     cfg_inout.noise_type = noise_type;
-end
+%end
  
 cfg_inout = Merge_structs(cfg,cfg_inout);
