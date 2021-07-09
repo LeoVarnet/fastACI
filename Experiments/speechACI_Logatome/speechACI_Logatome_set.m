@@ -77,14 +77,14 @@ cfg.N         = cfg.N_target*cfg.N_presentation;
 
 cfg_inout.dir_data_experiment = dir_data_experiment;
 
-if ~isfield(cfg_inout,'dir_target')
+%if ~isfield(cfg_inout,'dir_target')
     cfg_inout.dir_target = dir_target;
-end
-if ~isfield(cfg_inout,'dir_noise')
+%end
+%if ~isfield(cfg_inout,'dir_noise')
     cfg_inout.dir_noise  = dir_noise;
-end
-if ~isfield(cfg_inout,'noise_type')
+%end
+%if ~isfield(cfg_inout,'noise_type')
     cfg_inout.noise_type = noise_type;
-end
+%end
  
 cfg_inout = Merge_structs(cfg,cfg_inout);
