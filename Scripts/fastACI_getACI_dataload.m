@@ -161,7 +161,16 @@ switch TF_type
         end
 
     case 'gammatone'
-        error('Under construction')
+        basef = 8000;
+        flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',.5,'dboffset',100,'no_adt'};
+        [outsig,f,t,extras] = Gammatone_proc(bruit,fs,flags_gamma{:});
+        f = f(:); % column array
+        
+    case 'adapt'
+        basef = 8000;
+        flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',.5,'dboffset',100,'adt'};
+        [outsig,f,t,extras] = Gammatone_proc(bruit,fs,flags_gamma{:});
+        f = f(:); % column array
         
     case 'king2019'
         error('Under construction')
@@ -181,6 +190,12 @@ t = t(cfg_inout.t_limits_idx);
 N_t = length(t);
 N_f = length(f); 
 
+if isfield(cfg_inout,'N')
+    % Makes sure that N_TrialsLoad is less than N (is not the case in 
+    %     case the experiment was not completed)
+    N_trialselect = min(N_trialselect,cfg_inout.N);
+end
+    
 Data_matrix = zeros(N_trialselect, N_f, N_t);
 
 cfg_inout.f=f;
@@ -194,12 +209,6 @@ cfg_inout.N_t = N_t;
 if dimonly == 0
     fprintf('\n%% Creating data matrix %%\n');
     
-    if isfield(cfg_inout,'N')
-        % Makes sure that N_TrialsLoad is less than N (is not the case in 
-        %     case the experiment was not completed)
-        N_trialselect = min(N_trialselect,cfg_inout.N);
-    end
-       
     %%%
     if exist(cfg_inout.dir_noise,'dir')
         dir_noise = cfg_inout.dir_noise;
@@ -295,6 +304,16 @@ if dimonly == 0
                     % Makes sure that the time variable is decimated
                     cfg_inout.t=cfg_inout.t(1:cfg_inout.decimation:end);
                 end
+                
+            % -------------------------------------------------------------    
+            case 'gammatone'
+                outsig = Gammatone_proc(bruit,fs,flags_gamma{:});
+                outsig = transpose(outsig); % permute(outsig,[2 1]); % put time in the second dimension and frequency in the first one
+                
+                % outsig=20*log10(abs(outsig));
+                % idx = find(isnan(outsig));
+                
+                Data_matrix(i, :, : ) = outsig(cfg_inout.f_limits_idx, cfg_inout.t_limits_idx);
                                 
         end % end switch
     end % end for

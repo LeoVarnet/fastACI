@@ -1,5 +1,5 @@
-function [ACI,cfg_ACI,results] = fastACI_getACI(savegame_file,varargin)
-% function [ACI,cfg_ACI,results] = fastACI_getACI(savegame_file,varargin)
+function [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(savegame_file,varargin)
+% function [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(savegame_file,varargin)
 %
 % 1. Description (FR):
 %       Se placer dans le dossier contenant le dossier contenant les donnees 
@@ -38,6 +38,8 @@ function [ACI,cfg_ACI,results] = fastACI_getACI(savegame_file,varargin)
 if nargin == 0
     error('%s: Please spefify the identifier of the subject from whom you want to process the data',upper(mfilename));
 end
+
+Data_matrix = [];
 
 % From argument function:
 definput.import={'Script4_getACI'}; % arg_Script4_getACI
@@ -116,8 +118,10 @@ fnameACI = [dir_out cfg_game.Subject_ID '_' cfg_game.experiment Condition '-ACI'
 bCalculation = ~exist(fnameACI,'file');
 
 if bCalculation == 0
-    disp('ACI found on disk:')
-    bCalculation = input('  Enter 1 to re-calculate (overwrite) or 0 to read stored results:');
+    if keyvals.skip_if_on_disk == 0
+        disp('ACI found on disk:')
+        bCalculation = input('  Enter 1 to re-calculate (overwrite) or 0 to read stored results:');
+    end
     
     if bCalculation == 1
         fname_old = [fnameACI(1:end-4) '-old.mat'];
@@ -171,13 +175,6 @@ if cfg_ACI.zscore == 0
     error('%s: the glmfct options require that cfg_ACI.zscore is 1',upper(mfilename))
 end
  
-% cfg_ACI.filtrage          = 'non'; % Effectuer un filtrage de l'ACI
-% if isyes(cfg_ACI.filtrage)   
-%     % caracteristiques du filtre :
-%     cfg_ACI.flt_freqcoup  = 1/0.050; % frequence de coupure en Hz
-%     cfg_ACI.flt_quefrcoup = 1/500;   % quefrence de coupure en s
-% end
-
 cfg_ACI.f_limits = cfg_ACI.keyvals.f_limits; % bande de frequences pour analyse
 cfg_ACI.t_limits = cfg_ACI.keyvals.t_limits; % bande de temps pour analyse
  
@@ -217,7 +214,27 @@ if bCalculation || do_recreate_validation
         
     end
         
-    [Data_matrix,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI, ListStim);
+    if isempty(keyvals.Data_matrix)
+        % Loading the data regularly:
+        [Data_matrix,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI, ListStim);
+    else
+        Data_matrix = keyvals.Data_matrix;
+        
+        N_ref = 10;
+        N = cfg_ACI.N;
+        cfg_ACI_ref = cfg_ACI;
+        cfg_ACI_ref.N = N_ref;
+        [Data_matrix_ref,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI_ref, ListStim);
+        cfg_ACI.N = N; % restoring the initial N
+        
+        for ii = 1:N_ref
+            diffe(ii) = sum(Data_matrix(ii,:)-Data_matrix_ref(ii,:));
+        end
+        if sum(diffe) ~= 0
+            error('The input Data_matrix seems to be different from the expected Data_matrix loaded from ListStim');
+        end
+        
+    end
 end
  
 %% 4. Preprocessing of the data, before the ACI calculation
@@ -328,16 +345,8 @@ if flags.do_plot || nargout == 0
         title(glmfct)
         
         % figure
-        % affichage_tf(ACI_norm, 'CI', 'cfg',cfg_ACI)
-        
-        % figure
-        % affichage_tf(ACI, 'CInorm', 'cfg', cfg_ACI)
-        % 
-        % figure
-        % affichage_tf(ACI, 'tvalue', 'cfg', cfg_ACI)
-        % 
-        % figure
-        % affichage_tf(ACI, 'prob', 'cfg', cfg_ACI)
+        % affichage_tf(ACI_norm, 'CI', 'cfg',cfg_ACI); affichage_tf(ACI, 'CInorm', 'cfg', cfg_ACI)
+        % affichage_tf(ACI, 'tvalue', 'cfg', cfg_ACI); affichage_tf(ACI, 'prob', 'cfg', cfg_ACI)
     end
 end
 

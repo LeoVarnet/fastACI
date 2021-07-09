@@ -6,7 +6,7 @@ function definput = arg_Script4_getACI(definput)
 % Old name: arg_Script4_Calcul_ACI.m (changed on 21/05/2021)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-definput.flags.TF_type = {'spect','lyon','noise_logspect', ...
+definput.flags.TF_type = {'spect','lyon','noise_logspect','gammatone','adapt', ...
                           'tf'};
 definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','lasso','classic_revcorr'};
 % Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','lasso','classic_revcorr'};
@@ -16,6 +16,9 @@ definput.flags.plot = {'plot','no_plot'};
 
 definput.keyvals.apply_SNR  = 0; % old: WithSNR
 definput.keyvals.add_signal = 0; % old: WithSignal
+
+definput.keyvals.skip_if_on_disk = 0;
+definput.keyvals.Data_matrix = [];
 
 % Default number of permutations N_perm (if do_permutation == 1):
 definput.keyvals.N_perm = 20; % default number of ACI assessments for the permutation test

@@ -169,28 +169,6 @@ switch glmfct
             ReWeightPyramid{i_level} = squeeze(Pyra_here(:,:,:));
         end
         
-        disp('')
-        % %%
-        % figure; 
-        % for i_level = Nlevelmin:Nlevel
-        %     subplot(2,4,i_level)
-        %     h=pcolor(t_X, f_X, ReWeightPyramid{i_level}(:,:,1)); set(h,'EdgeColor','none'); xlabel('time (s)'); ylabel('freq (Hz)');
-        % end
-        % 
-        % %%
-        % figure;
-        % %subplot(2,3,1)
-        % plot(FitInfo.Lambda, FitInfo.MSE); hold on
-        % plot(FitInfo.Lambda(FitInfo.IndexMinMSE), FitInfo.MSE(FitInfo.IndexMinMSE),'ro');
-        % title('MSE')
-        %     %%
-        %     figure
-        % for i_level = Nlevelmin:Nlevel
-        %     subplot(2,3,i_level)
-        %     plot(FitInfo.Lambda, reshape(WeightPyramid{i_level},[],size(B,2)))
-        %     title(['Weights, level ' num2str(i_level)])
-        % end
-         
         %%% Plot fit corresponding to the best lambda
         sumReWeight = zeros(size(ReWeightPyramid{Nlevel}));
         for i_level = Nlevelmin:Nlevel

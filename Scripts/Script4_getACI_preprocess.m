@@ -124,8 +124,18 @@ switch cfg_ACI.flags.glmfct
         % integer) by discarding samples (or adding dummy samples if needed). This
         % is mandatory for accurate reconstruction of the pyramid.
 
-        Nt_X = 256;% = 8*2^5
-        Nf_X = 128;% = 7*2^5
+        Nt_input = size(Data_matrix,3);
+        
+        Nt_X = 256; % = 8*2^5
+        if Nt_input < 256
+            % Nothing to do
+        else
+            while Nt_X < Nt_input
+                Nt_X = Nt_X*2;
+            end
+        end
+        
+        Nf_X = 128;% = 8*2^4
         t_X = cfg_ACI.t;
         f_X = cfg_ACI.f;
 
@@ -148,7 +158,7 @@ switch cfg_ACI.flags.glmfct
             preX = preX(:,1:Nf_X,:);
             f_X = cfg_ACI.f(1:Nf_X);
         else
-            error('Choose a higher value for NFFT')
+            warning('Choose a higher value for NFFT')
         end
         
         % Gaussian pyramid reduction
@@ -157,7 +167,7 @@ switch cfg_ACI.flags.glmfct
 
         % Filters the matrix level by level into a Nlevel Gaussian pyramid
 
-        for i_level = 2:Nlevel
+        for i_level = Nlevelmin:Nlevel
             Pyramid{i_level} = Script4_Calcul_ACI_modified_impyramid(Pyramid{i_level-1}, 'reduce'); 
         end
 

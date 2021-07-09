@@ -228,10 +228,12 @@ if flags.do_fig1
                         'glmfitqp', ...
                         'lasso'};
     prefix_title = {'A. ', 'B. ', 'C. '};                
-    for i = 1:length(glm_functions)
-        glmfct = glm_functions{i};
+    % DimCI = 'spect'; 
+    DimCI = 'gammatone'; warning('Temporal')
+    % DimCI = 'adapt'; warning('Temporal')
     
-        DimCI = 'spect'; % 'tf'
+    for i = [1 3] %  1:length(glm_functions)
+        glmfct = glm_functions{i};
     
         %%% Extra flags used by AO:
         % flags = {DimCI,'f_limits',f_limits,'t_limits',t_limits,'dir_out',dir_out, ...
@@ -239,7 +241,12 @@ if flags.do_fig1
     
         switch glmfct
             case 'glmfitqp'
-                f_limits = [0 4050];
+                switch DimCI
+                    case {'gammatone','adapt'}
+                        % Nothing to do
+                    otherwise
+                        f_limits = [0 4050];
+                end
                 
                 fg_ACI = {'dir_noise', dir_noise, 'dir_target', dir_target, 'dir_out', dir_out, 'no_plot', ...
                   'idx_trialselect',[], ... % 'idx_trialselect',1:2400, ...
@@ -248,11 +255,13 @@ if flags.do_fig1
                 }; 
             case {'lasso','classic_revcorr'}
                 
-                if type == 3 && strcmp(glmfct,'lasso')
-                    f_limits = [1 12000]; warning('Temporal arrangement...')
-                end
-                if (type == 21 || type == 4 || type == 4.1 || type == 5 || type == 6) && strcmp(glmfct,'lasso')
-                    f_limits = [1 12000]; warning('Temporal arrangement...')
+                switch DimCI
+                    case {'gammatone','adapt'}
+                        % Nothing to do
+                    otherwise
+                        if strcmp(glmfct,'lasso')
+                            f_limits = [1 12000]; warning('Temporal arrangement...')
+                        end
                 end
                 
                 fg_ACI = {'dir_noise', dir_noise, 'dir_target', dir_target, 'dir_out', dir_out, 'no_plot', ...
