@@ -162,13 +162,15 @@ switch TF_type
 
     case 'gammatone'
         basef = 8000;
-        flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',.5,'dboffset',100,'no_adt'};
+        flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',cfg_inout.bwmul,'dboffset',100,'no_adt','binwidth',cfg_inout.binwidth, ...
+            'no_outerear','no_middleear'};
         [outsig,f,t,extras] = Gammatone_proc(bruit,fs,flags_gamma{:});
         f = f(:); % column array
         
     case 'adapt'
         basef = 8000;
-        flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',.5,'dboffset',100,'adt'};
+        flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',cfg_inout.bwmul,'dboffset',100,'adt',cfg_inout.binwidth, ...
+            'no_outerear','no_middleear'};
         [outsig,f,t,extras] = Gammatone_proc(bruit,fs,flags_gamma{:});
         f = f(:); % column array
         

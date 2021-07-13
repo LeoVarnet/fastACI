@@ -45,12 +45,12 @@ end
 t_orig = (1:size(insig,1))/fs;
 dur_samples = length(t_orig);
 
-subfs = 1/(keyvals.bin_width);
-bin_width_samples = round(keyvals.bin_width*fs);
+subfs = 1/(keyvals.binwidth);
+binwidth_samples = round(keyvals.binwidth*fs);
 
-if mod(dur_samples, bin_width_samples) ~= 0
+if mod(dur_samples, binwidth_samples) ~= 0
     % Zero padding needed:
-    N2add = bin_width_samples - mod(dur_samples, bin_width_samples);
+    N2add = binwidth_samples - mod(dur_samples, binwidth_samples);
     insig = [insig; zeros(N2add,size(insig,2))];
     
     t_orig = (1:size(insig,1))/fs;
@@ -70,16 +70,16 @@ if flags.do_adt
 end
     
 dur_samples = length(t_orig);
-if mod(dur_samples, bin_width_samples) ~= 0
+if mod(dur_samples, binwidth_samples) ~= 0
     % Zero padding needed
-    N2add = bin_width_samples - mod(dur_samples, bin_width_samples);
+    N2add = binwidth_samples - mod(dur_samples, binwidth_samples);
     outsig = [outsig; zeros(N2add,length(fc))];
     
     t_orig = (1:size(outsig,1))/fs;
 end
 
 outsig_orig = outsig;
-outsig = il_downsample(outsig,bin_width_samples);
+outsig = il_downsample(outsig,binwidth_samples);
 
 t = (1:size(outsig,1))/subfs;
 

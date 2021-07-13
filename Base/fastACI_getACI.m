@@ -42,7 +42,7 @@ end
 Data_matrix = [];
 
 % From argument function:
-definput.import={'Script4_getACI'}; % arg_Script4_getACI
+definput.import={'fastACI_getACI'}; % arg_fastACI_getACI.m
 [flags,keyvals]  = ltfatarghelper([],definput,varargin);
 
 %% 1. Reading the experimental data (*.mat file):
@@ -240,7 +240,7 @@ end
 %% 4. Preprocessing of the data, before the ACI calculation
 if bCalculation || do_recreate_validation        
     
-    [y, y_correct, X, U, cfg_ACI] = Script4_getACI_preprocess(cfg_ACI, data_passation, Data_matrix);
+    [y, y_correct, X, U, cfg_ACI] = fastACI_getACI_preprocess(cfg_ACI, data_passation, Data_matrix);
     
 end
 
@@ -248,6 +248,10 @@ end
 if bCalculation
     
     [ACI, results, cfg_ACI] = fastACI_getACI_calculate(cfg_ACI, y, y_correct, X, U);
+    
+    if isfield(cfg_ACI.keyvals,'Data_matrix')
+        cfg_ACI.keyvals = Remove_field(cfg_ACI.keyvals,'Data_matrix');
+    end
     
     save(fnameACI, 'ACI', 'cfg_ACI', 'results')
     results.fnameACI = fnameACI;

@@ -1,5 +1,5 @@
-function definput = arg_Script4_getACI(definput)
-% function definput = arg_Script4_getACI(definput)
+function definput = arg_fastACI_getACI(definput)
+% function definput = arg_fastACI_getACI(definput)
 %
 % Enabled so far:
 %   'permutation' or 'no_permutation': to perform or not the permutation test
@@ -47,6 +47,10 @@ definput.keyvals.spect_unit    = 'dB'; % 'linear'
 
 %%% Only used in 'noise_logspect' is used:
 definput.keyvals.logspect_unit = 'dB'; % 'linear'
+
+%%% Only used in 'gammatone'
+definput.keyvals.bwmul    = .5; % recommended either 0.5 or 1 ERB
+definput.keyvals.binwidth = 10e-3; % 10 ms, time resolution for ACI
 
 % % Managing some default values: time and frequency limits
 % if flags.do_tf

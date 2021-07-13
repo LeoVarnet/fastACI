@@ -1,5 +1,5 @@
-function [y, y_correct, X, U, cfg_ACI] = Script4_getACI_preprocess(cfg_ACI, data_passation, Data_matrix)
-% function [y, y_correct, X, U, cfg_ACI] = Script4_getACI_preprocess(cfg_ACI, data_passation, Data_matrix)
+function [y, y_correct, X, U, cfg_ACI] = fastACI_getACI_preprocess(cfg_ACI, data_passation, Data_matrix)
+% function [y, y_correct, X, U, cfg_ACI] = fastACI_getACI_preprocess(cfg_ACI, data_passation, Data_matrix)
 %
 % Changing the parameter names:
 % New name      Old name        Changed on:

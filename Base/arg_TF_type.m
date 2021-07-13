@@ -10,6 +10,10 @@ function cfg_inout = arg_TF_type(cfg_inout,flags,keyvals)
 
 % Default number of permutations N_perm (if do_permutation == 1):
 switch flags.TF_type
+    case 'gammatone'
+        cfg_inout.bwmul    = keyvals.bwmul;
+        cfg_inout.binwidth = keyvals.binwidth;
+        
     case {'spect','tf'}
         % definput.keyvals.prior = 'smoothness'; % default number of ACI assessments for the permutation test
         % definput.keyvals.lambda0 = 5;
