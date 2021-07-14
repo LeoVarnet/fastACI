@@ -1,5 +1,5 @@
-function str_inout = staircase_init(str_inout,cfg)
-% function str_inout = staircase_init(str_inout,cfg)
+function [str_inout,cfg] = staircase_init(str_inout,cfg)
+% function [str_inout,cfg] = staircase_init(str_inout,cfg)
 %
 % Initialise a new staircase
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -20,6 +20,10 @@ end
 i_current = debut_i;
 stepsize = cfg.start_stepsize;
 isbreak = 0;
+
+if ~isfield(cfg,'step_resolution')
+    cfg.step_resolution = 'linear';
+end
 
 str_inout.response = response;
 str_inout.n_correctinarow = n_correctinarow;

@@ -39,13 +39,19 @@ if isfield(cfg,'noise_type')
     switch cfg.noise_type
         case 'bump'
             cfg.expvar_description = 'minus the number of bumps';
+            cfg.step_resolution = 'octave';
+            cfg.start_stepsize = 1; % dB
+            
+            warning('Check tge step down...')
         otherwise
             cfg.expvar_description = 'SNR (dB)';
+            cfg.step_resolution = 'linear';
+            cfg.start_stepsize = 2; % dB
+        
     end
 end
  
 % cfg.maxvar = 10;
-cfg.start_stepsize = 2; % dB
 cfg.adapt_stepsize = 50/100;
 
 % Staircase algorithm parameters

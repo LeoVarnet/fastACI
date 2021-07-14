@@ -325,7 +325,7 @@ end
 str_inout = [];
 str_inout.debut_i = debut_i;
 
-str_inout = staircase_init(str_inout,cfg_game);
+[str_inout, cfg_game] = staircase_init(str_inout,cfg_game);
 data_passation.reversal_current = str_inout.reversal_current; % always initialised
 
 response   = str_inout.response;
@@ -539,7 +539,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
             str_inout = [];
             str_inout.debut_i = debut_i;
             
-            str_inout = staircase_init(str_inout,cfg_game); % actual initialisation
+            [str_inout,cfg_game] = staircase_init(str_inout,cfg_game); % actual initialisation
             
             response   = str_inout.response;
             n_correctinarow = str_inout.n_correctinarow;
@@ -643,7 +643,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
                     str_inout.staircase_direction = data_passation.staircase_direction;
                 end
                 
-                str_inout = staircase_update(str_inout,cfg_game);
+                [str_inout,cfg_game] = staircase_update(str_inout,cfg_game);
                 
                 % load updated parameters
                 expvar    = str_inout.expvar;

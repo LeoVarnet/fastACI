@@ -1,5 +1,5 @@
-function str_inout = staircase_update(str_inout,cfg)
-% function str_inout = staircase_update(str_inout,cfg)
+function [str_inout,cfg] = staircase_update(str_inout,cfg)
+% function [str_inout,cfg] = staircase_update(str_inout,cfg)
 %
 % staircase update phase
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -23,7 +23,16 @@ if n_up ~= 1
 end
 % 2-down 1-up staircase method on m
 if ~iscorrect
-    expvar = expvar + stepsize*cfg.step_up;
+    switch cfg.step_resolution
+        case 'linear'
+            expvar = expvar + stepsize*cfg.step_up;
+        case 'octave'
+            if expvar == 0
+                expvar = -1;
+            else
+                expvar = sign(expvar)*abs(expvar)*2^(-cfg.step_up);
+            end
+    end
     
     if ~isempty(staircase_direction)
         if strcmp(staircase_direction,'down') 
@@ -36,7 +45,17 @@ if ~iscorrect
         staircase_direction = 'up';
     end
 elseif n_correctinarow == n_down
-    expvar = expvar - stepsize*cfg.step_down;
+    switch cfg.step_resolution
+        case 'linear'
+            expvar = expvar - stepsize*cfg.step_down;
+        
+        case 'octave'
+            if expvar == 0
+                expvar = -1;
+            else
+                expvar = sign(expvar)*abs(expvar)*2^(cfg.step_down);
+            end
+    end
     n_correctinarow=0;
     
     if reversal_current == 0
