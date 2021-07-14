@@ -35,7 +35,14 @@ cfg.adapt          = 2; warning('default is 1 - now we are only testing')% 'out'
 cfg_out.randorder  = 1;
   
 cfg.startvar = 0;  % old name 'm_start'
-cfg.expvar_description = 'SNR (dB)';
+if isfield(cfg,'noise_type')
+    switch cfg.noise_type
+        case 'bump'
+            cfg.expvar_description = 'minus the number of bumps';
+        otherwise
+            cfg.expvar_description = 'SNR (dB)';
+    end
+end
  
 % cfg.maxvar = 10;
 cfg.start_stepsize = 2; % dB

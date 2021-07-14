@@ -1,5 +1,5 @@
-function cfg_crea = Script1_Initialisation_EN(experiment_full,Subject_ID, Condition)
-% function cfg_crea = Script1_Initialisation_EN(experiment_full,Subject_ID, Condition)
+function cfg_crea = fastACI_experiment_init(experiment_full,Subject_ID, Condition)
+% function cfg_crea = fastACI_experiment_init(experiment_full,Subject_ID, Condition)
 %
 % Description:
 %       It creates a new participant file.

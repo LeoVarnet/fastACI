@@ -336,9 +336,9 @@ stepsize   = str_inout.stepsize;
 isbreak    = str_inout.isbreak;
 %%% Ends: Initialises
 
-iswarmup = cfg_game.warmup;
+is_warmup = cfg_game.warmup;
 if cfg_game.is_experiment == 1
-    if iswarmup
+    if is_warmup
         % display instructions warmup
         msg_warmup
         
@@ -359,14 +359,14 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
     
     n_stim = cfg_game.stim_order(i_current);
     
-    if iswarmup
+    if is_warmup
         data_passation.i_current = i_current;
         data_passation.n_stim(i_current) = n_stim;
         data_passation.expvar(i_current) = expvar;
     end
         
     % Pre-stores information of the current trial
-    if ~iswarmup
+    if ~is_warmup
         clock_now = clock;
         data_passation.i_current = i_current;
         data_passation.n_stim(i_current) = n_stim;
@@ -404,7 +404,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
     % Display message, play sound and ask for response
     tic
      
-    if iswarmup
+    if is_warmup
         switch cfg_game.Language
             case 'EN'
                 fprintf('\n    * WARM-UP PHASE *\n\n');
@@ -425,7 +425,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
     if cfg_game.is_experiment
         
         play(player)
-        if iswarmup
+        if is_warmup
             
             switch cfg_game.Language
                 case 'EN'
@@ -486,7 +486,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
             fprintf('  Saving game to "%s.mat" (folder path: %s)\n',savename,dir_results);
             
         case 3 % play again (if warm-up) or take a break (if main experiment)
-            if ~iswarmup
+            if ~is_warmup
                 isbreak = 1;
             end
         case 4 % play pure tone
@@ -531,10 +531,10 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
             pause;
 
         case 6 % escape training
-            iswarmup = 0;
+            is_warmup = 0;
             clc
             
-            cfg_game.warmup = iswarmup;
+            cfg_game.warmup = is_warmup;
             
             str_inout = [];
             str_inout.debut_i = debut_i;
@@ -562,13 +562,13 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
             iscorrect = (response == resp_num);
             
             % save trial data
-            if ~iswarmup
+            if ~is_warmup
                 data_passation.n_responses(i_current) = response;
                 data_passation.n_targets(i_current)   = cfg_game.n_targets_sorted(n_stim);
                 data_passation.n_response_correct_target(i_current) = resp_num;
                 data_passation.is_correct(i_current) = iscorrect;
             end
-            if iswarmup || cfg_game.displayN || cfg_game.feedback
+            if is_warmup || cfg_game.displayN || cfg_game.feedback
                 % ListStim(n_stim).response 
                 switch iscorrect
                     case 1
