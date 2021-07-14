@@ -19,9 +19,22 @@ else
 end
 
 [signal,fs] = audioread([cfg.dir_target cfg.filename_target{n_signal}]); % will load one of the four utterances
- 
 fname_noise = [cfg.dir_noise cfg.ListStim(n_stim).name];
-noise = audioread(fname_noise);
+switch cfg.noise_type
+    case 'bump'
+        % Needs creation
+        Nb = 1;
+        sigma_t = 0.02; % temporal width of the bumps (in s)
+        sigma_ERB = 0.5; % spectral width of the bumps (in ERB)
+        A = 30; % amplitude of the bumps (in dB)
+
+        lvl_bump_noise = 50;
+        % bump noise generation
+        noise = bumpnoisegen(length(signal), fs, Nb, sigma_t, sigma_ERB, A, lvl_bump_noise, cfg.dBFS);
+        
+    otherwise
+        noise = audioread(fname_noise);
+end
  
 bSpeech_level_variable = 1;
 bNoise_level_variable = ~bSpeech_level_variable;

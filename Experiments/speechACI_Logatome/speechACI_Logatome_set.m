@@ -53,6 +53,9 @@ switch lower(cfg_inout.Condition) % lower case
     case 'smps'
         dir_name_noise = 'NoiseStim-sMPS';
         noise_type = 'smps';
+    case 'bump'
+        dir_name_noise = 'NoiseStim-bump';
+        noise_type = 'bump';
     otherwise
         error('%s: Condition not recognised',upper(mfilename));
 end
@@ -77,14 +80,8 @@ cfg.N         = cfg.N_target*cfg.N_presentation;
 
 cfg_inout.dir_data_experiment = dir_data_experiment;
 
-%if ~isfield(cfg_inout,'dir_target')
-    cfg_inout.dir_target = dir_target;
-%end
-%if ~isfield(cfg_inout,'dir_noise')
-    cfg_inout.dir_noise  = dir_noise;
-%end
-%if ~isfield(cfg_inout,'noise_type')
-    cfg_inout.noise_type = noise_type;
-%end
+cfg_inout.dir_target = dir_target;
+cfg_inout.dir_noise  = dir_noise;
+cfg_inout.noise_type = noise_type;
  
 cfg_inout = Merge_structs(cfg,cfg_inout);

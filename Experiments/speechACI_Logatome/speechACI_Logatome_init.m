@@ -133,6 +133,11 @@ for i = 1:cfg_inout.N
                     
                     [~,~,~,b_fir] = Create_LTASS_noise(var.f,var.Pxx,fs);
             end
+            
+            % Generates the cosine ramp to be applied to the sounds:
+            rp = ones([N_samples 1]); 
+            rp(1:N_ramp)         = rampup(N_ramp);
+            rp(end-N_ramp+1:end) = rampdown(N_ramp);
         end
         
         seed_number = cfg_inout.seeds_order(i);
@@ -142,22 +147,21 @@ for i = 1:cfg_inout.N
             case 'SSN' % apply the SSN
                 insig = Generate_noise(N_samples,'white');
                 insig = filter(b_fir,1,insig);
+            case 'bump'
+                % Nothing to do
             otherwise
                 insig = Generate_noise(N_samples,noise_type,fs);
         end
         
-        lvls_before_noise(i) = rmsdb(insig)+dBFS;
-        insig = scaletodbspl(insig,lvl_target,dBFS);
-        lvls_after_noise(i) = rmsdb(insig)+dBFS;
-         
-        if i == 1
-            % Generates the cosine ramp:
-            rp = ones(size(insig)); 
-            rp(1:N_ramp)         = rampup(N_ramp);
-            rp(end-N_ramp+1:end) = rampdown(N_ramp);
+        switch noise_type
+            case 'bump'
+                % Nothing to do: Noises will be generated during the participant's session
+            otherwise
+                lvls_before_noise(i) = rmsdb(insig)+dBFS;
+                insig = scaletodbspl(insig,lvl_target,dBFS);
+                lvls_after_noise(i) = rmsdb(insig)+dBFS;
+                insig = rp.*insig;
         end
-        
-        insig = rp.*insig;
         
         fname_part1 = 'Noise'; % Bruit
         number = i;
@@ -187,7 +191,12 @@ for i = 1:cfg_inout.N
     ListStim(i).name = fname;
      
     if bGenerate_stimuli
-        audiowrite([dir_noise fname],insig,fs);
+        switch noise_type
+            case 'bump'
+                % Nothing to do: Noises will be generated during the participant's session
+            otherwise
+                audiowrite([dir_noise fname],insig,fs);
+        end
     end
 end
 
