@@ -31,27 +31,32 @@ cfg.displayN       = bDebug; % 'oui'
 cfg.feedback       = 1;
  
 cfg.sessionsN      = 400; % CAUTION: Overwritten in the case of simulation
-cfg.adapt          = 2; warning('default is 1 - now we are only testing')% 'out';%
 cfg_out.randorder  = 1;
   
 cfg.startvar = 0;  % old name 'm_start'
-if isfield(cfg,'noise_type')
-    switch cfg.noise_type
+if isfield(cfg_in,'Condition')
+    switch cfg_in.Condition
         case 'bump'
             cfg.expvar_description = 'minus the number of bumps';
             cfg.step_resolution = 'octave';
             cfg.start_stepsize = 1; % dB
+            cfg.adapt          = 2; 
+            cfg.min_stepsize = 0.5; % oct
+            % cfg.maxvar = -300; % 300 bumps
             
-            warning('Check tge step down...')
+            warning('Check the step down...')
+            
         otherwise
+            cfg.adapt          = 2; warning('default is 1 - now we are only testing')% 'out';%
+            
             cfg.expvar_description = 'SNR (dB)';
             cfg.step_resolution = 'linear';
             cfg.start_stepsize = 2; % dB
-        
+            cfg.min_stepsize = 1; % dB
+            % cfg.maxvar = 10;
     end
 end
  
-% cfg.maxvar = 10;
 cfg.adapt_stepsize = 50/100;
 
 % Staircase algorithm parameters
@@ -60,8 +65,7 @@ switch cfg.adapt
         cfg.rule = [1 2]; % [up down]-rule: [1 2] = 1-up 2-down   
         cfg.step_up    = 1;
         cfg.step_down  = 1;
-        cfg.min_stepsize = 1;
-        
+                
     case {2, 'weighted-up-down'}
         cfg.rule = [1 1]; 
         target_score = .707;

@@ -30,7 +30,7 @@ if ~iscorrect
             if expvar == 0
                 expvar = -1;
             else
-                expvar = sign(expvar)*abs(expvar)*2^(-cfg.step_up);
+                expvar = sign(expvar)*abs(expvar)*2^(-stepsize*cfg.step_up);
             end
     end
     
@@ -50,10 +50,10 @@ elseif n_correctinarow == n_down
             expvar = expvar - stepsize*cfg.step_down;
         
         case 'octave'
-            if expvar == 0
+            if abs(expvar) < 1
                 expvar = -1;
             else
-                expvar = sign(expvar)*abs(expvar)*2^(cfg.step_down);
+                expvar = sign(expvar)*abs(expvar)*2^(stepsize*cfg.step_down);
             end
     end
     n_correctinarow=0;
