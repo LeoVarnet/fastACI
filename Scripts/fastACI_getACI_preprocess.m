@@ -126,7 +126,7 @@ switch cfg_ACI.flags.glmfct
 
         Nt_input = size(Data_matrix,3);
         
-        Nt_X = 256; % = 8*2^5
+        Nt_X = 2*2^5; %256; % 
         if Nt_input < 256
             % Nothing to do
         else
@@ -135,7 +135,7 @@ switch cfg_ACI.flags.glmfct
             end
         end
         
-        Nf_X = 128;% = 8*2^4
+        Nf_X = 2*2^5;%= 128;%
         t_X = cfg_ACI.t;
         f_X = cfg_ACI.f;
 

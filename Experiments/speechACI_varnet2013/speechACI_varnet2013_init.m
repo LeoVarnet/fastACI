@@ -107,16 +107,16 @@ end
 ListStim = [];
 for i = 1:cfg_inout.N
     if bGenerate_stimuli
-        
-        switch noise_type
+        %EDIT BY LEO: I replaced variable noise_type (undefined) with cfg_inout.Condition
+        switch cfg_inout.Condition %noise_type
             case 'SSN' % apply the SSN
                 % insig = Generate_noise(N_samples,'white');
                 % insig = filter(b_fir,1,insig);
             otherwise
-                insig = Generate_noise(N_samples,noise_type);
+                insig = Generate_noise(N_samples,cfg_inout.Condition);%noise_type);
         end
         
-        insig = setdbspl(insig,lvl_target,dBFS);
+        insig = scaletodbspl(insig,lvl_target,dBFS);
         
         if i == 1
             % Generates the cosine ramp:
