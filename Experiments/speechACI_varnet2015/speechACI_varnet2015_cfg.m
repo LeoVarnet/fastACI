@@ -33,12 +33,14 @@ cfg.expvar_description = 'SNR (dB)';
 cfg.maxvar = 10;
  
 % Staircase algorithm parameters
-if cfg.adapt == 1
-	cfg.start_stepsize     = 4;
-    cfg.min_stepsize       = 1;
-    cfg.adapt_stepsize     = 50/100;
-else
-    error('Not validated yet...')
+switch cfg.adapt
+    case {1,'transformed-up-down'}
+        cfg.start_stepsize     = 4;
+        cfg.min_stepsize       = 1;
+        cfg.adapt_stepsize     = 50/100;
+        cfg.step_resolution = 'linear';
+    otherwise
+        error('Not validated yet...')
 end
 
 cfg_out = Merge_structs(cfg,cfg_out);

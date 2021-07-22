@@ -36,6 +36,8 @@ cfg.maxvar = 10;
 cfg.start_stepsize = 2;
 cfg.adapt_stepsize = 50/100;
 cfg.min_stepsize   = 1;
+cfg.step_resolution = 'linear';
+
 switch cfg.adapt
     case {1,'transformed-up-down'}
         cfg.rule = [1 2]; % [up down]-rule: [1 2] = 1-up 2-down   
@@ -45,8 +47,8 @@ switch cfg.adapt
     case {2, 'weighted-up-down'}
         cfg.rule = [1 1]; 
         target_score = .707;
-        cfg.step_up    = target_score/(1-target_score);
         cfg.step_down  = 1;
+        cfg.step_up    = cfg.step_down*target_score/(1-target_score);
         
     otherwise
         error('Not validated yet...')

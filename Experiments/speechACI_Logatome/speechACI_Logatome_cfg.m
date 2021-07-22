@@ -69,8 +69,8 @@ switch cfg.adapt
     case {2, 'weighted-up-down'}
         cfg.rule = [1 1]; 
         target_score = .707;
-        cfg.step_up    = target_score/(1-target_score);
         cfg.step_down  = 1;
+        cfg.step_up    = cfg.step_down*target_score/(1-target_score); % Kaernbach1991, Eq. 1
         cfg.min_stepsize = 1/cfg.step_up;
         
     otherwise
