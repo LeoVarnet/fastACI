@@ -82,8 +82,15 @@ cfg_ACI.N_trials = length(idx_analysis);
 y_all     = double((n_responses==1)'); % all trials that for which target 1 has been chosen
 y         = y_all(idx_analysis);
 
-n_targets_select = n_targets(idx_analysis);
-y_correct = double((cfg_ACI.response_correct_target(n_targets_select)==1)');
+n_targets_select = n_targets(idx_analysis); % idx = find(n_targets_select==0); n_targets_select(idx) = 1;
+try
+    y_correct = double((cfg_ACI.response_correct_target(n_targets_select)==1)');
+catch
+    idx = find(n_targets_select==0); 
+    n_targets_select(idx) = 1;
+    fprintf('\t%s: %.0f case(s) solved\n',upper(mfilename),length(idx));
+    y_correct = double((cfg_ACI.response_correct_target(n_targets_select)==1)');
+end
 % y_correct indicates the trials where target '1' has been expected to 
 %     be chosen or 'target 1 present' trials
     

@@ -214,6 +214,22 @@ if bCalculation || do_recreate_validation
         
     end
         
+    if data_passation.i_current ~= cfg_game.N
+        fprintf('%s: Less trials have been tested by this participant than the expected cfg_game.N=%.0f trials\n',upper(mfilename),cfg_game.N);
+        fprintf('\tPress ctrl+C to cancel the current ACI calculation, otherwise, the ACI will be obtained for less trials...\n');
+        fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+        pause(10);
+        
+        fprintf('\tToo late: ACI will be assessed using %.0f trials only\n',data_passation.i_current);
+        
+        % N = 150; warning('temporal')% data_passation.i_current;
+        N = data_passation.i_current;
+        cfg_ACI.N = N;
+        cfg_ACI.stim_order = cfg_ACI.stim_order(1:N);
+        cfg_ACI.idx_trialselect = 1:N;
+        cfg_ACI.N_trialselect = N;
+    end
+    
     if isempty(keyvals.Data_matrix)
         % Loading the data regularly:
         [Data_matrix,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI, ListStim);

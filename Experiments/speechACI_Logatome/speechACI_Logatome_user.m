@@ -43,7 +43,7 @@ switch cfg.noise_type
         noise = bumpnoisegen(length(signal), fs, Nb, sigma_t, sigma_ERB, A, lvl_bump_noise, cfg.dBFS);
         if exist(fname_noise,'file')
             disp('The sound exists on disk and will be overwritten, press ctrl+C to stop this action (you have 5 seconds to react)');
-            pause(5);
+            % pause(5);
         end
         audiowrite(fname_noise,noise,fs);
 
