@@ -1,4 +1,4 @@
-function [Data_matrix, cfg_inout] = fastACI_getACI_dataload(cfg_inout, ListStim, varargin)
+function [Data_matrix, cfg_inout] = fastACI_getACI_dataload(cfg_inout, ListStim, cfg_game, varargin)
 % [Data_matrix, tf] = fastACI_getACI_dataload(cfg, ListStim) 
 %
 % Load stimuli data and generates appropriate matrix Data_matrix for the
@@ -16,6 +16,8 @@ function [Data_matrix, cfg_inout] = fastACI_getACI_dataload(cfg_inout, ListStim,
 %
 % - zscore option removed from this script on 8/04/2021, as that would be
 %       a preprocessing of the data and not a 'data load'
+%
+% - cfg_game is only used if the option WithSNR is requested...
 %
 % Authors: Leo Varnet and Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -75,6 +77,14 @@ WithSignal = cfg_inout.keyvals.add_signal;
 if ~strcmp(cfg_inout.dir_noise(end),filesep)
     cfg_inout.dir_noise = [cfg_inout.dir_noise filesep];
 end
+
+if WithSignal
+    % Only checked if the targets need to be loaded
+    if ~strcmp(cfg_inout.dir_target(end),filesep)
+        cfg_inout.dir_target = [cfg_inout.dir_target filesep];
+    end 
+end
+
 % -------------------------------------------------------------------------
 % Extract time and/or frequency index
 WavFile = [cfg_inout.dir_noise ListStim(1).name];
@@ -85,6 +95,26 @@ else
     % speechACI_Logatome_init
 end
 bruit=mean(bruit,2);
+
+%%%
+if WithSignal
+    
+    fname_wav = Get_filenames(cfg_inout.dir_target,'*.wav');
+    for i = 1:cfg_inout.N_target
+        % Checking if the target names coincide
+        if ~strfind(fname_wav{i},cfg_inout.target_names{i})
+            error('Target sound that is being loaded (%s) does not match the corresponding target name (%s)',fname_wav{i},cfg_inout.target_names{i});
+        end
+        
+        fname_full = [cfg_inout.dir_target fname_wav{i}];
+        if exist(fname_full,'file')
+            [insig_target(:,i),fs] = audioread(fname_full);
+        else
+            error('Sounds not found on disk, redefine dir_target')
+        end
+    end
+    
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % gets 't' and 'f' for each T-F representation:
@@ -234,21 +264,33 @@ if dimonly == 0
         [bruit,fs] = audioread(WavFile);
         bruit=mean(bruit,2);
         
+        if WithSignal
+            switch cfg_inout.experiment
+                case 'speechACI_Logatome'
+                    if ~strcmp( cfg_inout.Condition,'bump' )
+                        error('Only the speechACI_Logatome with bump noises has been so far validated for this option')
+                    end
+                otherwise
+                    error('Only one experiment validated so far for this option (speechACI_Logatome)')
+            end
+            idx_here = cfg_game.n_targets_sorted(n_stim);
+            trial = bruit + insig_target(:,idx_here);
+        else
+            % This is the default
+            trial = bruit;
+        end
+        
         if WithSNR
             error('WithSNR: Not validated yet')
-            Pbruit = mean(bruit.^2);
-            A=sqrt((Pbruit)*10^(ListStim(n_stim).RSB/10));
-            bruit = bruit/A;
+            % Pbruit = mean(bruit.^2);
+            % A=sqrt((Pbruit)*10^(ListStim(n_stim).RSB/10));
+            % bruit = bruit/A;
         end
         
         switch TF_type
             % -------------------------------------------------------------
             case 'spect'
-                if WithSignal
-                    error('No option ''WithSignal'' for ''tf'' available in Leo''s codes...')
-                end
-                
-                [~,f_here,t_here,p_bruit] = spectrogram(bruit,Nwindow,Nwindow*overlap,NFFT,fs);
+                [~,f_here,t_here,p_bruit] = spectrogram(trial,Nwindow,Nwindow*overlap,NFFT,fs);
                 % cfg_inout.freq_analysis_index = find(f>=cfg_inout.freq_analysis(1) & f<=cfg_inout.freq_analysis(2));
                 % cfg_inout.time_analysis_index = find(t>=cfg_inout.time_analysis(1) & t<=cfg_inout.time_analysis(2));
                 p_bruit=p_bruit(cfg_inout.f_limits_idx,cfg_inout.t_limits_idx);
@@ -265,14 +307,14 @@ if dimonly == 0
             case 'lyon'
                 if WithSignal
                     error('WithSignal: Not validated yet')
-                    WavFile = strcat(cd, '/', cfg_inout.FolderInSignal, '/', ListStim(n_stim).signal, '.wav');
-                    signal = audioread(WavFile);
-                    signal=mean(signal,2);
-                    [ stimulus,~] = Addition_RSB(signal, bruit, ListStim(n_stim).RSB);
-                    bruit=stimulus;
+                    % WavFile = strcat(cd, '/', cfg_inout.FolderInSignal, '/', ListStim(n_stim).signal, '.wav');
+                    % signal = audioread(WavFile);
+                    % signal=mean(signal,2);
+                    % [ stimulus,~] = Addition_RSB(signal, bruit, ListStim(n_stim).RSB);
+                    % bruit=stimulus;
                 end
                 
-                [bruit_coch,f_here] = LyonPassiveEar(bruit,fs,cfg_inout.decimation,cfg_inout.earQ,cfg_inout.stepfactor,1,1);
+                [bruit_coch,f_here] = LyonPassiveEar(trial,fs,cfg_inout.decimation,cfg_inout.earQ,cfg_inout.stepfactor,1,1);
                 bruit_coch=bruit_coch(end:-1:1,:);
                 f_here = f_here(end:-1:1);
                 
@@ -284,7 +326,7 @@ if dimonly == 0
             % -------------------------------------------------------------    
             case 'noise_logspect'
 
-                [~,f_here,t_here,p] = spectrogram(bruit,Nwin,Noverlap,NFFT,fs); 
+                [~,f_here,t_here,p] = spectrogram(trial,Nwin,Noverlap,NFFT,fs); 
                 %p=p(find(f_spec>=fcut(1) & f_spec<=fcut(end)),find(t_spec>=tcut(1) & t_spec<=tcut(end)),:);
                 if i == 1
                     warning('Converting to dB')
@@ -309,7 +351,7 @@ if dimonly == 0
                 
             % -------------------------------------------------------------    
             case 'gammatone'
-                outsig = Gammatone_proc(bruit,fs,flags_gamma{:});
+                outsig = Gammatone_proc(trial,fs,flags_gamma{:});
                 outsig = transpose(outsig); % permute(outsig,[2 1]); % put time in the second dimension and frequency in the first one
                 
                 % outsig=20*log10(abs(outsig));

@@ -112,7 +112,15 @@ if ~isempty(keyvals.trialtype_analysis)
             trialtype_analysis = ['-' keyvals.trialtype_analysis];
     end
 end
-fnameACI = [dir_out cfg_game.Subject_ID '_' cfg_game.experiment Condition '-ACI' trialtype_analysis '-' TF_type '-' glmfct str_last_trial '.mat'];
+
+if keyvals.add_signal
+    label_add_signal = '+addsignal';
+else
+    label_add_signal = '';
+end
+
+fnameACI = [dir_out cfg_game.Subject_ID '_' cfg_game.experiment Condition '-ACI' trialtype_analysis '-' TF_type '-' glmfct str_last_trial label_add_signal '.mat'];
+
 %%%
 
 bCalculation = ~exist(fnameACI,'file');
@@ -135,7 +143,7 @@ end
 
 %%% 2.2 Creating structure cfg_ACI: ---------------------------------------
 % cfg_game = Ensure_field(cfg_game,'response_names',{'Signal#1','Signal#2'});
-cfg_ACI = import_cfg(cfg_game, 'dir_noise', 'N', 'N_target', ... % 'dir_target', 'N_response'
+cfg_ACI = import_cfg(cfg_game, 'dir_noise', 'dir_target', 'N', 'N_target', ... % 'dir_target', 'N_response'
     'stim_order', 'target_names', 'response_correct_target','response_names');
 
 if isfield(cfg_game,'Subject_ID')
@@ -212,8 +220,20 @@ if bCalculation || do_recreate_validation
         end
         cfg_ACI.dir_noise = cfg_ACI.keyvals.dir_noise;
         
+        if ~isempty(cfg_ACI.keyvals.dir_target)
+            cfg_ACI.dir_target_original = cfg_ACI.dir_target;
+            cfg_ACI.dir_target = cfg_ACI.keyvals.dir_target;
+        end
     end
-        
+    
+    if ~strcmp(fileparts(fileparts(cfg_ACI.dir_noise)), fileparts(fileparts(cfg_ACI.dir_target))) 
+        % Extra check: if someone enters this part of the code, maybe he/she
+        % does not have compatible dir_noise and dir_target directories, and 
+        % therefore we throw a warning that appears for 10 s.
+        warning('dir_noise and dir_target were found to be located in different root folders, please check that this is correct (ignore this message otherwise)');
+        pause(10)
+    end
+    
     if data_passation.i_current ~= cfg_game.N
         fprintf('%s: Less trials have been tested by this participant than the expected cfg_game.N=%.0f trials\n',upper(mfilename),cfg_game.N);
         fprintf('\tPress ctrl+C to cancel the current ACI calculation, otherwise, the ACI will be obtained for less trials...\n');
@@ -232,7 +252,7 @@ if bCalculation || do_recreate_validation
     
     if isempty(keyvals.Data_matrix)
         % Loading the data regularly:
-        [Data_matrix,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI, ListStim);
+        [Data_matrix,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI, ListStim, cfg_game);
     else
         Data_matrix = keyvals.Data_matrix;
         
@@ -240,7 +260,7 @@ if bCalculation || do_recreate_validation
         N = cfg_ACI.N;
         cfg_ACI_ref = cfg_ACI;
         cfg_ACI_ref.N = N_ref;
-        [Data_matrix_ref,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI_ref, ListStim);
+        [Data_matrix_ref,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI_ref, ListStim, cfg_game);
         cfg_ACI.N = N; % restoring the initial N
         
         for ii = 1:N_ref

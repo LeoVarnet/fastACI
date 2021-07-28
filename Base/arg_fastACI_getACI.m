@@ -15,7 +15,7 @@ definput.flags.recreate_validation = {'no_recreate_validation','recreate_validat
 definput.flags.plot = {'plot','no_plot'};
 
 definput.keyvals.apply_SNR  = 0; % old: WithSNR
-definput.keyvals.add_signal = 0; % old: WithSignal
+definput.keyvals.add_signal = 0; % old: WithSignal 
 
 definput.keyvals.skip_if_on_disk = 0;
 definput.keyvals.Data_matrix = [];
