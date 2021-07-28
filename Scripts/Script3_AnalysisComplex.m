@@ -43,7 +43,7 @@ if nargin < 2
     opts = [];
 end
 opts = Ensure_field(opts,'do_behaviour',1);
-opts = Ensure_field(opts,'do_analyse_noise',1);
+opts = Ensure_field(opts,'do_analyse_noise',0);
 
 data = [];
 

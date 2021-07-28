@@ -71,7 +71,7 @@ cfg.SPL       = 65; % target level, by default level of the noise (the speech
 cfg.dBFS      = dBFS;
 
 cfg.bRove_level = 1; % New option as of 16/04/2021
-cfg.Rove_range  = 2.5; % plus/minus this value, changed from 4 to 2.5 dB on 26/025/2021
+cfg.Rove_range  = 2.5; % plus/minus this value, changed from 4 to 2.5 dB on 26/05/2021
 
 % Change the following names:
 cfg.N_presentation = 2500;  % number of stimuli / condition

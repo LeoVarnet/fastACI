@@ -68,6 +68,12 @@ if bGenerate_stimuli
         sil = zeros(round(dur_ramp*fs),1);
         insig  = [sil; insig; sil];
         
+        idx = strfind(files{i},'_eq');
+        if ~isempty(idx)
+            fprintf('\t%s: suffix ''eq'' found and being removed from the speech sample...\n',mfilename)
+            files{i} = [files{i}(1:idx-1) '.wav'];
+        end
+        
         audiowrite([dir_target files{i}],insig,fs);
     end
 else
