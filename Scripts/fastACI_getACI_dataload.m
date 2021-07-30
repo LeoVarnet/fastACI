@@ -197,12 +197,18 @@ switch TF_type
         [outsig,f,t,extras] = Gammatone_proc(bruit,fs,flags_gamma{:});
         f = f(:); % column array
         
+        cfg_inout.gamma_flags       = flags_gamma;
+        cfg_inout.gamma_main_script = 'Gammatone_proc';
+        
     case 'adapt'
         basef = 8000;
         flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',cfg_inout.bwmul,'dboffset',100,'adt',cfg_inout.binwidth, ...
             'no_outerear','no_middleear'};
         [outsig,f,t,extras] = Gammatone_proc(bruit,fs,flags_gamma{:});
         f = f(:); % column array
+        
+        cfg_inout.adapt_flags       = flags_gamma;
+        cfg_inout.adapt_main_script = 'Gammatone_proc';
         
     case 'king2019'
         error('Under construction')

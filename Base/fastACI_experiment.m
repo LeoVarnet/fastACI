@@ -1,5 +1,5 @@
-function fastACI_experiment(experiment, Subject_ID, Condition)
-% function fastACI_experiment(experiment, Subject_ID, Condition)
+function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID, Condition)
+% function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID, Condition)
 %
 %
 % Changes by AO:
@@ -89,11 +89,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    % try
+    try
         cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
-    % catch me
-    %     error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
-    % end
+    catch me
+        error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
+    end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -179,8 +179,10 @@ switch cfg_game.resume
                 cfg_game.Language = Language;
             end
             
-            % display welcome message
-            msg_welcomeback
+            if cfg_game.is_experiment
+                % display welcome message
+                msg_welcomeback
+            end
              
             cfg_game.resume = 1;
             
@@ -247,13 +249,13 @@ if cfg_game.is_simulation == 1
     % cfg_game.fadein_s           = 0;
     % cfg_game.N_template         = 0;
     cfg_game.warmup = 0; % warm up is disabled
-    % cfg_game.sessionsN          = 500;
     % cfg_game.stim_dur           = 0.75;
     def_sim = [];
     def_sim.modelname = Subject_ID;
     switch Subject_ID
         case {'king2019'} % ,'osses2021'}
-            if input('Choose 0 to use king2019_template/king2019_detect (default) or 1 to choose model_template/aci_detect: ')
+            bInput = 1; warning('temporal')% input('Choose 0 to use king2019_template/king2019_detect (default) or 1 to choose model_template/aci_detect: ');
+            if bInput
                 def_sim.template_script = 'model_template';
                 def_sim.decision_script = 'aci_detect';
             else
@@ -265,9 +267,51 @@ if cfg_game.is_simulation == 1
             def_sim.template_script = 'model_template';
             def_sim.decision_script = 'aci_detect';
     end
+    
+    file_config = cfg_game.experiment;
+    if isfield(cfg_game,'Cond_extra_1')
+        file_config = [file_config '_' cfg_game.Cond_extra_1];
+    end
+    if isfield(cfg_game,'Cond_extra_2')
+        file_config = [file_config '_' cfg_game.Cond_extra_2];
+    end
+    file_config = sprintf('%s_%s_%.0f_%.0f_%.0f_%.0fh_%.0fm_%.0fs.m',file_config,Subject_ID,cfg_game.date);
+    % cfg_game.model_config = file_config;
+    
+    cfg_game.sessionsN = 400; warning('Temporal')
+    if ~exist([dir_results file_config],'file')
+        warning('Create such a file using readfile_replace.m');
+        
+        def_sim.template_every_trial = 0;
+        def_sim.templ_num = 10;
+        def_sim.det_lev = -6; % -6 of the expvar
+                
+        switch cfg_game.experiment
+            case 'speechACI_Logatome'
+                switch cfg_game.Condition
+                    case 'bump'
+                        def_sim.det_lev = 0; % -6 of the expvar
+                end
+        end
+        
+    else
+        addpath(dir_results);
+        exp2eval = sprintf('def_sim = %s(def_sim);',file_config(1:end-2));
+        eval(exp2eval);
+        rmpath(dir_results);
+        % def_sim.template_every_trial = 0;
+        % def_sim.templ_num = 10;
+        % def_sim.det_lev = -6; % -6 of the expvar
+        
+    end
+    
     sim_work = [];
+    % sim_work.templ_ref = [];
+    % sim_work.templ_tar = [];
     cfg_game.def_sim = def_sim;
-    cfg_game.sessionsN = cfg_game.N;
+    if ~isfield(cfg_game,'sessionsN')
+        cfg_game.sessionsN = cfg_game.N;
+    end
 end
 
 if cfg_game.is_simulation == 1
@@ -451,13 +495,14 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
             case 'aci_detect' 
                 % Default for 'dau1997' and 'osses2021'
                 [response,sim_work] = aci_detect(cfg_game,data_passation,def_sim,sim_work);
+                data_passation.decision_var_mue2choose(i_current,:) = sim_work.decision_var_mue2choose(i_current,:);
                 
             case 'king2019_detect'
                 % Default for 'king2019'
                 [response,sim_work,def_sim] = king2019_detect(cfg_game,data_passation,def_sim,sim_work);
         end
         cfg_game.def_sim = def_sim;
-                
+                        
         %%% Template:
         %%% Simulation in itself
         % [response,ir,cfg ] = auditorymodel_TMdetect( in, template, cfg );

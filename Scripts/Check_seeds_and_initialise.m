@@ -36,7 +36,7 @@ if bDo_the_check
         end
     end
 
-    if ~isempty(files)
+    if ~isempty(list_other_subjects) % ~isempty(files)
         % In case there are completed participants found on disk:
         disp('Do you want to copy the seeds from any of the following subjects?')
         Show_cell(list_other_subjects);
@@ -87,12 +87,34 @@ if bDo_the_check
         end
         var = load([crea_extern files{1}]);
 
-        cfg_inout.seeds_order        = var.cfg_crea.seeds_order; % to be used sequentially
-        cfg_inout.seeds_order_method = var.cfg_crea.seeds_order_method;
-        cfg_inout.stim_order         = var.cfg_crea.stim_order; 
+        %%%
+        if exist(var.cfg_crea.dir_noise,'dir')
+            cfg_inout.dir_noise  = var.cfg_crea.dir_noise;
+        else
+            idx = strfind(cfg_inout.dir_noise,cfg_inout.dir_noise(end));
+            dir_noise = cfg_inout.dir_noise(idx(end-1)+1:end-1);
+            dir_new   = [cfg_inout.dir_data_experiment list_other_subjects{bInput} filesep];
+            cfg_inout.dir_noise = [dir_new dir_noise filesep];
+        end
+        
+        if isfield(var.cfg_crea,'dir_speech')
+            warning('dir_speech is deprecated (old cfg_crea is being used)')
+            var.cfg_crea.dir_target = var.cfg_crea.dir_speech;
+        end
+        if exist(var.cfg_crea.dir_target,'dir')
+            cfg_inout.dir_target = var.cfg_crea.dir_target;
+        else
+            idx = strfind(cfg_inout.dir_target,cfg_inout.dir_target(end));
+            dir_target = cfg_inout.dir_target(idx(end-1)+1:end-1);
+            dir_new   = [cfg_inout.dir_data_experiment list_other_subjects{bInput} filesep];
+            cfg_inout.dir_target = [dir_new dir_target filesep];
 
-        cfg_inout.dir_speech = var.cfg_crea.dir_speech;
-        cfg_inout.dir_noise  = var.cfg_crea.dir_noise;
+            cfg_inout.seeds_order        = var.cfg_crea.seeds_order; % to be used sequentially
+            cfg_inout.seeds_order_method = var.cfg_crea.seeds_order_method;
+            cfg_inout.stim_order         = var.cfg_crea.stim_order; 
+        end
+        %%% 
+        
         if isfield(var.cfg_crea,'bRove_level')
             cfg_inout.bRove_level = var.cfg_crea.bRove_level;
             cfg_inout.Rove_level  = var.cfg_crea.Rove_level;

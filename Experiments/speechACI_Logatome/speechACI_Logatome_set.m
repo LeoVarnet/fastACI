@@ -80,8 +80,26 @@ cfg.N         = cfg.N_target*cfg.N_presentation;
 
 cfg_inout.dir_data_experiment = dir_data_experiment;
 
-cfg_inout.dir_target = dir_target;
-cfg_inout.dir_noise  = dir_noise;
+if isfield(cfg_inout,'dir_target')
+    if ~exist(cfg_inout.dir_target,'dir')
+        if iswindows
+            warning('Leo: I had to re-enable this option here to have the possibility to use noises from other subjects, but I remember that this was an error source for you...')
+            disp('Pausing for 10 s... (this is a temporal message)')
+            pause(10)
+        end
+        cfg_inout.dir_target = dir_target;
+    end
+else
+    cfg_inout.dir_target = dir_target;
+end
+
+if isfield(cfg_inout,'dir_noise')
+    if ~exist(cfg_inout.dir_noise,'dir')
+        cfg_inout.dir_noise  = dir_noise;
+    end
+else
+    cfg_inout.dir_noise  = dir_noise;
+end
 cfg_inout.noise_type = noise_type;
  
 cfg_inout = Merge_structs(cfg,cfg_inout);

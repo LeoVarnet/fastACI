@@ -32,11 +32,11 @@ for kk = 1:Nsounds
         end
     end
 
-    f2plot = il_get_freq_affichage(outs.f0{kk},cfg_ACI); % figure; plot(outs.t_f0{1},outs.f0{1},'k--');
+    f2plot = affichage_get_freq_resolution(outs.f0{kk},cfg_ACI); % figure; plot(outs.t_f0{1},outs.f0{1},'k--');
     pl(kk) = plot(outs.t_f0{kk},f2plot,Styles{kk},'Color',Colours{kk},'LineWidth',2);
     
     for ii = 1:size(outs.F{kk},2)
-        f2plot = il_get_freq_affichage(outs.F{kk}(:,ii),cfg_ACI);
+        f2plot = affichage_get_freq_resolution(outs.F{kk}(:,ii),cfg_ACI);
         hold on; % figure; plot(t_F{kk},F{kk}(:,ii),Style{kk});
         plot(outs.t_F{kk},f2plot,Styles{kk},'Color',Colours{kk});
     end
@@ -47,31 +47,4 @@ if ~isempty(labels2add)
     
     outs.hl = hl;
     outs.hl_description = 'handle of the legend';
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function f2plot = il_get_freq_affichage(f,cfg_ACI)
-
-spacing_type = [];
-%%% Detect the frequency spacing:
-% 1. Detecting if ERB-spaced:
-ferb = freqtoaud(cfg_ACI.f);
-
-df(1) = ferb(2)-ferb(1);
-df(2) = ferb(end)-ferb(end-1);
-
-if round(10*df(1)) == round(10*df(2))
-    fprintf('\t%s: ERB-spacing detected...\n',upper(mfilename));
-    spacing_type = 'erb';
-    delta_f = df(1);
-end
-
-switch spacing_type
-    case 'erb'
-        step = (max(cfg_ACI.f)-min(cfg_ACI.f))/(length(cfg_ACI.f)-1); % this is a linear step equal to 0.5 ERB_N
-        f2plot = step*(freqtoaud(f)-min(ferb))/delta_f;
-        
-    otherwise
-        warning('Frequency spacing not detected, returning an empty frequency vector')
-        f2plot = nan(size(f));
 end
