@@ -8,18 +8,19 @@ if nargin == 0
 end
  
 if ismac % lab's computer
-    dir_main = fastACI_paths('dir_data'); % '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
-    warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_main,dir_main,filesep);
+    dir_data_experiment = fastACI_paths('dir_data'); % '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
+    warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_data_experiment,dir_data_experiment,filesep);
     
 elseif isunix % Alejandro's computer
-    dir_main = [fastACI_paths('dir_data') 'speechACI_varnet2013' filesep];
+    dir_data_experiment = [fastACI_paths('dir_data') 'speechACI_varnet2013' filesep];
+    % dir_data_experiment = [fastACI_paths('dir_data') cfg_inout.experiment_full filesep];
     
 elseif ispc % Leo's computer
-    dir_main = fastACI_paths('dir_data'); % 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';
-    warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_main,dir_main,filesep);
+    dir_data_experiment = fastACI_paths('dir_data'); % 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';
+    warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_data_experiment,dir_data_experiment,filesep);
 end
 
-dir_speech = [dir_main cfg_inout.Subject_ID filesep 'speech-samples' filesep];
+dir_target = [dir_data_experiment cfg_inout.Subject_ID filesep 'speech-samples' filesep];
 if ~isfield(cfg_inout,'Condition')
     str2use  = ['Script2_Passation_EN(' cfg_inout.experiment ', ' cfg_inout.Subject_ID ', Condition);'];
     str2use2 = ['''white'' (default), ''pink'', or ''SSN'''];
@@ -37,7 +38,7 @@ else
             error('%s: Condition not recognised',upper(mfilename));
     end
 end
-dir_noise  = [dir_main cfg_inout.Subject_ID filesep dir_name_noise filesep];
+dir_noise  = [dir_data_experiment cfg_inout.Subject_ID filesep dir_name_noise filesep];
 
 dBFS = 100;
 
@@ -53,8 +54,28 @@ cfg.N_presentation = 2500; % 5000;  % number of stimuli / condition
 cfg.N_target  = 2;     % Number of conditions
 cfg.N         = cfg.N_target*cfg.N_presentation;
 
-cfg_inout.dir_speech = dir_speech;
-cfg_inout.dir_noise  = dir_noise;
+cfg_inout.dir_data_experiment = dir_data_experiment;
+
+if isfield(cfg_inout,'dir_target')
+    if ~exist(cfg_inout.dir_target,'dir')
+        if iswindows
+            warning('Leo: I had to re-enable this option here to have the possibility to use noises from other subjects, but I remember that this was an error source for you...')
+            disp('Pausing for 10 s... (this is a temporal message)')
+            pause(10)
+        end
+        cfg_inout.dir_target = dir_target;
+    end
+else
+    cfg_inout.dir_target = dir_target;
+end
+
+if isfield(cfg_inout,'dir_noise')
+    if ~exist(cfg_inout.dir_noise,'dir')
+        cfg_inout.dir_noise  = dir_noise;
+    end
+else
+    cfg_inout.dir_noise  = dir_noise;
+end
 
 % TODO: change this name:
 % cfg_inout.dir_stim  = dir_noise;

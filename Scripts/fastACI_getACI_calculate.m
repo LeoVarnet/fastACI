@@ -130,6 +130,39 @@ switch glmfct
                 
         end
         toc
+        
+        results.idxlambda = idxlambda;
+        [ACI, cfg_ACI, sumReWeight] = il_lasso_B2ACI(B, cfg_ACI, results);
+        
+        %%%
+        if do_permutation
+            for i = 1:N_perm
+                fprintf('\t Assessing permuted ACI: %.0f of %.0f\n',i,N_perm);
+                 
+                % U_perm_here = squeeze(cfg_perm.U_perm(:,:,i));
+                % [ACI_perm_here, results_perm, cfg_perm] = CI_glmqpoptim_fct(cfg_perm, cfg_perm.y_perm(:,i), [], X, U_perm_here); 
+                % ACI_perm(:,:,i) = reshape(ACI_perm_here, [N_f,N_t]);
+                
+                Lambda = FitInfo.Lambda(idxlambda);
+                switch glmfct
+                    case 'lassoglm'
+                        [B_perm,FitInfo_perm] = lassoglm(X,cfg_perm.y_perm(:,i),'binomial','CV',N_folds,'lambda',lambda0,'link','logit');
+                        
+                    case 'lasso'
+                        [B_perm,FitInfo_perm] = lasso(X,cfg_perm.y_perm(:,i),'CV',N_folds,'Lambda',Lambda);
+                end
+                ACI_perm(:,:,i) = il_lasso_B2ACI(B_perm, cfg_ACI);
+            end
+            
+            ACI_perm_CI_low  = prctile(ACI_perm,5,3);
+            ACI_perm_CI_high = prctile(ACI_perm,95,3);
+            
+            results.idxs_perm = cfg_perm.idxs_perm;
+            results.ACI_perm  = ACI_perm;
+            results.ACI_perm_CI_low   = ACI_perm_CI_low;
+            results.ACI_perm_CI_high  = ACI_perm_CI_high;
+        end
+        %%%
 
         results.lambdas = FitInfo.Lambda; 
         % results.cvgofs  = FitInfo.Deviance; % this is already the mean value
@@ -137,75 +170,6 @@ switch glmfct
         results.B       = B;
         % results.w       = B(:,FitInfo.IndexMinDeviance);
         % results.finalfit.w = results.w;
-                
-        temp = B;
-        
-        Nlevelmin = cfg_ACI.lasso_Nlevelmin;
-        Nlevel    = cfg_ACI.lasso_Nlevel;
-        Pyra_size = cfg_ACI.lasso_Pyra_size;
-        for i_level = Nlevelmin:Nlevel
-            
-            %%% 1. Getting the 'reduced' ACIs per level
-            idxi = 1;
-            idxf = Pyra_size(i_level,1)*Pyra_size(i_level,2);
-            N_iterations = size(B,2);
-            Pyra_here = temp(idxi:idxf,:);
-            Size_reshape = [Pyra_size(i_level,1) Pyra_size(i_level,2) N_iterations];
-            Pyra_here = reshape(Pyra_here,Size_reshape);
-            Pyra_here = permute(Pyra_here,[3 1 2]); % time and frequency dimensions in the proper location
-            
-            WeightPyramid{i_level} = Pyra_here;
-            
-            temp = temp(idxf+1:end,:); % The assigned bins are removed
-            
-            %%% 2. Getting the 'expanded' ACIs per level (Expand the weight matrix)
-            % Interpolate so that dimension 1 has length Nt_X in each level of the
-            % pyramid -- this is the same procedure as before with RePyramid 
-            
-            % Pyra_here = reshape(WeightPyramid{i_level},[Pyra_size(i_level,1),Pyra_size(i_level,2), N_iterations]);
-            for j_level = 1:i_level-1
-                Pyra_here = Script4_Calcul_ACI_modified_impyramid(Pyra_here, 'expand');
-            end
-            ReWeightPyramid{i_level} = squeeze(Pyra_here(:,:,:));
-        end
-        
-        %%% Plot fit corresponding to the best lambda
-        sumReWeight = zeros(size(ReWeightPyramid{Nlevel}));
-        for i_level = Nlevelmin:Nlevel
-            sumReWeight = sumReWeight + ReWeightPyramid{i_level};
-        end
-        
-        if length(cfg_ACI.t_limits_idx) < size(sumReWeight,3) % Dim 3 is time 
-            % time was padded for the pyramid calculation, so we truncate it back
-            sumReWeight = sumReWeight(:,:,cfg_ACI.t_limits_idx);
-            if cfg_ACI.t_X(1) == cfg_ACI.t(1) && cfg_ACI.t_X(N_t) == cfg_ACI.t(N_t)
-                % then t_X is equal (but longer than) t
-                cfg_ACI = rmfield(cfg_ACI,'t_X');
-            end
-        else
-            if length(cfg_ACI.t_X) ~= length(cfg_ACI.t)
-                
-                if length(cfg_ACI.t_X) < length(cfg_ACI.t)
-                    cfg_ACI.t = cfg_ACI.t(1:length(cfg_ACI.t_X));
-                end
-                
-                cfg_ACI = rmfield(cfg_ACI,'t_X');
-            end
-        end
-        
-        if length(cfg_ACI.f_limits_idx) > size(sumReWeight,2) % Dim 2 is frequency
-            % we need to truncate the frequency .f
-            
-            if cfg_ACI.f(1)==cfg_ACI.f_X(1) && cfg_ACI.f(length(cfg_ACI.f_X))==cfg_ACI.f_X(end)
-                cfg_ACI.f = cfg_ACI.f_X;
-                cfg_ACI.f_limits_idx = cfg_ACI.f_limits_idx(1:length(cfg_ACI.f_X));
-                
-                cfg_ACI = rmfield(cfg_ACI,'f_X');
-            end
-        end
-        
-        ACI = squeeze( sumReWeight(idxlambda,:,:) );
-        % ACI = ACI(:,cfg_ACI.t_limits_idx);
         
         results.ACI = ACI;
         results.ACIs = sumReWeight;
@@ -219,56 +183,6 @@ switch glmfct
             ylabel('freq (Hz)'); colorbar; 
             title('betaSmooth: ACI obtained with a lasso regression on smooth basis'); 
             colorbar; % caxis([-1 1]*max(abs(caxis)));
-            % %set(gca, 'YScale', 'log');
-            
-            % Nt = length(cfg_ACI.t);
-            % Nf = length(cfg_ACI.f);
-            % 
-            % t_spec = cfg_ACI.t;
-            % f_spec = cfg_ACI.f;
-            % figure;
-            % if N_iterations >= 50
-            %     betalasso50 = reshape(sumReWeight(50,:,:), [Nf,Nt]);
-            % 
-            %     subplot(5,1,1)
-            %     hp = pcolor(t_spec, f_spec, betalasso50); 
-            %     xlabel('time (s)'); 
-            %     ylabel('freq (Hz)');colorbar
-            %     set(hp, 'EdgeColor', 'none'); 
-            %     title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(50))])
-            % end
-            % if N_iterations >= 60
-            %     betalasso60 = reshape(sumReWeight(60,:,:), [Nf,Nt]);
-            % 
-            %     subplot(5,1,2)
-            %     hp = pcolor(t_spec, f_spec, betalasso60); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
-            %     set(hp, 'EdgeColor', 'none'); 
-            %     title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(60))])
-            % end
-            % if N_iterations >= 70
-            %     betalasso70 = reshape(sumReWeight(70,:,:), [Nf,Nt]);
-            % 
-            %     subplot(5,1,3)
-            %     hp = pcolor(t_spec, f_spec, betalasso70); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
-            %     set(hp, 'EdgeColor', 'none'); 
-            %     title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(70))])
-            % end
-            % if N_iterations >= 80
-            %     betalasso80 = reshape(sumReWeight(80,:,:), [Nf,Nt]);
-            % 
-            %     subplot(5,1,4)
-            %     hp = pcolor(t_spec, f_spec, betalasso80); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
-            %     set(hp, 'EdgeColor', 'none'); 
-            %     title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(80))])
-            % end
-            % if N_iterations >= 90
-            %     betalasso90 = reshape(sumReWeight(90,:), [Nf,Nt]);
-            % 
-            %     subplot(5,1,5)
-            %     hp = pcolor(t_spec, f_spec, betalasso90); xlabel('time (s)'); ylabel('freq (Hz)');colorbar
-            %     set(hp, 'EdgeColor', 'none'); 
-            %     title(['ACI obtained with a lasso regression, \lambda = ' num2str(FitInfo.Lambda(90))])
-            % end
         end
 
     otherwise
@@ -277,3 +191,88 @@ switch glmfct
 end
 fprintf('Completed condition \n');
 toc
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [ACI,cfg_ACI,sumReWeight] = il_lasso_B2ACI(B, cfg_ACI, results)
+
+if size(B,2) ~= 1
+    % Then multiple lambda values have been obtained
+    idxlambda = results.idxlambda;
+else
+    idxlambda = 1;
+end
+
+temp = B;
+Nlevelmin = cfg_ACI.lasso_Nlevelmin;
+Nlevel    = cfg_ACI.lasso_Nlevel;
+Pyra_size = cfg_ACI.lasso_Pyra_size;
+
+for i_level = Nlevelmin:Nlevel
+    %%% 1. Getting the 'reduced' ACIs per level
+    idxi = 1;
+    idxf = Pyra_size(i_level,1)*Pyra_size(i_level,2);
+    N_iterations = size(B,2);
+    Pyra_here = temp(idxi:idxf,:);
+    Size_reshape = [Pyra_size(i_level,1) Pyra_size(i_level,2) N_iterations];
+    Pyra_here = reshape(Pyra_here,Size_reshape);
+    Pyra_here = permute(Pyra_here,[3 1 2]); % time and frequency dimensions in the proper location
+
+    WeightPyramid{i_level} = Pyra_here;
+
+    temp = temp(idxf+1:end,:); % The assigned bins are removed
+
+    %%% 2. Getting the 'expanded' ACIs per level (Expand the weight matrix)
+    % Interpolate so that dimension 1 has length Nt_X in each level of the
+    % pyramid -- this is the same procedure as before with RePyramid 
+
+    % Pyra_here = reshape(WeightPyramid{i_level},[Pyra_size(i_level,1),Pyra_size(i_level,2), N_iterations]);
+    for j_level = 1:i_level-1
+        Pyra_here = Script4_Calcul_ACI_modified_impyramid(Pyra_here, 'expand');
+    end
+    ReWeightPyramid{i_level} = squeeze(Pyra_here(:,:,:));
+end
+
+%%% Plot fit corresponding to the best lambda
+sumReWeight = zeros(size(ReWeightPyramid{Nlevel}));
+for i_level = Nlevelmin:Nlevel
+    sumReWeight = sumReWeight + ReWeightPyramid{i_level};
+end
+
+if length(cfg_ACI.t_limits_idx) < size(sumReWeight,3) % Dim 3 is time 
+    % time was padded for the pyramid calculation, so we truncate it back
+    sumReWeight = sumReWeight(:,:,cfg_ACI.t_limits_idx);
+    if cfg_ACI.t_X(1) == cfg_ACI.t(1) && cfg_ACI.t_X(N_t) == cfg_ACI.t(N_t)
+        % then t_X is equal (but longer than) t
+        cfg_ACI = rmfield(cfg_ACI,'t_X');
+    end
+else
+    if isfield(cfg_ACI,'t_X')
+        if length(cfg_ACI.t_X) ~= length(cfg_ACI.t)
+
+            if length(cfg_ACI.t_X) < length(cfg_ACI.t)
+                cfg_ACI.t = cfg_ACI.t(1:length(cfg_ACI.t_X));
+            end
+
+            cfg_ACI = rmfield(cfg_ACI,'t_X');
+        end
+    end
+end
+
+if length(cfg_ACI.f_limits_idx) > size(sumReWeight,2) % Dim 2 is frequency
+    % we need to truncate the frequency .f
+
+    if cfg_ACI.f(1)==cfg_ACI.f_X(1) && cfg_ACI.f(length(cfg_ACI.f_X))==cfg_ACI.f_X(end)
+        cfg_ACI.f = cfg_ACI.f_X;
+        cfg_ACI.f_limits_idx = cfg_ACI.f_limits_idx(1:length(cfg_ACI.f_X));
+
+        cfg_ACI = rmfield(cfg_ACI,'f_X');
+    end
+end
+
+if length(size(sumReWeight)) == 3
+    ACI = squeeze( sumReWeight(idxlambda,:,:) );
+else
+    ACI = squeeze( sumReWeight(:,:) );
+end
+
+% ACI = ACI(:,cfg_ACI.t_limits_idx);

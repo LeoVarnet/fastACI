@@ -34,6 +34,11 @@ switch version
         cfg_pass = cfg_pa;
         data_passation = data_pa;
         
+        if isfield(cfg_pass,'dir_speech')
+            cfg_pass.dir_target = cfg_pass.dir_speech;
+            cfg_pass = Remove_field(cfg_pass,'dir_speech');
+        end
+        
         if isfield(cfg_pass,'dir_noise')
             % Nothing to do...
         else

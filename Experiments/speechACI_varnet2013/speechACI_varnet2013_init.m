@@ -24,15 +24,15 @@ if ~isfield(cfg_inout,'Condition')
 end
 
 %%% 1. Speech sounds:
-dir_speech = cfg_inout.dir_speech;
-if exist(dir_speech,'dir')
+dir_target = cfg_inout.dir_target;
+if exist(dir_target,'dir')
     bGenerate_stimuli = 0;
 else
     % The original speech sounds are zero padded:
     bGenerate_stimuli = 1;
     
-    if strcmp(dir_speech(end),filesep) % if last character is \ or / (it should be the case always)
-        dir_main = fileparts(dir_speech(1:end-1));
+    if strcmp(dir_target(end),filesep) % if last character is \ or / (it should be the case always)
+        dir_main = fileparts(dir_target(1:end-1));
         dir_main = [fileparts(dir_main) filesep];
     end
     
@@ -44,7 +44,7 @@ else
     end
         
     % If you are in this part of the code, 'dir_speech' does not exist
-    mkdir(dir_speech);
+    mkdir(dir_target);
 end
 
 if bGenerate_stimuli
@@ -57,17 +57,17 @@ if bGenerate_stimuli
                 error('Sounds do not have the same sampling frequency as specified in the %s_set.m file',experiment);
             end
         end
-        insig = setdbspl(insig,lvl_target,dBFS);
+        insig = scaletodbspl(insig,lvl_target,dBFS);
         
         if i == 1
             sil = zeros(round(dur_ramp*fs),1);
         end
         insig = [sil; insig; sil];
-        audiowrite([dir_speech files{i}],insig,fs);
+        audiowrite([dir_target files{i}],insig,fs);
     end
 else
-    files = Get_filenames(dir_speech,'*.wav');
-    [insig,fs] = audioread([dir_speech files{1}]); % reading one speech file
+    files = Get_filenames(dir_target,'*.wav');
+    [insig,fs] = audioread([dir_target files{1}]); % reading one speech file
     if fs ~= cfg_inout.fs
         error('Sounds do not have the same sampling frequency as specified in the %s_set.m file',experiment);
     end
@@ -85,7 +85,7 @@ else
             case {'white','pink'}
                 % Nothing to do...just continue
             otherwise
-                error('Creation of SSN not validated yet...')
+                warning('Creation of SSN not validated yet...')
         end
     end
     if strcmp(dir_noise(end),filesep) % if last character is \ or / (it should be the case always)
@@ -99,7 +99,12 @@ end
 N_ramp = round(dur_ramp*fs); % ramp duration in samples
 
 if bGenerate_stimuli
-    % Nothing to do...
+    [cfg_inout,s_current, bGenerate_stimuli] = Check_seeds_and_initialise(cfg_inout);
+end
+
+dir_noise = cfg_inout.dir_noise;
+if bGenerate_stimuli
+    files = Get_filenames(dir_noise,'*.wav');
 else
     files = Get_filenames(dir_noise,'*.wav');
 end

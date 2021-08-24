@@ -109,9 +109,15 @@ if bDo_the_check
             dir_new   = [cfg_inout.dir_data_experiment list_other_subjects{bInput} filesep];
             cfg_inout.dir_target = [dir_new dir_target filesep];
 
-            cfg_inout.seeds_order        = var.cfg_crea.seeds_order; % to be used sequentially
-            cfg_inout.seeds_order_method = var.cfg_crea.seeds_order_method;
-            cfg_inout.stim_order         = var.cfg_crea.stim_order; 
+            if isfield(var.cfg_crea,'seeds_order')
+                cfg_inout.seeds_order    = var.cfg_crea.seeds_order; % to be used sequentially
+            end
+            if isfield(var.cfg_crea,'seeds_order_method')
+                cfg_inout.seeds_order_method = var.cfg_crea.seeds_order_method;
+            end
+            if isfield(var.cfg_crea,'stim_order')
+                cfg_inout.stim_order     = var.cfg_crea.stim_order; 
+            end
         end
         %%% 
         

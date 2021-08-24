@@ -89,11 +89,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    try
+    % try
         cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
-    catch me
-        error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
-    end
+    % catch me
+    %     error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
+    % end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -283,8 +283,8 @@ if cfg_game.is_simulation == 1
         warning('Create such a file using readfile_replace.m');
         
         def_sim.template_every_trial = 0;
-        def_sim.templ_num = 10;
-        def_sim.det_lev = -6; % -6 of the expvar
+        def_sim.templ_num = 10; % 1;
+        def_sim.det_lev = -6; % NaN of the expvar
                 
         switch cfg_game.experiment
             case 'speechACI_Logatome'
@@ -495,6 +495,14 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
             case 'aci_detect' 
                 % Default for 'dau1997' and 'osses2021'
                 [response,sim_work] = aci_detect(cfg_game,data_passation,def_sim,sim_work);
+                if i_current == 1
+                    if isfield(sim_work,'thres_for_bias')
+                        data_passation.thres_for_bias = sim_work.thres_for_bias;
+                    end
+                    if isfield(sim_work,'type_decision')
+                        data_passation.type_decision = sim_work.type_decision;
+                    end
+                end
                 data_passation.decision_var_mue2choose(i_current,:) = sim_work.decision_var_mue2choose(i_current,:);
                 
             case 'king2019_detect'

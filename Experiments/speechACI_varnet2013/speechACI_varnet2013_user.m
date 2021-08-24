@@ -11,7 +11,7 @@ SNR       = data_passation.expvar(i_current);
 n_stim    = data_passation.n_stim(i_current);
 n_signal  = cfg.n_targets_sorted(n_stim);
 
-[signal,fs] = audioread([cfg.dir_speech cfg.filename_target{n_signal}]); % will load one of the four utterances
+[signal,fs] = audioread([cfg.dir_target cfg.filename_target{n_signal}]); % will load one of the four utterances
 
 fname_noise = [cfg.dir_noise cfg.ListStim(n_stim).name];
 noise = audioread(fname_noise);
