@@ -13,8 +13,12 @@ n_signal  = cfg.n_targets_sorted(n_stim);
 
 [signal,fs] = audioread([cfg.dir_target cfg.filename_target{n_signal}]); % will load one of the four utterances
 
+% idx = round(0.25*fs); signal = signal(1:idx); error('Temporal')
+
 fname_noise = [cfg.dir_noise cfg.ListStim(n_stim).name];
 noise = audioread(fname_noise);
+
+% noise = noise(1:idx); % warning('Temporal')
 
 bSpeech_level_variable = 1;
 bNoise_level_variable = ~bSpeech_level_variable;

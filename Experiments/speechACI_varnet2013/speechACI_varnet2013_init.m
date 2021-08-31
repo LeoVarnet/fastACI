@@ -91,9 +91,6 @@ else
     if strcmp(dir_noise(end),filesep) % if last character is \ or / (it should be the case always)
         dir_main = [fileparts(dir_noise(1:end-1)) filesep];
     end
-    
-    % If you are in this part of the code, 'dir_noise' does not exist:
-    mkdir(dir_noise);
 end
 
 N_ramp = round(dur_ramp*fs); % ramp duration in samples
@@ -159,6 +156,11 @@ for i = 1:cfg_inout.N
     ListStim(i).name = fname;
     
     if bGenerate_stimuli
+        if i == 1
+            if ~exist(dir_noise,'folder')
+                mkdir(dir_noise);
+            end
+        end
         audiowrite([dir_noise fname],insig,fs);
     end
 end

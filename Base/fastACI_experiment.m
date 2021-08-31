@@ -129,32 +129,12 @@ switch cfg_game.resume
     case {1,'oui','yes'}
         if isfield(cfg_game,'load_name')
             if isempty(cfg_game.load_name)
-                ListSavegame = dir([dir_results 'savegame*' filter2use '.mat']);
-                if isempty(ListSavegame)
+                exp2filter = ['savegame*' filter2use '.mat'];
+                try
+                    load_name = Get_savenames(dir_results, exp2filter, dir_results_completed);
+                catch
                     error('%s: No savegame to be loaded',upper(mfilename));
                 end
-                index_savegame = 0;
-                bytes = 0;
-                
-                index_all = 1:length(ListSavegame); % index of all the files that were found
-                for j=index_all
-                    if ListSavegame(j).bytes > bytes
-                        index_savegame=j;
-                        bytes = ListSavegame(j).bytes; % looks for the largest MAT file
-                    end
-                end
-                load_name = [dir_results ListSavegame(index_savegame).name];
-                
-                % --- Now we will move the old (completed sessions) to the 
-                %     subject's folder.
-                index_all(index_savegame) = [];
-                if ~isempty(index_all)
-                    for j=1:length(index_all)
-                        movefile([dir_results      ListSavegame(index_all(j)).name], ... % src
-                                 [dir_results_completed ListSavegame(index_all(j)).name]);
-                    end
-                end
-                % ---
             end
             
             Language = cfg_game.Language;
@@ -236,6 +216,9 @@ cfg_game.is_experiment = ~bSimulation;
 % Simulation parameters
 if cfg_game.is_simulation == 1
     
+    cfg_game.warmup = 0; % warm up is disabled
+    cfg_game.sessionsN = 400; warning('Temporal')
+    
     if cfg_game.resume
         % Check wether it already completed the task
         if i_current >= cfg_game.N
@@ -245,66 +228,67 @@ if cfg_game.is_simulation == 1
             data_passation.date_start{1} = Get_date_and_time_str;
         end
     end
-    % modelparameters;
-    % cfg_game.fadein_s           = 0;
-    % cfg_game.N_template         = 0;
-    cfg_game.warmup = 0; % warm up is disabled
-    % cfg_game.stim_dur           = 0.75;
-    def_sim = [];
-    def_sim.modelname = Subject_ID;
-    switch Subject_ID
-        case {'king2019'} % ,'osses2021'}
-            bInput = 1; warning('temporal')% input('Choose 0 to use king2019_template/king2019_detect (default) or 1 to choose model_template/aci_detect: ');
-            if bInput
-                def_sim.template_script = 'model_template';
-                def_sim.decision_script = 'aci_detect';
-            else
-                def_sim.template_script = 'king2019_template'; % this can be later automated
-                def_sim.decision_script = 'king2019_detect'; 
-            end
-        otherwise
-            % Generic 'model_template', so far to be used with XCorr approach
-            def_sim.template_script = 'model_template';
-            def_sim.decision_script = 'aci_detect';
-    end
     
-    file_config = cfg_game.experiment;
-    if isfield(cfg_game,'Cond_extra_1')
-        file_config = [file_config '_' cfg_game.Cond_extra_1];
-    end
-    if isfield(cfg_game,'Cond_extra_2')
-        file_config = [file_config '_' cfg_game.Cond_extra_2];
-    end
-    file_config = sprintf('%s_%s_%.0f_%.0f_%.0f_%.0fh_%.0fm_%.0fs.m',file_config,Subject_ID,cfg_game.date);
-    % cfg_game.model_config = file_config;
-    
-    cfg_game.sessionsN = 400; warning('Temporal')
-    if ~exist([dir_results file_config],'file')
-        warning('Create such a file using readfile_replace.m');
-        
-        def_sim.template_every_trial = 0;
-        def_sim.templ_num = 10; % 1;
-        def_sim.det_lev = -6; % NaN of the expvar
-                
-        switch cfg_game.experiment
-            case 'speechACI_Logatome'
-                switch cfg_game.Condition
-                    case 'bump'
-                        def_sim.det_lev = 0; % -6 of the expvar
-                end
+    % Model parameters;
+    if ~isfield(cfg_game,'model_cfg_script')
+        % First time the model is run, then the configuration file is read 
+        %   and backed-up locally:
+       
+        model_cfg_src = [Subject_ID '_cfg'];
+        if exist(model_cfg_src,'file')
+            exp2eval = sprintf('def_sim = %s;',model_cfg_src);
+            eval(exp2eval);
+            
+            fprintf('Model configuration found on disk. Check whether the configuration is what you expect:\n');
+            def_sim
+            
+            fprintf('Pausing for 10 s. Press ctr+c to cancel the simulations.\n');
+            fprintf('If you want to change the simulation parameters, change manually the script %s and re-run the current script (%s).\n',model_cfg_src,mfilename);
+            pause(10);
+            
+        else
+            error('Validate here...')
+            def_sim = [];
+            def_sim.modelname = Subject_ID;
+
+            %%%
+            def_sim = fastACI_set_simulation_config(Subject_ID,def_sim);
+            %%%
         end
         
+        file_config = cfg_game.experiment;
+        if isfield(cfg_game,'Cond_extra_1')
+            file_config = [file_config '_' cfg_game.Cond_extra_1];
+        end
+        if isfield(cfg_game,'Cond_extra_2')
+            file_config = [file_config '_' cfg_game.Cond_extra_2];
+        end
+        file_config = sprintf('%s_%s_cfg_%.0f_%.0f_%.0f_%.0fh_%.0fm_%.0fs.m',file_config,Subject_ID,cfg_game.date);
+        cfg_game.model_cfg_script      = file_config;
+        cfg_game.model_cfg_script_full = [dir_results file_config];
+        
+        copyfile([fileparts(which(model_cfg_src)) filesep model_cfg_src '.m'],cfg_game.model_cfg_script_full);
     else
+        % The the simulation is resuming, we need to read the configuration file:
         addpath(dir_results);
-        exp2eval = sprintf('def_sim = %s(def_sim);',file_config(1:end-2));
+        exp2eval = sprintf('def_sim = %s;',cfg_game.model_cfg_script(1:end-2));
         eval(exp2eval);
         rmpath(dir_results);
-        % def_sim.template_every_trial = 0;
-        % def_sim.templ_num = 10;
-        % def_sim.det_lev = -6; % -6 of the expvar
-        
     end
-    
+        
+    % def_sim.template_every_trial = 0;
+    % def_sim.templ_num = 10; % 1;
+    % def_sim.det_lev = -6; % NaN of the expvar
+
+    switch cfg_game.experiment
+        case 'speechACI_Logatome'
+            switch cfg_game.Condition
+                case 'bump'
+                    warning('det_lev for ''bump'' noises is fixed at the moment...')
+                    def_sim.det_lev = 0; % -6 of the expvar
+            end
+    end
+
     sim_work = [];
     % sim_work.templ_ref = [];
     % sim_work.templ_tar = [];
@@ -720,6 +704,19 @@ data_passation.date_end{length(data_passation.date_start)} = clock_str;
 savename = il_get_savename(experiment_full, Subject_ID_full, Condition, clock_str);
 save([dir_results savename],'cfg_game', 'data_passation');
 msg_close
+
+if i_current > N
+    % So, the sessions are complete now. 
+    
+    % 1. Then Get_savenames is run once more and only the last save file will 
+    %    be kept in the 'Results' directory:
+    Get_savenames(dir_results, exp2filter, dir_results_completed);
+    
+    % 2. The folder of past sessions will be moved inside the 'Result' folder:
+    movefile(dir_results_completed, [dir_results 'Results_past_sessions' filesep]);
+    
+    % 3.
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function fname = il_get_savename(experiment, Subject_ID, Condition, clock_str)
