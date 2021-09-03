@@ -715,7 +715,6 @@ if i_current > N
     % 2. The folder of past sessions will be moved inside the 'Result' folder:
     movefile(dir_results_completed, [dir_results 'Results_past_sessions' filesep]);
     
-    % 3.
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

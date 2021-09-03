@@ -1,0 +1,13 @@
+function def_sim = $$modelname$$_cfg
+
+def_sim.modelname = '$$modelname$$';
+def_sim.decision_script = '$$decision_script$$';
+def_sim.template_script = '$$template_script$$';
+def_sim.template_every_trial = $$template_every_trial$$;
+def_sim.templ_num = $$templ_num$$;
+def_sim.det_lev = $$det_lev$$;
+def_sim.type_decision = '$$type_decision$$';
+switch def_sim.type_decision
+  case 'optimal_detector'
+    def_sim.thres_for_bias = $$thres_for_bias$$;
+end
