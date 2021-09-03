@@ -43,7 +43,7 @@ Data_matrix = [];
 
 % From argument function:
 definput.import={'fastACI_getACI'}; % arg_fastACI_getACI.m
-[flags,keyvals]  = ltfatarghelper([],definput,varargin);
+[flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
 %% 1. Reading the experimental data (*.mat file):
 [cfg_game, data_passation, ListStim] = Convert_ACI_data_type(savegame_file,keyvals);

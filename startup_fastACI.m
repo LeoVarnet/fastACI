@@ -61,6 +61,7 @@ if bFastACI_exp
     paths.legacy          = [dir_fastACI 'legacy'          filesep];
     paths.modulationACI        = [paths.Experiments 'modulationACI'        filesep];
     paths.modulationACI_seeds  = [paths.Experiments 'modulationACI_seeds'  filesep];
+    paths.Praat           = [dir_fastACI 'Praat'           filesep];
     paths.speechACI_Logatome   = [paths.Experiments 'speechACI_Logatome'   filesep];
     paths.speechACI_varnet2013 = [paths.Experiments 'speechACI_varnet2013' filesep];
     paths.speechACI_varnet2015 = [paths.Experiments 'speechACI_varnet2015' filesep];
@@ -68,6 +69,7 @@ if bFastACI_exp
     paths.Simulations     = [dir_fastACI 'Simulations'     filesep];
     paths.Stats           = [dir_fastACI 'Stats'           filesep];
     paths.Stim_generation = [dir_fastACI 'Stim_generation' filesep];
+    paths.tb_ACI          = [dir_fastACI 'tb_ACI'          filesep];
 end
 paths.Plotting = [dir_fastACI 'Plotting'        filesep];
 paths.Utility  = [dir_fastACI 'Utility' filesep]; % This folder is always added
