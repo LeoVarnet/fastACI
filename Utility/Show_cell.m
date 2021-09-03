@@ -24,7 +24,7 @@ for j = 1:M
             
             if N == 1
                 fprintf('(%.0f): %s\n', j,in{i,j});
-            elseif M == 1 && bShown == 0
+            elseif M == 1 % && bShown == 0
                 fprintf('(%.0f): %s\n', i,in{i,j});
             else
                 fprintf('(%.0f,%.0f): %s\n', i,j,in{i,j});
