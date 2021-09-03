@@ -23,6 +23,6 @@ The following are the general instructions to get the fastACI toolbox for MATLAB
 3. Open and run the script **startup_fastACI.m**. This script will add all the paths under the fastACI toolbox to your local MATLAB path and it will run the script **amt_start.m** to initilise the AMT toolbox. If the AMT toolbox is not found you will be able to indicate your alternative location using a pop-up window.
 
 # References
-A. Osses Vecchi & L. Varnet (2021). **Consonant-in-noise discrimination using an auditory model with different speech-based decision devices**. DAGA conference. Vienna, Austria.
+A. Osses Vecchi & L. Varnet (2021). **Consonant-in-noise discrimination using an auditory model with different speech-based decision devices**. DAGA conference. Vienna, Austria. ([Download paper](https://github.com/aosses-tue/fastACI/blob/main/Publications/Manuscripts/Osses-Varnet-2021-DAGA-000623.pdf))
 
 P. Majdak, C. Hollomey, & R. Baumgartner (2021). **AMT 1.0: The toolbox for reproducible research in auditory modeling**, submitted to Acta Acustica.
