@@ -45,12 +45,13 @@ if ispc
             paths.dir_output_fastACI2021_JASA =  'C:\Users\Varnet Léo\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
             paths.dir_output_fastACI2021_JASA_eps = 'C:\Users\Varnet Léo\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
         case '9.10.0.1684407 (R2021a) Update 3' % Leo's new PC
-            paths.dir_data = 'C:\Users\LSP005\Documents\fastACI\';
-            warning('Path not set up')
+            paths.dir_data = 'C:\Users\LSP005\Documents\fastACI\';            
+            paths.praat = 'C:\Users\LSP005\Desktop\Programmes\praatcon5353_win64\praatcon.exe';
+            warning('Path not set up.\n')
         otherwise
             
             warning('Leo: define and update the following folders...')
-            error('unrecognized PC\n')
+            error('unrecognized PC.\n')
     end
     
 elseif ismac
