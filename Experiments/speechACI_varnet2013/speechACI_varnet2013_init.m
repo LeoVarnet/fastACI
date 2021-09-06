@@ -157,7 +157,7 @@ for i = 1:cfg_inout.N
     
     if bGenerate_stimuli
         if i == 1
-            if ~exist(dir_noise,'folder')
+            if ~isfolder(dir_noise)%exist(dir_noise,'folder')
                 mkdir(dir_noise);
             end
         end
