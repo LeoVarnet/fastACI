@@ -81,11 +81,11 @@ if exist(dir_noise,'dir')
 else
     bGenerate_stimuli = 1;
     if isfield(cfg_inout,'Condition')
-        switch cfg_inout.Condition
-            case {'white','pink'}
+        switch lower(cfg_inout.Condition)
+            case {'white','pink','ssn'}
                 % Nothing to do...just continue
             otherwise
-                warning('Creation of SSN not validated yet...')
+                warning('Creation for condition ''%s'' has not validated yet...',cfg_inout.Condition)
         end
     end
     if strcmp(dir_noise(end),filesep) % if last character is \ or / (it should be the case always)
@@ -109,13 +109,21 @@ end
 ListStim = [];
 for i = 1:cfg_inout.N
     if bGenerate_stimuli
-        %EDIT BY LEO: I replaced variable noise_type (undefined) with cfg_inout.Condition
+        
         switch cfg_inout.Condition %noise_type
             case 'SSN' % apply the SSN
-                % insig = Generate_noise(N_samples,'white');
-                % insig = filter(b_fir,1,insig);
+                % Long-term average spectrum calculated from all utterances
+                %   of the female speaker S41F from the French Logatome corpus:
+                var = load([fastACI_basepath 'Stim_generation' filesep 'LTASS_Logatome-S41F.mat']);
+                if var.fs ~= fs
+                    warning('Wrong sampling frequency between FIR-filter coefficients and the sounds being processed...')
+                    pause(5)
+                end
+                insig = Generate_noise(N_samples,'white');
+                insig = filter(var.B_coeff,1,insig);
+                
             otherwise
-                insig = Generate_noise(N_samples,cfg_inout.Condition);%noise_type);
+                insig = Generate_noise(N_samples,cfg_inout.Condition); 
         end
         
         insig = scaletodbspl(insig,lvl_target,dBFS);
@@ -148,6 +156,7 @@ for i = 1:cfg_inout.N
         end
         % Ensuring 'End'
 
+        fprintf(['Generating noise #' stimnumber '\n']);
         fname = [fname_part1 '_' stimnumber '.wav'];
     else
         fname = files{i};
@@ -157,7 +166,7 @@ for i = 1:cfg_inout.N
     
     if bGenerate_stimuli
         if i == 1
-            if ~exist(dir_noise,'folder')
+            if ~exist(dir_noise,'dir')
                 mkdir(dir_noise);
             end
         end
