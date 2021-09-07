@@ -48,12 +48,14 @@ experiment = 'speechACI_varnet2013';
 dir_exp = [dir_fastACI_results experiment filesep];
  
 if flags.do_fig1a
+    bProceed = publ_osses2021c_DAGA_0_checkdata; % Checking if the experimental data is on disk
     % S01:
-    model = 'SLeo'; folders = {'Results'}; noise_types = {'SSN'};
+    model = 'osses2021c_S01'; folders = {'Results'}; noise_types = {'SSN'};
 end
 if flags.do_fig1b
+    bProceed = publ_osses2021c_DAGA_0_checkdata; % Checking if the experimental data is on disk
     % S02:
-    model = 'SAO-5000-trials'; folders = {'Results'}; noise_types = {'SSN'};
+    model = 'osses2021c_S02'; folders = {'Results'}; noise_types = {'SSN'};
 end
 
 if flags.do_fig2 || flags.do_fig3a
@@ -69,13 +71,21 @@ if flags.do_fig3b
 end
 
 if flags.do_fig4
-    model{1} = 'SLeo';            folders1 = {'Results'}; 
-    model{2} = 'SAO-5000-trials'; folders2 = {'Results'}; 
+    bProceed = publ_osses2021c_DAGA_0_checkdata; % Checking if the experimental data is on disk
+    
+    model{1} = 'osses2021c_S01';  folders1 = {'Results'}; 
+    model{2} = 'osses2021c_S02';  folders2 = {'Results'}; 
     model{3} = 'osses2021';       folders3 = {'Results-run-3-m1p55','Results-run-1', ...
         'Results-run-3-p0p39','Results-run-3-p0p78','Results-run-4'}; 
     
     N_plots = (length(folders1)+length(folders2)+length(folders3));
     thres = nan(15,N_plots);
+end
+
+if flags.do_fig1a || flags.do_fig1b || flags.do_fig4
+    if bProceed == 0
+        error('Please follow the instructions to download the experimental data before you can successfully run this script again...')
+    end
 end
 
 count = 1;
@@ -241,9 +251,9 @@ if flags.do_fig4
         filt = ['savegame*' noise_type '*.mat'];
 
         switch model{k}
-            case 'SLeo'
+            case 'osses2021c_S01'
                 folders = folders1;
-            case 'SAO-5000-trials'
+            case 'osses2021c_S02'
                 folders = folders2;
             case 'osses2021'
                 folders = folders3;

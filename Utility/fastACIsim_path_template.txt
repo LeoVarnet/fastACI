@@ -1,0 +1,7 @@
+function basepath = $$script_name$$
+% function basepath = $$script_name$$
+
+basepath = '$$target_path$$';
+if ~strcmp(basepath(end),filesep)
+   basepath = [basepath filesep];
+end
