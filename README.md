@@ -39,8 +39,20 @@ Alda/Alga and Arda/Arga discrimination using a male speaker
 Aba/Ada discrimination using a female speaker (S41F from the Logatome corpus):
 
     fastACI_experiment('speechACI_Logatome-abda-S41F','S01','white');
+
+# Simulating a listening experiment
+A listening experiment can be simulated using an artificial listener or, in other words, an auditory model. So far, we have validated the use of the models `osses2021` (Osses & Kohlrausch, 2021) and `king2019` (King et al., 2019), both available within AMT 1.0.
+
+To run simulations you only have to use the corresponding model as the subject name. To use `osses2021` in the simulation of the experiment `speechACI_varnet2013` using SSN noises, you need to type in MATLAB:
+
+    fastACI_experiment('speechACI_varnet2013','osses2021','SSN');   % to run it as in osses2021c
+       
+or, to use `king2019`:       
+
+    fastACI_experiment('speechACI_varnet2013','king2019','SSN');   
     
-    
+See also the next session, where all the simulations in **osses2021c** can be reproduced using the `osses2021` moodel with two different decision back ends.
+
 # Demo: Obtaining the figures from osses2021c
 To run the simulations from Osses & Varnet (2021, DAGA) you need to run in the MATLAB command line, and follow the instructions that will appear on the screen:
 
@@ -65,7 +77,9 @@ The following are the general instructions to get the fastACI toolbox for MATLAB
 # References for the fastACI toolbox
 |    |  |
 | :------------- | :---------- | 
+| **king2019**   | A. King, L. Varnet, & C. Lorenzi (2019). **Accounting for masking of frequency modulation by amplitude modulation with the modulation filter-bank concept**. J. Acoust. Soc. Am. 145, p. 2277-2293 (Doi: [10.1121/1.5094344](http://dx.doi.org/10.1121/1.5094344))|
 | **osses2021c** | A. Osses Vecchi & L. Varnet (2021). **Consonant-in-noise discrimination using an auditory model with different speech-based decision devices**. DAGA conference. Vienna, Austria. ([Download paper](https://github.com/aosses-tue/fastACI/blob/main/Publications/Manuscripts/Osses-Varnet-2021-DAGA-000623.pdf))|
+| **osses2021a** | A. Osses Vecchi & A. Kohlrausch (2021). **Perceptual similarity between piano notes: Simulations with a template-based perception model**. J. Acoust. Soc. Am. 149, p. 3534-3552 (Doi: [10.1121/10.0004818](https://asa.scitation.org/doi/abs/10.1121/10.0004818))|
 | **varnet2021** | L. Varnet & C. Lorenzi (2021). **Probing temporal modulation detection in white noise using intrinsic envelope fluctuations: A reverse correlation study**. Submitted to J. Acoust. Soc. Am. |
 | **varnet2015** | L. Varnet, K. Knoblauch, W. Serniclaes, F. Meunier, & M. Hoen (2015). **A psychophysical imaging method evidencing auditory cue extraction during speech perception: A group analysis of auditory classification images**. PLoS one 3, p. 1-23 ([Download paper](https://hal.archives-ouvertes.fr/hal-01132995))|
 | **varnet2013** | L. Varnet, K. Knoblauch, F. Meunier, & M. Hoen (2013). **Using auditory classification images for the identification of fine acoustic cues used in speech perception**. Front. Hum. Neurosci. 7, p. 1-12 ([Download paper](https://hal.archives-ouvertes.fr/hal-00931465))|
