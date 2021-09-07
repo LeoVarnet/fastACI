@@ -429,7 +429,14 @@ par_formants.pitchfloor = 100; % positive pitch floor 100 (for f0)
 par_formants.pitchceiling = 500; % positive pitch ceiling 500 (for f0)
 
 par_formants.I_min = 40; % 60, arbitrary value
-outs_from_Praat = Get_all_metrics_from_Praat(dir_where,par_formants);
+try
+    outs_from_Praat = Get_all_metrics_from_Praat(dir_where,par_formants);
+catch me
+    fprintf('%s: Praat not found on disk, loading pre-stored Praat files\n',upper(mfilename));
+    
+    dir_where_stored = [fastACI_basepath 'Stimuli' filesep 'varnet2013' filesep]; 
+    outs_from_Praat = Get_all_metrics_from_stored_Praat(dir_where_stored,par_formants);
+end
 
 idx = find(outs_from_Praat.t_f0{1} < 0.089 | (outs_from_Praat.t_f0{1} > 0.164 & outs_from_Praat.t_f0{1} < .280) | outs_from_Praat.t_f0{1} > 0.404);
 outs_from_Praat.f0{1}(idx,:) = nan;

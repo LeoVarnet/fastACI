@@ -3,7 +3,6 @@ function outs = Get_all_metrics_from_Praat(dir_where,params)
 %
 % Based on l20210713_AnalyseStims
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 if nargin == 0
     if ~isunix
         dir_where = 'C:\Users\R_user\Logatome\';
