@@ -7,9 +7,9 @@ if nargin == 0
     cfg_inout = [];
 end
  
-dir_main = '/home/alejandro/Documents/Databases/data/fastACI/speechACI_varnet2015/';
-dir_speech = [dir_main cfg_inout.Subject_ID filesep 'speech-samples' filesep];
-dir_noise  = [dir_main cfg_inout.Subject_ID filesep 'NoiseStim'  filesep];
+dir_stim = [fastACI_paths('dir_data')  cfg_inout.experiment filesep]; % dir_stim = '/home/alejandro/Documents/Databases/data/fastACI/speechACI_varnet2015/';
+dir_speech = [dir_stim cfg_inout.Subject_ID filesep 'speech-samples' filesep];
+dir_noise  = [dir_stim cfg_inout.Subject_ID filesep 'NoiseStim'  filesep];
 
 dBFS = 100;
 

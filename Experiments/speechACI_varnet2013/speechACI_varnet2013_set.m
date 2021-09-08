@@ -7,18 +7,20 @@ if nargin == 0
     cfg_inout = [];
 end
  
-if ismac % lab's computer
-    dir_data_experiment = fastACI_paths('dir_data'); % '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
-    warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_data_experiment,dir_data_experiment,filesep);
-    
-elseif isunix % Alejandro's computer
-    dir_data_experiment = [fastACI_paths('dir_data') 'speechACI_varnet2013' filesep];
-    % dir_data_experiment = [fastACI_paths('dir_data') cfg_inout.experiment_full filesep];
-    
-elseif ispc % Leo's computer
-    dir_data_experiment = fastACI_paths('dir_data'); % 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';
-    warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_data_experiment,dir_data_experiment,filesep);
-end
+dir_data_experiment = [fastACI_paths('dir_data')  cfg_inout.experiment filesep];
+% %%% Old in ENS computers:
+% if ismac % lab's computer
+%     dir_data_experiment = fastACI_paths('dir_data'); % '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
+%     warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_data_experiment,dir_data_experiment,filesep);
+%     
+% elseif isunix % Alejandro's computer
+%     dir_data_experiment = [fastACI_paths('dir_data') 'speechACI_varnet2013' filesep];
+%     % dir_data_experiment = [fastACI_paths('dir_data') cfg_inout.experiment_full filesep];
+%     
+% elseif ispc % Leo's computer
+%     dir_data_experiment = fastACI_paths('dir_data'); % 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';
+%     warning('Leo: please copy what you have in %s into %sspeechACI_varnet2013%s (remove this warning once you have already done that)',dir_data_experiment,dir_data_experiment,filesep);
+% end
 
 dir_target = [dir_data_experiment cfg_inout.Subject_ID filesep 'speech-samples' filesep];
 if ~isfield(cfg_inout,'Condition')

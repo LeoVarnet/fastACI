@@ -51,10 +51,7 @@ else
     end
     
     % dir_speech_orig should contain the original speech samples:
-    dir_speech_orig = [dir_main 'speech-samples_orig' filesep];
-    
-    % If you are in this part of the code, 'dir_speech' does not exist
-    mkdir(dir_speech);
+    dir_speech_orig = [fastACI_paths('dir_fastACI') 'Stimuli' filesep 'varnet2015' filesep];
 end
 
 if bGenerate_stimuli
@@ -63,20 +60,22 @@ if bGenerate_stimuli
         [insig,fs] = audioread([dir_speech_orig files{i}]);
 
         if i == 1
-            if fs ~= cfg_inout.fs;
+            if fs ~= cfg_inout.fs
                 error('Sounds do not have the same sampling frequency as specified in the %s_set.m file',experiment);
             end
         end
         lvls_before(i) = rmsdb(insig)+dBFS;
-
-        insig = setdbspl(insig,lvl_target,dBFS);
-        
+        insig = scaletodbspl(insig,lvl_target,dBFS);
         lvls_after(i) = rmsdb(insig)+dBFS;
         
         if i == 1
-            sil = zeros(round(dur_ramp*fs),1);
+            sil = zeros(round(dur_ramp*fs),1);            
+            if ~exist(dir_speech,'dir')
+                mkdir(dir_speech);
+            end
         end
-        audiowrite([dir_speech files{i}],[sil; insig; sil],fs);
+        insig = [sil; insig; sil];
+        audiowrite([dir_speech files{i}],insig,fs);
     end
 else
     files = Get_filenames(dir_speech,'*.wav');
@@ -110,10 +109,7 @@ else
     if bConvert_old_noises
         warning('%s: At this moment only a fixed NoiseStim folder is used... customise this folder in the future',upper(mfilename));
         dir_noise_orig = [dir_main 'NoiseStim_S11_orig'  filesep];
-    end
-    
-    % If you are in this part of the code, 'dir_noise' does not exist:
-    mkdir(dir_noise);
+    end    
 end
 
 N_ramp = round(dur_ramp*fs); % ramp duration in samples
@@ -199,6 +195,11 @@ for i = 1:cfg_inout.N
     ListStim(i).name = fname;
     
     if bGenerate_stimuli
+        if i == 1
+            if ~exist(dir_noise,'dir')
+                mkdir(dir_noise);
+            end
+        end
         audiowrite([dir_noise fname],insig,fs);
     end
 end

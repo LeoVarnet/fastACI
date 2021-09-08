@@ -53,7 +53,7 @@ if bGenerate_stimuli
         [insig,fs] = audioread([dir_speech_orig files{i}]);
 
         if i == 1
-            if fs ~= cfg_inout.fs;
+            if fs ~= cfg_inout.fs
                 error('Sounds do not have the same sampling frequency as specified in the %s_set.m file',experiment);
             end
         end
