@@ -81,7 +81,7 @@ The following are the general instructions to get the fastACI toolbox for MATLAB
 # References for the fastACI toolbox
 |    |  |
 | :------------- | :---------- | 
-| **king2019**   | A. King, L. Varnet, & C. Lorenzi (2019). **Accounting for masking of frequency modulation by amplitude modulation with the modulation filter-bank concept**. J. Acoust. Soc. Am. 145, p. 2277-2293 (Doi: [10.1121/1.5094344](http://dx.doi.org/10.1121/1.5094344))|
+| **king2019**   | A. King, L. Varnet, & C. Lorenzi (2019). **Accounting for masking of frequency modulation by amplitude modulation with the modulation filter-bank concept**. J. Acoust. Soc. Am. 145, p. 2277-2293 (Doi: [10.1121/1.5094344](http://dx.doi.org/10.1121/1.5094344), [Download paper](https://hal.archives-ouvertes.fr/hal-02993025))|
 | **osses2021c** | A. Osses Vecchi & L. Varnet (2021). **Consonant-in-noise discrimination using an auditory model with different speech-based decision devices**. DAGA conference. Vienna, Austria. ([Download paper](https://github.com/aosses-tue/fastACI/blob/main/Publications/Manuscripts/Osses-Varnet-2021-DAGA-000623.pdf))|
 | **osses2021c_data** | A. Osses Vecchi & L. Varnet (2021). **Noise data for the study of consonant-in-noise discrimination using an auditory model with different speech-based decision devices**. Experimental data for **osses2021c** (Doi: [10.5281/zenodo.5483835](https://doi.org/10.5281/zenodo.5483835)) |
 | **osses2021a** | A. Osses Vecchi & A. Kohlrausch (2021). **Perceptual similarity between piano notes: Simulations with a template-based perception model**. J. Acoust. Soc. Am. 149, p. 3534-3552 (Doi: [10.1121/10.0004818](https://asa.scitation.org/doi/abs/10.1121/10.0004818))|
