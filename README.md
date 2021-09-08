@@ -92,5 +92,5 @@ The following are the general instructions to get the fastACI toolbox for MATLAB
 # Other references
 P. Majdak, C. Hollomey, & R. Baumgartner (2021). **AMT 1.0: The toolbox for reproducible research in auditory modeling**, submitted to Acta Acustica.
 
-# Acknowledgement
+# Acknowledgements
 The development of the fast-ACI toolbox was funded by the ANR grant ["fastACI"](https://anr.fr/Project-ANR-20-CE28-0004) attributed to Léo Varnet (ANR-20-CE28-0004).
