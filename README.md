@@ -10,14 +10,14 @@ With this toolbox you can run listening experiments as used in the studies by Va
 | **osses2021c** | `speechACI_varnet2013`   | speech shaped noise (SSN) |
 | **varnet2021** | `modulationACI`          | white  |
 
-Make sure that you follow the steps indicated in the section **Installation** the first time you use the toolbox. 
+Make sure that you follow the steps indicated in the section **Installation** (below) the first time you use the toolbox. 
 
 # How to cite this repository
 This repository can be cited as follows: The fastACI toolbox was used (Osses & Varnet, 2021).
 
-**If a specific commit is cited (in this example: commit b18d919):**
+**If a specific commit is cited (in this example: commit cc9d9cf):**
 
-A. Osses Vecchi & L. Varnet (2021). "fastACI toolbox: Exploring phoneme representations and their applicability using Auditory Classification Images," Github commit b18d919.
+A. Osses Vecchi & L. Varnet (2021). "fastACI toolbox: the MATLAB toolbox for investigating auditory perception using reverse correlation," Github commit cc9d9cf.
 
 # Running a listening experiment
 Next we present the command line required to run each of the ACI experiments that are available in our toolbox. These examples assume that the listener will be named `S01` (standing for Subject 01), however any character-based name can be used instead.
@@ -67,17 +67,17 @@ To obtain figures 1 to 4 (all the paper figures) you need to run, either of the 
     publ_osses2021c_DAGA_2_figs('fig2');
     publ_osses2021c_DAGA_2_figs('fig3a');
     publ_osses2021c_DAGA_2_figs('fig3b');
-    publ_osses2021c_DAGA_2_figs('fig4');
+    publ_osses2021c_DAGA_2_figs('fig4'); % REQUIRED: manual download of experimental data (see below)
     
 To obtain Fig 1A or Fig 1B, you require to manually download (in advance) the experimental dataset, which is available on Zenodo (see ref. **osses2021c_data**).
 
     publ_osses2021c_DAGA_0_checkdata;
 
 # Installation
-The following are the general instructions to get the fastACI toolbox for MATLAB operative in your computer. The toolbox has been tested on Windows and Linux, using MATLAB R2020b. The toolbox should be compatible with earlier MATLAB versions.
+The following are the general instructions to get the fastACI toolbox for MATLAB operative in your computer. The toolbox has been tested on Windows and Linux, using MATLAB R2017b. The toolbox should be compatible with earlier MATLAB versions.
 
 1. Download or clone the fastACI project to your local computer (one way: press the button 'Code'->Choose 'Download ZIP' and unzip somewhere).
-2. This toolbox requires the Auditory Modelling Toolbox v.1.0 (AMT 1.0) that can be downloaded from [here](http://amtoolbox.org/download.php). The preferred location to store AMT 1.0 is under the MATLAB userpath (type userpath in MATLAB command's line).
+2. This toolbox requires the Auditory Modelling Toolbox v.1.0 (AMT 1.0) that can be downloaded from [here](http://amtoolbox.org/download.php). After the download you are not expected to do anything else, as the AMT toolbox will automatically be initialised in our next step:
 3. Open and run the script **startup_fastACI.m**. This script will add all the paths under the fastACI toolbox to your local MATLAB path and it will run the script **amt_start.m** to initilise the AMT toolbox. If the AMT toolbox is not found you will be able to indicate your alternative location using a pop-up window.
 
 # References for the fastACI toolbox
