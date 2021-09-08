@@ -10,6 +10,8 @@ With this toolbox you can run listening experiments as used in the studies by Va
 | **osses2021c** | `speechACI_varnet2013`   | speech shaped noise (SSN) |
 | **varnet2021** | `modulationACI`          | white  |
 
+Make sure that you follow the steps indicated in the section **Installation** the first time you use the toolbox. 
+
 # How to cite this repository
 This repository can be cited as follows: The fastACI toolbox was used (Osses & Varnet, 2021).
 
@@ -93,4 +95,4 @@ The following are the general instructions to get the fastACI toolbox for MATLAB
 P. Majdak, C. Hollomey, & R. Baumgartner (2021). **AMT 1.0: The toolbox for reproducible research in auditory modeling**, submitted to Acta Acustica.
 
 # Acknowledgements
-The development of the fast-ACI toolbox was funded by the ANR grant ["fastACI"](https://anr.fr/Project-ANR-20-CE28-0004) attributed to Léo Varnet (ANR-20-CE28-0004).
+The development of the fastACI toolbox was funded by the ANR grant ["fastACI"](https://anr.fr/Project-ANR-20-CE28-0004) attributed to Léo Varnet (ANR-20-CE28-0004) and was further supported by the ["FrontCog"](https://anr.fr/ProjetIA-17-EURE-0017) grant (ANR-17-EURE-0017).

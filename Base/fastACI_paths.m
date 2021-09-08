@@ -51,7 +51,7 @@ if ispc
         otherwise
             
             warning('Leo: define and update the following folders...')
-            error('unrecognized PC.\n')
+            error('unrecognised PC.\n')
     end
     
 elseif ismac
@@ -65,10 +65,11 @@ elseif ismac
 elseif isunix
     % Directories for Alejandro:
     paths.praat       = '/usr/bin/praat';
-    paths.dir_data    = '/home/alejandro/Documents/Databases/data/fastACI/';
+    paths.dir_amtoolbox = fastACI_dir_amtoolbox;
+    paths.dir_data    = fastACI_dir_data; % '/home/alejandro/Documents/Databases/data/fastACI/';
     paths.dir_output  = [userpath filesep 'outputs' filesep]; % '/home/alejandro/Documents/MATLAB/outputs/'
     
-    paths.dir_output_fastACI2021_JASA = '/home/alejandro/Documents/Databases/data/Osses-Varnet-2021-JASA/';
+    paths.dir_output_fastACI2021_JASA     = '/home/alejandro/Documents/Databases/data/Osses-Varnet-2021-JASA/';
     paths.dir_output_fastACI2021_JASA_eps = '/home/alejandro/Documents/Documenten-ENS/01-Text/05-Doc/pr2021-05-20-ideas-4-paper/Figures-new/';
 end
 

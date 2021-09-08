@@ -5,4 +5,5 @@
 *.zip
 Interim_results/*.mat
 *.DS_Store
-fastACI_dirdata.m
+fastACI_dir_data.m
+fastACI_dir_amtoolbox.m

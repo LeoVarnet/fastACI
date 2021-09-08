@@ -1,14 +1,14 @@
-function fastACI_set_dirdata
-% function fastACI_set_dirdata
+function fastACI_set_amtoolbox
+% function fastACI_set_amtoolbox
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-target_path = uigetdir(fileparts(which(mfilename)),'Please indicate the folder where you plan to store all your fastACI data');
-target_path = [target_path filesep 'fastACI' filesep];
+target_path = uigetdir(fileparts(which(mfilename)),'Please indicate the folder where AMT 1.0 is located');
+target_path = [target_path filesep];
 
 p = [];
-p.script_name = 'fastACI_dir_data';
+p.script_name = 'fastACI_dir_amtoolbox';
 p.target_path = target_path;
 
 text_to_write = readfile_replace('fastACIsim_path_template.txt',p);

@@ -4,7 +4,7 @@ function bAre_stored_locally = publ_osses2021c_DAGA_0_checkdata
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-dir_where = fastACI_dirdata;
+dir_where = fastACI_dir_data;
 experiment = 'speechACI_varnet2013';
 dirs2check = {[experiment filesep 'osses2021c_S01' filesep], ...
               [experiment filesep 'osses2021c_S02' filesep]};
