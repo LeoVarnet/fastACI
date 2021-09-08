@@ -31,7 +31,7 @@ Next we present the command line required to run each of the ACI experiments tha
     fastACI_experiment('speechACI_varnet2013','S01','SSN');   % to run it as in osses2021c
     
 ### speechACI_varnet2015: Experiment as in varnet2015    
-Alda/Alga and Arda/Arga discrimination using a male speaker
+Alda/Alga/Arda/Arga discrimination using a male speaker
     
     fastACI_experiment('speechACI_varnet2015','S01','white');
     
@@ -51,7 +51,7 @@ or, to use `king2019`:
 
     fastACI_experiment('speechACI_varnet2013','king2019','SSN');   
     
-See also the next session, where all the simulations in **osses2021c** can be reproduced using the `osses2021` moodel with two different decision back ends.
+See also the next session, where all the simulations in **osses2021c** can be reproduced using the `osses2021` model with two different decision back ends.
 
 # Demo: Obtaining the figures from osses2021c
 To run the simulations from Osses & Varnet (2021, DAGA) you need to run in the MATLAB command line, and follow the instructions that will appear on the screen:
