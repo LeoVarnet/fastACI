@@ -17,7 +17,7 @@ for i = 1:length(dirs2check)
     
     dir2check = [dir_where dirs2check{i} filesep];
     if ~exist(dir2check,'dir')
-        fprintf('%s: directory %s successfully not found on disk\n',upper(mfilename),dir2check);
+        fprintf('%s: directory %s not found on disk\n',upper(mfilename),dir2check);
         fprintf('\t Next steps to perform: \n');
         fprintf('\t 1. Go to https://doi.org/10.5281/zenodo.5483835 (reference osses2021c_data) and download the two zip files\n');
         fprintf('\t 2. Uncompress the zip files and locate them into %s\n',dir_where);

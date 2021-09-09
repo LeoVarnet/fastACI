@@ -10,6 +10,9 @@ target_path = [target_path filesep];
 p = [];
 p.script_name = 'fastACI_dir_amtoolbox';
 p.target_path = target_path;
+if iswindows
+    p.target_path = Convert_to_double_filesep(p.target_path);
+end
 
 text_to_write = readfile_replace('fastACIsim_path_template.txt',p);
 
