@@ -5,9 +5,9 @@ With this toolbox you can run listening experiments as used in the studies by Va
 
 | Citation key   | fastACI experiment name     | Type of background noise     | Target sounds |
 | :------------- | :----------: | :-----------: | :-----------: |
-| **varnet2013** | `speechACI_varnet2013`   | white  | /aba/-/ada/ |
-| **varnet2015** | `speechACI_varnet2015`   | white  | /alda/-/arda/-/arda/-/arga/ |
-| **osses2021c** | `speechACI_varnet2013`   | speech shaped noise (SSN) |  /aba/-/ada/ |
+| **varnet2013** | `speechACI_varnet2013`   | white  | /aba/-/ada/, female speaker |
+| **varnet2015** | `speechACI_varnet2015`   | white  | /alda/-/alga/-/arda/-/arga/, male speaker |
+| **osses2021c** | `speechACI_varnet2013`   | speech shaped noise (SSN) |  /aba/-/ada/, female speaker |
 | **varnet2021** | `modulationACI`          | white  | modulated or unmodulated tones |
 
 Make sure that you follow the steps indicated in the section **Installation** (below) the first time you use the toolbox. 
