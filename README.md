@@ -3,12 +3,12 @@ This is the repository of the fast Auditory Classification Images (fastACI) proj
 
 With this toolbox you can run listening experiments as used in the studies by Varnet et al. (2013, 2015), Varnet & Lorenzi (2021), and Osses & Varnet (2021). You can also reproduce some of the figures contained in the mentioned references.
 
-| Citation key   | fastACI experiment name     | Type of background noise     |
-| :------------- | :----------: | :-----------: |
-| **varnet2013** | `speechACI_varnet2013`   | white  |
-| **varnet2015** | `speechACI_varnet2015`   | white  |
-| **osses2021c** | `speechACI_varnet2013`   | speech shaped noise (SSN) |
-| **varnet2021** | `modulationACI`          | white  |
+| Citation key   | fastACI experiment name     | Type of background noise     | Target sounds |
+| :------------- | :----------: | :-----------: | :-----------: |
+| **varnet2013** | `speechACI_varnet2013`   | white  | /aba/-/ada/ |
+| **varnet2015** | `speechACI_varnet2015`   | white  | /alda/-/arda/-/arda/-/arga/ |
+| **osses2021c** | `speechACI_varnet2013`   | speech shaped noise (SSN) |  /aba/-/ada/ |
+| **varnet2021** | `modulationACI`          | white  | modulated or unmodulated tones |
 
 Make sure that you follow the steps indicated in the section **Installation** (below) the first time you use the toolbox. 
 
