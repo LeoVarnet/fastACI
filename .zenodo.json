@@ -1,0 +1,16 @@
+{
+    "title": "fastACI toolbox: the MATLAB toolbox for investigating auditory perception using reverse correlation", 
+    "creators": [
+        {
+            "orcid": "0000-0001-8028-4936", 
+            "affiliation": "Laboratoire des systèmes perceptifs, Département d'études cognitives, Ecole Normale Supérieure, PSL University, CNRS, Paris, France", 
+            "name": "Alejandro Osses Vecchi"
+        }, 
+        {
+            "orcid": "0000-0002-9702-2649", 
+            "affiliation": "Laboratoire des systèmes perceptifs, Département d'études cognitives, Ecole Normale Supérieure, PSL University, CNRS, Paris, France", 
+            "name": "Léo Varnet"
+        }
+    ],
+    "keywords": ["ACI", "perception","Psychophysics","Audition","Revcorr"]
+}
