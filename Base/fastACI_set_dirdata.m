@@ -11,7 +11,7 @@ p = [];
 p.script_name = 'fastACI_dir_data';
 p.target_path = target_path;
 
-if iswindows
+if ispc
     p.target_path = Convert_to_double_filesep(p.target_path);
 end
 
