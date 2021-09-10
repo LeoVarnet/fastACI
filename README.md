@@ -5,9 +5,9 @@ With this toolbox you can run listening experiments as used in the studies by Va
 
 | Citation key   | fastACI experiment name     | Type of background noise     | Target sounds |
 | :------------- | :----------: | :-----------: | :-----------: |
-| **varnet2013** | `speechACI_varnet2013`   | white  | /aba/-/ada/ |
-| **varnet2015** | `speechACI_varnet2015`   | white  | /alda/-/arda/-/arda/-/arga/ |
-| **osses2021c** | `speechACI_varnet2013`   | speech shaped noise (SSN) |  /aba/-/ada/ |
+| **varnet2013** | `speechACI_varnet2013`   | white  | /aba/-/ada/, female speaker |
+| **varnet2015** | `speechACI_varnet2015`   | white  | /alda/-/alga/-/arda/-/arga/, male speaker |
+| **osses2021c** | `speechACI_varnet2013`   | speech shaped noise (SSN) |  /aba/-/ada/, female speaker |
 | **varnet2021** | `modulationACI`          | white  | modulated or unmodulated tones |
 
 Make sure that you follow the steps indicated in the section **Installation** (below) the first time you use the toolbox. 
@@ -74,7 +74,7 @@ To obtain Fig 1A or Fig 1B, you require to manually download (in advance) the ex
     publ_osses2021c_DAGA_0_checkdata;
 
 # Installation
-The following are the general instructions to get the fastACI toolbox for MATLAB operative in your computer. The toolbox has been tested on Windows and Linux, using MATLAB R2017b. The toolbox should be compatible with earlier MATLAB versions.
+The following are the general instructions to get the fastACI toolbox for MATLAB operative in your computer. The toolbox has been tested on Windows and Linux, using MATLAB (versions R2012b-R2020b).
 
 1. Download or clone the fastACI project to your local computer (one way: press the button 'Code'->Choose 'Download ZIP' and unzip somewhere).
 2. This toolbox requires the Auditory Modelling Toolbox v.1.0 (AMT 1.0) that can be downloaded from [here](http://amtoolbox.org/download.php). After the download you are not expected to do anything else, as the AMT toolbox will automatically be initialised in our next step:
