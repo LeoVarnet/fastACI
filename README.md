@@ -15,6 +15,10 @@ Make sure that you follow the steps indicated in the section **Installation** (b
 # How to cite this repository
 This repository can be cited as follows: The fastACI toolbox was used (Osses & Varnet, 2021).
 
+**If a model version is cited (in this example: release fastACI v1.0):**
+
+A. Osses Vecchi & L. Varnet (2021). "fastACI toolbox: the MATLAB toolbox for investigating auditory perception using reverse correlation (v1.0)," Zenodo. (Doi: [10.5281/zenodo.5500139](https://doi.org/10.5281/zenodo.5500139))
+
 **If a specific commit is cited (in this example: commit cc9d9cf):**
 
 A. Osses Vecchi & L. Varnet (2021). "fastACI toolbox: the MATLAB toolbox for investigating auditory perception using reverse correlation," Github commit cc9d9cf.
