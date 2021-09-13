@@ -1,7 +1,7 @@
 # fastACI toolbox
 This is the repository of the fast Auditory Classification Images (fastACI) project. The toolbox is controlled using the command line of MATLAB. It does not have (yet) a graphical interface.
 
-With this toolbox you can run listening experiments as used in the studies by Varnet et al. (2013, 2015), Varnet & Lorenzi (2021), and Osses & Varnet (2021). You can also reproduce some of the figures contained in the mentioned references.
+With this toolbox you can run listening experiments as used in the studies **varnet2013**, **varnet2015**, **varnet2021**, and **osses2021c** (see the full citations in the section "_References_"). You can also reproduce some of the figures contained in the mentioned references.
 
 | Citation key   | fastACI experiment name     | Type of background noise     | Target sounds |
 | :------------- | :----------: | :-----------: | :-----------: |
@@ -17,11 +17,13 @@ This repository can be cited as follows: The fastACI toolbox was used (Osses & V
 
 **If a model version is cited (in this example: release fastACI v1.0):**
 
-A. Osses Vecchi & L. Varnet (2021). "fastACI toolbox: the MATLAB toolbox for investigating auditory perception using reverse correlation (v1.0)," Zenodo. (Doi: [10.5281/zenodo.5500139](https://doi.org/10.5281/zenodo.5500139))
+A. Osses Vecchi & L. Varnet (2021). "fastACI toolbox: the MATLAB toolbox for investigating auditory perception using reverse correlation (v1.0)" [![DOI](https://zenodo.org/badge/335310799.svg)](https://zenodo.org/badge/latestdoi/335310799)
 
 **If a specific commit is cited (in this example: commit cc9d9cf):**
 
 A. Osses Vecchi & L. Varnet (2021). "fastACI toolbox: the MATLAB toolbox for investigating auditory perception using reverse correlation," Github commit cc9d9cf.
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a>.
 
 # Running a listening experiment
 Next we present the command line required to run each of the ACI experiments that are available in our toolbox. These examples assume that the listener will be named `S01` (standing for Subject 01), however any character-based name can be used instead.
@@ -100,3 +102,5 @@ P. Majdak, C. Hollomey, & R. Baumgartner (2021). **AMT 1.0: The toolbox for repr
 
 # Acknowledgements
 The development of the fastACI toolbox was funded by the ANR grant ["fastACI"](https://anr.fr/Project-ANR-20-CE28-0004) attributed to Léo Varnet (ANR-20-CE28-0004) and was further supported by the ["FrontCog"](https://anr.fr/ProjetIA-17-EURE-0017) grant (ANR-17-EURE-0017).
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a>.
