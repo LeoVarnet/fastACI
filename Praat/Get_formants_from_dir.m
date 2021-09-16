@@ -51,7 +51,7 @@ if bRun_Praat
         end
     end
     local_praat     = dir_praat;
-    local_praat_sc  = [fastACIsim_basepath 'MATLAB' filesep 'Praat' filesep]; % Get_TUe_paths('praat_scripts');
+    local_praat_sc  = [fastACI_basepath 'Praat' filesep]; % Get_TUe_paths('praat_scripts');
     script_name     = 'Get_formants_from_dir.praat';
     script          = [local_praat_sc script_name];
 
