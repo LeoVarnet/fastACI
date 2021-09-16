@@ -56,6 +56,9 @@ switch lower(cfg_inout.Condition) % lower case
     case 'bump'
         dir_name_noise = 'NoiseStim-bump';
         noise_type = 'bump';
+    case 'bumpv1p1'
+        dir_name_noise = 'NoiseStim-bumpv1p1';
+        noise_type = 'bumpv1p1';
     otherwise
         error('%s: Condition not recognised',upper(mfilename));
 end
