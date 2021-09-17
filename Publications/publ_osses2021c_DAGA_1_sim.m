@@ -63,6 +63,8 @@ function p = il_get_model_config_DAGA(run_str,modelname)
 
 p = [];
 p.modelname = modelname;
+p.bStore_template = 0; % New option added on 17/09/2021, not relevant for
+                       % the simulations here
 switch run_str
     case 'run-1'
         p.decision_script = 'aci_detect';

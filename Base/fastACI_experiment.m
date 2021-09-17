@@ -290,8 +290,29 @@ if cfg_game.is_simulation == 1
     end
 
     sim_work = [];
-    % sim_work.templ_ref = [];
-    % sim_work.templ_tar = [];
+    sim_work.templ_ref = [];
+    sim_work.templ_tar = [];
+    
+    if def_sim.bStore_template == 1
+        if exist('fastACI_file_template.m','file')
+            file_template = fastACI_file_template;
+
+            templ_ref = [];
+            templ_tar = [];
+            if exist(file_template,'file')
+                load(file_template,'templ_ref');
+                load(file_template,'templ_tar');
+            
+                fprintf('Stored template found at: %s\n',file_template);
+                def_sim.bStore_template = 0;
+            end
+            
+            sim_work.templ_ref = templ_ref;
+            sim_work.templ_tar = templ_tar;
+        end
+    end
+    
+    sim_work.bStore_template = def_sim.bStore_template;
     cfg_game.def_sim = def_sim;
     if ~isfield(cfg_game,'sessionsN')
         cfg_game.sessionsN = cfg_game.N;

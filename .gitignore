@@ -7,3 +7,5 @@ Interim_results/*.mat
 *.DS_Store
 fastACI_dir_data.m
 fastACI_dir_amtoolbox.m
+fastACI_file_template.m
+osses2021_cfg.m

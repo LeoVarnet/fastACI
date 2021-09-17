@@ -25,21 +25,22 @@ function [response,sim_work] = aci_detect(cfg_game,data_passation,cfg_sim,sim_wo
 
 % global def
 % global work
-def = [];
+% def = [];
+
+response = NaN; % initialisation
+
 if nargin < 4
     sim_work = [];
 end
 sim_work = Ensure_field(sim_work,'templ_tar',[]);
 sim_work = Ensure_field(sim_work,'templ_ref',[]);
 
+sim_work = Ensure_field(sim_work,'bOnly_get_template',0);
+
 % global set
  
-def.experiment = cfg_game.experiment;
+% def.experiment = cfg_game.experiment;
 
-% if def.debug == 1
-%   disp([work.vpname '_detect']);
-% end
-% 
 % % This code only handles running references using the optimal detector
 % 
 % def = Ensure_field(def,'templateeverytrial',0);
@@ -82,22 +83,9 @@ else
     % end
 end
 
-% switch template_script
-%     case 'casp_template_v1'
-%         
-%         template_idx = round(10*mod(def.version_nr,1)); 
-%         version_nr = def.version_nr;
-%         
-%         % version_nr = 1; template_idx = 3; % 1
-%         % version_nr = 2; 
-%             % ver = 1   -> CCV P1-T1 (template_idx=1); CCV P1-T2 (template_idx=3)
-%             % ver = 1.1 -> Same as 1 but subtracts the noise
-%             % ver = 2   -> CCV P1-T1 and P1-T2 (ADD ALIGNMENT)
-% end
-                 
 if (isempty(sim_work.templ_tar) == 1 || cfg_sim.template_every_trial == 1 )
 
-    def.calculate_template = 1;
+    % def.calculate_template = 1;
     % generate template if not existing
     switch template_script
         case 'model_template'
@@ -106,7 +94,13 @@ if (isempty(sim_work.templ_tar) == 1 || cfg_sim.template_every_trial == 1 )
     sim_work.templ_tar = templ_tar;
     sim_work.templ_ref = templ_ref;
     
-    def.calculate_template = 0;
+    % def.calculate_template = 0;
+    if sim_work.bStore_template
+        fname = sprintf('%stemplate-%s-%s-trial-%.0f',cfg_game.dir_results,cfg_game.Subject_ID,cfg_game.experiment_full,data_passation.i_current);
+        save(fname,'templ_tar','templ_ref');
+        
+        fastACI_set_template([fname '.mat']);
+    end
     
 end
 

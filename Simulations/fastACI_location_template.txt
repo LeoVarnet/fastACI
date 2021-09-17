@@ -1,0 +1,4 @@
+function basepath = fastACI_file_template
+% function basepath = fastACI_file_template
+
+basepath = '$$target_path$$';

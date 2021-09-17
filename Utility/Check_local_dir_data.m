@@ -18,6 +18,7 @@ try
         mkdir(dir_results_completed);
     end
 catch
+    warning('It seems that you don''t have the expected fastACI folder structure...')
     % Previous location, in the same folder as the fastACI toolbox:
     dir_main = fileparts(which(mfilename)); % path will be the folder where this file is located...
     dir_main = [dir_main filesep]; % adds separator / if unix or \ if windows

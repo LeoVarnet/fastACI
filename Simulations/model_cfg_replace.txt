@@ -11,3 +11,4 @@ switch def_sim.type_decision
   case 'optimal_detector'
     def_sim.thres_for_bias = $$thres_for_bias$$;
 end
+def_sim.bStore_template = $$bStore_template$$;
