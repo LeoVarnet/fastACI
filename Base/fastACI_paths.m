@@ -33,19 +33,19 @@ if ispc
         case '9.7.0.1261785 (R2019b) Update 3' % Leo's old office laptop
             paths.praat = 'C:\Praat\praatcon.exe';%'C:\Program files\Praat\praatcon.exe';
             
-            paths.dir_data = 'C:\Users\LeoVarnet\ownCloud\Data\Projet fastACI\';
+            paths.dir_data    = fastACI_dir_data; % paths.dir_data = 'C:\Users\LeoVarnet\ownCloud\Data\Projet fastACI\';
             paths.dir_output = [];
             paths.dir_output_fastACI2021_JASA = 'C:\Users\LeoVarnet\ownCloud\Professionnel\Publications et communications\2020-x - ANR fastACI\';
             paths.dir_output_fastACI2021_JASA_eps = 'C:\Users\LeoVarnet\ownCloud\Professionnel\Publications et communications\2020-x - ANR fastACI\';
         case '9.3.0.713579 (R2017b)' % Leo's home laptop
             paths.praat = 'C:\Users\Varnet Léo\Desktop\Programmes\praat.exe';%'C:\Program files\Praat\praatcon.exe';
             
-            paths.dir_data = 'C:\Users\Varnet Léo\Dropbox\Data\Projet fastACI\';
+            paths.dir_data    = fastACI_dir_data; % paths.dir_data = 'C:\Users\Varnet Léo\Dropbox\Data\Projet fastACI\';
             paths.dir_output = [];
             paths.dir_output_fastACI2021_JASA =  'C:\Users\Varnet Léo\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
             paths.dir_output_fastACI2021_JASA_eps = 'C:\Users\Varnet Léo\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
         case '9.10.0.1684407 (R2021a) Update 3' % Leo's new PC
-            paths.dir_data = 'C:\Users\LSP005\Documents\fastACI\';            
+            paths.dir_data    = fastACI_dir_data; %       paths.dir_data = 'C:\Users\LSP005\Documents\fastACI\';   %
             paths.praat = 'C:\Users\LSP005\Desktop\Programmes\praatcon5353_win64\praatcon.exe';
             warning('Path not set up.\n')
         otherwise
@@ -56,7 +56,7 @@ if ispc
     
 elseif ismac
     % Directories in lab's computer:
-    paths.dir_data = '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
+    paths.dir_data    = fastACI_dir_data; % paths.dir_data = '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
     paths.dir_output = '/Users/leovarnet/ownCloud/Professionnel/Projet fastACI/outputs/';
     warning('Leo: define and update the following folders...')
     paths.dir_output_fastACI2021_JASA = '';

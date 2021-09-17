@@ -7,17 +7,17 @@ if nargin == 0
     cfg_inout = [];
 end
 
-if ismac % lab's computer
-    dir_data_experiment = fastACI_paths('dir_data'); % '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
-    warning('Leo: please copy what you have in %s into %s%s%s (remove this warning once you have already done that)',dir_data_experiment,cfg_inout.experiment_full,filesep);
-        
-elseif isunix % Alejandro's computer
+% if ismac % lab's computer
+%     dir_data_experiment = fastACI_paths('dir_data'); % '/Users/leovarnet/ownCloud/Data/Projet fastACI/';
+%     warning('Leo: please copy what you have in %s into %s%s%s (remove this warning once you have already done that)',dir_data_experiment,cfg_inout.experiment_full,filesep);
+%         
+% elseif isunix % Alejandro's computer
     dir_data_experiment = [fastACI_paths('dir_data') cfg_inout.experiment_full filesep];
-    
-elseif ispc % Leo's computer
-    dir_data_experiment = fastACI_paths('dir_data'); % 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';
-    warning('Leo: please copy what you have in %s into %s%s%s (remove this warning once you have already done that)',dir_data_experiment,cfg_inout.experiment_full,filesep);
-end
+%     
+% elseif ispc % Leo's computer
+%     dir_data_experiment = fastACI_paths('dir_data'); % 'C:\Users\Léo\ownCloud\Data\Projet fastACI/';
+%     warning('Leo: please copy what you have in %s into %s%s%s (remove this warning once you have already done that)',dir_data_experiment,cfg_inout.experiment_full,filesep);
+% end
 
 % dir_logatome_src = '/media/alejandro/My Passport/Databases/data-Speech/french/Logatome/'; % Logatome-average-power-speaker-S46M_FR.mat
 dir_target = [dir_data_experiment cfg_inout.Subject_ID filesep 'speech-samples' filesep];
