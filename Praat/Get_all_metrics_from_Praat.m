@@ -18,7 +18,7 @@ params = Ensure_field(params,'maxformant',6000); % positive maxformant 5500
 params = Ensure_field(params,'windowlength',0.01); % positive windowlength 0.025
 params = Ensure_field(params,'dynamicrange',20); % positive dynamic range 20
 params = Ensure_field(params,'minpitch',200); % positive minimum pitch 50 (for intensity)
-params = Ensure_field(params,'pitchfloor',100); % positive pitch floor 100 (for f0)
+params = Ensure_field(params,'pitchfloor',50); % positive pitch floor 100 (for f0)
 params = Ensure_field(params,'pitchceiling',500); % positive pitch ceiling 500 (for f0)
 
 params = Ensure_field(params,'I_min',0); % if not specified the minimum intensity is set to 0 dB
