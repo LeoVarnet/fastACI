@@ -55,7 +55,9 @@ if isempty(keyvals.dir_out)
     % 
     % curr_dir = [pwd filesep]; % current directory
     [path,name,ext]=fileparts(savegame_file);
-    path = [path filesep];
+    if ~isempty(path)
+        path = [path filesep];
+    end
     dir_out = path;
 else
     dir_out = keyvals.dir_out;
