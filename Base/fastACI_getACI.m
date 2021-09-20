@@ -51,13 +51,9 @@ N = cfg_game.N;
 
 if isempty(keyvals.dir_out)
     warning('No output directory (opts_ACI.dir_out) has been specified, the same folder where the MAT file is will be used...');
-    % dir_subject = [dir_where Subject_ID filesep];
-    % 
     % curr_dir = [pwd filesep]; % current directory
-    [path,name,ext]=fileparts(savegame_file);
-    if ~isempty(path)
-        path = [path filesep];
-    end
+    [path,name,ext]=fileparts(which(savegame_file));
+    path = [path filesep];
     dir_out = path;
 else
     dir_out = keyvals.dir_out;
