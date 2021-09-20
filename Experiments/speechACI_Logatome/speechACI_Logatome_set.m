@@ -50,7 +50,14 @@ switch lower(cfg_inout.Condition) % lower case
         dir_name_noise = 'NoiseStim-bumpv1p1';
         noise_type = 'bumpv1p1';
     otherwise
-        error('%s: Condition not recognised',upper(mfilename));
+        str = strsplit(cfg_inout.Condition,'-');
+        if ~strcmp(str{1},'custom')
+            error('%s: Condition not recognised',upper(mfilename));
+        else
+            dir_name_noise = ['NoiseStim-' str{2}];
+            noise_type = 'sMPS';
+            warning('%s: Using a custom type of noise, make sure that the noise path to be used is correct',upper(mfilename));
+        end
 end
 dir_noise  = [dir_data_experiment cfg_inout.Subject_ID filesep dir_name_noise filesep];
 

@@ -89,11 +89,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    % try
+    try
         cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
-    % catch me
-    %     error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
-    % end
+    catch me
+        error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
+    end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -239,6 +239,13 @@ if cfg_game.is_simulation == 1
             exp2eval = sprintf('def_sim = %s;',model_cfg_src);
             eval(exp2eval);
             
+            path = fileparts(which(model_cfg_src));
+            path = [path filesep];
+            path_where_supposed = [fastACI_basepath 'Simulations' filesep];
+            if ~strcmp(path,path_where_supposed)
+                error('The script %s is supposed to be in %s,\n(not in %s)',model_cfg_src,path_where_supposed,path);
+            end
+            
             fprintf('Model configuration found on disk. Check whether the configuration is what you expect:\n');
             def_sim
             
@@ -263,7 +270,7 @@ if cfg_game.is_simulation == 1
         if isfield(cfg_game,'Cond_extra_2')
             file_config = [file_config '_' cfg_game.Cond_extra_2];
         end
-        file_config = sprintf('%s_%s_cfg_%.0f_%.0f_%.0f_%.0fh_%.0fm_%.0fs.m',file_config,Subject_ID,cfg_game.date);
+        file_config = sprintf('%s_%s_cfg_%.0f_%.0f_%.0f_%.0fh%.0fm.m',file_config,Subject_ID,cfg_game.date(1:5));
         cfg_game.model_cfg_script      = file_config;
         cfg_game.model_cfg_script_full = [dir_results file_config];
         

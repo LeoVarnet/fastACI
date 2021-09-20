@@ -4,8 +4,8 @@ function fastACI_set_dirdata
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-target_path = uigetdir(fileparts(which(mfilename)),'Please indicate the folder where you plan to store all your fastACI data');
-target_path = [target_path filesep 'fastACI' filesep];
+target_path = uigetdir(fileparts(which(mfilename)),'New ''fastACI_data'' folder: Please indicate where you plan to store all the extra toolbox binary data');
+target_path = [target_path filesep 'fastACI_data' filesep];
 
 p = [];
 p.script_name = 'fastACI_dir_data';
