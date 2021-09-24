@@ -49,6 +49,12 @@ switch lower(cfg_inout.Condition) % lower case
     case 'bumpv1p1'
         dir_name_noise = 'NoiseStim-bumpv1p1';
         noise_type = 'bumpv1p1';
+    case 'bumpv1p1_30db'
+        dir_name_noise = 'NoiseStim-bumpv1p1_30dB';
+        noise_type = 'bumpv1p1_30dB';
+    case 'bumpv1p2'
+        dir_name_noise = 'NoiseStim-bumpv1p2';
+        noise_type = 'bumpv1p2';
     otherwise
         str = strsplit(cfg_inout.Condition,'-');
         if ~strcmp(str{1},'custom')
