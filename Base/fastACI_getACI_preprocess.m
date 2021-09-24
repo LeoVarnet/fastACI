@@ -125,7 +125,7 @@ switch cfg_ACI.flags.glmfct
         %computes a Gaussian pyramid reduction of preX. 
 
         Nlevel = 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
-        Nlevelmin = 2; % level minimum considered in the analysis
+        Nlevelmin = 1;%2; % level minimum considered in the analysis
  
         % The following step ensures that Nf and Nt have M*2^(Nlevel) elements (with M
         % integer) by discarding samples (or adding dummy samples if needed). This
@@ -174,7 +174,7 @@ switch cfg_ACI.flags.glmfct
 
         % Filters the matrix level by level into a Nlevel Gaussian pyramid
 
-        for i_level = Nlevelmin:Nlevel
+        for i_level = max(Nlevelmin,2):Nlevel
             Pyramid{i_level} = Script4_Calcul_ACI_modified_impyramid(Pyramid{i_level-1}, 'reduce'); 
         end
 
