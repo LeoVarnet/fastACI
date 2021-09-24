@@ -37,10 +37,10 @@ if ispc
             paths.dir_output_fastACI2021_JASA = 'C:\Users\LeoVarnet\ownCloud\Professionnel\Publications et communications\2020-x - ANR fastACI\';
             paths.dir_output_fastACI2021_JASA_eps = 'C:\Users\LeoVarnet\ownCloud\Professionnel\Publications et communications\2020-x - ANR fastACI\';
         case '9.3.0.713579 (R2017b)' % Leo's home laptop
-            paths.praat = 'C:\Users\Varnet Léo\Desktop\Programmes\praat.exe';%'C:\Program files\Praat\praatcon.exe';
+            paths.praat = 'C:\Users\Varnet Lï¿½o\Desktop\Programmes\praat.exe';%'C:\Program files\Praat\praatcon.exe';
             paths.dir_output = [];
-            paths.dir_output_fastACI2021_JASA =  'C:\Users\Varnet Léo\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
-            paths.dir_output_fastACI2021_JASA_eps = 'C:\Users\Varnet Léo\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
+            paths.dir_output_fastACI2021_JASA =  'C:\Users\Varnet Lï¿½o\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
+            paths.dir_output_fastACI2021_JASA_eps = 'C:\Users\Varnet Lï¿½o\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
         case '9.10.0.1684407 (R2021a) Update 3' % Leo's new PC
             paths.praat = 'C:\Users\LSP005\Desktop\Programmes\praatcon5353_win64\praatcon.exe';
             warning('Path not set up.\n')
@@ -51,7 +51,7 @@ if ispc
     
 elseif ismac
     % Directories in lab's computer:
-    paths.dir_output = '/Users/leovarnet/ownCloud/Professionnel/Projet fastACI/outputs/';
+    paths.dir_output = '/Users/leovarnet/ownCloud/Data/fastACI_data/outputs/';
     warning('Leo: define and update the following folders...')
     paths.dir_output_fastACI2021_JASA = '';
     paths.dir_output_fastACI2021_JASA_eps = '';
