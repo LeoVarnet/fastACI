@@ -161,6 +161,7 @@ switch cfg_ACI.flags.glmfct
             preX = preX(:,:,1:Nt_X);
             t_X = cfg_ACI.t(1:Nt_X);
         end
+        
         if Nf_X<N_f % Along frequency dimension, truncating
             preX = preX(:,1:Nf_X,:);
             f_X = cfg_ACI.f(1:Nf_X);
