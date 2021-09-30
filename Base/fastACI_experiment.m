@@ -89,11 +89,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    % try
+    try
         cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
-    % catch me
-    %     error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
-    % end
+    catch me
+        error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
+    end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -468,13 +468,14 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
                 fprintf('\n    * PHASE D''ECHAUFFEMENT *\n\n');
         end
     else
+        N_for_next_stop = min(data_passation.next_session_stop,cfg_game.N+1)-i_current-1;
         switch cfg_game.Language
             case 'EN'
                 fprintf('\n    * MAIN EXPERIMENT *\n\n');
-                fprintf('    Playing stimulus # %.0f of %.0f (Next session stop in %.0f trials)\n',i_current,cfg_game.N,data_passation.next_session_stop-i_current-1);
+                fprintf('    Playing stimulus # %.0f of %.0f (Next session stop in %.0f trials)\n',i_current,cfg_game.N,N_for_next_stop);
             case 'FR'
                 fprintf('\n    * EXPERIENCE PRINCIPALE *\n\n');
-                fprintf('    Ecoute numero %.0f de %.0f (prochaine pause dans %.0f ecoutes)\n',i_current,cfg_game.N,data_passation.next_session_stop-i_current-1);
+                fprintf('    Ecoute numero %.0f de %.0f (prochaine pause dans %.0f ecoutes)\n',i_current,cfg_game.N,N_for_next_stop);
         end
     end
     
