@@ -125,8 +125,8 @@ switch cfg_ACI.flags.glmfct
         %computes a Gaussian pyramid reduction of preX. 
 
         Nlevel = 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
-        Nlevelmin = 1;%2; % level minimum considered in the analysis
- 
+        Nlevelmin = 1;% minimum level considered in the analysis (previous default=2, 
+                      % corrected by Leo)
         % The following step ensures that Nf and Nt have M*2^(Nlevel) elements (with M
         % integer) by discarding samples (or adding dummy samples if needed). This
         % is mandatory for accurate reconstruction of the pyramid.

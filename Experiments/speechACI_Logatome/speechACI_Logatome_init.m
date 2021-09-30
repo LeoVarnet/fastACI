@@ -155,7 +155,7 @@ for i = 1:cfg_inout.N
                 insig = filter(b_fir,1,insig);
             case 'bump'
                 % Nothing to do
-            case {'bumpv1p1','bumpv1p1_30dB','bumpv1p2'}
+            case {'bumpv1p1','bumpv1p1_30dB','bumpv1p2','bumpv1p2_5dB','bumpv1p2_10dB'}
                 insig = Generate_noise_debug(N_samples,noise_type,fs);
             otherwise
                 insig = Generate_noise(N_samples,noise_type,fs);
