@@ -4,7 +4,10 @@ function fastACI_set_dirdata
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-target_path = uigetdir(fileparts(which(mfilename)),'New ''fastACI_data'' folder: Please indicate where you plan to store all the extra toolbox binary data');
+text2show = 'New ''fastACI_data'' folder: Please indicate where you plan to store all the extra toolbox binary data';
+fprintf('\t%s\n',text2show);
+
+target_path = uigetdir(fileparts(which(mfilename)),text2show);
 target_path = [target_path filesep 'fastACI_data' filesep];
 
 p = [];

@@ -4,7 +4,10 @@ function fastACI_set_amtoolbox
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-target_path = uigetdir(fileparts(which(mfilename)),'Please indicate the folder where AMT 1.0 is located');
+text2show = 'Please indicate the folder where AMT 1.0 is located';
+fprintf('\t%s\n',text2show);
+
+target_path = uigetdir(fileparts(which(mfilename)),text2show);
 target_path = [target_path filesep];
 
 p = [];
