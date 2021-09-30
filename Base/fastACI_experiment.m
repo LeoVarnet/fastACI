@@ -554,6 +554,8 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
         case 3 % play again (if warm-up) or take a break (if main experiment)
             if ~is_warmup
                 isbreak = 1;
+                i_current = i_current-1; % to start with this same trial when resuming the experiment
+                data_passation.i_current = i_current;
             end
         case 4 % play pure tone
             str_stim = [];
