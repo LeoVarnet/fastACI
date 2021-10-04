@@ -120,13 +120,16 @@ end
 switch cfg_ACI.flags.glmfct
     case {'lassoglm','lasso'}
         
+        %%% Loading defaults for 'lassoglm' or 'lasso', if not previously loaded
+        cfg_ACI   = arg_glmfct(cfg_ACI);
+        %%%
+        Nlevel    = cfg_ACI.lasso_Nlevel;
+        Nlevelmin = cfg_ACI.lasso_Nlevelmin;
+        
         preX = Data_matrix(idx_analysis,:,:);
         %% Create Gaussian pyramid (modified_impyramid)
         %computes a Gaussian pyramid reduction of preX. 
 
-        Nlevel = 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
-        Nlevelmin = 1;% minimum level considered in the analysis (previous default=2, 
-                      % corrected by Leo)
         % The following step ensures that Nf and Nt have M*2^(Nlevel) elements (with M
         % integer) by discarding samples (or adding dummy samples if needed). This
         % is mandatory for accurate reconstruction of the pyramid.
@@ -192,9 +195,6 @@ switch cfg_ACI.flags.glmfct
             Pyra_size(i_level,:) = [size(Pyra_here,2) size(Pyra_here,3)];
             X = cat(2, X, reshape(Pyra_here,N_trialselect,[])); % along Dim=2
         end
-
-        cfg_ACI.lasso_Nlevelmin = Nlevelmin;
-        cfg_ACI.lasso_Nlevel    = Nlevel;
         cfg_ACI.lasso_Pyra_size = Pyra_size;
         
         cfg_ACI.t_X = t_X;
