@@ -20,8 +20,8 @@ switch lower(noise_type)
         N_samples_temp = 15664;
         
 
-        tmod_lim = [-100 100];%[-200 200];%2*[-200 200];%
-        smod_lim = [-2.5 2.5]/1000;%5*[-3 3]/1000;%
+        tmod_lim = [-25 25];%[-200 200];%2*[-200 200];%
+        smod_lim = [-2 2]/1000;%[-2.5 2.5]/1000;%5*[-3 3]/1000;%
         
         % var = load('mAMPS','refAMPS');
         % refAMPS = var.refAMPS; % = [];

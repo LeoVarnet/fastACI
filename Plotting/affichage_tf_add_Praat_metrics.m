@@ -1,10 +1,19 @@
-function outs_from_Praat = affichage_tf_add_Praat_metrics(dir_where,cfg_ACI,outs_from_Praat)
+function outs_from_Praat = affichage_tf_add_Praat_metrics(dir_where,cfg_ACI,outs_from_Praat, Styles, Colours, LineWidth)
 % function outs = affichage_tf_add_Praat_metrics(dir_where,cfg_ACI,outs_from_Praat)
 % 
 % dir_where - it is the directory where the waveforms are located
 
 if nargin < 3
     outs_from_Praat = [];
+end
+if nargin < 4
+    Styles = {'-','--'};
+end
+if nargin < 5
+    Colours = {[0.5 0.5 0.5],'k'};
+end
+if nargin < 6
+    LineWidth = 2;
 end
 
 if isempty(outs_from_Praat)
@@ -18,16 +27,13 @@ if isempty(outs_from_Praat)
     par_formants.pitchfloor = 100; % positive pitch floor 100 (for f0)
     par_formants.pitchceiling = 500; % positive pitch ceiling 500 (for f0)
 
-    par_formants.I_min = 40; % 60, arbitrary value
+    par_formants.I_min = 60;% 40; %, arbitrary value
 
     outs_from_Praat = Get_all_metrics_from_Praat(dir_where,par_formants);
 else
     % Nothing to do: just using the information in outs_from_Praat
 end
 
-%%%
-Styles = {'-','--'};
-Colours = {[0.5 0.5 0.5],'k'};
 
 Nsounds = length(outs_from_Praat.f0);
 
@@ -41,12 +47,12 @@ for kk = 1:Nsounds
     end
 
     f2plot = affichage_get_freq_resolution(outs_from_Praat.f0{kk},cfg_ACI); % figure; plot(outs.t_f0{1},outs.f0{1},'k--');
-    pl(kk) = plot(outs_from_Praat.t_f0{kk},f2plot,Styles{kk},'Color',Colours{kk},'LineWidth',2);
+    pl(kk) = plot(outs_from_Praat.t_f0{kk},f2plot,Styles{1},'Color',Colours{kk},'LineWidth',LineWidth);
     
     for ii = 1:size(outs_from_Praat.F{kk},2)
         f2plot = affichage_get_freq_resolution(outs_from_Praat.F{kk}(:,ii),cfg_ACI);
         hold on; % figure; plot(t_F{kk},F{kk}(:,ii),Style{kk});
-        plot(outs_from_Praat.t_F{kk},f2plot,Styles{kk},'Color',Colours{kk});
+        plot(outs_from_Praat.t_F{kk},f2plot,Styles{2},'Color',Colours{kk},'LineWidth',LineWidth);
     end
 end
 
