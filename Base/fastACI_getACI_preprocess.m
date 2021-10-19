@@ -118,7 +118,7 @@ end
 %%% End: Testing Alejandro on 27/04/2021
     
 switch cfg_ACI.flags.glmfct
-    case {'lassoglm','lasso'}
+    case {'lassoglm','lasso', 'lassoslow'}
         
         %%% Loading defaults for 'lassoglm' or 'lasso', if not previously loaded
         cfg_ACI   = arg_glmfct(cfg_ACI);

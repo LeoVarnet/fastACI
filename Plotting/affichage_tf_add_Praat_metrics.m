@@ -7,7 +7,7 @@ if nargin < 3
     outs_from_Praat = [];
 end
 if nargin < 4
-    Styles = {'-','--'};
+    Styles = {'-','-:'};
 end
 if nargin < 5
     Colours = {[0.5 0.5 0.5],'k'};
@@ -27,7 +27,7 @@ if isempty(outs_from_Praat)
     par_formants.pitchfloor = 100; % positive pitch floor 100 (for f0)
     par_formants.pitchceiling = 500; % positive pitch ceiling 500 (for f0)
 
-    par_formants.I_min = 60;% 40; %, arbitrary value
+    par_formants.I_min = 59;% 40; %, arbitrary value
 
     outs_from_Praat = Get_all_metrics_from_Praat(dir_where,par_formants);
 else

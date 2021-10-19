@@ -8,7 +8,7 @@ function definput = arg_fastACI_getACI(definput)
 
 definput.flags.TF_type = {'spect','lyon','noise_logspect','gammatone','adapt', ...
                           'tf'};
-definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','lasso','classic_revcorr'};
+definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','lasso','lassoslow','classic_revcorr'};
 % Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','lasso','classic_revcorr'};
 definput.flags.permutation = {'permutation','no_permutation'};
 definput.flags.recreate_validation = {'no_recreate_validation','recreate_validation'};
