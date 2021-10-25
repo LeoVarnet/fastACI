@@ -7,10 +7,10 @@ if nargin < 3
     outs_from_Praat = [];
 end
 if nargin < 4
-    Styles = {'-','-:'};
+    Styles = {'-','-.'};
 end
 if nargin < 5
-    Colours = {[0.5 0.5 0.5],'k'};
+    Colours = {[0.5 0.5 0.5],[0 0 0]};
 end
 if nargin < 6
     LineWidth = 2;
@@ -47,12 +47,12 @@ for kk = 1:Nsounds
     end
 
     f2plot = affichage_get_freq_resolution(outs_from_Praat.f0{kk},cfg_ACI); % figure; plot(outs.t_f0{1},outs.f0{1},'k--');
-    pl(kk) = plot(outs_from_Praat.t_f0{kk},f2plot,Styles{1},'Color',Colours{kk},'LineWidth',LineWidth);
+    pl(kk) = plot(outs_from_Praat.t_f0{kk},f2plot,'LineStyle',Styles{1},'Color',Colours{kk},'LineWidth',LineWidth);
     
     for ii = 1:size(outs_from_Praat.F{kk},2)
         f2plot = affichage_get_freq_resolution(outs_from_Praat.F{kk}(:,ii),cfg_ACI);
         hold on; % figure; plot(t_F{kk},F{kk}(:,ii),Style{kk});
-        plot(outs_from_Praat.t_F{kk},f2plot,Styles{2},'Color',Colours{kk},'LineWidth',LineWidth);
+        plot(outs_from_Praat.t_F{kk},f2plot,'LineStyle',Styles{2},'Color',Colours{kk},'LineWidth',LineWidth);
     end
 end
 

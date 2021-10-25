@@ -36,7 +36,7 @@ for i = 1:Nsounds
     [t_I{i} ,I{i}]  = Get_intensity_from_txt([dir_where filesI{i}]);
     [t_F{i} ,F{i}]  = Get_formants_from_txt([dir_where filesF{i}]);
     
-    minIforF = max(max(I{i})-20, params.I_min);
+    minIforF = params.I_min;%max(max(I{i})-20, params.I_min);
     
     idxs = find(I{i}<minIforF | isnan(I{i}));
     F{i}(idxs,:) = nan;
