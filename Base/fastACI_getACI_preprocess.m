@@ -70,12 +70,31 @@ expvar_trialselect = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_anal
 % end
 idx_analysis = find(select_n_trials & expvar_trialselect & select_trialtype); % & select_n_signal);
 
+%%%%% EQUALIZATION: if true, discards trials so that the number of
+%%%%% responses 1 and 2 are equal, starting with the more extreme expvar
+if 0
+    N_r1 = sum(n_responses(idx_analysis)==1);
+    N_r2 = sum(n_responses(idx_analysis)==2);
+    [~,sorted_idx] = sort(abs(expvar(idx_analysis)-median(expvar(idx_analysis)))); % sorting the trials according to the distance to the median expvar
+    sorted_response = n_responses(idx_analysis(sorted_idx));
+    sorted_idx_r1 = sorted_idx(sorted_response==1);
+    sorted_idx_r2 = sorted_idx(sorted_response==2);
+    if N_r1>N_r2
+        trials2exclude = idx_analysis(sorted_idx_r1(end-(N_r1-N_r2):end));
+    elseif N_r2>N_r1
+        trials2exclude = idx_analysis(sorted_idx_r2(end-(N_r2-N_r1):end));
+    end
+idx_analysis = setdiff(idx_analysis,trials2exclude);
+end
+%%%%% END EQUALIZATION
+
 if length(idx_analysis) ~= size(Data_matrix,1)
     fprintf('\t%s: Selecting a subset of the experimental trials:\n',upper(mfilename));
     fprintf('\t\t %.0f trials out of %.0f are being processed (expvar_limits between %.1f and %.1f)\n',length(idx_analysis),size(Data_matrix,1),cfg_ACI.SNR_analysis);
     
     N_trialselect = length(idx_analysis);
     cfg_ACI.N_trialselect = N_trialselect;
+    cfg_ACI.idx_analysis = idx_analysis;
 end
 
 cfg_ACI.N_trials = length(idx_analysis);
@@ -118,7 +137,7 @@ end
 %%% End: Testing Alejandro on 27/04/2021
     
 switch cfg_ACI.flags.glmfct
-    case {'lassoglm','lasso', 'lassoslow'}
+    case {'lassoglm','lasso', 'lassoslow','lassoglmslow'}
         
         %%% Loading defaults for 'lassoglm' or 'lasso', if not previously loaded
         cfg_ACI   = arg_glmfct(cfg_ACI);

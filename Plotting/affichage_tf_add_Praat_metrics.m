@@ -27,7 +27,7 @@ if isempty(outs_from_Praat)
     par_formants.pitchfloor = 100; % positive pitch floor 100 (for f0)
     par_formants.pitchceiling = 500; % positive pitch ceiling 500 (for f0)
 
-    par_formants.I_min = 59;% 40; %, arbitrary value
+    par_formants.I_min = 59;%75;% 40; %, arbitrary value
 
     outs_from_Praat = Get_all_metrics_from_Praat(dir_where,par_formants);
 else
@@ -41,9 +41,9 @@ labels2add = [];
 for kk = 1:Nsounds
     
     if isfield(cfg_ACI,'target_names')
-        if strfind(outs_from_Praat.filesF{kk},cfg_ACI.target_names{kk})
+    %    if strfind(outs_from_Praat.filesF{kk},cfg_ACI.target_names{kk})
             labels2add{end+1} = cfg_ACI.target_names{kk};
-        end
+    %    end
     end
 
     f2plot = affichage_get_freq_resolution(outs_from_Praat.f0{kk},cfg_ACI); % figure; plot(outs.t_f0{1},outs.f0{1},'k--');

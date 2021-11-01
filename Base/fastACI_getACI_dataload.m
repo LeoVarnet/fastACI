@@ -202,7 +202,7 @@ switch TF_type
         
     case 'adapt'
         basef = 8000;
-        flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',cfg_inout.bwmul,'dboffset',100,'adt',cfg_inout.binwidth, ...
+        flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',cfg_inout.bwmul,'dboffset',100,'adt','binwidth',cfg_inout.binwidth, ...
             'no_outerear','no_middleear'};
         [outsig,f,t,extras] = Gammatone_proc(bruit,fs,flags_gamma{:});
         f = f(:); % column array
@@ -271,14 +271,14 @@ if dimonly == 0
         bruit=mean(bruit,2);
         
         if WithSignal
-            switch cfg_inout.experiment
-                case 'speechACI_Logatome'
-                    if ~strcmp( cfg_inout.Condition,'bump' )
-                        error('Only the speechACI_Logatome with bump noises has been so far validated for this option')
-                    end
-                otherwise
-                    error('Only one experiment validated so far for this option (speechACI_Logatome)')
-            end
+%             switch cfg_inout.experiment
+%                 case 'speechACI_Logatome'
+%                     if ~strcmp( cfg_inout.Condition,'bump' )
+%                         warning('Only the speechACI_Logatome with bump noises has been so far validated for this option')
+%                     end
+%                 otherwise
+%                     warning('Only one experiment validated so far for this option (speechACI_Logatome)')
+%             end
             idx_here = cfg_game.n_targets_sorted(n_stim);
             trial = bruit + insig_target(:,idx_here);
         else
@@ -287,10 +287,8 @@ if dimonly == 0
         end
         
         if WithSNR
-            error('WithSNR: Not validated yet')
-            % Pbruit = mean(bruit.^2);
-            % A=sqrt((Pbruit)*10^(ListStim(n_stim).RSB/10));
-            % bruit = bruit/A;
+            warning('WithSNR: temporary version with fixed SNR = 15 dB')
+            trial = bruit + 10^(-1)*insig_target(:,idx_here)*(rms(bruit)/rms(insig_target(:,idx_here)));
         end
         
         switch TF_type
@@ -356,7 +354,7 @@ if dimonly == 0
                 end
                 
             % -------------------------------------------------------------    
-            case 'gammatone'
+            case {'gammatone','adapt'}
                 outsig = Gammatone_proc(trial,fs,flags_gamma{:});
                 outsig = transpose(outsig); % permute(outsig,[2 1]); % put time in the second dimension and frequency in the first one
                 
@@ -364,7 +362,7 @@ if dimonly == 0
                 % idx = find(isnan(outsig));
                 
                 Data_matrix(i, :, : ) = outsig(cfg_inout.f_limits_idx, cfg_inout.t_limits_idx);
-                                
+                        
         end % end switch
     end % end for
     
