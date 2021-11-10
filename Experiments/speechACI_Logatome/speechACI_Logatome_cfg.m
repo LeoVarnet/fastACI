@@ -47,7 +47,7 @@ if isfield(cfg_in,'Condition')
             warning('Check the step down...')
             
         otherwise
-            cfg.adapt    = 1; warning('adapt type temporarily set to 1\n');%2; warning('default is 1 - now we are only testing')            
+            cfg.adapt    = 2; warning('default is 1 - now we are only testing')    %  1; warning('adapt type temporarily set to 1\n');%      
             cfg.expvar_description = 'SNR (dB)';
             cfg.step_resolution = 'linear';
             cfg.start_stepsize = 2; % dB
