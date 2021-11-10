@@ -63,7 +63,10 @@ switch lower(cfg_inout.Condition) % lower case
         noise_type = 'bumpv1p2_10dB';
     case 'smpsv1p1'
         dir_name_noise = 'NoiseStim-sMPSv1p1';
-        noise_type = 'sMPSv1p1';
+        noise_type = 'sMPSv1p1';    
+    case 'smpsv1p2'
+        dir_name_noise = 'NoiseStim-sMPSv1p2';
+        noise_type = 'sMPSv1p2';
     otherwise
         str = strsplit(cfg_inout.Condition,'-');
         if ~strcmp(str{1},'custom')
@@ -85,10 +88,8 @@ cfg.SPL       = 65; % target level, by default level of the noise (the speech
                     % level is adapted)
 cfg.dBFS      = dBFS;
 
-% cfg.bRove_level = 1; % New option as of 16/04/2021
-% cfg.Rove_range  = 2.5; % plus/minus this value, changed from 4 to 2.5 dB on 26/05/2021
-cfg.bRove_level = 0; warning('roving temporarily set to 0 by Leo\n');
-cfg.Rove_range  = 0; warning('roving temporarily set to 0 by Leo\n');
+cfg.bRove_level = 1; % New option as of 16/04/2021
+cfg.Rove_range  = 2.5; % plus/minus this value, changed from 4 to 2.5 dB on 26/05/2021
 
 % Change the following names:
 cfg.N_presentation = 2500;  % number of stimuli / condition
