@@ -84,7 +84,7 @@ if 0
     elseif N_r2>N_r1
         trials2exclude = idx_analysis(sorted_idx_r2(end-(N_r2-N_r1):end));
     end
-idx_analysis = setdiff(idx_analysis,trials2exclude);
+    idx_analysis = setdiff(idx_analysis,trials2exclude);
 end
 %%%%% END EQUALIZATION
 

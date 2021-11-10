@@ -47,7 +47,8 @@ if isfield(cfg_in,'Condition')
             warning('Check the step down...')
             
         otherwise
-            cfg.adapt          = 2; warning('"adapt" temporarily set to 2\n')% 'out';%
+            % cfg.adapt    = 1; warning('adapt type temporarily set to 1\n');%2; warning('default is 1 - now we are only testing')% 'out';%
+            cfg.adapt    = 2; warning('adapt temporarily set to 2\n')% 'out';%
             
             cfg.expvar_description = 'SNR (dB)';
             cfg.step_resolution = 'linear';
@@ -68,7 +69,8 @@ switch cfg.adapt
                 
     case {2, 'weighted-up-down'}
         cfg.rule = [1 1]; 
-        target_score = .75;warning('target_score temporarily set to 75\%');%.707;
+        % target_score = .707; % commented temporarily by Leo
+        target_score = .75; warning('target_score temporarily set to 75\%');%.707;
         cfg.step_down  = 1;
         cfg.step_up    = cfg.step_down*target_score/(1-target_score); % Kaernbach1991, Eq. 1
         cfg.min_stepsize = 1/cfg.step_up;

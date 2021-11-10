@@ -170,7 +170,7 @@ switch version
         N_target = length(cfg_pass.response_correct_target);
         
         if length(cfg_pass.response_names) == N_target
-            cfg_pass.target_names = {'aba','ada'};%cfg_pass.response_correct_target;
+            cfg_pass.target_names = {'aba','ada'}; % cfg_pass.response_correct_target;
         else
             error('Continue here...') % Automate this to be read from experiment scripts...
             % cfg_pass.NameTarget = {'Alda','Alga','Arda','Arga'}; % manually put

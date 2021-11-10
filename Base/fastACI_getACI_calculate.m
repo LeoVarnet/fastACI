@@ -131,6 +131,7 @@ switch glmfct
             case 'lassoslow'
                 [B,FitInfo] = lassoslow(X,y,N_folds);
                 [~, idxlambda] = min(mean(FitInfo.MSEtest,2));
+                
             case 'lassoglmslow'
                 [B,FitInfo] = lassoglmslow(X,y,N_folds);
                 [~, idxlambda] = min(mean(FitInfo.Devtest,2));

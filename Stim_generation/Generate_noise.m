@@ -18,16 +18,19 @@ switch lower(noise_type)
         % temporary built-in parameters
         % N_samples = 10432
         N_samples_temp = 15664;
-        
 
+        % tmod: temporal modulation frequency in Hz 
         tmod_lim = [-25 25];%[-200 200];%2*[-200 200];%
+        
+        % smod: spectral modulation frequency in cyc/Hz
         smod_lim = [-2 2]/1000;%[-2.5 2.5]/1000;%5*[-3 3]/1000;%
         
+        %%% From old code: ------------------------------------------------
         % var = load('mAMPS','refAMPS');
         % refAMPS = var.refAMPS; % = [];
-        
-        gam = 239766.68634682; 
-        fr = 16.3;
+        % gam = 239766.68634682; 
+        % fr = 16.3;
+        %%% End: From old code --------------------------------------------
         
         N = randn(N_samples_temp,1);%N = noise(N_samples_temp,'pink');%
         [AMPSN,PMPSN,tmodN,smodN] = MPSpec(N,fs);
@@ -44,4 +47,3 @@ switch lower(noise_type)
 end
 
 disp('')
-

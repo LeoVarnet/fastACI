@@ -30,27 +30,36 @@ filesf0 = Get_f0_from_dir(dir_where,params);
 Nsounds = length(filesF);
 % minIforF = 75; % Minimum intensity to be added to the plot (relative value)
 
-for i = 1:Nsounds
-    
-    [t_f0{i},f0{i}] = Get_f0_from_txt([dir_where filesf0{i}]);
-    [t_I{i} ,I{i}]  = Get_intensity_from_txt([dir_where filesI{i}]);
-    [t_F{i} ,F{i}]  = Get_formants_from_txt([dir_where filesF{i}]);
-    
-    minIforF = params.I_min;%max(max(I{i})-20, params.I_min);
-    
-    idxs = find(I{i}<minIforF | isnan(I{i}));
-    F{i}(idxs,:) = nan;
-    f0{i}(idxs) = nan;
-    
+if Nsounds ~= 0
+    for i = 1:Nsounds
+
+        [t_f0{i},f0{i}] = Get_f0_from_txt([dir_where filesf0{i}]);
+        [t_I{i} ,I{i}]  = Get_intensity_from_txt([dir_where filesI{i}]);
+        [t_F{i} ,F{i}]  = Get_formants_from_txt([dir_where filesF{i}]);
+
+        try
+            minIforF = max(max(I{i})-20, params.I_min); % In case the user requests
+                % an I_min value that is too low, then the limit is set to 20 dB
+                % below the maximum assessed intensity value
+        catch
+            minIforF = params.I_min;
+        end
+
+        idxs = find(I{i}<minIforF | isnan(I{i}));
+        F{i}(idxs,:) = nan;
+        f0{i}(idxs) = nan;
+
+    end
+
+    outs.t_f0 = t_f0;
+    outs.f0 = f0;
+    outs.t_I = t_I;
+    outs.I = I;
+    outs.t_F = t_F;
+    outs.F = F;
 end
-    
-outs.t_f0 = t_f0;
-outs.f0 = f0;
-outs.t_I = t_I;
-outs.I = I;
-outs.t_F = t_F;
-outs.F = F;
 
 outs.filesf0 = filesf0;
 outs.filesF = filesF;
 outs.filesI = filesI;
+outs.params = params;

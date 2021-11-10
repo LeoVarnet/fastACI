@@ -81,7 +81,6 @@ switch glmfct
         Nlevel    = 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
         Nlevelmin = 2; % minimum level considered in the analysis (default=2, 
                        % Leo suggests 1)
-        
         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'lasso_Nlevel',Nlevel);
         if bAssigned == 0
             if ~strcmp(cfg_inout.lasso_Nlevel,Nlevel)

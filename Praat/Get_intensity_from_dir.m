@@ -16,9 +16,6 @@ function files_out = Get_intensity_from_dir(folder, params)
 
 files_out = [];
 
-% bDiary = 1;
-% Diary(mfilename,bDiary,folder);
-
 if nargin < 2
     params = [];
 end

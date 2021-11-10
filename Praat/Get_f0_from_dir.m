@@ -14,8 +14,7 @@ function files_out = Get_f0_from_dir(folder, params)
 % Created on    : 12/08/2014
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% bDiary = 1;
-% Diary(mfilename,bDiary,folder);
+files_out = [];
 
 if nargin < 2
     params = [];

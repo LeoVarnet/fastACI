@@ -438,7 +438,7 @@ par_formants.minpitch = 200; % positive minimum pitch 50 (for intensity)
 par_formants.pitchfloor = 100; % positive pitch floor 100 (for f0)
 par_formants.pitchceiling = 500; % positive pitch ceiling 500 (for f0)
 
-par_formants.I_min = 40; % 60, arbitrary value
+par_formants.I_min = 50; % 60, arbitrary value
 try
     outs_from_Praat = Get_all_metrics_from_Praat(dir_where,par_formants);
 catch me
@@ -455,7 +455,10 @@ outs_from_Praat.F{1}(idx,:) = nan;
 outs_from_Praat.F{2}(idx,:) = nan;
 
 %%%
-outs_from_Praat = affichage_tf_add_Praat_metrics(dir_where, cfg_ACI,outs_from_Praat);
+Style  = {'-','--'};
+Colour = {[0.5 0.5 0.5],'k'};
+LW     = 1; 
+outs_from_Praat = affichage_tf_add_Praat_metrics(dir_where, cfg_ACI,outs_from_Praat,Style,Colour,LW);
 
 %%% Plotting
 idx = strfind(cfg_ACI.fnameACI,filesep);
