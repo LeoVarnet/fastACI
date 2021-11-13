@@ -50,7 +50,7 @@ end
 if length(cfg_ACI.t_limits_idx) < size(sumReWeight,3) % Dim 3 is time 
     % time was padded for the pyramid calculation, so we truncate it back
     sumReWeight = sumReWeight(:,:,cfg_ACI.t_limits_idx);
-    if cfg_ACI.t_X(1) == cfg_ACI.t(1) && cfg_ACI.t_X(N_t) == cfg_ACI.t(N_t)
+    if cfg_ACI.t_X(1) == cfg_ACI.t(1) && cfg_ACI.t_X(cfg_ACI.N_t) == cfg_ACI.t(cfg_ACI.N_t)
         % then t_X is equal (but longer than) t
         cfg_ACI = rmfield(cfg_ACI,'t_X');
     end

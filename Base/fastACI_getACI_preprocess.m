@@ -72,7 +72,7 @@ idx_analysis = find(select_n_trials & expvar_trialselect & select_trialtype); % 
 
 %%%%% EQUALIZATION: if true, discards trials so that the number of
 %%%%% responses 1 and 2 are equal, starting with the more extreme expvar
-if 0
+if 1
     N_r1 = sum(n_responses(idx_analysis)==1);
     N_r2 = sum(n_responses(idx_analysis)==2);
     [~,sorted_idx] = sort(abs(expvar(idx_analysis)-median(expvar(idx_analysis)))); % sorting the trials according to the distance to the median expvar
@@ -155,8 +155,8 @@ switch cfg_ACI.flags.glmfct
 
         Nt_input = size(Data_matrix,3);
         
-        Nt_X = 2*2^5; %256; % 
-        if Nt_input < 256
+        Nt_X = 2*2^5; %256; % 2^7;%
+        if Nt_input < Nt_X
             % Nothing to do
         else
             while Nt_X < Nt_input
@@ -164,7 +164,7 @@ switch cfg_ACI.flags.glmfct
             end
         end
         
-        Nf_X = 2*2^5;%= 128;%
+        Nf_X = 2*2^5;%= 128;%2^7;%
         t_X = cfg_ACI.t;
         f_X = cfg_ACI.f;
 
@@ -197,7 +197,7 @@ switch cfg_ACI.flags.glmfct
 
         % Filters the matrix level by level into a Nlevel Gaussian pyramid
 
-        for i_level = max(Nlevelmin,2):Nlevel
+        for i_level = 2:Nlevel
             Pyramid{i_level} = Script4_Calcul_ACI_modified_impyramid(Pyramid{i_level-1}, 'reduce'); 
         end
 
