@@ -34,6 +34,8 @@ if do_permutation
     N_perm = cfg_ACI.keyvals.N_perm; 
 end 
 
+do_no_bias = cfg_ACI.flags.do_no_bias;
+
 %cfg_ACI.trialtype_analysis = [];
 switch cfg_ACI.keyvals.trialtype_analysis
     case 'incorrect'
@@ -72,7 +74,8 @@ idx_analysis = find(select_n_trials & expvar_trialselect & select_trialtype); % 
 
 %%%%% EQUALIZATION: if true, discards trials so that the number of
 %%%%% responses 1 and 2 are equal, starting with the more extreme expvar
-if 0
+if do_no_bias
+    % This is a balancing of the number of trials
     N_r1 = sum(n_responses(idx_analysis)==1);
     N_r2 = sum(n_responses(idx_analysis)==2);
     [~,sorted_idx] = sort(abs(expvar(idx_analysis)-median(expvar(idx_analysis)))); % sorting the trials according to the distance to the median expvar
@@ -94,8 +97,8 @@ if length(idx_analysis) ~= size(Data_matrix,1)
     
     N_trialselect = length(idx_analysis);
     cfg_ACI.N_trialselect = N_trialselect;
-    cfg_ACI.idx_analysis = idx_analysis;
 end
+cfg_ACI.idx_analysis = idx_analysis;
 
 cfg_ACI.N_trials = length(idx_analysis);
 y_all     = double((n_responses==1)'); % all trials that for which target 1 has been chosen

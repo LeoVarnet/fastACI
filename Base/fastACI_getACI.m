@@ -53,6 +53,9 @@ if isempty(keyvals.dir_out)
     warning('No output directory (opts_ACI.dir_out) has been specified, the same folder where the MAT file is will be used...');
     % curr_dir = [pwd filesep]; % current directory
     [path,name,ext]=fileparts(which(savegame_file));
+    if isempty(path)
+        [path,name,ext]=fileparts( savegame_file );
+    end
     path = [path filesep];
     dir_out = path;
 else
@@ -111,13 +114,24 @@ if ~isempty(keyvals.trialtype_analysis)
     end
 end
 
+if flags.do_no_bias
+    % Number of trials for targets 1 or 2 will be 'equalised'. This 
+    %     processing is introduced in the _preprocessing script.
+    trialtype_analysis = [trialtype_analysis '+nobias'];
+end
+
 if keyvals.add_signal
     label_add_signal = '+addsignal';
 else
     label_add_signal = '';
 end
 
-fnameACI = [dir_out cfg_game.Subject_ID '_' cfg_game.experiment Condition '-ACI' trialtype_analysis '-' TF_type '-' glmfct str_last_trial label_add_signal '.mat'];
+if ~isempty(keyvals.expvar_limits)
+    label_expvar_limits = sprintf('-expvar-%.0f-to-%.0f',keyvals.expvar_limits);
+else
+    label_expvar_limits = [];
+end
+fnameACI = [dir_out cfg_game.Subject_ID '_' cfg_game.experiment Condition '-ACI' trialtype_analysis '-' TF_type '-' glmfct str_last_trial label_add_signal label_expvar_limits '.mat'];
 
 %%%
 

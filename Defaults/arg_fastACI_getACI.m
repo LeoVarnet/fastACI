@@ -10,6 +10,7 @@ definput.flags.TF_type = {'spect','lyon','noise_logspect','gammatone','adapt','t
 definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','lasso','lassoslow','lassoglmslow','classic_revcorr'};
 % Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','lasso',                           'classic_revcorr'};
 definput.flags.permutation = {'permutation','no_permutation'};
+definput.flags.bias   = {'bias'  ,'no_bias'};
 definput.flags.recreate_validation = {'no_recreate_validation','recreate_validation'};
 definput.flags.plot = {'plot','no_plot'};
 

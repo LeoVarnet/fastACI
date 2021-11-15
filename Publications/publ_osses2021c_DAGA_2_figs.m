@@ -180,7 +180,9 @@ if flags.do_fig1a || flags.do_fig1b || flags.do_fig2 || flags.do_fig3a || flags.
                 idx = strfind(dir_noise,filesep);
                 dir_noise = [data_folder_full dir_noise(idx(end-1)+1:end-1) filesep];
                 cfg_game.dir_noise = dir_noise;
-
+            end
+            
+            if ~exist(dir_target,'dir')
                 idx = strfind(dir_target,filesep);
                 dir_target = [data_folder_full dir_target(idx(end-1)+1:end-1) filesep];
                 cfg_game.dir_target = dir_target;
@@ -441,6 +443,9 @@ par_formants.pitchceiling = 500; % positive pitch ceiling 500 (for f0)
 par_formants.I_min = 50; % 60, arbitrary value
 try
     outs_from_Praat = Get_all_metrics_from_Praat(dir_where,par_formants);
+    if isempty(outs_from_Praat.filesf0)
+        error('Files not found...')
+    end
 catch me
     fprintf('%s: Praat not found on disk, loading pre-stored Praat files\n',upper(mfilename));
     
