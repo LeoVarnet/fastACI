@@ -200,7 +200,20 @@ switch cfg_ACI.flags.glmfct
 
         % Filters the matrix level by level into a Nlevel Gaussian pyramid
 
-        for i_level = 2:Nlevel
+        if Nlevelmin <= 2
+            i_level_start = max(Nlevelmin,2);
+        else
+            warning('Nlevelmin > 2, this option has not been comprehensively tested yet');
+            i_level_start = 2;
+            
+            % Comment from Leo, via Slack on 15/11/2021:
+            %     Nlevelmin >= 3 could be useful in the long run if we want 
+            %     to use ACIs with higher resolution but the same size of 
+            %     gaussian elements int he Pyramid basis. But with our 
+            %     current resolution I agree that Nlevelmin should be 1 or 2
+        end
+        
+        for i_level = i_level_start:Nlevel
             Pyramid{i_level} = Script4_Calcul_ACI_modified_impyramid(Pyramid{i_level-1}, 'reduce'); 
         end
 
