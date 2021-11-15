@@ -158,8 +158,8 @@ switch cfg_ACI.flags.glmfct
 
         Nt_input = size(Data_matrix,3);
         
-        Nt_X = 2*2^5; %256; % 
-        if Nt_input < 256
+        Nt_X = 2*2^5; %256; % 2^7;%
+        if Nt_input < Nt_X
             % Nothing to do
         else
             while Nt_X < Nt_input
@@ -167,7 +167,7 @@ switch cfg_ACI.flags.glmfct
             end
         end
         
-        Nf_X = 2*2^5;%= 128;%
+        Nf_X = 2*2^5;%= 128;%2^7;%
         t_X = cfg_ACI.t;
         f_X = cfg_ACI.f;
 
@@ -200,7 +200,7 @@ switch cfg_ACI.flags.glmfct
 
         % Filters the matrix level by level into a Nlevel Gaussian pyramid
 
-        for i_level = max(Nlevelmin,2):Nlevel
+        for i_level = 2:Nlevel
             Pyramid{i_level} = Script4_Calcul_ACI_modified_impyramid(Pyramid{i_level-1}, 'reduce'); 
         end
 
