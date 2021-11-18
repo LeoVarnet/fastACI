@@ -86,6 +86,8 @@ if do_no_bias
         trials2exclude = idx_analysis(sorted_idx_r1(end-(N_r1-N_r2):end));
     elseif N_r2>N_r1
         trials2exclude = idx_analysis(sorted_idx_r2(end-(N_r2-N_r1):end));
+    else
+        trials2exclude = []; % already without a bias
     end
     idx_analysis = setdiff(idx_analysis,trials2exclude);
 end

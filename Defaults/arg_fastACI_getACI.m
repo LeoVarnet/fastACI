@@ -32,6 +32,7 @@ definput.keyvals.trialtype_analysis = 'total';
 definput.keyvals.f_limits = [1 10000]; % Hz, arbitrary frequencies to be used as limits 
 definput.keyvals.t_limits = [0 1]; 
 definput.keyvals.expvar_limits = [];
+definput.keyvals.perc = [];
 
 definput.keyvals.dir_target = [];
 definput.keyvals.dir_noise  = [];

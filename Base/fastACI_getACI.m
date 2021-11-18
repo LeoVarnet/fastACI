@@ -126,10 +126,31 @@ else
     label_add_signal = '';
 end
 
-if ~isempty(keyvals.expvar_limits)
-    label_expvar_limits = sprintf('-expvar-%.0f-to-%.0f',keyvals.expvar_limits);
+if isempty(keyvals.perc)
+    bMaybe_do_expvar_limits = 1;
+    
+elseif isnan(keyvals.perc(1)) || isnan(keyvals.perc(2)) 
+    bMaybe_do_expvar_limits = 1;
+    
 else
-    label_expvar_limits = [];
+    bMaybe_do_expvar_limits = 0;
+    if isempty(keyvals.expvar_limits)
+        % flags_for_input{end+1} = 'expvar_limits';
+        % flags_for_input{end+1} = [prctile(SNR,SNRprctile(1)) prctile(SNR,SNRprctile(2))];
+    else
+        error('keyvals.perc AND keyvals.expvar_limits are non empty arrays. Only one of the two options is allowed...' );
+    end
+end
+
+if bMaybe_do_expvar_limits == 0
+    keyvals.expvar_limits  = [prctile(data_passation.expvar,keyvals.perc(1)) prctile(data_passation.expvar,keyvals.perc(2))];
+    label_expvar_limits = sprintf('-perc-%.0f-%.0f',keyvals.perc);
+else
+    if ~isempty(keyvals.expvar_limits)
+        label_expvar_limits = sprintf('-expvar-%.0f-to-%.0f',keyvals.expvar_limits);
+    else
+        label_expvar_limits = [];
+    end
 end
 fnameACI = [dir_out cfg_game.Subject_ID '_' cfg_game.experiment Condition '-ACI' trialtype_analysis '-' TF_type '-' glmfct str_last_trial label_add_signal label_expvar_limits '.mat'];
 
