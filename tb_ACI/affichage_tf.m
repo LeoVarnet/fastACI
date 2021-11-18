@@ -281,7 +281,7 @@ for num_CI = 1:N_CI
     elseif strcmp(type(1:2), 'CI') || strcmp(type,'tvalue')
         colormap(jet);
         try
-            caxis([-maxabsdata maxabsdata])
+            caxis([-maxabsdata maxabsdata]);
         catch
             warning('maxansdata seems to be a NaN, setting to -1 and 1')
             caxis([-1 1]);

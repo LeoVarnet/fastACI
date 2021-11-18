@@ -437,8 +437,13 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
         else
             expvar_description = '';
         end
-            
-        fprintf('\nDependent variable: expvar = %.4f%s \n',expvar,expvar_description);
+           
+        switch cfg_game.Language
+            case 'EN'
+                fprintf('\nDependent variable: expvar = %.4f%s \n',expvar,expvar_description);
+            case 'FR'
+                fprintf('\nDependent variable: expvar = %.4f%s \n',expvar,expvar_description);
+        end
     end
     
     str_stim = [];

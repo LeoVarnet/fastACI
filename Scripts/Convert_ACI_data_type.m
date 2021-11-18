@@ -182,10 +182,12 @@ switch version
             data_passation.n_targets = data_pa.n_signal;
         end
         
-        if ~isfield(data_pa,'n_response')
-            error('Continue here')
-        else
+        if isfield(data_pa,'n_responses')
+            data_passation.n_responses  = data_pa.n_responses;
+        elseif isfield(data_pa,'n_response')
             data_passation.n_responses  = data_pa.n_response;
+        else
+            error('Continue here')
         end
         if ~isfield(data_pa,'is_correct')
             error('Continue here')

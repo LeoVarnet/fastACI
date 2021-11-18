@@ -32,6 +32,7 @@ switch version
         data_passation = var.data_passation;
         cfg_game       = var.cfg_game;
         
+        disp('')
     otherwise % Needs convertion
         if isfield(var,'i')
             cfg_game.N = var.i;
@@ -84,9 +85,9 @@ switch version
                     n_response(idx) = target_response(idx);
                     idx = find(var.correct_answer==0);
                     n_response(idx) = target_response_wrong(idx);
-                    data_passation.n_reponse  = n_response;
+                    data_passation.n_reponses = n_response;
                 else
-                    data_passation.n_reponse  = data_pa.n_response;
+                    data_passation.n_reponses = data_pa.n_response;
                 end
 
                 data_passation.n_signal   = var.n_signal;
@@ -310,8 +311,8 @@ switch version
 
                     if isfield(ListStim,'n_reponse')
                         tmp = horzcat(ListStim.n_reponse);
-                        data_passation.n_response = tmp(stim_order);
-                        cfg_game.n_response       = tmp;
+                        data_passation.n_responses = tmp(stim_order);
+                        cfg_game.n_response        = tmp;
                         ListStim = Remove_field(ListStim,'n_reponse');
                     end
 
