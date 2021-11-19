@@ -30,7 +30,8 @@ cfg.randorder      = 1;
 cfg.startvar = 0;  % old name 'm_start'
 cfg.expvar_description = 'SNR (dB)';
 
-cfg.maxvar = 10;
+cfg.maxvar = 0;   % maximum possible expvar value
+cfg.minvar = -30; % minimum possible expvar value
  
 % Staircase algorithm parameters
 cfg.start_stepsize = 2;

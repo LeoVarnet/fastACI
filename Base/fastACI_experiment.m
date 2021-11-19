@@ -250,7 +250,7 @@ if cfg_game.is_simulation == 1
             def_sim
             
             fprintf('Pausing for 10 s. Press ctr+c to cancel the simulations.\n');
-            fprintf('If you want to change the simulation parameters, change manually the script %s and re-run the current script (%s).\n',model_cfg_src,mfilename);
+            fprintf('%s: If you want to change the simulation parameters, change manually the script %s and re-run the current script.\n',upper(mfilename),model_cfg_src);
             pause(10);
             
         else
@@ -302,20 +302,24 @@ if cfg_game.is_simulation == 1
     
     if def_sim.bStore_template == 1
         if exist('fastACI_file_template.m','file')
-            file_template = fastACI_file_template;
+            file_template = fastACI_file_template(cfg_game.experiment_full);
 
-            templ_ref = [];
-            templ_tar = [];
             if exist(file_template,'file')
+                fprintf('Pausing for 10 s. Press ctr+c to cancel the simulations.\n');
+                fprintf('%s: Template found on disk, if this is not what you want, remove/rename the file and re-run the simulations\n (template file: %s).\n',upper(mfilename),file_template);
+                pause(10);
+
+                templ_ref = [];
+                templ_tar = [];
                 load(file_template,'templ_ref');
                 load(file_template,'templ_tar');
-            
+
                 fprintf('Stored template found at: %s\n',file_template);
                 def_sim.bStore_template = 0;
+                
+                sim_work.templ_ref = templ_ref;
+                sim_work.templ_tar = templ_tar;
             end
-            
-            sim_work.templ_ref = templ_ref;
-            sim_work.templ_tar = templ_tar;
         end
     end
     

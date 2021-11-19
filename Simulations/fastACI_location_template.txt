@@ -1,4 +1,4 @@
-function basepath = fastACI_file_template
-% function basepath = fastACI_file_template
+function basepath = fastACI_file_template(experiment_full)
+% function basepath = fastACI_file_template(experiment_full)
 
-basepath = '$$target_path$$';
+basepath = $$target_path$$;

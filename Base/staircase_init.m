@@ -3,20 +3,12 @@ function [str_inout,cfg] = staircase_init(str_inout,cfg)
 %
 % Initialise a new staircase
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-iswarmup = cfg.warmup;
 debut_i  = str_inout.debut_i;
 
 response=[];
 n_correctinarow = 0;
-if iswarmup
-    if isfield(cfg,'maxvar')
-        expvar = cfg.maxvar;
-    else
-        expvar = cfg.startvar;
-    end
-else
-    expvar = cfg.startvar;
-end
+expvar = cfg.startvar;
+
 i_current = debut_i;
 stepsize = cfg.start_stepsize;
 isbreak = 0;

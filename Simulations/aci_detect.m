@@ -99,7 +99,7 @@ if (isempty(sim_work.templ_tar) == 1 || cfg_sim.template_every_trial == 1 )
         fname = sprintf('%stemplate-%s-%s-trial-%.0f',cfg_game.dir_results,cfg_game.Subject_ID,cfg_game.experiment_full,data_passation.i_current);
         save(fname,'templ_tar','templ_ref');
         
-        fastACI_set_template([fname '.mat']);
+        fastACI_set_template([fname '.mat'], cfg_game);
     end
     
 end

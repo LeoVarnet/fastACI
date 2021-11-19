@@ -44,6 +44,7 @@ if ~iscorrect
         % Then we define the direction
         staircase_direction = 'up';
     end
+    
 elseif n_correctinarow == n_down
     switch cfg.step_resolution
         case 'linear'
@@ -90,6 +91,32 @@ if reversal_current ~= 0 && mod(reversal_current,2) == 0
         stepsize = cfg.min_stepsize;
     end
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if isfield(cfg,'maxvar')
+    [expvar, idx] = min([expvar cfg.maxvar]);
+    if idx == 2
+        switch cfg.Language
+            case 'EN'
+                fprintf('Reaching the limits of the experimental variable, expvar set to maxvar=%.1f\n',cfg.maxvar);
+            case 'FR'
+                fprintf('Reaching the limits of the experimental variable, expvar set to maxvar=%.1f\n',cfg.maxvar);
+        end
+    end
+end
+if isfield(cfg,'minvar')
+    [expvar, idx] = max([expvar cfg.minvar]);
+    if idx == 2
+        switch cfg.Language
+            case 'EN'
+                fprintf('Reaching the limits of the experimental variable, expvar set to minvar=%.1f\n',cfg.minvar);
+            case 'FR'
+                fprintf('Reaching the limits of the experimental variable, expvar set to minvar=%.1f\n',cfg.minvar);
+        end
+    end
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 str_inout.n_correctinarow = n_correctinarow;
 str_inout.stepsize        = stepsize;
 str_inout.expvar          = expvar;

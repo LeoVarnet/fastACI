@@ -72,7 +72,7 @@ expvar_trialselect = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_anal
 % end
 idx_analysis = find(select_n_trials & expvar_trialselect & select_trialtype); % & select_n_signal);
 
-%%%%% EQUALIZATION: if true, discards trials so that the number of
+%%%%% TRIAL EQUALISATION: if true, discards trials so that the number of
 %%%%% responses 1 and 2 are equal, starting with the more extreme expvar
 if do_no_bias
     % This is a balancing of the number of trials
@@ -91,7 +91,7 @@ if do_no_bias
     end
     idx_analysis = setdiff(idx_analysis,trials2exclude);
 end
-%%%%% END EQUALIZATION
+%%%%% END TRIAL EQUALISATION
 
 if length(idx_analysis) ~= size(Data_matrix,1)
     fprintf('\t%s: Selecting a subset of the experimental trials:\n',upper(mfilename));

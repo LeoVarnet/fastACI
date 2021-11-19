@@ -135,8 +135,7 @@ elseif isnan(keyvals.perc(1)) || isnan(keyvals.perc(2))
 else
     bMaybe_do_expvar_limits = 0;
     if isempty(keyvals.expvar_limits)
-        % flags_for_input{end+1} = 'expvar_limits';
-        % flags_for_input{end+1} = [prctile(SNR,SNRprctile(1)) prctile(SNR,SNRprctile(2))];
+        % Nothing to do here...
     else
         error('keyvals.perc AND keyvals.expvar_limits are non empty arrays. Only one of the two options is allowed...' );
     end
@@ -175,7 +174,6 @@ if bCalculation == 0
 end
 
 %%% 2.2 Creating structure cfg_ACI: ---------------------------------------
-% cfg_game = Ensure_field(cfg_game,'response_names',{'Signal#1','Signal#2'});
 cfg_ACI = import_cfg(cfg_game, 'dir_noise', 'dir_target', 'N', 'N_target', ... % 'dir_target', 'N_response'
     'stim_order', 'target_names', 'response_correct_target','response_names');
 
