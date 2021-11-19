@@ -73,7 +73,6 @@ end
 % opts_ACI = Ensure_field(opts_ACI,'Analysis_condition','total'); % tableau de cellules contenant les noms de la ou des conditions à calculer
 %Analysis_condition = ''; % '_total'; warning('Remove soon...')
 
-% do_permutation = flags.do_permutation; % By default the permutation test is 'on'
 do_recreate_validation = flags.do_recreate_validation;
 TF_type = flags.TF_type;
 glmfct  = flags.glmfct;
@@ -83,7 +82,12 @@ if isempty(keyvals.idx_trialselect)
     keyvals.idx_trialselect = 1:N;
     str_last_trial = '';
 else
-    str_last_trial = ['-up-to-trial-' num2str(length(keyvals.idx_trialselect))];
+    N_here = length(keyvals.idx_trialselect);
+    if N_here == cfg_game.N
+        str_last_trial = '';
+    else
+        str_last_trial = ['-' Get_abbreviation_for_filename('up-to-trial') '-' num2str(N_here)];
+    end
 end
 
 Condition = '';
@@ -151,7 +155,8 @@ else
         label_expvar_limits = [];
     end
 end
-fnameACI = [dir_out cfg_game.Subject_ID '_' cfg_game.experiment Condition '-ACI' trialtype_analysis '-' TF_type '-' glmfct str_last_trial label_add_signal label_expvar_limits '.mat'];
+fnameACI = [dir_out 'ACI-' cfg_game.Subject_ID '-' cfg_game.experiment Condition ... 
+    '-' trialtype_analysis '-' TF_type '-' glmfct str_last_trial label_add_signal label_expvar_limits '.mat'];
 
 %%%
 

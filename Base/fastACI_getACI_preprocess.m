@@ -19,15 +19,12 @@ n_responses = data_passation.n_responses(idx_trialselect); % responses given by 
 n_targets   = data_passation.n_targets(idx_trialselect); % expected responses (trial order)
 expvar      = data_passation.expvar(idx_trialselect); % value of the experimental variable (trial order)
 is_correct  = data_passation.is_correct(idx_trialselect);
-% Selection of the condition
-% cfg_ACI.NameCond = Condition;
-%cfg_ACI.n_signal_analysis = []; % perform analysis only on trials corresponding to specific signals numbers
+
 if ~isempty(cfg_ACI.keyvals.expvar_limits)
     cfg_ACI.SNR_analysis  = cfg_ACI.keyvals.expvar_limits; % select a range of SNR
 else
     cfg_ACI.SNR_analysis  = [min(expvar) max(expvar)];
 end
-%cfg_ACI.n_trials_analysis = []; % select a range of trial numbers
 
 do_permutation = cfg_ACI.flags.do_permutation; % By default the permutation test is 'on'
 if do_permutation
