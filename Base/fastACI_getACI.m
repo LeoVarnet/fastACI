@@ -86,7 +86,7 @@ else
     if N_here == cfg_game.N
         str_last_trial = '';
     else
-        str_last_trial = ['-' Get_abbreviation_for_filename('up-to-trial') '-' num2str(N_here)];
+        str_last_trial = ['-' Get_abbreviation_for_filename('up-to-trial') num2str(N_here)];
     end
 end
 
@@ -108,26 +108,26 @@ if isempty(cfg_game.Subject_ID)
 end
 
 %%%
-trialtype_analysis = [];
+str_trialtype_analysis = [];
 if ~isempty(keyvals.trialtype_analysis)
     switch keyvals.trialtype_analysis
         case 'total'
             %%% Nothing to do: just an empty name
         otherwise
-            trialtype_analysis = ['-' keyvals.trialtype_analysis];
+            str_trialtype_analysis = ['-' keyvals.trialtype_analysis];
     end
 end
 
 if flags.do_no_bias
     % Number of trials for targets 1 or 2 will be 'equalised'. This 
     %     processing is introduced in the _preprocessing script.
-    trialtype_analysis = [trialtype_analysis '+nobias'];
+    str_trialtype_analysis = [str_trialtype_analysis '-' Get_abbreviation_for_filename('no_bias')];
 end
 
 if keyvals.add_signal
-    label_add_signal = '+addsignal';
+    str_add_signal = ['-' Get_abbreviation_for_filename('addsignal')];
 else
-    label_add_signal = '';
+    str_add_signal = '';
 end
 
 if isempty(keyvals.perc)
@@ -147,17 +147,30 @@ end
 
 if bMaybe_do_expvar_limits == 0
     keyvals.expvar_limits  = [prctile(data_passation.expvar,keyvals.perc(1)) prctile(data_passation.expvar,keyvals.perc(2))];
-    label_expvar_limits = sprintf('-perc-%.0f-%.0f',keyvals.perc);
+    str_out = Get_abbreviation_for_filename('perc');
+    str_expvar_limits = sprintf('-%s%.0f_%.0f',str_out,keyvals.perc);
 else
     if ~isempty(keyvals.expvar_limits)
-        label_expvar_limits = sprintf('-expvar-%.0f-to-%.0f',keyvals.expvar_limits);
+        str_out = Get_abbreviation_for_filename('expvar');
+        sign_str1 = num2str(abs(keyvals.expvar_limits(1)));
+        if keyvals.expvar_limits(1) < 0
+            sign_str1 = ['m' sign_str];
+        end
+        sign_str2 = num2str(abs(keyvals.expvar_limits(2)));
+        if keyvals.expvar_limits(2) < 0
+            sign_str2 = ['m' sign_str];
+        end
+        str_expvar_limits = sprintf('-%s_%s_%s',str_out,sign_str1,sign_str2);
     else
-        label_expvar_limits = [];
+        str_expvar_limits = [];
     end
 end
-fnameACI = [dir_out 'ACI-' cfg_game.Subject_ID '-' cfg_game.experiment Condition ... 
-    '-' trialtype_analysis '-' TF_type '-' glmfct str_last_trial label_add_signal label_expvar_limits '.mat'];
 
+str_TF_type = Get_abbreviation_for_filename(TF_type);
+str_glmfct  = Get_abbreviation_for_filename(glmfct);  
+fnameACI = [dir_out 'ACI-' cfg_game.Subject_ID '-' cfg_game.experiment Condition ...
+            str_trialtype_analysis '-' str_TF_type '-' str_glmfct str_last_trial ...
+            str_add_signal str_expvar_limits '.mat'];
 %%%
 
 bCalculation = ~exist(fnameACI,'file');
