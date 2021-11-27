@@ -436,18 +436,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
     
     if cfg_game.displayN == 1 || cfg_game.is_simulation
         disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-        if isfield(cfg_game,'expvar_description')
-            expvar_description = [', ' cfg_game.expvar_description];
-        else
-            expvar_description = '';
-        end
-           
-        switch cfg_game.Language
-            case 'EN'
-                fprintf('\nDependent variable: expvar = %.4f%s \n',expvar,expvar_description);
-            case 'FR'
-                fprintf('\nDependent variable: expvar = %.4f%s \n',expvar,expvar_description);
-        end
+        
     end
     
     str_stim = [];
@@ -474,18 +463,11 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
             case 'EN'
                 fprintf('\n    * WARM-UP PHASE *\n\n');
             case 'FR'
-                fprintf('\n    * PHASE D''ECHAUFFEMENT *\n\n');
+                fprintf('\n    * PHASE D''\311CHAUFFEMENT *\n\n');
         end
     else
         N_for_next_stop = min(data_passation.next_session_stop,cfg_game.N+1)-i_current-1;
-        switch cfg_game.Language
-            case 'EN'
-                fprintf('\n    * MAIN EXPERIMENT *\n\n');
-                fprintf('    Playing stimulus # %.0f of %.0f (Next session stop in %.0f trials)\n',i_current,cfg_game.N,N_for_next_stop);
-            case 'FR'
-                fprintf('\n    * EXPERIENCE PRINCIPALE *\n\n');
-                fprintf('    Ecoute numero %.0f de %.0f (prochaine pause dans %.0f ecoutes)\n',i_current,cfg_game.N,N_for_next_stop);
-        end
+        msg_currenttrial
     end
     
     if cfg_game.is_experiment
@@ -497,7 +479,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
                 case 'EN'
                     text2show = {'to play the stim again' ['to play a ' cfg_game.response_names{1}] ['to play a ' cfg_game.response_names{2}] 'to leave the warm-up phase'};
                 case 'FR'
-                    text2show = {'pour rejouer le son' ['pour ecouter un ' cfg_game.response_names{1}] ['pour ecouter un ' cfg_game.response_names{2}] 'pour quitter l''echauffement'};
+                    text2show = {'pour rejouer le son' ['pour \351couter un ' cfg_game.response_names{1}] ['pour \351couter un ' cfg_game.response_names{2}] 'pour quitter l''\351chauffement'};
             end
             response = Response_keyboard([cfg_game.response_names text2show], cfg_game);
             
@@ -506,7 +488,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
                 case 'EN'
                     text2show = {'to take a break'};
                 case 'FR'
-                    text2show = {'pour faire une pause'};
+                    text2show = {'pour prendre une pause'};
             end
             response = Response_keyboard([cfg_game.response_names text2show], cfg_game, 3.14);
         end
@@ -673,11 +655,11 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
                 % feedback
                 switch cfg_game.Language
                     case 'EN'
-                        fprintf('\n\t%s => Correct answer was : %.0f (%s)\n\n Press any key to continue.\n',txt_extra,resp_num,resp_name);
+                        fprintf('\n ** %s => Correct answer was : %.0f (%s) ** \n\n',txt_extra,resp_num,resp_name);
                     case 'FR'
-                        fprintf('\n\t%s => La bonne reponse etait : %.0f (%s)\n\n Appuyez sur une touche pour continuer.\n',txt_extra,resp_num,resp_name);
+                        fprintf('\n ** %s => La bonne reponse etait : %.0f (%s) **\n\n',txt_extra,resp_num,resp_name);
                 end
-                pause(.5); % .5 s pause
+                pause(.5); clc; % .5 s pause before refreshing
             end
             
             if iscorrect

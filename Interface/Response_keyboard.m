@@ -28,13 +28,19 @@ while test_boucle
             fprintf('    Appuyez sur :\n');
     end
     for idx=1:length(Liste_Reponses)
-        fprintf(['     - ' num2str(idx) ' ' Liste_Reponses{idx} '\n']);
+        switch cfg.Language
+            case 'EN'
+                fprintf(['     - ' num2str(idx) ' ' Liste_Reponses{idx} '\n']);
+            case 'FR'
+                fprintf(['     - ' num2str(idx) ' pour ' Liste_Reponses{idx} '\n']);
+        end
         if idx == length(Liste_Reponses)
             switch cfg.Language
                 case 'EN'
                     Response = input('    then press Enter\n','s');
                 case 'FR'
-                    Response = input('    puis appuyez sur Entree\n','s');
+                    fprintf('    puis appuyez sur Entr\351e');
+                    Response = input('\n','s');
             end
         end
     end

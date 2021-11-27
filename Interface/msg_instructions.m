@@ -12,15 +12,18 @@ switch cfg_game.Language
         fprintf('   one of the two categories anymore, maybe it is time for a break!\n');
         
     case 'FR'
-        fprintf('   Vous allez entendre des sons de parole dans un bruit de fond. Votre tache consiste a\n');
-        fprintf('   indiquer apres chaque ecoute si le son se terminait par un %s ou un %s.\n',cfg_game.response_names{1},cfg_game.response_names{2});
-        fprintf('   L''experience (%.0f ecoutes) est divisee en %.0f sessions de %.0f ecoutes chacune, mais\n',cfg_game.N,cfg_game.N/cfg_game.sessionsN,cfg_game.sessionsN);
-        fprintf('   vous pouvez prendre une pause en cours de session si necessaire.\n');
-        fprintf('   Le niveau de bruit s''ajustera automatiquement en fonction de vos performances tout\n');
-        fprintf('   au long de l''experience. Il est donc normal que la tache vous semble rapidement plus\n');
-        fprintf('   difficile. Si vous ne parvenez plus a distinguer le son de parole derriere le bruit, \n');
-        fprintf('   vous pouvez repondre au hasard.\n')
-        fprintf('   L''experience comporte le meme nombre de %s et de %s. Si vous n''entendez plus l''une\n',cfg_game.response_names{1},cfg_game.response_names{2});
-        fprintf('   ou l''autre des deux sons pendant une longue periode, il est peut-etre temps de faire\n');
-        fprintf('   une pause...\n')
+        fprintf('   Vous allez entendre des sons de parole dans un bruit de fond. Votre t\342che consiste \340\n');
+        fprintf('   indiquer apr\350s chaque \351coute si le son se terminait par un "%s" (appuyez sur 1) ou \n',cfg_game.response_names{1});
+        fprintf('   un "%s" (appuyez sur 2).\n',cfg_game.response_names{2});
+        fprintf('   L''exp\351rience comporte %.0f \351coutes au total, et elle est divis\351e en %.0f sessions de \n',cfg_game.N,cfg_game.N/cfg_game.sessionsN); 
+        fprintf('   %.0f minutes environ. Vous pouvez prendre une pause en cours de session si n\351cessaire.\n',cfg_game.sessionsN*15/400);
+        fprintf('   Le volume de la voix s''ajustera automatiquement en fonction de vos performances tout\n');
+        fprintf('   au long de l''exp\351rience. Il est donc normal que la t\342che vous semble rapidement plus\n');
+        fprintf('   difficile. Si vous ne parvenez plus \340 distinguer les sons de parole derri\350re le bruit, \n');
+        fprintf('   vous pouvez r\351pondre au hasard.\n')
+        fprintf('   L''exp\351rience comporte le m\352me nombre de "%s" et de "%s" au total. Dans l''id\351al, vous \n',cfg_game.response_names{1},cfg_game.response_names{2});
+        fprintf('   devriez donc r\351pondre "%s" 50 %% du temps. Pour vous aider, votre pourcentage de r\351ponses\n',cfg_game.response_names{1});
+        fprintf('   "%s" sera affich\351 tout au long de l''exp\351rience, ainsi que les r\351ponses correctes.  Si\n',cfg_game.response_names{1});
+        fprintf('   vous n''entendez plus l''un ou l''autre des deux sons pendant une longue p\351riode, il est\n');
+        fprintf('   peut-\352tre temps de faire une pause...\n')
 end 
