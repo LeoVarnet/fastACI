@@ -84,6 +84,8 @@ if bDo_the_check
         end
         var = load([crea_extern files{1}]);
 
+        cfg_inout.crea_extern = crea_extern;
+        cfg_inout.crea_extern_description = sprintf('The noise seeds for this experiment were copied from participant/folder %s',list_other_subjects{bInput});
         %%%
         if exist(var.cfg_crea.dir_noise,'dir')
             cfg_inout.dir_noise  = var.cfg_crea.dir_noise;
@@ -105,16 +107,15 @@ if bDo_the_check
             dir_target = cfg_inout.dir_target(idx(end-1)+1:end-1);
             dir_new   = [cfg_inout.dir_data_experiment list_other_subjects{bInput} filesep];
             cfg_inout.dir_target = [dir_new dir_target filesep];
-
-            if isfield(var.cfg_crea,'seeds_order')
-                cfg_inout.seeds_order    = var.cfg_crea.seeds_order; % to be used sequentially
-            end
-            if isfield(var.cfg_crea,'seeds_order_method')
-                cfg_inout.seeds_order_method = var.cfg_crea.seeds_order_method;
-            end
-            if isfield(var.cfg_crea,'stim_order')
-                cfg_inout.stim_order     = var.cfg_crea.stim_order; 
-            end
+        end
+        if isfield(var.cfg_crea,'seeds_order')
+            cfg_inout.seeds_order = var.cfg_crea.seeds_order; % to be used sequentially
+        end
+        if isfield(var.cfg_crea,'seeds_order_method')
+            cfg_inout.seeds_order_method = var.cfg_crea.seeds_order_method;
+        end
+        if isfield(var.cfg_crea,'stim_order')
+            cfg_inout.stim_order     = var.cfg_crea.stim_order; 
         end
         %%% 
         
