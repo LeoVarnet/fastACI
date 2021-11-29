@@ -16,10 +16,7 @@ if ~isfield(cfg_inout,'seeds_order') && ~isfield(cfg_inout,'stim_order')
 else
     % In this case, the participant already exists, so the current script is skipped
     bDo_the_check = 0;
-    bGenerate_stimuli = 1; % overwritten to 0 if dir_noise exists
-    if exist(cfg_inout.dir_noise,'dir')
-        bGenerate_stimuli = 0;
-    end
+    bGenerate_stimuli = Check_if_dir_is_empty(cfg_inout.dir_noise,'*.wav');
 end
 
 %%%
