@@ -268,7 +268,10 @@ switch lower(fct)
         
         data.trialnum = m_presentation_nr_win;
         data.m_windowed = m_windowed;
+        data.PCtargetabsent_windowed = PC_targetabsent;
+        data.PCtargetpresent_windowed = PC_targetpresent;
         
+        data.bias_windowed = bias_windowed;
         data.bin_edges = bin_edges;
         data.H = H;
         data.M = M;
