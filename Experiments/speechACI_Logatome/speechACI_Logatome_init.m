@@ -88,9 +88,13 @@ N_samples = length(insig);
 %%% 2. Noise sounds:
 dir_noise = cfg_inout.dir_noise;
 if exist(dir_noise,'dir')
-    bGenerate_stimuli = 0;
+    % if dir is empty then it will generate the noises:
+    bGenerate_stimuli = Check_if_dir_is_empty(dir_noise,'*.wav'); 
 else
     bGenerate_stimuli = 1;
+end
+
+if bGenerate_stimuli == 1
     if ~strcmp(dir_noise(end),filesep) % if last character is \ or / (it should be the case always)
         dir_noise = [fileparts(dir_noise(1:end-1)) filesep];
     end
