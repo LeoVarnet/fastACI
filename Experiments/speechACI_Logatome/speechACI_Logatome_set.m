@@ -67,6 +67,9 @@ switch lower(cfg_inout.Condition) % lower case
     case 'smpsv1p2'
         dir_name_noise = 'NoiseStim-sMPSv1p2';
         noise_type = 'sMPSv1p2';
+    case 'smpsv1p3'
+        dir_name_noise = 'NoiseStim-sMPSv1p3';
+        noise_type = 'sMPSv1p3';
     otherwise
         str = strsplit(cfg_inout.Condition,'-');
         if ~strcmp(str{1},'custom')
