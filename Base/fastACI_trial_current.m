@@ -1,5 +1,5 @@
 function [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial)
-% function [cfg_game, data_passation, outs] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial)
+% function [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial)
 %
 %
 % Changes by AO:
@@ -273,14 +273,13 @@ switch response
             end
         end
 
-        if iscorrect
-            n_correctinarow = n_correctinarow+1;
-        else
-            n_correctinarow = 0;
-        end
-
         if cfg_game.adapt
 
+            if iscorrect
+                n_correctinarow = n_correctinarow+1;
+            else
+                n_correctinarow = 0;
+            end
             switch cfg_game.adapt
                 case {1,'transformed-up-down'}
                     cfg_game = Ensure_field(cfg_game,'rule',[1 2]); % [up down]-rule: [1 2] = 1-up 2-down   

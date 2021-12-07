@@ -1,5 +1,5 @@
-function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID, Condition)
-% function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID, Condition)
+function [cfg_game, data_passation] = fastACI_experiment_constant(experiment, Subject_ID, Condition, expvar)
+% function [cfg_game, data_passation] = fastACI_experiment_constant(experiment, Subject_ID, Condition, expvar)
 %
 %
 % Changes by AO:
@@ -7,17 +7,9 @@ function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID,
 %   - cfg_game.ordre_aleatoire renamed to 'randorder_idxs'
 %   - init_staircase.m renamed to staircase_init.m
 %
-% TODO:
-%   - bSimulation: convert to some option 'artificial_observer'...
-%   - Move init_staircase.m to a predefined folder...
-%   - Each experiment should have msg_warmup, msg_instructions, msg_mainexp
-%   - istarget = (ListStim(n_stim).N_signstartdateal)==2; % in this line it is assumed a 1-I AFC, change in procedures...
-%   - convert displayN to silent or something comparable...
-%
-% TOASK:
-%   - Add an additional variable 'dir_results' (splitting dir_main)
-%
-% Old name: Script2_Passation_EN.m
+% Needs to have:
+%   - An existing cfg_crea
+%   - The waveforms on disk
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Setup
@@ -89,11 +81,7 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    try
-        cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
-    catch me
-        error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
-    end
+    error('%s: No init file will be run, please run a staircase first\n',upper(mfilename));
 end
 
 if ~isfield(cfg_game,'resume')
@@ -197,10 +185,6 @@ switch cfg_game.resume
         exp2eval = sprintf('cfg_game = %s_cfg(cfg_game);',experiment);
         eval(exp2eval);
         
-        % % Parameters for game
-        % cfg_game.is_simulation =  bSimulation;
-        % cfg_game.is_experiment = ~bSimulation;
-        
         cfg_game.script_name{1} = [mfilename('fullpath') '.m'];
 
         data_passation.resume_trial = 0;
@@ -283,10 +267,6 @@ if cfg_game.is_simulation == 1
         rmpath(dir_results);
     end
         
-    % def_sim.template_every_trial = 0;
-    % def_sim.templ_num = 10; % 1;
-    % def_sim.det_lev = -6; % NaN of the expvar
-
     switch cfg_game.experiment
         case 'speechACI_Logatome'
             switch cfg_game.Condition
@@ -329,12 +309,6 @@ if cfg_game.is_simulation == 1
         cfg_game.sessionsN = cfg_game.N;
     end
 end
-
-if cfg_game.is_simulation == 1
-    % % display welcome message
-    % msg_welcome
-end
-%%%
 
 if ~isfield(cfg_game,'feedback')
     cfg_game.feedback = 0; % feedback is disabled by default
@@ -383,24 +357,18 @@ end
 
 outs_trial = [];
 
-%%% Initialises the staircase
-if cfg_game.adapt
-    str_inout = [];
-    str_inout.debut_i = debut_i;
-
-    [str_inout, cfg_game] = staircase_init(str_inout,cfg_game);
-    data_passation.reversal_current = str_inout.reversal_current; % always initialised
-
-    response   = str_inout.response;
-    outs_trial.n_correctinarow = str_inout.n_correctinarow;
-    expvar     = str_inout.expvar;
-    i_current  = str_inout.i_current;
-    
-    outs_trial.stepsize   = str_inout.stepsize;
-    isbreak    = str_inout.isbreak;
+str_inout = [];
+str_inout.debut_i = debut_i;
+[str_inout, cfg_game] = staircase_init(str_inout,cfg_game);
+if nargin < 4
+    warning('No expvar value was specified. The experiment will be run at expvarstart')
+    expvar = str_inout.expvar;
 end
-%%% Ends: Initialises
-
+    
+i_current  = str_inout.i_current;
+cfg_game.adapt = 0;
+isbreak = 0;
+    
 is_warmup = cfg_game.warmup;
 if cfg_game.is_experiment == 1
     if is_warmup
@@ -416,12 +384,11 @@ end
  
 N = cfg_game.N;
 
-% cfg_game.dir_path    = dir_main;
 cfg_game.dir_results = dir_results;
 cfg_game.dir_results_completed = dir_results_completed;
 
 while i_current <= N && i_current~=data_passation.next_session_stop && isbreak == 0
-    
+     
     ins_trial = [];
     if cfg_game.adapt
         ins_trial.stepsize        = outs_trial.stepsize;
@@ -451,42 +418,42 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
         end
     end
     %%%%
-
-end
- 
-%% Save game
-clock_str = Get_date_and_time_str;
-data_passation.date_end{length(data_passation.date_start)} = clock_str;
-savename = il_get_savename(experiment_full, Subject_ID_full, Condition, clock_str);
-save([dir_results savename],'cfg_game', 'data_passation');
-msg_close
-
-if i_current > N
-    % So, the sessions are complete now. 
-    
-    % 1. Then Get_savenames is run once more and only the last save file will 
-    %    be kept in the 'Results' directory:
-    Get_savenames(dir_results, exp2filter, dir_results_completed);
-    
-    try
-        % 2. The folder of past sessions will be moved inside the 'Result' folder:
-        movefile(dir_results_completed, [dir_results 'Results_past_sessions' filesep]);
-    end
     
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function fname = il_get_savename(experiment, Subject_ID, Condition, clock_str)
-
-if nargin < 3
-    clock_str = Get_date_and_time_str;
-end
-filter2use = [Subject_ID '_' experiment];
-
-if ~isempty(Condition)
-    filter2use = [filter2use '_' Condition];
-end
-
-savename = ['savegame_' clock_str];
-fname = [savename '_' filter2use];
-
+% %% Save game
+% clock_str = Get_date_and_time_str;
+% data_passation.date_end{length(data_passation.date_start)} = clock_str;
+% savename = il_get_savename(experiment_full, Subject_ID_full, Condition, clock_str);
+% save([dir_results savename],'cfg_game', 'data_passation');
+% msg_close
+% 
+% if i_current > N
+%     % So, the sessions are complete now. 
+%     
+%     % 1. Then Get_savenames is run once more and only the last save file will 
+%     %    be kept in the 'Results' directory:
+%     Get_savenames(dir_results, exp2filter, dir_results_completed);
+%     
+%     try
+%         % 2. The folder of past sessions will be moved inside the 'Result' folder:
+%         movefile(dir_results_completed, [dir_results 'Results_past_sessions' filesep]);
+%     end
+%     
+% end
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% function fname = il_get_savename(experiment, Subject_ID, Condition, clock_str)
+% 
+% if nargin < 3
+%     clock_str = Get_date_and_time_str;
+% end
+% filter2use = [Subject_ID '_' experiment];
+% 
+% if ~isempty(Condition)
+%     filter2use = [filter2use '_' Condition];
+% end
+% 
+% savename = ['savegame_' clock_str];
+% fname = [savename '_' filter2use];
+% 
