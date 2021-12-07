@@ -56,7 +56,10 @@ if isempty(keyvals.dir_out)
     if isempty(path)
         [path,name,ext]=fileparts( savegame_file );
     end
-    path = [path filesep];
+    path = [path filesep 'Results_ACI' filesep]; 
+    if ~exist(path,'dir')
+        mkdir(path);
+    end
     dir_out = path;
 else
     dir_out = keyvals.dir_out;
@@ -78,11 +81,15 @@ TF_type = flags.TF_type;
 glmfct  = flags.glmfct;
 % END: From argument function:
 
-if isempty(keyvals.idx_trialselect)
+if isempty(keyvals.idx_trialselect) && (data_passation.i_current == cfg_game.N)
     keyvals.idx_trialselect = 1:N;
     str_last_trial = '';
 else
-    N_here = length(keyvals.idx_trialselect);
+    if ~isempty(keyvals.idx_trialselect)
+        N_here = length(keyvals.idx_trialselect);
+    else
+        N_here = data_passation.i_current;
+    end
     if N_here == cfg_game.N
         str_last_trial = '';
     else
