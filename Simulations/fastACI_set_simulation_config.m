@@ -24,21 +24,58 @@ def_sim.modelname = modelname;
 bInput = input('Enter 0 to load defaults for the current auditory model, enter 1 to input parameter by parameter: ');
 
 if bInput == 0
+    templ_num = 10;
+    bStore_template = 1;
     switch modelname
         case 'king2019'
+            error('Validate again')
             def_sim.decision_script = 'king2019_detect'; 
             def_sim.template_script = 'king2019_template'; % this can be later automated
             def_sim.type_decision   = '';
             
         case 'osses2021'
-            def_sim.decision_script = 'aci_detect';
-            def_sim.template_script = 'model_template';
-            def_sim.type_decision   = 'optimal_detector';
+            p = model_cfg_osses2021c('default',modelname,templ_num,bStore_template);
+            text_to_write = readfile_replace('model_cfg_replace.txt',p);
+            
+            dir_here = [fastACI_basepath 'Simulations' filesep];
+            fname_cfg =  [dir_here modelname '_cfg.m'];
+
+            if exist(fname_cfg,'file')
+                fprintf('----------------------------------------------------------------------------\n')
+                fprintf('file %s exists, \npress any key to continue (will overwrite) or press ctrl+C to cancel \n',fname_cfg);
+                fprintf('----------------------------------------------------------------------------\n')
+                pause
+            end
+
+            fid = fopen(fname_cfg, 'w');
+            fwrite(fid, text_to_write);
+            fclose(fid);
+            
+            %%% Creating the optimal detector configuration:
+            text_to_write = readfile_replace('optimal_detector_cfg_replace.txt',p);
+            fname_cfg =  [dir_here 'optimal_detector_cfg.m'];
+            if exist(fname_cfg,'file')
+                fprintf('----------------------------------------------------------------------------\n')
+                fprintf('file %s exists, \npress any key to continue (will overwrite) or press ctrl+C to cancel \n',fname_cfg);
+                fprintf('----------------------------------------------------------------------------\n')
+                pause
+            end
+
+            fid = fopen(fname_cfg, 'w');
+            fwrite(fid, text_to_write);
+            fclose(fid);
+            %%%
+            
+            exp2eval = ['def_sim = ' modelname '_cfg;'];
+            eval(exp2eval);
             
         otherwise
             error('Add model %s to the list',modelname);
     end
+    
+    
 else
+    error('Validate again...')
     % decision_script:
     script_options = {'aci_detect','king2019_detect'};
     Show_cell(script_options);
@@ -74,3 +111,4 @@ else
     def_sim.templ_num = input('templ_num, number of averages for the template (1 or typically 10): ');
     def_sim.det_lev = input('det_lev, suprathreshold level to derive the template (task-dependenet): ');
 end
+

@@ -1,5 +1,5 @@
-function [cfg_game, data_passation] = fastACI_experiment_constant(experiment, Subject_ID, Condition, expvar)
-% function [cfg_game, data_passation] = fastACI_experiment_constant(experiment, Subject_ID, Condition, expvar)
+function [cfg_game, data_passation] = fastACI_experiment_constant(experiment, Subject_ID, Condition, expvar, Ni, Nf)
+% function [cfg_game, data_passation] = fastACI_experiment_constant(experiment, Subject_ID, Condition, expvar, Ni, Nf)
 %
 %
 % Changes by AO:
@@ -27,7 +27,6 @@ if nargin == 0
     experiment = experiments{bExp};
 end
 
-Subject_ID_full = Subject_ID;
 if sum(Subject_ID=='_')
     idx = find(Subject_ID=='_');
     Subject_ID = Subject_ID(1:idx-1);
@@ -166,8 +165,6 @@ switch cfg_game.resume
                 cfg_game.experiment = 'modulationACI';
             end
             
-            % cfg_game.is_simulation =  bSimulation;
-            % cfg_game.is_experiment = ~bSimulation;
         else
             error('%s: No savegame with the specified name',upper(mfilename))
         end
@@ -218,17 +215,17 @@ if cfg_game.is_simulation == 1
         % First time the model is run, then the configuration file is read 
         %   and backed-up locally:
        
+        path_where_supposed = [fastACI_basepath 'Simulations' filesep];
         model_cfg_src = [Subject_ID '_cfg'];
-        if exist(model_cfg_src,'file')
-            exp2eval = sprintf('def_sim = %s;',model_cfg_src);
-            eval(exp2eval);
-            
+        
+        if exist([path_where_supposed model_cfg_src],'file')
             path = fileparts(which(model_cfg_src));
             path = [path filesep];
-            path_where_supposed = [fastACI_basepath 'Simulations' filesep];
             if ~strcmp(path,path_where_supposed)
                 error('The script %s is supposed to be in %s,\n(not in %s)',model_cfg_src,path_where_supposed,path);
             end
+            exp2eval = sprintf('def_sim = %s;',model_cfg_src);
+            eval(exp2eval);
             
             fprintf('Model configuration found on disk. Check whether the configuration is what you expect:\n');
             def_sim
@@ -238,7 +235,6 @@ if cfg_game.is_simulation == 1
             pause(10);
             
         else
-            error('Validate here...')
             def_sim = [];
             def_sim.modelname = Subject_ID;
 
@@ -257,8 +253,8 @@ if cfg_game.is_simulation == 1
         file_config = sprintf('%s_%s_cfg_%.0f_%.0f_%.0f_%.0fh%.0fm.m',file_config,Subject_ID,cfg_game.date(1:5));
         cfg_game.model_cfg_script      = file_config;
         cfg_game.model_cfg_script_full = [dir_results file_config];
-        
-        copyfile([fileparts(which(model_cfg_src)) filesep model_cfg_src '.m'],cfg_game.model_cfg_script_full);
+        dir_here = [fileparts(which(model_cfg_src)) filesep];
+        copyfile([dir_here model_cfg_src '.m'],cfg_game.model_cfg_script_full);
     else
         % The the simulation is resuming, we need to read the configuration file:
         addpath(dir_results);
@@ -369,6 +365,7 @@ i_current  = str_inout.i_current;
 cfg_game.adapt = 0;
 isbreak = 0;
     
+data_passation_init = [];
 is_warmup = cfg_game.warmup;
 if cfg_game.is_experiment == 1
     if is_warmup
@@ -378,11 +375,25 @@ if cfg_game.is_experiment == 1
         data_passation_init = data_passation; % initial data_passation
     else
         % display instructions main exp
-        msg_mainexp
+        msg_mainexp;
     end
 end
  
-N = cfg_game.N;
+if nargin < 5
+    Ni = data_passation.i_current;
+end
+if nargin < 6
+    N = cfg_game.sessionsN;
+    % Nf = data_passation.i_current + cfg_game.sessionsN;
+else
+    N = Nf-Ni+1;
+end
+data_passation.next_session_stop = Nf;
+data_passation.i_current = Ni;
+
+% if nargin < 5
+%     N = cfg_game.N;
+% end
 
 cfg_game.dir_results = dir_results;
 cfg_game.dir_results_completed = dir_results_completed;
@@ -393,6 +404,10 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
     if cfg_game.adapt
         ins_trial.stepsize        = outs_trial.stepsize;
         ins_trial.n_correctinarow = outs_trial.n_correctinarow;
+    end
+    if cfg_game.is_simulation
+        ins_trial.def_sim  = def_sim;
+        ins_trial.sim_work = sim_work;
     end
     ins_trial.debut_i = debut_i;
     if debut_i == 1
@@ -419,41 +434,4 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
     end
     %%%%
     
-end
-
-% %% Save game
-% clock_str = Get_date_and_time_str;
-% data_passation.date_end{length(data_passation.date_start)} = clock_str;
-% savename = il_get_savename(experiment_full, Subject_ID_full, Condition, clock_str);
-% save([dir_results savename],'cfg_game', 'data_passation');
-% msg_close
-% 
-% if i_current > N
-%     % So, the sessions are complete now. 
-%     
-%     % 1. Then Get_savenames is run once more and only the last save file will 
-%     %    be kept in the 'Results' directory:
-%     Get_savenames(dir_results, exp2filter, dir_results_completed);
-%     
-%     try
-%         % 2. The folder of past sessions will be moved inside the 'Result' folder:
-%         movefile(dir_results_completed, [dir_results 'Results_past_sessions' filesep]);
-%     end
-%     
-% end
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% function fname = il_get_savename(experiment, Subject_ID, Condition, clock_str)
-% 
-% if nargin < 3
-%     clock_str = Get_date_and_time_str;
-% end
-% filter2use = [Subject_ID '_' experiment];
-% 
-% if ~isempty(Condition)
-%     filter2use = [filter2use '_' Condition];
-% end
-% 
-% savename = ['savegame_' clock_str];
-% fname = [savename '_' filter2use];
-% 
+end 

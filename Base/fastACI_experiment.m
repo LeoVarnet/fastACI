@@ -177,9 +177,6 @@ switch cfg_game.resume
             if ~isfield(cfg_game,'experiment')
                 cfg_game.experiment = 'modulationACI';
             end
-            
-            % cfg_game.is_simulation =  bSimulation;
-            % cfg_game.is_experiment = ~bSimulation;
         else
             error('%s: No savegame with the specified name',upper(mfilename))
         end
@@ -196,10 +193,6 @@ switch cfg_game.resume
         
         exp2eval = sprintf('cfg_game = %s_cfg(cfg_game);',experiment);
         eval(exp2eval);
-        
-        % % Parameters for game
-        % cfg_game.is_simulation =  bSimulation;
-        % cfg_game.is_experiment = ~bSimulation;
         
         cfg_game.script_name{1} = [mfilename('fullpath') '.m'];
 
@@ -234,17 +227,17 @@ if cfg_game.is_simulation == 1
         % First time the model is run, then the configuration file is read 
         %   and backed-up locally:
        
+        path_where_supposed = [fastACI_basepath 'Simulations' filesep];
         model_cfg_src = [Subject_ID '_cfg'];
-        if exist(model_cfg_src,'file')
-            exp2eval = sprintf('def_sim = %s;',model_cfg_src);
-            eval(exp2eval);
-            
+        
+        if exist([path_where_supposed model_cfg_src],'file')
             path = fileparts(which(model_cfg_src));
             path = [path filesep];
-            path_where_supposed = [fastACI_basepath 'Simulations' filesep];
             if ~strcmp(path,path_where_supposed)
                 error('The script %s is supposed to be in %s,\n(not in %s)',model_cfg_src,path_where_supposed,path);
             end
+            exp2eval = sprintf('def_sim = %s;',model_cfg_src);
+            eval(exp2eval);
             
             fprintf('Model configuration found on disk. Check whether the configuration is what you expect:\n');
             def_sim
@@ -254,7 +247,6 @@ if cfg_game.is_simulation == 1
             pause(10);
             
         else
-            error('Validate here...')
             def_sim = [];
             def_sim.modelname = Subject_ID;
 
@@ -283,10 +275,6 @@ if cfg_game.is_simulation == 1
         rmpath(dir_results);
     end
         
-    % def_sim.template_every_trial = 0;
-    % def_sim.templ_num = 10; % 1;
-    % def_sim.det_lev = -6; % NaN of the expvar
-
     switch cfg_game.experiment
         case 'speechACI_Logatome'
             switch cfg_game.Condition
@@ -401,6 +389,7 @@ if cfg_game.adapt
 end
 %%% Ends: Initialises
 
+data_passation_init = [];
 is_warmup = cfg_game.warmup;
 if cfg_game.is_experiment == 1
     if is_warmup
@@ -426,6 +415,10 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
     if cfg_game.adapt
         ins_trial.stepsize        = outs_trial.stepsize;
         ins_trial.n_correctinarow = outs_trial.n_correctinarow;
+    end
+    if cfg_game.is_simulation
+        ins_trial.def_sim  = def_sim;
+        ins_trial.sim_work = sim_work;
     end
     ins_trial.debut_i = debut_i;
     if debut_i == 1

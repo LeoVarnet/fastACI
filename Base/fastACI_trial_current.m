@@ -26,6 +26,10 @@ if cfg_game.adapt
     stepsize = ins_trial.stepsize;
     n_correctinarow = ins_trial.n_correctinarow;
 end
+if cfg_game.is_simulation
+    def_sim  = ins_trial.def_sim;
+    sim_work = ins_trial.sim_work;
+end
 
 %%%% Trial start     
 n_stim = cfg_game.stim_order(i_current);

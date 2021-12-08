@@ -21,7 +21,8 @@ fprintf('Enter a number from the list before, i.e., between 1 and %.0f\n',length
 idx = input('Enter the name of the simulation to be run (you need all these runs to reproduce the figure papers).: ');
 run_str = runs{idx};
 
-p = il_get_model_config_DAGA(run_str,modelname);
+templ_num = 10;
+p = model_cfg_osses2021c(run_str,modelname,templ_num);
 text_to_write = readfile_replace('model_cfg_replace.txt',p);
 
 if exist(fname_cfg,'file')

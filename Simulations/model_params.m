@@ -1,6 +1,11 @@
 function [modelpars,subfs,params_extra] = model_params(modelname,fs)
 % function [modelpars,subfs,params_extra] = model_params(modelname,fs)
 %
+% modelname = 'osses2021';
+% fs = 44100;
+% [modelpars,subfs] = model_params(modelname,fs);
+%
+% See also model_getparams.m (fastACI_sim repository):
 % modelname = 'dau1997';
 % fs = 44100;
 % def = [];
@@ -20,28 +25,6 @@ params_extra = [];
 % fs    = def.samplerate;
 modelpars = [];
 modelpars{1} = fs;
-
-% if isfield(def,'calFilterDesignLow')
-%     flow = def.calFilterDesignLow;
-%     modelpars(end+1:end+2) = {'flow',flow};
-% end
-% 
-% if isfield(def,'calFilterDesignUp')
-%     fhigh = def.calFilterDesignUp;
-%     modelpars(end+1:end+2) = {'fhigh',fhigh};
-% end
-% 
-% if isfield(simdef,'resample')
-%     subfs = round(def.samplerate / simdef.resample);
-%     modelpars(end+1:end+2) = {'subfs',subfs};
-% else
-%     subfs = fs; % subfs overloaded later for verhulst2018
-% end
-% 
-% if isfield(def,'basef')
-%     basef = def.basef;
-%     modelpars(end+1:end+2) = {'basef',basef};
-% end
 
 subfs = [];
 
@@ -104,9 +87,8 @@ switch modelname
     case 'osses2021'
         subfs = 16000;
         modelpars(end+1) = {'LP_150_Hz_att'}; % as in Osses2021a, Fig. 14c
-        % % [~,bFound] = Get_flag_from_cell(modelpars,'LP_150_Hz_att');
-        % modelpars(end+1:end+length(modelpars_add)) = modelpars_add;
-        
+        pars = osses2021_cfg;
+        params_extra.in_var = pars.in_var;
 end
 
 if isempty(subfs)

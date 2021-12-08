@@ -8,4 +8,6 @@ Interim_results/*.mat
 fastACI_dir_data.m
 fastACI_dir_amtoolbox.m
 fastACI_file_template.m
+optimal_detector_cfg.m
 osses2021_cfg.m
+
