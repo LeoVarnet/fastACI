@@ -1,7 +1,6 @@
 function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID, Condition)
 % function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID, Condition)
 %
-%
 % Changes by AO:
 %   - cfg_game.resume set to 1 (for oui) or 0 (for non)
 %   - cfg_game.ordre_aleatoire renamed to 'randorder_idxs'
@@ -209,8 +208,12 @@ cfg_game.is_experiment = ~bSimulation;
 % Simulation parameters
 if cfg_game.is_simulation == 1
     
+    if ~strcmp(cfg_game.Language,'EN')
+        fprintf('%s: Switching the language of the simulations to English\n',upper(mfilename));
+        cfg_game.Language = 'EN';
+    end
     cfg_game.warmup = 0; % warm up is disabled
-    cfg_game.sessionsN = 400; warning('Temporal')
+    cfg_game.sessionsN = 400; 
     
     if cfg_game.resume
         % Check wether it already completed the task

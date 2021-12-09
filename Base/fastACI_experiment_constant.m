@@ -198,7 +198,7 @@ cfg_game.is_experiment = ~bSimulation;
 if cfg_game.is_simulation == 1
     
     cfg_game.warmup = 0; % warm up is disabled
-    cfg_game.sessionsN = 400; warning('Temporal')
+    cfg_game.sessionsN = 400; 
     
     if cfg_game.resume
         % Check wether it already completed the task

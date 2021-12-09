@@ -16,6 +16,27 @@ switch cfg_game.Language
         fprintf('\tPlaying stimulus # %.0f of %.0f (Next session stop in %.0f trials)\n',i_current,cfg_game.N,N_for_next_stop);
         fprintf('\tDependent variable: expvar = %.2f%s \n',expvar,expvar_description);
         fprintf('\n');
+        
+        if i_current>100
+            bias_r1 = 100*sum(data_passation.n_responses(end-100+1:end)==1)/100;
+            fprintf('\tPercentage of "%s" responses: %.1f %%\n',cfg_game.response_names{1},bias_r1);
+            if cfg_game.is_simulation == 1
+                bias_r2 = 100*sum(data_passation.n_responses(end-100+1:end)==2)/100;
+                % Extra info for the simulations:
+                fprintf('\tPercentage of "%s" responses: %.1f %%\n',cfg_game.response_names{2},bias_r2);
+                fprintf('\tPercentage of correct responses: %.1f %%\n',100*sum(data_passation.is_correct(end-100+1:end)==1)/100);
+            else
+                if bias_r1>60
+                    fprintf('\tPercentage of "%s" responses = %.0f %% (trop de "%s") \n',cfg_game.response_names{1},bias_r1,cfg_game.response_names{1});
+                elseif bias_r1<40
+                    fprintf('\tPercentage of "%s" responses = %.0f %% (trop de "%s") \n',cfg_game.response_names{1},bias_r1,cfg_game.response_names{2});
+                else
+                    fprintf('\tPercentage of "%s" responses \n',cfg_game.response_names{1});
+                end
+            end
+        end
+        fprintf('\n');
+        
     case 'FR'
         fprintf('\n\t*** EXP\311RIENCE PRINCIPALE ***\n\n');
         fprintf('\t\311coute num\351ro %.0f sur %.0f (prochaine pause dans %.0f \351coutes)\n',i_current,cfg_game.N,N_for_next_stop);
