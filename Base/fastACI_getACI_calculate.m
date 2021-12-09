@@ -129,7 +129,12 @@ switch glmfct
                 idxlambda = FitInfo.IndexMinMSE;
                 
             case 'lassoslow'
-                [B,FitInfo] = lassoslow(X,y,N_folds);
+                lambda0 = cfg_ACI.keyvals.lambda;
+                if isempty(lambda0)
+                    [B,FitInfo] = lassoslow(X,y,N_folds); % default lambdas will be tested
+                else
+                    [B,FitInfo] = lassoslow(X,y,N_folds,lambda0); 
+                end
                 [~, idxlambda] = min(mean(FitInfo.MSEtest,2));
                 
             case 'lassoglmslow'

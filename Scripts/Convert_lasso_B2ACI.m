@@ -47,9 +47,21 @@ for i_level = Nlevelmin:Nlevel
     sumReWeight = sumReWeight + ReWeightPyramid{i_level};
 end
 
-if length(cfg_ACI.t_limits_idx) < size(sumReWeight,3) % Dim 3 is time 
+if size(sumReWeight,3) ~= 1
+    dim_time = 3; % Dim 3 is time when multiple lambdas are tested
+else
+    dim_time = 2;
+end
+
+if length(cfg_ACI.t_limits_idx) < size(sumReWeight,dim_time) 
     % time was padded for the pyramid calculation, so we truncate it back
-    sumReWeight = sumReWeight(:,:,cfg_ACI.t_limits_idx);
+    switch dim_time
+        case 3 % default
+            sumReWeight = sumReWeight(:,:,cfg_ACI.t_limits_idx);
+        case 2
+            % when only one lambda is tested
+            sumReWeight = sumReWeight(:,cfg_ACI.t_limits_idx);
+    end
     if cfg_ACI.t_X(1) == cfg_ACI.t(1) && cfg_ACI.t_X(cfg_ACI.N_t) == cfg_ACI.t(cfg_ACI.N_t)
         % then t_X is equal (but longer than) t
         cfg_ACI = rmfield(cfg_ACI,'t_X');
@@ -61,7 +73,7 @@ else
             if length(cfg_ACI.t_X) < length(cfg_ACI.t)
                 cfg_ACI.t = cfg_ACI.t(1:length(cfg_ACI.t_X));
             end
-
+            
             cfg_ACI = rmfield(cfg_ACI,'t_X');
         end
     end

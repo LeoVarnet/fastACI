@@ -53,6 +53,8 @@ definput.keyvals.logspect_unit = 'dB'; % 'linear'
 definput.keyvals.bwmul    = .5; % recommended either 0.5 or 1 ERB
 definput.keyvals.binwidth = 10e-3; % 10 ms, time resolution for ACI
 
+definput.keyvals.lambda = [];
+
 % % Managing some default values: time and frequency limits
 % if flags.do_tf
 %     opts_ACI = Ensure_field(opts_ACI,'freq_analysis',[1 10000]);
