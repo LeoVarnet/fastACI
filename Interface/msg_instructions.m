@@ -19,11 +19,12 @@ switch cfg_game.Language
         fprintf('   %.0f minutes environ. Vous pouvez prendre une pause en cours de session si n\351cessaire.\n',cfg_game.sessionsN*15/400);
         fprintf('   Le volume de la voix s''ajustera automatiquement en fonction de vos performances tout\n');
         fprintf('   au long de l''exp\351rience. Il est donc normal que la t\342che vous semble rapidement plus\n');
-        fprintf('   difficile. Si vous ne parvenez plus \340 distinguer les sons de parole derri\350re le bruit, \n');
-        fprintf('   vous pouvez r\351pondre au hasard.\n')
+        fprintf('   difficile. Si vous ne parvenez plus \340 distinguer la voix derri\350re le bruit, vous\n');
+        fprintf('   pouvez r\351pondre au hasard.\n')
         fprintf('   L''exp\351rience comporte le m\352me nombre de "%s" et de "%s" au total. Dans l''id\351al, vous \n',cfg_game.response_names{1},cfg_game.response_names{2});
-        fprintf('   devriez donc r\351pondre "%s" 50 %% du temps. Pour vous aider, votre pourcentage de r\351ponses\n',cfg_game.response_names{1});
-        fprintf('   "%s" sera affich\351 tout au long de l''exp\351rience, ainsi que les r\351ponses correctes.  Si\n',cfg_game.response_names{1});
-        fprintf('   vous n''entendez plus l''un ou l''autre des deux sons pendant une longue p\351riode, il est\n');
-        fprintf('   peut-\352tre temps de faire une pause...\n')
+        fprintf('   devriez donc r\351pondre "%s" 50 %% du temps. Pour vous aider, votre pourcentage de r\351-\n',cfg_game.response_names{1});
+        fprintf('   ponses "%s" et "%s" sera affich\351 si votre biais devient trop important.\n', cfg_game.response_names{1},cfg_game.response_names{2});
+        fprintf('   Apr\350s chaque tentative, la r\351ponse correcte vous sera indiqu\351e. Si vous n''entendez \n');
+        fprintf('   plus l''un ou l''autre des deux sons pendant une longue p\351riode, il est peut-\352tre \n');
+        fprintf('   temps de faire une pause...\n')
 end 
