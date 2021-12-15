@@ -79,8 +79,6 @@ ir_reference       = model_representation(signal2,modelname,modelpars);
 
 [templ_ref,sizeIR] = Ensure_intrep_is_numeric(ir_reference);
 templ_tar          = Ensure_intrep_is_numeric(ir_signal);
-sizeIR             = sizeIR; % I need this to apply the alignment of 
-                             % internal representations later        
 
 for i = 1:(cfg_sim.templ_num - 1)
   

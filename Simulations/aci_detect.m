@@ -35,17 +35,8 @@ end
 sim_work = Ensure_field(sim_work,'templ_tar',[]);
 sim_work = Ensure_field(sim_work,'templ_ref',[]);
 
-sim_work = Ensure_field(sim_work,'bOnly_get_template',0);
+% sim_work = Ensure_field(sim_work,'bOnly_get_template',0);
 
-% global set
- 
-% def.experiment = cfg_game.experiment;
-
-% % This code only handles running references using the optimal detector
-% 
-% def = Ensure_field(def,'templateeverytrial',0);
-% def = Ensure_field(def,'template_script','casp_template');
- 
 template_script = cfg_sim.template_script;
 
 cfg_sim = Ensure_field(cfg_sim,'modelname','dau1997');
@@ -58,10 +49,12 @@ if ~isfield(cfg_sim,'type_decision')
     switch cfg_sim.modelname
         case 'dau1997'
             cfg_sim.type_decision = 'optimal_detector';
-        case 'osses2021'
+        case {'osses2021','osses2022a'}
             cfg_sim.type_decision = 'optimal_detector';
         case 'relanoiborra2019'
             cfg_sim.type_decision = 'relanoiborra2019_decision';
+        otherwise
+            error('%s: Add the model and its default decision script to this list',upper(mfilename))
     end
 end
 type_decision = cfg_sim.type_decision; % 'relanoiborra2019_decision'; 'optimal_detector'; % type_processing;
@@ -96,10 +89,15 @@ if (isempty(sim_work.templ_tar) == 1 || cfg_sim.template_every_trial == 1 )
     
     % def.calculate_template = 0;
     if sim_work.bStore_template
-        fname = sprintf('%stemplate-%s-%s-trial-%.0f',cfg_game.dir_results,cfg_game.Subject_ID,cfg_game.experiment_full,data_passation.i_current);
-        save(fname,'templ_tar','templ_ref');
         
-        fastACI_set_template([fname '.mat'], cfg_game);
+        fname = fastACI_file_template(cfg_game.experiment_full,cfg_game.Subject_ID);
+        % fname = sprintf('%stemplate-%s-%s-trial-1',cfg_game.dir_results,cfg_game.Subject_ID,cfg_game.experiment_full);
+        if exist(fname,'file')
+            disp('A template was found on disk. Press ctrl+c to abort or press any button to continue (and overwrite) the previous template')
+            pause
+        end
+        save(fname,'templ_tar','templ_ref');
+        % fastACI_set_template([fname '.mat'], cfg_game);
     end
     
 end

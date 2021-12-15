@@ -89,6 +89,12 @@ switch modelname
         modelpars(end+1) = {'LP_150_Hz_att'}; % as in Osses2021a, Fig. 14c
         pars = osses2021_cfg;
         params_extra.in_var = pars.in_var;
+        
+    case 'osses2022a'
+        subfs = 16000;
+        pars = osses2022a_cfg;
+        params_extra.in_var = pars.in_var;
+        
 end
 
 if isempty(subfs)

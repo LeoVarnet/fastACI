@@ -1,4 +1,4 @@
-function basepath = fastACI_file_template(experiment_full)
-% function basepath = fastACI_file_template(experiment_full)
+function basepath = fastACI_file_template(experiment_full, modelname)
+% function basepath = fastACI_file_template(experiment_full, modelname)
 
-basepath = $$target_path$$;
+basepath = [$$target_path$$ modelname filesep];

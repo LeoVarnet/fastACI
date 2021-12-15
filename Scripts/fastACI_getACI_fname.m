@@ -17,7 +17,6 @@ definput.import={'fastACI_getACI'}; % arg_fastACI_getACI.m
 N = cfg_game.N;
 
 if isempty(keyvals.dir_out)
-    warning('No output directory (opts_ACI.dir_out) has been specified, the same folder where the MAT file is will be used...');
     % curr_dir = [pwd filesep]; % current directory
     [path,name,ext]=fileparts(which(savegame_file));
     if isempty(path)

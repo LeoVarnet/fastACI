@@ -24,7 +24,12 @@ def_sim.modelname = modelname;
 bInput = input('Enter 0 to load defaults for the current auditory model, enter 1 to input parameter by parameter: ');
 
 if bInput == 0
-    templ_num = 10;
+    switch modelname
+        case 'osses2021'
+            templ_num = 10;
+        case 'osses2022a'
+            templ_num = 100;
+    end
     bStore_template = 1;
     switch modelname
         case 'king2019'
@@ -33,7 +38,7 @@ if bInput == 0
             def_sim.template_script = 'king2019_template'; % this can be later automated
             def_sim.type_decision   = '';
             
-        case 'osses2021'
+        case {'osses2021','osses2022a'}
             p = model_cfg_osses2021c('default',modelname,templ_num,bStore_template);
             text_to_write = readfile_replace('model_cfg_replace.txt',p);
             
@@ -51,19 +56,21 @@ if bInput == 0
             fwrite(fid, text_to_write);
             fclose(fid);
             
-            %%% Creating the optimal detector configuration:
-            text_to_write = readfile_replace('optimal_detector_cfg_replace.txt',p);
-            fname_cfg =  [dir_here 'optimal_detector_cfg.m'];
-            if exist(fname_cfg,'file')
-                fprintf('----------------------------------------------------------------------------\n')
-                fprintf('file %s exists, \npress any key to continue (will overwrite) or press ctrl+C to cancel \n',fname_cfg);
-                fprintf('----------------------------------------------------------------------------\n')
-                pause
-            end
-
-            fid = fopen(fname_cfg, 'w');
-            fwrite(fid, text_to_write);
-            fclose(fid);
+            % %%% Creating the optimal detector configuration:
+            % if strcmp(p.type_decision,'optimal_detector')
+            %     text_to_write = readfile_replace('optimal_detector_cfg_replace.txt',p);
+            %     fname_cfg =  [dir_here 'optimal_detector_cfg.m'];
+            % end
+            % if exist(fname_cfg,'file')
+            %     fprintf('----------------------------------------------------------------------------\n')
+            %     fprintf('file %s exists, \npress any key to continue (will overwrite) or press ctrl+C to cancel \n',fname_cfg);
+            %     fprintf('----------------------------------------------------------------------------\n')
+            %     pause
+            % end
+            % 
+            % fid = fopen(fname_cfg, 'w');
+            % fwrite(fid, text_to_write);
+            % fclose(fid);
             %%%
             
             exp2eval = ['def_sim = ' modelname '_cfg;'];

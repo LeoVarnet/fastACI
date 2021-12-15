@@ -41,7 +41,7 @@ if sum(Subject_ID=='_')
 end
 
 switch Subject_ID
-    case {'dau1997','king2019','osses2021'} % alphabetical order
+    case {'dau1997','king2019','osses2021','osses2022a'} % alphabetical order
         bSimulation = 1;
         
     case {'dau1997_preproc'}
@@ -293,7 +293,7 @@ if cfg_game.is_simulation == 1
     
     if def_sim.bStore_template == 1
         if exist('fastACI_file_template.m','file')
-            file_template = fastACI_file_template(cfg_game.experiment_full);
+            file_template = fastACI_file_template(cfg_game.experiment_full, Subject_ID);
 
             if exist(file_template,'file')
                 fprintf('Pausing for 10 s. Press ctr+c to cancel the simulations.\n');
@@ -463,12 +463,6 @@ if i_current > N
     % 1. Then Get_savenames is run once more and only the last save file will 
     %    be kept in the 'Results' directory:
     Get_savenames(dir_results, exp2filter, dir_results_completed);
-    
-    try
-        % 2. The folder of past sessions will be moved inside the 'Result' folder:
-        movefile(dir_results_completed, [dir_results 'Results_past_sessions' filesep]);
-    end
-    
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

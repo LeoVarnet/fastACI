@@ -9,7 +9,7 @@ def_sim.det_lev = $$det_lev$$;
 def_sim.type_decision = '$$type_decision$$';
 switch def_sim.type_decision
   case 'optimal_detector'
-    optdet_params = optimal_detector_cfg;
+    optdet_params = optimal_detector_cfg(def_sim.modelname);
     def_sim.thres_for_bias = optdet_params.thres_for_bias;
     def_sim.in_var = optdet_params.in_var;
 end

@@ -1,19 +1,18 @@
-function bAre_stored_locally = publ_osses2021c_DAGA_0_checkdata
-% function bAre_stored_locally = publ_osses2021c_DAGA_0_checkdata
+function bAre_stored_locally = publ_varnet2022_JASA_0_checkdata
+% function bAre_stored_locally = publ_varnet2022_JASA_0_checkdata
 %
-% This script checks whether the data related to osses2021c (Osses and Varnet,
-%     2022, DAGA) is located locally and otherwise, it requests the user to
+% This script checks whether the data related to varnet2022 (Varnet and Lorenzi,
+%     2022, JASA) is located locally and otherwise, it requests the user to
 %     download the data.
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 dir_where = fastACI_dir_data;
-experiment = 'speechACI_varnet2013';
+experiment = 'modulationACI';
 
 dir_where = [dir_where experiment filesep];
-dirs2check = {'osses2021c_S01', ...
-              'osses2021c_S02'};
+dirs2check = {'S1','S2','S3','S4','S5','S6','S7','S8','Srej'};
 
 bAre_stored_locally = ones(size(dirs2check));
 
@@ -23,7 +22,7 @@ for i = 1:length(dirs2check)
     if ~exist(dir2check,'dir')
         fprintf('%s: directory %s not found on disk\n',upper(mfilename),dir2check);
         fprintf('\t Next steps to perform: \n');
-        fprintf('\t 1. Go to https://doi.org/10.5281/zenodo.5483835 (reference osses2021c_data) and download the two zip files\n');
+        fprintf('\t 1. Go to https://doi.org/10.5281/zenodo.5571719 (reference varnet2021_data) and download all 9 zip files\n');
         fprintf('\t 2. Uncompress the zip files and locate them into %s\n',dir_where);
         fprintf('\t 3. Re-run the current script until you don''t get errors \n');
         
@@ -41,6 +40,6 @@ end
 
 if bAre_stored_locally == 1
     fprintf('%s: directory %s successfully found on disk\n',upper(mfilename),dir2check);
-    fprintf('\t If you wish, you can now run either publ_osses2021c_DAGA_1_sim or publ_osses2021c_DAGA_2_figs... \n');
+    % fprintf('\t If you wish, you can now run either publ_osses2021c_DAGA_1_sim or publ_osses2021c_DAGA_2_figs... \n');
 end
         

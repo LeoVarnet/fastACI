@@ -71,6 +71,15 @@ switch run_str
                 p.type_decision = 'optimal_detector';
                 p.in_std = 3.14; % MU, calibration on 7/12/2021
                 p.thres_for_bias = 0; 
+                
+           case 'osses2022a'
+                p.decision_script = 'aci_detect';
+                p.template_script = 'model_template';
+                p.template_every_trial = 0;
+                p.det_lev = -6;
+                p.type_decision = 'optimal_detector';
+                p.in_std = 0; % No calibration yet
+                p.thres_for_bias = 0; 
         end
         
     otherwise
