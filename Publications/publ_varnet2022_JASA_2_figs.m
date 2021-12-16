@@ -3,28 +3,22 @@ function [h,hname] = publ_varnet2022_JASA_2_figs(varargin)
 %
 % Generates the figures
 %
+% % To display Fig. 2 of Varnet and Lorenzi (2022, JASA) use :::
+%     publ_varnet2022_JASA_2_figs('fig2');
+%
+% % To display Fig. 3 of Varnet and Lorenzi (2022, JASA) use :::
+%     publ_varnet2022_JASA_2_figs('fig3');
+%
+% % To display Fig. 4 of Varnet and Lorenzi (2022, JASA) use :::
+%     publ_varnet2022_JASA_2_figs('fig4');
+%
 % % To display Fig. 1 of the supplementary materials of Varnet and Lorenzi 
 % %     (2022, JASA) use :::
 %     publ_varnet2022_JASA_2_figs('fig1_suppl');
 %
-% % To display Fig. 1B of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig1b');
-%
-% % To display Fig. 2 of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig2');
-%
-% % To display Fig. 3A of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig3a');
-%
-% % To display Fig. 3B of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig1a');
-%
-% % To display Fig. 4 of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig1a');
-%
-% Original name:
-%   g20210810_analysing_simulation_sessions_abda.m (Figs. 1A-3b)
-%   g20210827_osses_varnet_DAGA_fig4 (Fig. 4)
+% % To display Fig. 2 of the supplementary materials of Varnet and Lorenzi 
+% %     (2022, JASA) use :::
+%     publ_varnet2022_JASA_2_figs('fig2_suppl');
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,7 +31,7 @@ end
 h = [];
 hname = [];
 
-definput.flags.type={'missingflag','fig2','fig3','fig1_suppl','fig2_suppl'};
+definput.flags.type={'missingflag','fig2','fig3','fig4','fig1_suppl','fig2_suppl'};
 definput.keyvals.models=[];
 
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
@@ -263,6 +257,117 @@ if flags.do_fig3
     hname{end+1} = 'fig3';
 end
 
+%% do_fig4: plot spectral revcorr -----------------------------------------
+if flags.do_fig4
+    
+    fE = data.fE;
+    CIf_all = data.CIf_all;
+    CIf_l = data.CIf_l;
+    CIf_h = data.CIf_h;
+    
+    CI2f_all = data.CI2f_all;
+    CI2f_l = data.CI2f_l;
+    CI2f_h = data.CI2f_h;
+        
+    CI1f_all = data.CI1f_all;
+    CI1f_l   = data.CI1f_l;
+    CI1f_h   = data.CI1f_all;
+    figure('Name', 'Fourier kernel','Position', [100 100 600 450]); 
+    tl = tiledlayout(3,1,'TileSpacing','compact'); % subplot(3,1,1)
+
+    if plot_models == 1
+        arrowheight = 0.01;
+    else
+        arrowheight = 0.002;
+    end
+
+    nexttile(1)
+    hold on
+    if plot_models == 1
+        % plot(fE, mean(4*CIf_real),'Color','k')
+        % fill([fE fliplr(fE)], [mean(4*CIf_real)+std(4*CIf_real) fliplr(mean(4*CIf_real)-std(4*CIf_real))]', 'k', 'FaceAlpha',0.1,'LineStyle','none');
+    end
+    for i_subject = 1:N_subjects
+        plot(fE, CIf_all(i_subject,:)','Color',[colorcode{i_subject}],'Linewidth',Data_LineWidth)
+    end
+    %plot(fE, max(CIf_all(:))*abs(ideal_templatecfft)'/max(max(abs(ideal_templatecfft))), 'r', 'linewidth', 2)%, @plot, 1, size(undersmplE,1))
+    %plot(fE, mean(CIf_all)','k-', 'linewidth', 2)
+    fill([fE fliplr(fE)], [mean(CIf_h) fliplr(mean(CIf_l))]', 'k', 'FaceAlpha',CI_FaceAlpha,'LineStyle','none');
+    plot([4 4],[0 arrowheight],'-^','Color',IT_Color, 'linewidth', IT_LineWidth, 'MarkerIndices', [2], 'MarkerSize', 4)
+    set(gca, 'XTickLabels', [])
+    ylabel('weight amplitude'); title('general kernel'); 
+    if plot_models == 1
+        ylim([0 0.07])
+    else
+        ylim([0 0.027])
+    end
+    grid on
+    box on
+
+    nexttile(2)
+    hold on
+    if plot_models == 1
+        % plot(fE, mean(4*CI2f_real),'Color','k')
+        % fill([fE fliplr(fE)], [mean(4*CI2f_real)+std(4*CI2f_real) fliplr(mean(4*CI2f_real)-std(4*CI2f_real))]', 'k', 'FaceAlpha',0.1,'LineStyle','none');
+    end
+
+    for i_subject = 1:N_subjects
+        plot(fE, CI2f_all(i_subject,:)','Color',[colorcode{i_subject}],'Linewidth',Data_LineWidth)
+    end
+    %plot(fE, 0.02*abs(ideal_templatecfft)'/max(max(abs(ideal_templatecfft))), 'r', 'linewidth', 2)%, @plot, 1, size(undersmplE,1))
+    %plot(fE, mean(CI2f_all)','k-', 'linewidth', 2)
+    fill([fE fliplr(fE)], [mean(CI2f_h) fliplr(mean(CI2f_l))]', 'k', 'FaceAlpha',CI_FaceAlpha,'LineStyle','none');
+    plot([4 4],[0 arrowheight],'-^','Color',IT_Color, 'linewidth', IT_LineWidth, 'MarkerIndices', [2], 'MarkerSize', 4)
+    ylabel('weight amplitude');
+    title('target-present kernel'); 
+    if plot_models == 1
+        ylim([0 0.07])
+    else
+        ylim([0 0.027])
+    end
+    %xlabel('frequency (Hz)'); 
+    set(gca, 'XTickLabels', [])
+    %legend({'ideal observer' D.name}, 'Location', 'eastoutside', 'Interpreter', 'none');
+    grid on
+    box on
+
+    nexttile(3)
+    hold on
+    h_here = [];
+    if plot_models == 1
+    %     h(end+1) = plot(fE, mean(4*CI1f_real),'Color','k')
+    %     fill([fE fliplr(fE)], [mean(4*CI1f_real)+std(4*CI1f_real) fliplr(mean(4*CI1f_real)-std(4*CI1f_real))]', 'k', 'FaceAlpha',0.1,'LineStyle','none');
+    end
+    for i_subject = 1:N_subjects
+        h_here(end+1) = plot(fE, CI1f_all(i_subject,:)','Color',[colorcode{i_subject}],'Linewidth',Data_LineWidth);
+    end
+    %plot(fE, 0.02*abs(ideal_templatecfft)'/max(max(abs(ideal_templatecfft))), 'r', 'linewidth', 2)%, @plot, 1, size(undersmplE,1))
+    %plot(fE, mean(CI1f_all)','k-', 'linewidth', 2)
+    fill([fE fliplr(fE)], [mean(CI1f_h) fliplr(mean(CI1f_l))]', 'k', 'FaceAlpha',CI_FaceAlpha,'LineStyle','none');
+    plot([4 4],[0 arrowheight],'-^','Color',IT_Color, 'linewidth', IT_LineWidth, 'MarkerIndices', [2], 'MarkerSize', 4)
+    ylabel('weight amplitude');
+    title('target-absent kernel'); 
+    if plot_models == 1
+        ylim([0 0.07])
+    else
+        ylim([0 0.027])
+    end
+    xlabel('frequency (Hz)'); 
+    grid on
+    box on
+    % 
+    % if isyes(plot_models)
+    %     legend(h,['S average', legendnames], 'Location', 'eastoutside', 'Interpreter', 'none');
+    % else
+    lgd = legend(h_here,[legendnames], 'Location', 'eastoutside', 'Interpreter', 'none');
+    
+    lgd.Layout.Tile = 'east';
+    lgd.Layout.TileSpan = [3 4];
+    
+    h(end+1) = gcf;
+    hname{end+1} = 'fig4';
+end
+
 %% fig1_suppl: Audiograms -------------------------------------------------
 if flags.do_fig1_suppl
     %%% Loading the data:
@@ -454,28 +559,43 @@ for i_subject = N_subjects:-1:1 % First participant read at last...
         data.CI1t_h(i_subject,:) = CI1rand_ci(2,:)';
     end
     
-    % %%% Loading the data in 'CIf':
-    % CI1fft = [];
-    % CI1fftrand_ci = [];
-    % CI2fft = [];
-    % CI2fftrand_ci = [];
-    % CIfft = [];
-    % CIfftrand_ci = [];
-    % fE = [];
-    % ideal_templatecfft = [];
-    % load([dir_local 'CIf'])
-    % %%% End loading
-    % 
-    % CIf_all(i_subject,:) = abs(CIfft);
-    % CI1f_all(i_subject,:) = abs(CI1fft);
-    % CI2f_all(i_subject,:) = abs(CI2fft);
-    % CIf_h(i_subject,:) = CIfftrand_ci(2,:)';
-    % CIf_l(i_subject,:) = CIfftrand_ci(1,:)';
-    % CI1f_h(i_subject,:) = CI1fftrand_ci(2,:)';
-    % CI1f_l(i_subject,:) = CI1fftrand_ci(1,:)';
-    % CI2f_h(i_subject,:) = CI2fftrand_ci(2,:)';
-    % CI2f_l(i_subject,:) = CI2fftrand_ci(1,:)';
-    % 
+    if flags.do_fig4
+        %%% Loading the data in 'CIf':
+        CIfft = [];
+        CIfftrand_ci = [];
+        CI1fft = [];
+        CI1fftrand_ci = [];
+        CI2fft = [];
+        CI2fftrand_ci = [];
+        
+        fE = [];
+        % ideal_templatecfft = [];
+        load([dir_local 'CIf'])
+        %%% End loading
+         
+        CIf_all(i_subject,:) = abs(CIfft);
+        CIf_h(i_subject,:) = CIfftrand_ci(2,:)';
+        CIf_l(i_subject,:) = CIfftrand_ci(1,:)';
+        
+        CI1f_all(i_subject,:) = abs(CI1fft);
+        CI1f_h(i_subject,:) = CI1fftrand_ci(2,:)';
+        CI1f_l(i_subject,:) = CI1fftrand_ci(1,:)';
+        
+        CI2f_all(i_subject,:) = abs(CI2fft);
+        CI2f_l(i_subject,:) = CI2fftrand_ci(1,:)';
+        CI2f_h(i_subject,:) = CI2fftrand_ci(2,:)';
+        
+        data.fE = fE;
+        data.CIf_all = CIf_all;
+        data.CIf_l = CIf_l;
+        data.CIf_h = CIf_h;
+        data.CI1f_all = CI1f_all;
+        data.CI1f_h = CI1f_h;
+        data.CI1f_l = CI1f_l;
+        data.CI2f_all = CI2f_all;
+        data.CI2f_l = CI2f_l;
+        data.CI2f_h = CI2f_h;
+    end
     % %%% Loading the data in 'metrics.mat'
     % Aftarget_CIfft = [];
     % Aftarget_CI1fft = [];
@@ -525,7 +645,8 @@ for i_subject = N_subjects:-1:1 % First participant read at last...
     % % tdecay_CI2rand: [1×200 double]
     % % tdecay_CIrand: [1×200 double]    
     % load([dir_local 'metrics']);
-    % 
+
+    
     % tdecayCI_all(i_subject) = tdecay_CI;
     % tdecayCI1_all(i_subject) = tdecay_CI1;
     % tdecayCI2_all(i_subject) = tdecay_CI2;

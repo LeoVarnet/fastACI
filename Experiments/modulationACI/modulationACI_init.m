@@ -5,13 +5,13 @@ function cfg_inout = modulationACI_init(cfg_inout)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-dir_subject = [cfg_inout.dir_stim cfg_inout.Subject_ID filesep];
+dir_subject = [cfg_inout.dir_data_experiment cfg_inout.Subject_ID filesep];
 
 if ~exist(dir_subject,'dir')
     mkdir(dir_subject)
     fprintf('Directory %s was created\n',dir_subject);
 end
-dir_where  = [dir_subject cfg_inout.folder_name filesep]; 
+dir_noise  = cfg_inout.dir_noise;
 % dir_where = 'C:\Users\Varnet Leo\Dropbox\Professionnel\Matlab\MyScripts\modulationACI\AM\'; % dir at Leo's
         
 fs         = cfg_inout.fs;
@@ -26,22 +26,25 @@ fprintf('\tNoise type=%s\n',noise_type);
 fprintf('\tDuration=%.2f s\n',dur);
 fprintf('\tSampling frequency=%.2f Hz\n',fs);
 fprintf('\tA total of %.0f stimuli will be generated: %.0f ''noises'', %.0f ''conditions''\n',N_total,N_presentation,N_target);
-fprintf('\tTarget folder: %s\n',dir_where);
+fprintf('\tTarget folder: %s\n',dir_noise);
 disp('Press any button to continue, press ctrl+C to abort')
 disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
 pause()
 
-if ~exist(dir_where,'dir')
-    mkdir(dir_where);
+if ~exist(dir_noise,'dir')
     bGenerate_stimuli = 1;
-elseif ~isempty(dir(dir_where))
-    warning('%s: Folder %s is not empty.',upper(mfilename),dir_where);
+elseif ~isempty(dir(dir_noise))
+    warning('%s: Folder %s is not empty.',upper(mfilename),dir_noise);
     bInit_participant_only = input('Do you to initialise a participant without generating new sounds? (1=yes; 0=no): ');
     bGenerate_stimuli = ~bInit_participant_only;
 
     if bGenerate_stimuli
-        error('%s: Folder %s is not empty. Choose a new ''folder_name'' or remove manually the existing content in the target folder',upper(mfilename),dir_where);
+        error('%s: Folder %s is not empty. Choose a new ''folder_name'' or remove manually the existing content in the target folder',upper(mfilename),dir_noise);
     end
+end
+
+if bGenerate_stimuli
+    [cfg_inout,s_current, bGenerate_stimuli] = Check_seeds_and_initialise(cfg_inout);
 end
 
 % Initialises the seed numbers on the fly:
@@ -85,6 +88,9 @@ rng(s_current);
 for i=1:N_total
     clc
     if bGenerate_stimuli
+        if i == 1
+            mkdir(dir_noise);
+        end
         fprintf('Creating noise stimulus # %.0f of %.0f\n',i,N_total);
 
         %%% Fixing the seed
@@ -122,7 +128,7 @@ for i=1:N_total
     fname = ['Noise_' stimnumber '.wav'];
     ListStim(i).name = fname;
     if bGenerate_stimuli
-        audiowrite([dir_where fname], noise_cal, fs);
+        audiowrite([dir_noise fname], noise_cal, fs);
     end
 end
 cfg_inout.ListStim = ListStim;

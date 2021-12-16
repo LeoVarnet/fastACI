@@ -21,15 +21,19 @@ n_stim       = data_passation.n_stim(i_current);
 data_passation.expvar(i_current) = cfg_sim.det_lev; 
 
 if isnan(cfg_sim.det_lev)
-    data_passation.expvar(i_current) = 0; 
-    disp('SNR of 0 dB will be used to assess the clean-speech template...')
+    data_passation.expvar(i_current) = store_expvar; % first expvar
+    if isfield(cfg_game,'expvar_description')
+        str_text = cfg_game.expvar_description;
+    else
+        str_text = 'expvar';
+    end
+    fprintf('%s of %.1f dB will be used to assess the clean-speech template...\n',str_text,store_expvar)
     
     bClean_target = 1;
     bNoisy_target = ~bClean_target;
 else
     bNoisy_target = 1;
     bClean_target = ~bNoisy_target; % i.e., noisy target, the default
-    
 end
 
 fs = cfg_game.fs;

@@ -52,47 +52,52 @@ switch modelname
         
     case 'king2019'
         
-        if isunix
-            dBFS = 100;
-            basef = 1000; % Hz
-            bIsLeo = 0;
-            
-        elseif iswindows
-            dBFS = 100;
-            basef = 1000; % Hz
-            warning('Leo: update in this script the dBFS value...');
-            
-            bIsLeo = 1;
+        pars = king2019_cfg;
+        for i = 1:length(pars.modelpars)
+            modelpars{end+1} = pars.modelpars{i};
         end
         
-        modelpars{end+1} = 'no_debug'; % flag
-        if bIsLeo
-            %%% Leo's parameters:
-            modelpars{end+1} = 'no_phase_insens'; % flag
-            modelpars(end+1:end+2) = {'basef',basef}; % keyval
-            modelpars(end+1:end+2) = {'flow' ,basef};
-            modelpars(end+1:end+2) = {'fhigh',basef};
-            modelpars(end+1:end+2) = {'mflow' ,4};
-            modelpars(end+1:end+2) = {'mfhigh',4};
-        else
-            % default values will be loaded for king2019:
-            modelpars(end+1:end+2) = {'basef',basef}; % keyval
-            modelpars(end+1:end+2) = {'flow' ,   80}; % keyval
-            modelpars(end+1:end+2) = {'fhigh', 8000}; % keyval
-            
-            % modelpars(end+1:end+2) = {'modbank_Nmod', 5}; % keyval
-        end
-        modelpars(end+1:end+2) = {'dboffset',dBFS};
+        % if isunix
+        %     dBFS = 100;
+        %     basef = 1000; % Hz
+        %     bIsLeo = 0;
+        % 
+        % elseif iswindows
+        %     dBFS = 100;
+        %     basef = 1000; % Hz
+        %     warning('Leo: update in this script the dBFS value...');
+        % 
+        %     bIsLeo = 1;
+        % end
+        % 
+        % modelpars{end+1} = 'no_debug'; % flag
+        % if bIsLeo
+        %     %%% Leo's parameters:
+        %     modelpars{end+1} = 'no_phase_insens'; % flag
+        % 
+        % else
+        %     % default values will be loaded for king2019:
+        %     modelpars(end+1:end+2) = {'basef',basef}; % keyval
+        %     modelpars(end+1:end+2) = {'flow' ,   80}; % keyval
+        %     modelpars(end+1:end+2) = {'fhigh', 8000}; % keyval
+        %     % modelpars(end+1:end+2) = {'modbank_Nmod', 5}; % keyval
+        % end
+        
         
     case 'osses2021'
-        subfs = 16000;
-        modelpars(end+1) = {'LP_150_Hz_att'}; % as in Osses2021a, Fig. 14c
         pars = osses2021_cfg;
+        for i = 1:length(pars.modelpars)
+            modelpars{end+1} = pars.modelpars{i};
+        end
+        subfs = pars.subfs;
         params_extra.in_var = pars.in_var;
         
     case 'osses2022a'
-        subfs = 16000;
         pars = osses2022a_cfg;
+        for i = 1:length(pars.modelpars)
+            modelpars{end+1} = pars.modelpars{i};
+        end
+        subfs = pars.subfs;
         params_extra.in_var = pars.in_var;
         
 end

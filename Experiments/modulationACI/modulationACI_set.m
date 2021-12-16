@@ -12,6 +12,8 @@ end
 % function cfg_out = il_set(cfg_in)
 %
 % Function comparable to *_set.m functions from AFC toolbox
+dir_data_experiment = [fastACI_paths('dir_data') cfg_inout.experiment_full filesep];
+cfg_inout.dir_data_experiment = dir_data_experiment;
 
 cfg = [];
 
@@ -27,7 +29,7 @@ cfg.SNR       = -10;
 
 cfg.fadein_s  = 0.075; % CAUTION: Overwritten in the case of simulation
 cfg.SPL       = 65;
-cfg.dBFS      = 93.61; % Calibration with Headphones HD 650
+cfg.dBFS      = 100; % 93.61; % Calibration with Headphones HD 650
 
 cfg.N_presentation = 1500;  % number of stimuli / condition
 cfg.N_target   = 2;     % Number of conditions
@@ -39,12 +41,8 @@ if ~isfield(cfg_inout,'experiment')
     cfg_inout.experiment = fname;
 end
 
-dir_stim = [fastACI_paths('dir_data')  cfg_inout.experiment filesep];
-if ~exist(dir_stim,'dir')
-    error('%s: The specified stimulus directory does not exist, please indicate an existing directory...')
-end
-cfg.folder_name = ['NoiseStims-' cfg.noise_type]; % nom du dossier a creer contenant les noises
-
-cfg_inout.dir_stim = dir_stim;
+dir_name_noise = ['NoiseStims-' cfg.noise_type]; % nom du dossier a creer contenant les noises
+cfg.folder_name = dir_name_noise;
+cfg.dir_noise  = [dir_data_experiment cfg_inout.Subject_ID filesep dir_name_noise filesep];
 
 cfg_inout = Merge_structs(cfg,cfg_inout);

@@ -25,7 +25,7 @@ cfg.sessionsN      = 500; % CAUTION: Overwritten in the case of simulation
 cfg.adapt          = 1; % 'out';%
 cfg.randorder      = 1;
 
-cfg.startvar = -8;  % old name 'm_start'
+cfg.startvar = -1;  % dB, as in Varnet and Lorenzi (2022, JASA)
 cfg.expvar_description = 'modulation depth (dB)';
 
 cfg.maxvar = 0;
@@ -33,9 +33,9 @@ cfg.maxvar = 0;
 % Staircase algorithm parameters
 switch cfg.adapt 
     case {1,'transformed-up-down'}
-        cfg.start_stepsize     = 4;
-        cfg.min_stepsize       = 1;
-        cfg.adapt_stepsize     = 90/100;
+        cfg.start_stepsize     = 2;  % dB, Varnet and Lorenzi (2022, JASA)
+        cfg.min_stepsize       = .5; % dB, Varnet and Lorenzi (2022, JASA)
+        cfg.adapt_stepsize     = 90/100; % Varnet and Lorenzi (2022, JASA)
         cfg.step_resolution = 'linear';
     otherwise
         error('Not validated yet...')

@@ -88,11 +88,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    try
+    % try
         cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
-    catch me
-        error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
-    end
+    % catch me
+    %     error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
+    % end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -293,7 +293,7 @@ if cfg_game.is_simulation == 1
     
     if def_sim.bStore_template == 1
         if exist('fastACI_file_template.m','file')
-            file_template = fastACI_file_template(cfg_game.experiment_full, Subject_ID);
+            file_template = fastACI_file_template(cfg_game.experiment_full, Subject_ID, def_sim.type_decision);
 
             if exist(file_template,'file')
                 fprintf('Pausing for 10 s. Press ctr+c to cancel the simulations.\n');
@@ -311,6 +311,8 @@ if cfg_game.is_simulation == 1
                 sim_work.templ_ref = templ_ref;
                 sim_work.templ_tar = templ_tar;
             end
+        else
+           % Nothing to do here: the template will be later assessed
         end
     end
     

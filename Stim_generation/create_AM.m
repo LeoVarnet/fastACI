@@ -74,12 +74,12 @@ switch carrier_waveform
 end
 
 % add ramps
-ramp_duration = 0.02;%(1/AM_fm)/2;%duration*0.05;
-t_ramp    = 0:(1/fs):ramp_duration;
-ramp_up   = cos((2*pi*t_ramp(end:-1:1))/(2*max(t_ramp)))/2+0.5;
-ramp_down = cos((2*pi*t_ramp)/(2*max(t_ramp)))/2+0.5;
+% ramp_duration = 0.02;%(1/AM_fm)/2;%duration*0.05;
+% t_ramp    = 0:(1/fs):ramp_duration;
+% ramp_up   = cos((2*pi*t_ramp(end:-1:1))/(2*max(t_ramp)))/2+0.5;
+% ramp_down = cos((2*pi*t_ramp)/(2*max(t_ramp)))/2+0.5;
 weighting = ones(1,length(t));
-weighting(1:length(t_ramp)) = ramp_up;
-weighting(end-length(t_ramp)+1:end) = ramp_down;
+% weighting(1:length(t_ramp)) = ramp_up;
+% weighting(end-length(t_ramp)+1:end) = ramp_down;
 
 AM = A*stim.*weighting;

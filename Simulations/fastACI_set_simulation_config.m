@@ -57,20 +57,8 @@ if bInput == 0
             fclose(fid);
             
             % %%% Creating the optimal detector configuration:
-            % if strcmp(p.type_decision,'optimal_detector')
-            %     text_to_write = readfile_replace('optimal_detector_cfg_replace.txt',p);
-            %     fname_cfg =  [dir_here 'optimal_detector_cfg.m'];
-            % end
-            % if exist(fname_cfg,'file')
-            %     fprintf('----------------------------------------------------------------------------\n')
-            %     fprintf('file %s exists, \npress any key to continue (will overwrite) or press ctrl+C to cancel \n',fname_cfg);
-            %     fprintf('----------------------------------------------------------------------------\n')
-            %     pause
-            % end
-            % 
-            % fid = fopen(fname_cfg, 'w');
-            % fwrite(fid, text_to_write);
-            % fclose(fid);
+            % File optimal_detector_cfg_replace.txt: not longer needed
+            % File optimal_detector_cfg.m no longer being generated;
             %%%
             
             exp2eval = ['def_sim = ' modelname '_cfg;'];
