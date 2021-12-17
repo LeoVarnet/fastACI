@@ -1,5 +1,5 @@
-function data = Script3_AnalysisComplex_functions(cfg_game,data_passation,fct)
-% function data = Script3_AnalysisComplex_functions(file_savegame,data_passation,fct)
+function data = Script3_AnalysisComplex_functions(cfg_game,data_passation,fct,bPlot)
+% function data = Script3_AnalysisComplex_functions(file_savegame,data_passation,fct,bPlot)
 %
 % List of function processing in this script:
 %
@@ -14,8 +14,14 @@ if nargin == 0
     return;
 end
 
-h = [];
-hname = [];
+if nargin < 4
+    bPlot = 1;
+end
+
+if bPlot
+    h = [];
+    hname = [];
+end
 
 if isfield(cfg_game,'Subject_ID')
     Subject_ID = cfg_game.Subject_ID;
@@ -29,14 +35,6 @@ switch lower(fct)
         return;
         
     case {'histogram-leo','histogram'}
-        
-        %%%
-        % if isfield(cfg_game,'N')
-        %     N_total = cfg_game.N; 
-        % else
-        %     N_total = cfg_game.N_presentation*cfg_game.N_target; 
-        % end
-        %%%
         
         expvar = data_passation.expvar;
         is_correct = data_passation.is_correct;
@@ -123,38 +121,39 @@ switch lower(fct)
         bias              = N_resp_1./N_hist;
         bias_description  = 'bias towards response 1';
         
-        figure; 
-        yyaxis left
-        area(bin_centres,N_hist,'FaceAlpha',0.2,'EdgeColor','none');
-        
-        Location = 'NorthWest';
-        if strfind(lower(cfg_game.expvar_description),'bump')
-            str4label = '(log2[number of bumps])';
-            Location = 'SouthWest';
-        elseif strfind(lower(cfg_game.expvar_description),'snr')
-            str4label = '(SNR in dB)';
-        else
-            str4label = '';
+        if bPlot
+            figure; 
+            yyaxis left
+            area(bin_centres,N_hist,'FaceAlpha',0.2,'EdgeColor','none');
+
+            Location = 'NorthWest';
+            if strfind(lower(cfg_game.expvar_description),'bump')
+                str4label = '(log2[number of bumps])';
+                Location = 'SouthWest';
+            elseif strfind(lower(cfg_game.expvar_description),'snr')
+                str4label = '(SNR in dB)';
+            else
+                str4label = '';
+            end
+
+            xlabel(['expvar ' str4label]);
+
+            ylabel('N of trials')
+            yyaxis right
+
+            hprop = plot(bin_centres,prop_correct,'-o');
+            ylabel('proportion'); 
+            ylim([0 1]); hold on
+
+            hbias = plot(bin_centres,bias, '--o');
+            ylabel('prop'); 
+            ylim([0 1])
+            grid on
+            legend([hprop, hbias],{'correct','bias (resp. was 1)'},'Location',Location)
+
+            h(end+1) = gcf;
+            hname{end+1} = [Subject_ID '-Confusion'];
         end
-        
-        xlabel(['expvar ' str4label]);
-        
-        ylabel('N of trials')
-        yyaxis right
-        
-        hprop = plot(bin_centres,prop_correct,'-o');
-        ylabel('proportion'); 
-        ylim([0 1]); hold on
-        
-        hbias = plot(bin_centres,bias, '--o');
-        ylabel('prop'); 
-        ylim([0 1])
-        grid on
-        legend([hprop, hbias],{'correct','bias (resp. was 1)'},'Location',Location)
-        
-        h(end+1) = gcf;
-        hname{end+1} = [Subject_ID '-Confusion'];
-        
         % yyaxis right
         % hprop = plot(SNRbin_centres,prop_correct,'-o');ylabel('prop'); ylim([0 1]); hold on
         % hbias = plot(SNRbin_centres,bias, '--o');      ylabel('prop'); ylim([0 1])
@@ -193,78 +192,82 @@ switch lower(fct)
         m_presentation_nr     = 1:N_trials;
         m_presentation_nr_win = 1:n_window:N_trials;
 
-        figure('Position', [100 100 800 500]); 
-        subplot(2,2,1); 
-        plot(m_presentation_nr    , expvar         ,'g'); hold on; 
-        plot(m_presentation_nr_win, m_windowed,'k'); 
-        ylim([bin_edges(1) bin_edges(end)]); 
-        xlabel(' trial #'); ylabel(unit); 
-        xlim([1 length(expvar)]); ylimits=ylim;
+        if bPlot
+            figure('Position', [100 100 800 500]); 
+            subplot(2,2,1); 
+            plot(m_presentation_nr    , expvar         ,'g'); hold on; 
+            plot(m_presentation_nr_win, m_windowed,'k'); 
+            ylim([bin_edges(1) bin_edges(end)]); 
+            xlabel(' trial #'); ylabel(unit); 
+            xlim([1 length(expvar)]); ylimits=ylim;
 
-        N_sessions = length(data_passation.resume_trial);
-        for i = 1:N_sessions
-            plot(data_passation.resume_trial(i)*[1 1],ylimits,'k:');
+            N_sessions = length(data_passation.resume_trial);
+            for i = 1:N_sessions
+                plot(data_passation.resume_trial(i)*[1 1],ylimits,'k:');
+            end
+            title(sprintf('expvar per trial (of %.0f trials)',length(expvar)))
+
+            % ---
+            subplot(2,2,3); 
+            plot(m_presentation_nr_win,PC_targetpresent); hold on; 
+            plot(m_presentation_nr_win,PC_targetabsent);  
+            xlim([1 length(expvar)]); xlabel(' trial #'); 
+            ylabel('correct response rate'); ylim([0 1]); hold on; 
+            plot([1 length(expvar)],[0.5 0.5],'k--'); 
+            ylimits=ylim;
+            title(sprintf('CR rate (bins of %.0f trials)',n_window))
+
+            for i = 1:length(data_passation.resume_trial)
+                % Vertical dotted lines at the points where a new session was started:
+                plot(data_passation.resume_trial(i)*[1 1],ylimits,'k:','LineWidth',2);
+            end
+
+            subplot(2,2,2); 
+            var2plot = [H', M', CR', FA'];
+            bar(bin_centres, var2plot); 
+            xlim([bin_edges(1) bin_edges(end)]); 
+            xlabel(unit); 
+            ylabel('Number of trials'); hold on; 
+            plot([bin_edges(1) bin_edges(end)],[minNformean minNformean]/2,'k:');
+            legend({'H', 'M', 'CR', 'FA', 'Nmin'},'Location','best');
+            title(sprintf('Histogram (of %.0f trials)',sum(sum(var2plot))))
+
+            subplot(2,2,4); 
+            bar(bin_centres, [H'./(M'+H'), CR'./(CR'+FA')].*[M'+H'>minNformean,CR'+FA'>minNformean]);
+            xlim([bin_edges(1) bin_edges(end)]); 
+            xlabel(unit); 
+            ylabel('correct response rate'); 
+            hold on; 
+            plot([bin_edges(1) bin_edges(end)],[0.5 0.5],'k--'); 
+            hl = legend({sprintf('target %.0f present',resp_if_2), sprintf('target %.0f absent',resp_if_2),'chance level'},'Location','southeast');
+            set(hl,'FontSize',8);
+            title(sprintf('CRs (of %.0f trials)',tot_classified))
+
+            h(end+1) = gcf;
+            hname{end+1} = [Subject_ID '-Behaviour'];
         end
-        title(sprintf('expvar per trial (of %.0f trials)',length(expvar)))
-
-        % ---
-        subplot(2,2,3); 
-        plot(m_presentation_nr_win,PC_targetpresent); hold on; 
-        plot(m_presentation_nr_win,PC_targetabsent);  
-        xlim([1 length(expvar)]); xlabel(' trial #'); 
-        ylabel('correct response rate'); ylim([0 1]); hold on; 
-        plot([1 length(expvar)],[0.5 0.5],'k--'); 
-        ylimits=ylim;
-        title(sprintf('CR rate (bins of %.0f trials)',n_window))
-
-        for i = 1:length(data_passation.resume_trial)
-            % Vertical dotted lines at the points where a new session was started:
-            plot(data_passation.resume_trial(i)*[1 1],ylimits,'k:','LineWidth',2);
-        end
-
-        subplot(2,2,2); 
-        var2plot = [H', M', CR', FA'];
-        bar(bin_centres, var2plot); 
-        xlim([bin_edges(1) bin_edges(end)]); 
-        xlabel(unit); 
-        ylabel('Number of trials'); hold on; 
-        plot([bin_edges(1) bin_edges(end)],[minNformean minNformean]/2,'k:');
-        legend({'H', 'M', 'CR', 'FA', 'Nmin'},'Location','best');
-        title(sprintf('Histogram (of %.0f trials)',sum(sum(var2plot))))
         
-        subplot(2,2,4); 
-        bar(bin_centres, [H'./(M'+H'), CR'./(CR'+FA')].*[M'+H'>minNformean,CR'+FA'>minNformean]);
-        xlim([bin_edges(1) bin_edges(end)]); 
-        xlabel(unit); 
-        ylabel('correct response rate'); 
-        hold on; 
-        plot([bin_edges(1) bin_edges(end)],[0.5 0.5],'k--'); 
-        hl = legend({sprintf('target %.0f present',resp_if_2), sprintf('target %.0f absent',resp_if_2),'chance level'},'Location','southeast');
-        set(hl,'FontSize',8);
-        title(sprintf('CRs (of %.0f trials)',tot_classified))
-        
-        h(end+1) = gcf;
-        hname{end+1} = [Subject_ID '-Behaviour'];
-
         %%%
         H_rate  = 100*H./N_if_2; % /N_tot_signal;
         CR_rate = 100*CR./N_if_1; % /N_tot_absent;
 
-        figure;
-        plot(bin_centres,H_rate,'bo-'); hold on;
-        plot(bin_centres,CR_rate,'rs--','LineWidth',2);
-        ylim([-3 103]);
-        set(gca,'YTick',0:5:100); grid on
-        
-        % xlim([-17 1])
-        % set(gca,'XTick',-16:0);
+        if bPlot
+            figure;
+            plot(bin_centres,H_rate,'bo-'); hold on;
+            plot(bin_centres,CR_rate,'rs--','LineWidth',2);
+            ylim([-3 103]);
+            set(gca,'YTick',0:5:100); grid on
 
-        legend('H rate','CR rate','Location','best');
-        ylabel(sprintf('Percentage correct\n(ref. # of presentations per m interval)'));
-        xlabel(['Central bin of the tested ' unit]);
+            % xlim([-17 1])
+            % set(gca,'XTick',-16:0);
 
-        h(end+1) = gcf;
-        hname{end+1} = [Subject_ID '-Hit-and-CR-rates-per-bin'];        
+            legend('H rate','CR rate','Location','best');
+            ylabel(sprintf('Percentage correct\n(ref. # of presentations per m interval)'));
+            xlabel(['Central bin of the tested ' unit]);
+
+            h(end+1) = gcf;
+            hname{end+1} = [Subject_ID '-Hit-and-CR-rates-per-bin'];        
+        end
         
         data.trialnum = m_presentation_nr_win;
         data.m_windowed = m_windowed;
@@ -272,15 +275,23 @@ switch lower(fct)
         data.PCtargetpresent_windowed = PC_targetpresent;
         
         data.bias_windowed = bias_windowed;
-        data.bin_edges = bin_edges;
+        data.bin_centres = bin_centres;
+        data.bin_edges   = bin_edges;
         data.H = H;
+        data.H_label = cfg_game.response_names{2};
         data.M = M;
         data.CR = CR;
+        data.CR_label = cfg_game.response_names{1};
         data.FA = FA;
         
-        data.h = h;
-        data.hname = hname;
-        return;
+        data.prop_correct = prop_correct;
+        data.N_hist = N_hist;
+        data.bias_if_1 = bias;
+        if bPlot
+            data.h = h;
+            data.hname = hname;
+        end
+        % return;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

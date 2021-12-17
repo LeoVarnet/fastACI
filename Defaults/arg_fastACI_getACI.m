@@ -10,6 +10,7 @@ definput.flags.TF_type = {'spect','lyon','noise_logspect','gammatone','adapt','t
 definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','lasso','lassoslow','lassoglmslow','classic_revcorr'};
 % Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','lasso',                           'classic_revcorr'};
 definput.flags.permutation = {'permutation','no_permutation'};
+definput.flags.force_dataload = {'no_force_dataload','force_dataload'};
 definput.flags.bias   = {'bias'  ,'no_bias'};
 definput.flags.recreate_validation = {'no_recreate_validation','recreate_validation'};
 definput.flags.plot = {'plot','no_plot'};
@@ -17,7 +18,7 @@ definput.flags.plot = {'plot','no_plot'};
 definput.keyvals.apply_SNR  = 0; % old: WithSNR
 definput.keyvals.add_signal = 0; % old: WithSignal 
 
-definput.keyvals.skip_if_on_disk = 0;
+definput.keyvals.skip_if_on_disk = 1;
 definput.keyvals.Data_matrix = [];
 
 % Default number of permutations N_perm (if do_permutation == 1):

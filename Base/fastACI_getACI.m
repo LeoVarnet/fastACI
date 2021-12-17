@@ -30,6 +30,13 @@ function [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(savegame_file,vararg
 %                 CI_glmqpoptim_fct
 % TF_type         DimCI
 %
+% % Example:
+%   dir_where = [fastACI_paths('dir_data') 'speechACI_Logatome-abda-S43M' filesep 'SLV' filesep 'Results' filesep];
+%   savefile = [dir_where 'savegame_2021_11_19_12_50_SLV_speechACI_Logatome-abda-S43M_bumpv1p2_10dB.mat'];
+%   [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(savefile);
+% 
+%   [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(savefile,'force_dataload');
+%
 % Old name: Script4_Calcul_ACI.m (changed on 7 July 2021)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -48,7 +55,10 @@ Data_matrix = [];
 %%%
 [fnameACI, cfg_game, data_passation, ListStim, flags, keyvals] = fastACI_getACI_fname(savegame_file,varargin{:});
 bCalculation = ~exist(fnameACI,'file');
-
+if ~exist(cfg_game.dir_noise,'dir')
+    % Prepare ACI analysis
+    cfg_game = Check_cfg_crea_dirs(cfg_game);
+end
 % General parameters
 do_recreate_validation = flags.do_recreate_validation;
 glmfct  = flags.glmfct;
@@ -124,14 +134,15 @@ cfg_ACI = set_default_cfg(cfg_ACI, 'N_trialselect', length(cfg_ACI.idx_trialsele
 %% 3. Loading the data: Reading the sound waveforms
 
 % ADD HERE: RECONSTRUCTION OF NOISE WAVEFORMS FOR SEEDS EXPERIMENTS
-if bCalculation || do_recreate_validation
+if bCalculation || do_recreate_validation || flags.do_force_dataload
     
     if ~exist(cfg_ACI.dir_noise,'dir') && isempty(cfg_ACI.keyvals.dir_noise)
+    
         % If it does not exist
         if isfield(cfg_game,'seeds_order')
             % Nothing to do, the waveforms will be generated inside data_load
             cfg_ACI.cfg_game = cfg_game;
-            error('Under development...')            
+            % error('Under development...')            
         else
             error('%s: No valid noise directory (''dir_noise''). cfg_game contains a folder that was not found, please enter a valid dir_noise.',upper(mfilename))
         end
@@ -163,7 +174,7 @@ if bCalculation || do_recreate_validation
         pause(10)
     end
     
-    if data_passation.i_current ~= cfg_game.N
+    if (data_passation.i_current ~= cfg_game.N && bCalculation) || flags.do_force_dataload
         fprintf('%s: Less trials have been tested by this participant than the expected cfg_game.N=%.0f trials\n',upper(mfilename),cfg_game.N);
         fprintf('\tPress ctrl+C to cancel the current ACI calculation, otherwise, the ACI will be obtained for less trials...\n');
         fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
