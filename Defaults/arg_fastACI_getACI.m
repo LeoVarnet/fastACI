@@ -20,6 +20,9 @@ definput.keyvals.add_signal = 0; % old: WithSignal
 
 definput.keyvals.skip_if_on_disk = 1;
 definput.keyvals.Data_matrix = [];
+% 
+definput.keyvals.cfg_crosspred = {};
+definput.keyvals.results_crosspred = {};
 
 % Default number of permutations N_perm (if do_permutation == 1):
 definput.keyvals.N_perm = 20; % default number of ACI assessments for the permutation test
