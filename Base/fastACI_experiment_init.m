@@ -100,5 +100,6 @@ savename = ['cfgcrea_' clock_str '_' filter2use];
 
 % dir_results_subj = [dir_results Subject_ID filesep];
 mkdir(dir_results); % makes sure the folder for the participant exists...
-save([dir_results savename], 'cfg_crea');
+info_toolbox = Get_toolbox_info(mfilename);
+save([dir_results savename], 'cfg_crea','info_toolbox');
 fprintf(['cfg file saved: ' savename '.mat\n\n']);

@@ -131,16 +131,28 @@ end
 
 cfg_ACI = set_default_cfg(cfg_ACI, 'N_trialselect', length(cfg_ACI.idx_trialselect));
 
-if ~isempty(cfg_ACI.keyvals.cfg_crosspred) && ~isempty(cfg_ACI.keyvals.results_crosspred)
-    cfg_crosspred = cfg_ACI.keyvals.cfg_crosspred;
-    results_crosspred = cfg_ACI.keyvals.results_crosspred;
-    bCrossPred = 1;
-    bCalculation = 0;
-    % make sure that the config for the old and new ACIs are compatible
-    % ADD FURTHER CHECKS
-    if ~(cfg_ACI.N_target == cfg_crosspred.N_target & cfg_ACI.lasso_Nlevel == cfg_crosspred.lasso_Nlevel & cfg_ACI.lasso_Nlevelmin == cfg_crosspred.lasso_Nlevelmin & cfg_ACI.zscore == cfg_crosspred.zscore & strcmp(cfg_ACI.glmfct, cfg_crosspred.glmfct) & all(cfg_ACI.t_limits == cfg_crosspred.t_limits) & all(cfg_ACI.f_limits == cfg_crosspred.f_limits) & cfg_ACI.N_folds == cfg_crosspred.N_folds & cfg_ACI.lambda0 == cfg_crosspred.lambda0 & cfg_ACI.withU == cfg_crosspred.withU & cfg_ACI.binwidth == cfg_crosspred.binwidth & cfg_ACI.bwmul == cfg_crosspred.bwmul)
-        error('configuration parameters cfg_ACI and cfg_crosspred are incompatible')
+if ~isempty(cfg_ACI.keyvals.ACI_crosspred)
+    
+    if ischar(cfg_ACI.keyvals.ACI_crosspred)
+        % then it is a char
+        ACI_crosspred = {cfg_ACI.keyvals.ACI_crosspred}; % it is converted into a cell array
+    else
+        ACI_crosspred = cfg_ACI.keyvals.ACI_crosspred;
     end
+    N_crosspred = length(ACI_crosspred);
+    
+    bCrossPred = 1;
+    
+    % % make sure that the config for the old and new ACIs are compatible
+    % % ADD FURTHER CHECKS (if we make sure that the flags are the same, there is no problem)
+    % if ~(cfg_ACI.N_target == cfg_crosspred.N_target && cfg_ACI.lasso_Nlevel == cfg_crosspred.lasso_Nlevel && ...
+    %      cfg_ACI.lasso_Nlevelmin == cfg_crosspred.lasso_Nlevelmin && cfg_ACI.zscore == cfg_crosspred.zscore && ...
+    %      strcmp(cfg_ACI.glmfct, cfg_crosspred.glmfct) && all(cfg_ACI.t_limits == cfg_crosspred.t_limits) && ...
+    %      all(cfg_ACI.f_limits == cfg_crosspred.f_limits) && cfg_ACI.N_folds == cfg_crosspred.N_folds && ...
+    %      cfg_ACI.lambda0 == cfg_crosspred.lambda0 && cfg_ACI.withU == cfg_crosspred.withU && ...
+    %      cfg_ACI.binwidth == cfg_crosspred.binwidth && cfg_ACI.bwmul == cfg_crosspred.bwmul)
+    %     error('configuration parameters cfg_ACI and cfg_crosspred are incompatible')
+    % end
 else
     bCrossPred = 0;
 end
@@ -241,8 +253,8 @@ if bCalculation
     if isfield(cfg_ACI.keyvals,'Data_matrix')
         cfg_ACI.keyvals = Remove_field(cfg_ACI.keyvals,'Data_matrix');
     end
-    
-    save(fnameACI, 'ACI', 'cfg_ACI', 'results')
+    info_toolbox = Get_toolbox_info(mfilename);
+    save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
     results.fnameACI = fnameACI;
     results.fnameACI_description = 'File name where the fastACI results were stored...';
     
@@ -306,45 +318,61 @@ end
 %cross validation 
 
 if bCrossPred
-    %%%%TODO%%%%
-    switch glmfct
-        case 'lassoglmslow'
-            CV=results.FitInfo.CV;
-            %[~, idx_lambda_optim] = min(mean(results_crosspred.FitInfo.Devtest,2));
-            for i_lambda = 1:length(results_crosspred.lambdas)
-                for i_fold = 1:cfg_crosspred.N_folds
-                    %the following lines are copied from function lassoglmslow.
-                    %Maybe we should use a separate function
-                    idx_training = CV.training(i_fold); % idxs of the training set in this fold
-                    idx_test     = CV.test(i_fold); % idxs for the test (validation) in this fold
-                    
-                    coef = [results_crosspred.FitInfo.Intercept(i_lambda,i_fold); results_crosspred.FitInfo.B(:,i_lambda,i_fold)];
-                    
-                    %%% Training:
-                    yhat_train = glmval(coef,X(idx_training,:),'logit');
-                    [PC,MSE,MSE_rounded] = Get_MSE_and_PC(yhat_train,y,idx_training);
-                    
-                    results.CrossPred.MSEtrain_crosspred(i_lambda,i_fold) = MSE;
-                    results.CrossPred.PCtrain_crosspred(i_lambda,i_fold) = PC;
-                    results.CrossPred.yhat_train_crosspred(i_lambda,i_fold,1:length(yhat_train)) = yhat_train;
-                    
-                    %%% Test (or validation):
-                    yhat_test = glmval(coef,X(idx_test,:),'logit'); % X(CV.test(i_fold),:)*B_temp + FitInfo_temp.Intercept;
-                    [PC,MSE,MSE_rounded, yhat_test_rounded] = Get_MSE_and_PC(yhat_test,y,idx_test);
-                    
-                    results.CrossPred.Devtest_crosspred(i_lambda,i_fold) = -2*(sum(log(binopdf(y(idx_test),1,yhat_test))) - sum(log(binopdf(y(idx_test),1,y(idx_test)))));
-                    results.CrossPred.MSEtest_crosspred(i_lambda,i_fold) = MSE;
-                    results.CrossPred.PCtest_crosspred(i_lambda,i_fold) = PC;
-                    results.CrossPred.yhat_test_crosspred(i_lambda,i_fold,1:length(yhat_test)) = yhat_test;
-                    
-                    results.CrossPred.PCtest_t_crosspred(i_lambda,i_fold,1:length(yhat_test)) = yhat_test_rounded==y(idx_test);
-                    results.CrossPred.Devtest_t_crosspred(i_lambda,i_fold,1:length(yhat_test)) = -2*((log(binopdf(y(idx_test),1,yhat_test))) - (log(binopdf(y(idx_test),1,y(idx_test)))));
-                    
+    
+    for i = 1:N_crosspred
+        var = load(ACI_crosspred{i},'cfg_ACI');
+        cfg_crosspred = var.cfg_ACI;
+
+        var = load(ACI_crosspred{i},'results');
+        results_crosspred = var.results;
+
+        crosspred(i).ACI_crosspred = ACI_crosspred{i};
+        %%%%TODO%%%%
+        switch glmfct
+            case 'lassoglmslow'
+                CV=results.FitInfo.CV;
+                % To do: change CV.training into CV.train
+
+                %[~, idx_lambda_optim] = min(mean(results_crosspred.FitInfo.Devtest,2));
+                crosspred(i).lambdas = results_crosspred.lambdas;
+                for i_lambda = 1:length(results_crosspred.lambdas)
+                    for i_fold = 1:cfg_crosspred.N_folds
+                        %the following lines are copied from function lassoglmslow.
+                        %Maybe we should use a separate function
+                        idx_training = CV.training(i_fold); % idxs of the training set in this fold
+                        idx_test     = CV.test(i_fold); % idxs for the test (validation) in this fold
+
+                        coef = [results_crosspred.FitInfo.Intercept(i_lambda,i_fold); results_crosspred.FitInfo.B(:,i_lambda,i_fold)];
+
+                        %%% Training:
+                        yhat_train = glmval(coef,X(idx_training,:),'logit');
+                        [PC,MSE,MSE_rounded] = Get_MSE_and_PC(yhat_train,y,idx_training);
+
+                        crosspred(i).MSE_train(i_lambda,i_fold) = MSE; % changed from MSEtrain_crosspred to MSE_train
+                        crosspred(i).PC_train(i_lambda,i_fold) = PC;
+                        crosspred(i).yhat_train(i_lambda,i_fold,1:length(yhat_train)) = yhat_train;
+
+                        %%% Test (or validation):
+                        yhat_test = glmval(coef,X(idx_test,:),'logit'); % X(CV.test(i_fold),:)*B_temp + FitInfo_temp.Intercept;
+                        [PC,MSE,MSE_rounded, yhat_test_rounded] = Get_MSE_and_PC(yhat_test,y,idx_test);
+
+                        crosspred(i).Dev_test(i_lambda,i_fold) = -2*(sum(log(binopdf(y(idx_test),1,yhat_test))) - sum(log(binopdf(y(idx_test),1,y(idx_test)))));
+                        crosspred(i).MSE_test(i_lambda,i_fold) = MSE;
+                        crosspred(i).PC_test(i_lambda,i_fold)  = PC;
+                        crosspred(i).yhat_test(i_lambda,i_fold,1:length(yhat_test)) = yhat_test;
+
+                        crosspred(i).PC_test_t(i_lambda,i_fold,1:length(yhat_test)) = yhat_test_rounded==y(idx_test);
+                        crosspred(i).Dev_test_t(i_lambda,i_fold,1:length(yhat_test)) = -2*((log(binopdf(y(idx_test),1,yhat_test))) - (log(binopdf(y(idx_test),1,y(idx_test)))));
+                    end
                 end
-            end
-        otherwise
-            error('crossvalidation not implemented yet for this glmfct');
+
+            otherwise
+                error('crossvalidation not implemented yet for this glmfct');
+        end
     end
+    Save_crosspred(fnameACI,crosspred,mfilename);
+    
+    results.crosspred = crosspred;
 end
 
 %% 7. Preparing final output and plotting:
