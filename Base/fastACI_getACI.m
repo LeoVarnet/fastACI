@@ -346,7 +346,7 @@ if bCrossPred
 
                         %%% Training:
                         yhat_train = glmval(coef,X(idx_training,:),'logit');
-                        [PC,MSE,Dev,MSE_rounded] = Get_MSE_and_PC(yhat_train,y,idx_training);
+                        [PC,MSE,Dev,MSE_rounded] = Get_prediction_metrics(yhat_train,y,idx_training);
 
                         crosspred(i).MSE_train(i_lambda,i_fold) = MSE; % changed from MSEtrain_crosspred to MSE_train
                         crosspred(i).PC_train(i_lambda,i_fold) = PC;
@@ -354,7 +354,7 @@ if bCrossPred
 
                         %%% Test (or validation):
                         yhat_test = glmval(coef,X(idx_test,:),'logit'); % X(CV.test(i_fold),:)*B_temp + FitInfo_temp.Intercept;
-                        [PC,MSE,Dev,MSE_rounded, yhat_test_rounded,PC_t,MSE_t,Dev_t] = Get_MSE_and_PC(yhat_test,y,idx_test);
+                        [PC,MSE,Dev,MSE_rounded, yhat_test_rounded,PC_t,MSE_t,Dev_t] = Get_prediction_metrics(yhat_test,y,idx_test);
 
                         crosspred(i).Dev_test(i_lambda,i_fold) = Dev; % -2*(sum(log(binopdf(y(idx_test),1,yhat_test))) - sum(log(binopdf(y(idx_test),1,y(idx_test)))));
                         crosspred(i).MSE_test(i_lambda,i_fold) = MSE;

@@ -1,5 +1,5 @@
-function [PC, MSE, Dev, MSE_rounded, yhat_rounded, PC_t, MSE_t, Dev_t] = Get_MSE_and_PC(yhat,y,idx_train_or_test)
-% function [PC, MSE, Dev, MSE_rounded, yhat_rounded, MSE_t, Dev_t] = Get_MSE_and_PC(yhat,y,idx_train_or_test)
+function [PC, MSE, Dev, MSE_rounded, yhat_rounded, PC_t, MSE_t, Dev_t] = Get_prediction_metrics(yhat,y,idx_train_or_test)
+% function [PC, MSE, Dev, MSE_rounded, yhat_rounded, MSE_t, Dev_t] = Get_prediction_metrics(yhat,y,idx_train_or_test)
 %
 % This script calculates the mean square error (MSE) or the percentage of
 %     coincidence between the variable 'yhat' and the variable 'y'. These
