@@ -9,6 +9,8 @@ fastACI_dir_data.m
 fastACI_dir_amtoolbox.m
 fastACI_file_template.m
 optimal_detector_cfg.m
+dau1997_cfg.m
+king2019_cfg.m
 osses2021_cfg.m
 osses2022a_cfg.m
-
+relanoiborra2019_cfg.m

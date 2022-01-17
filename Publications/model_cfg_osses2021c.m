@@ -16,6 +16,14 @@ end
 
 p = [];
 p.modelname = modelname;
+if ~contains(modelname,'_') 
+    modelname_script = modelname;
+else
+    % The case for relanoiborra2019:
+    modelname_script = strspli(modelname,'_');
+    modelname_script = modelname_script{1};
+end
+p.modelname_script = modelname_script;
 p.templ_num = templ_num;
 p.bStore_template = bStore_template; % New option added on 17/09/2021, not 
                                      % relevant for the simulations here
@@ -63,6 +71,15 @@ switch run_str
     case 'default'
         fprintf('\t%s: Default model parameters are being loaded\n',upper(mfilename));
         switch modelname
+            case {'dau1997','relanoiborra2019'}
+                p.decision_script = 'aci_detect';
+                p.template_script = 'model_template';
+                p.template_every_trial = 0;
+                p.det_lev = -6;
+                p.type_decision = 'optimal_detector';
+                p.in_std = 0; % No calibration yet
+                p.thres_for_bias = 0; 
+                
             case 'osses2021'
                 p.decision_script = 'aci_detect';
                 p.template_script = 'model_template';

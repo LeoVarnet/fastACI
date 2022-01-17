@@ -21,10 +21,13 @@ if nargin < 2
 end
 
 def_sim.modelname = modelname;
+
 bInput = input('Enter 0 to load defaults for the current auditory model, enter 1 to input parameter by parameter: ');
 
 if bInput == 0
     switch modelname
+        case {'dau1997','relanoiborra2019','relanoiborra2019_preproc_debug'}
+            templ_num = 10;
         case 'osses2021'
             templ_num = 10;
         case 'osses2022a'
@@ -64,6 +67,27 @@ if bInput == 0
             exp2eval = ['def_sim = ' modelname '_cfg;'];
             eval(exp2eval);
             
+        case {'dau1997','relanoiborra2019'}
+            p = model_cfg_osses2021c('default',modelname,templ_num,bStore_template);
+            text_to_write = readfile_replace('model_cfg_replace.txt',p);
+            
+            dir_here = [fastACI_basepath 'Simulations' filesep];
+            fname_cfg =  [dir_here modelname '_cfg.m'];
+
+            if exist(fname_cfg,'file')
+                fprintf('----------------------------------------------------------------------------\n')
+                fprintf('file %s exists, \npress any key to continue (will overwrite) or press ctrl+C to cancel \n',fname_cfg);
+                fprintf('----------------------------------------------------------------------------\n')
+                pause
+            end
+
+            fid = fopen(fname_cfg, 'w');
+            fwrite(fid, text_to_write);
+            fclose(fid);
+            
+            exp2eval = ['def_sim = ' modelname '_cfg;'];
+            eval(exp2eval);
+                
         otherwise
             error('Add model %s to the list',modelname);
     end

@@ -41,7 +41,7 @@ if sum(Subject_ID=='_')
 end
 
 switch Subject_ID
-    case {'dau1997','king2019','osses2021','osses2022a'} % alphabetical order
+    case {'dau1997','king2019','relanoiborra2019','osses2021','osses2022a'} % alphabetical order
         bSimulation = 1;
         
     case {'dau1997_preproc'}
@@ -88,11 +88,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    % try
+    try
         cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
-    % catch me
-    %     error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
-    % end
+    catch me
+        error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
+    end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -268,8 +268,8 @@ if cfg_game.is_simulation == 1
         file_config = sprintf('%s_%s_cfg_%.0f_%.0f_%.0f_%.0fh%.0fm.m',file_config,Subject_ID,cfg_game.date(1:5));
         cfg_game.model_cfg_script      = file_config;
         cfg_game.model_cfg_script_full = [dir_results file_config];
-        
-        copyfile([fileparts(which(model_cfg_src)) filesep model_cfg_src '.m'],cfg_game.model_cfg_script_full);
+        dir_here = [fileparts(which(model_cfg_src)) filesep];
+        copyfile([dir_here model_cfg_src '.m'],cfg_game.model_cfg_script_full);
     else
         % The the simulation is resuming, we need to read the configuration file:
         addpath(dir_results);

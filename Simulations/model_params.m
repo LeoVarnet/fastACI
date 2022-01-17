@@ -42,11 +42,14 @@ switch modelname
         % modelpars{end+1} = 'subfs'; modelpars{end+1} = subfs;
         
         %%% Parameters AMT 1.0:
-        modelpars{end+1} = 'outerear';
-        modelpars{end+1} = 'middleear';
-        modelpars{end+1} = 'ihc_breebaart2001'; % 770-Hz LPF
-        modelpars{end+1} = 'adt_osses2021'; % overshoot limitation of 5 % OLD NAME: 'adt_dau_custom'
-        modelpars{end+1} = 'mfb_jepsen2008'; in_std = 0; in_var = in_std^2;
+        modelpars{end+1} = 'basef';
+        modelpars{end+1} = [];
+        
+        modelpars{end+1} = 'no_outerear';
+        modelpars{end+1} = 'no_middleear';
+        modelpars{end+1} = 'ihc_dau1996'; % 1000-Hz LPF
+        modelpars{end+1} = 'adt_dau1997'; % overshoot limitation of 10
+        modelpars{end+1} = 'mfb_dau1997'; in_std = 0; in_var = in_std^2;
                 
         params_extra.in_var = in_var;
         
@@ -82,7 +85,13 @@ switch modelname
         %     modelpars(end+1:end+2) = {'fhigh', 8000}; % keyval
         %     % modelpars(end+1:end+2) = {'modbank_Nmod', 5}; % keyval
         % end
-        
+    case {'relanoiborra2019','relanoiborra2019_preproc_debug'}
+        pars = relanoiborra2019_cfg;
+        for i = 1:length(pars.modelpars)
+            modelpars{end+1} = pars.modelpars{i};
+        end
+        subfs = pars.subfs;
+        params_extra.in_var = pars.in_var;
         
     case 'osses2021'
         pars = osses2021_cfg;
@@ -99,7 +108,6 @@ switch modelname
         end
         subfs = pars.subfs;
         params_extra.in_var = pars.in_var;
-        
 end
 
 if isempty(subfs)

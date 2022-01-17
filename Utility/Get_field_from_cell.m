@@ -8,10 +8,12 @@ var_out = [];
 bFound = 0;
 
 for i = 1:length(cell_in)-1
-    switch cell_in{i}
-        case str_in
-            var_out = cell_in{i+1};
-            bFound = 1;
-            break;
+    if ischar(cell_in{i})
+        switch cell_in{i}
+            case str_in
+                var_out = cell_in{i+1};
+                bFound = 1;
+                break;
+        end
     end
 end

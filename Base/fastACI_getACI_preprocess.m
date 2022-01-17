@@ -189,6 +189,8 @@ switch cfg_ACI.flags.glmfct
         if Nf_X<N_f % Along frequency dimension, truncating
             preX = preX(:,1:Nf_X,:);
             f_X = cfg_ACI.f(1:Nf_X);
+        elseif Nf_X == N_f
+            % Nothing to do
         else
             warning('Choose a higher value for NFFT')
         end
@@ -276,7 +278,6 @@ if cfg_ACI.zscore
     %     normalised to have a mean of 0 and a std of 1.
     X = zscore(X,[],1);
     % U = zscore(U,[],1);
-end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

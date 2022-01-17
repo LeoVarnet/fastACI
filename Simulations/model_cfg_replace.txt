@@ -1,6 +1,6 @@
 function def_sim = $$modelname$$_cfg
 
-def_sim.modelname = '$$modelname$$';
+def_sim.modelname = '$$modelname_script$$';
 def_sim.decision_script = '$$decision_script$$';
 def_sim.template_script = '$$template_script$$';
 def_sim.template_every_trial = $$template_every_trial$$;
@@ -14,6 +14,7 @@ switch def_sim.type_decision
     def_sim.in_var = optdet_params.in_var;
 end
 def_sim.bStore_template = $$bStore_template$$;
+def_sim.modelpars = {}; % empty
 
 if exist('model_cfg.m','file')
     % Config: AFC toolbox

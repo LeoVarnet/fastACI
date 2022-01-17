@@ -33,7 +33,7 @@ if sum(Subject_ID=='_')
 end
 
 switch Subject_ID
-    case {'dau1997','king2019','osses2021','osses2022a'} % alphabetical order
+    case {'dau1997','king2019','relanoiborra2019','osses2021','osses2022a'} % alphabetical order
         bSimulation = 1;
         
     case {'dau1997_preproc'}
@@ -197,15 +197,10 @@ cfg_game.is_experiment = ~bSimulation;
 % Simulation parameters
 if cfg_game.is_simulation == 1
 
-    if isfield(cfg_game,'Language')
-        if ~strcmp(cfg_game.Language,'EN')
-            warning('Using the default language (''EN''). Please specify in the *_cfg.m file another interface language if required.');
-        end
-        cfg_game.Language = 'EN';
-    else
+    if ~strcmp(cfg_game.Language,'EN')
+        fprintf('%s: Switching the language of the simulations to English\n',upper(mfilename));
         cfg_game.Language = 'EN';
     end
-
     cfg_game.warmup = 0; % warm up is disabled
     cfg_game.sessionsN = 400; 
     
@@ -287,7 +282,7 @@ if cfg_game.is_simulation == 1
     
     if def_sim.bStore_template == 1
         if exist('fastACI_file_template.m','file')
-            file_template = fastACI_file_template(cfg_game.experiment_full,Subject_ID);
+            file_template = fastACI_file_template(cfg_game.experiment_full, Subject_ID, def_sim.type_decision);
 
             if exist(file_template,'file')
                 fprintf('Pausing for 10 s. Press ctr+c to cancel the simulations.\n');
