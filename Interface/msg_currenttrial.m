@@ -17,21 +17,27 @@ switch cfg_game.Language
         fprintf('\tDependent variable: expvar = %.2f%s \n',expvar,expvar_description);
         fprintf('\n');
         
-        if i_current>100
-            bias_r1 = 100*sum(data_passation.n_responses(end-100+1:end)==1)/100;
+        N_here = min(i_current-1,100);
+        if i_current>10
+            if N_here < 100 && cfg_game.is_simulation
+                fprintf('Averaging first %.0f trials\n',N_here);
+            end
+            bias_r1 = 100*sum(data_passation.n_responses(end-N_here+1:end)==1)/N_here;
             fprintf('\tPercentage of "%s" responses: %.1f %%\n',cfg_game.response_names{1},bias_r1);
             if cfg_game.is_simulation == 1
-                bias_r2 = 100*sum(data_passation.n_responses(end-100+1:end)==2)/100;
+                bias_r2 = 100*sum(data_passation.n_responses(end-N_here+1:end)==2)/N_here;
                 % Extra info for the simulations:
                 fprintf('\tPercentage of "%s" responses: %.1f %%\n',cfg_game.response_names{2},bias_r2);
-                fprintf('\tPercentage of correct responses: %.1f %%\n',100*sum(data_passation.is_correct(end-100+1:end)==1)/100);
+                fprintf('\tPercentage of correct responses: %.1f %%\n',100*sum(data_passation.is_correct(end-N_here+1:end)==1)/N_here);
             else
-                if bias_r1>60
-                    fprintf('\tPercentage of "%s" responses = %.0f %% (trop de "%s") \n',cfg_game.response_names{1},bias_r1,cfg_game.response_names{1});
-                elseif bias_r1<40
-                    fprintf('\tPercentage of "%s" responses = %.0f %% (trop de "%s") \n',cfg_game.response_names{1},bias_r1,cfg_game.response_names{2});
-                else
-                    fprintf('\tPercentage of "%s" responses \n',cfg_game.response_names{1});
+                if i_current > 100
+                    if bias_r1>60
+                        fprintf('\tPercentage of "%s" responses = %.0f %% (trop de "%s") \n',cfg_game.response_names{1},bias_r1,cfg_game.response_names{1});
+                    elseif bias_r1<40
+                        fprintf('\tPercentage of "%s" responses = %.0f %% (trop de "%s") \n',cfg_game.response_names{1},bias_r1,cfg_game.response_names{2});
+                    else
+                        fprintf('\tPercentage of "%s" responses \n',cfg_game.response_names{1});
+                    end
                 end
             end
         end

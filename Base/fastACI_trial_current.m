@@ -64,7 +64,7 @@ stim_normal = str_stim.tuser;
 
 if cfg_game.is_experiment
     sil4playing = zeros(0.1*cfg_game.fs,1);
-    player = audioplayer([sil4playing; stim_normal],cfg_game.fs);
+    player = audioplayer(cfg_game.gain_play*[sil4playing; stim_normal],cfg_game.fs);
 end
 if cfg_game.is_simulation
     sil4playing = [];
@@ -109,7 +109,7 @@ if cfg_game.is_experiment
     end
     stop(player)
 elseif cfg_game.is_simulation
-    % warning('Temporal')
+    
     switch def_sim.decision_script
         case 'aci_detect' 
             % Default for 'dau1997' and 'osses2021'
@@ -170,7 +170,7 @@ switch response
         eval(exp2eval);
         stim_normal = str_stim.stim_tone_alone;
 
-        player = audioplayer([sil4playing; stim_normal],cfg_game.fs);
+        player = audioplayer(cfg_game.gain_play*[sil4playing; stim_normal],cfg_game.fs);
         playblocking(player)
 
         switch cfg_game.Language
@@ -190,7 +190,7 @@ switch response
         eval(exp2eval);
         stim_normal = str_stim.stim_tone_alone;
 
-        player = audioplayer([sil4playing; stim_normal],cfg_game.fs);
+        player = audioplayer(cfg_game.gain_play*[sil4playing; stim_normal],cfg_game.fs);
         playblocking(player)
 
         switch cfg_game.Language

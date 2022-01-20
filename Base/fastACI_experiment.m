@@ -41,7 +41,7 @@ if sum(Subject_ID=='_')
 end
 
 switch Subject_ID
-    case {'dau1997','king2019','relanoiborra2019','osses2021','osses2022a'} % alphabetical order
+    case {'dau1997','king2019','relanoiborra2019','maxwell2020','osses2021','osses2022a'} % alphabetical order
         bSimulation = 1;
         
     case {'dau1997_preproc'}
@@ -413,6 +413,24 @@ N = cfg_game.N;
 % cfg_game.dir_path    = dir_main;
 cfg_game.dir_results = dir_results;
 cfg_game.dir_results_completed = dir_results_completed;
+
+%%% Checking the calibration:
+global global_vars
+if cfg_game.is_experiment
+    if isfield(global_vars,'dBFS')
+        dBFS_playback = global_vars.dBFS;
+    else
+        dBFS_playback = dBFS; % same dBFS as for the stored sounds...
+    end
+    cfg_game.dBFS_playback = dBFS_playback;
+end
+if isfield(cfg_game,'dBFS_playback')
+    cfg_game.gain_play = 10^((cfg_game.dBFS_playback-cfg_game.dBFS)/20);
+    fprintf('%s: Actual dBFS=%.1f dB SPL\n',upper(mfilename),cfg_game.dBFS_playback);
+else
+    cfg_game.gain_play = 1;
+end
+%%% End checking the calibration
 
 while i_current <= N && i_current~=data_passation.next_session_stop && isbreak == 0
     

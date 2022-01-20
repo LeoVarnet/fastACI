@@ -40,7 +40,8 @@ nreferences = size(referencestim,2);
 switch modelname
     case {'dau1996_preproc','dau1996a_preproc'}
         [ir_reference,fc,subfs] = feval(modelname,referencestim(:,1),modelpars{:});
-    case {'dau1997','king2019','osses2021','osses2022a','relanoiborra2019_preproc_debug'} % 'dau1997_preproc','jepsen2008_preproc'}
+    case {'dau1997','king2019','osses2021','osses2022a','relanoiborra2019_preproc_debug', ...
+          'maxwell2020','maxwell2020_debug'} % 'dau1997_preproc','jepsen2008_preproc'}
         % [ir_reference,fc,fcm,subfs] = feval(modelname,referencestim(:,1),modelpars{:});
         [ir_reference,fc,fcm] = feval(modelname,referencestim(:,1),modelpars{:});
         subfs = Get_field_from_cell(modelpars,'subfs');

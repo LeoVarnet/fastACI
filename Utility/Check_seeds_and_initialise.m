@@ -108,20 +108,29 @@ if bDo_the_check
             dir_new   = [cfg_inout.dir_data_experiment list_other_subjects{bInput} filesep];
             cfg_inout.dir_target = [dir_new dir_target filesep];
         end
+        if isfield(var.cfg_crea,'stim_order')
+            cfg_inout.stim_order     = var.cfg_crea.stim_order; 
+            if length(var.cfg_crea.stim_order) ~= cfg_inout.N
+                idx2use = find(cfg_inout.stim_order<=cfg_inout.N);
+                cfg_inout.stim_order = cfg_inout.stim_order(idx2use);
+            else
+                idx2use = 1:length(cfg_inout.stim_order);
+            end
+        end
         if isfield(var.cfg_crea,'seeds_order')
-            cfg_inout.seeds_order = var.cfg_crea.seeds_order; % to be used sequentially
+            cfg_inout.seeds_order = var.cfg_crea.seeds_order(idx2use); % to be used sequentially
         end
         if isfield(var.cfg_crea,'seeds_order_method')
             cfg_inout.seeds_order_method = var.cfg_crea.seeds_order_method;
         end
-        if isfield(var.cfg_crea,'stim_order')
-            cfg_inout.stim_order     = var.cfg_crea.stim_order; 
-        end
         %%% 
         
         if isfield(var.cfg_crea,'bRove_level')
+            if ~exist('idx2use','var')
+                idx2use = 1:length(cfg_inout.stim_order);
+            end
             cfg_inout.bRove_level = var.cfg_crea.bRove_level;
-            cfg_inout.Rove_level  = var.cfg_crea.Rove_level;
+            cfg_inout.Rove_level  = var.cfg_crea.Rove_level(idx2use);
             cfg_inout.Rove_range  = var.cfg_crea.Rove_range;
         end
         fprintf('Metadata successfully copied from %s\n',crea_extern);

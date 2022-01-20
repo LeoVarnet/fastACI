@@ -60,31 +60,34 @@ switch modelname
             modelpars{end+1} = pars.modelpars{i};
         end
         
-        % if isunix
-        %     dBFS = 100;
-        %     basef = 1000; % Hz
-        %     bIsLeo = 0;
-        % 
-        % elseif iswindows
-        %     dBFS = 100;
-        %     basef = 1000; % Hz
-        %     warning('Leo: update in this script the dBFS value...');
-        % 
-        %     bIsLeo = 1;
-        % end
-        % 
-        % modelpars{end+1} = 'no_debug'; % flag
-        % if bIsLeo
-        %     %%% Leo's parameters:
-        %     modelpars{end+1} = 'no_phase_insens'; % flag
-        % 
-        % else
-        %     % default values will be loaded for king2019:
-        %     modelpars(end+1:end+2) = {'basef',basef}; % keyval
-        %     modelpars(end+1:end+2) = {'flow' ,   80}; % keyval
-        %     modelpars(end+1:end+2) = {'fhigh', 8000}; % keyval
-        %     % modelpars(end+1:end+2) = {'modbank_Nmod', 5}; % keyval
-        % end
+        dBFS = 100;
+        basef = 1000; % Hz
+        flow = 80;
+        fhigh = 8000;
+        % modbank_Nmod = 5;
+        mflow  =   2; % Hz, modbank_fmin
+        mfhigh = 150;
+
+        modelpars{end+1} = 'no_debug'; % flag
+        modelpars{end+1} = 'phase_insens_hilbert'; % 'no_phase_insens'; % flag
+        % default values will be loaded for king2019:
+        modelpars(end+1:end+2) = {'compression_n',0.3};
+        modelpars(end+1:end+2) = {'basef', basef}; % keyval
+        modelpars(end+1:end+2) = {'flow' ,  flow}; % keyval
+        modelpars(end+1:end+2) = {'fhigh', fhigh}; % keyval
+        modelpars(end+1:end+2) = {'mflow' , mflow}; % keyval
+        modelpars(end+1:end+2) = {'mfhigh', mfhigh}; % keyval
+        % modelpars(end+1:end+2) = {'modbank_Nmod', modbank_Nmod}; % keyval
+        modelpars(end+1:end+2) = {'dboffset', dBFS};
+        
+        disp('')
+    case {'maxwell2020','maxwell2020_debug'}
+        pars = maxwell2020_cfg;
+        for i = 1:length(pars.modelpars)
+            modelpars{end+1} = pars.modelpars{i};
+        end
+        subfs = fs;
+        
     case {'relanoiborra2019','relanoiborra2019_preproc_debug'}
         pars = relanoiborra2019_cfg;
         for i = 1:length(pars.modelpars)

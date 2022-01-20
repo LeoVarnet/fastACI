@@ -86,5 +86,5 @@ end
 
 tuser_cal = noise+signal;
  
-str_stim.tuser = presentation_gain*tuser_cal;
+str_stim.tuser            = presentation_gain*tuser_cal;
 str_stim.stim_tone_alone  = signal;

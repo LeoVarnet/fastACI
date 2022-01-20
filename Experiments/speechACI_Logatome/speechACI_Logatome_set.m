@@ -3,6 +3,8 @@ function cfg_inout = speechACI_Logatome_set(cfg_inout)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+global mock global_vars
+
 if nargin == 0
     cfg_inout = [];
 end
@@ -82,25 +84,38 @@ switch lower(cfg_inout.Condition) % lower case
 end
 dir_noise  = [dir_data_experiment cfg_inout.Subject_ID filesep dir_name_noise filesep];
 
-dBFS = 100;
- 
 %%% Parameters to create the targets:
 cfg.fs        = 16000; % Hz, sampling frequency
 cfg.dur_ramp  = 75e-3; % cosine ramp
 cfg.SPL       = 65; % target level, by default level of the noise (the speech 
                     % level is adapted)
-cfg.dBFS      = dBFS;
+%%%
+dBFS = 100; % full scale value to store the waveforms
+cfg.dBFS = dBFS;
+%%%
 
 cfg.bRove_level = 1; % New option as of 16/04/2021
 cfg.Rove_range  = 2.5; % plus/minus this value, changed from 4 to 2.5 dB on 26/05/2021
 
-% Change the following names:
-cfg.N_presentation = 2500;  % number of stimuli / condition
+if isfield(global_vars,'Language')
+    Language = global_vars.Language;
+else
+    Language = 'FR'; % French by default
+end
+cfg.Language = Language; % or 'EN'
+
+if isfield(global_vars,'N_presentation')
+    N_presentation = global_vars.N_presentation;
+else
+    N_presentation = 2500;
+end
+cfg.N_presentation = N_presentation; % number of stimuli / condition
 cfg.N_target  = 2;     % Number of conditions
 cfg.N         = cfg.N_target*cfg.N_presentation;
 
 cfg_inout.dir_data_experiment = dir_data_experiment;
 
+% Change the following names:
 if isfield(cfg_inout,'dir_target')
     if ~exist(cfg_inout.dir_target,'dir')
         if iswindows

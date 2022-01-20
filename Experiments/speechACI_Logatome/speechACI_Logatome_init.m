@@ -221,6 +221,9 @@ if isfield(cfg_inout,'bRove_level')
     end
 
 end
+% if length(cfg_inout.Rove_level) ~= cfg_inout.N
+%     cfg_inout.Rove_level = cfg_inout.Rove_level(1:cfg_inout.N);
+% end
 
 cfg_inout.ListStim = ListStim;
 
