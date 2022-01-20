@@ -420,7 +420,7 @@ if cfg_game.is_experiment
     if isfield(global_vars,'dBFS')
         dBFS_playback = global_vars.dBFS;
     else
-        dBFS_playback = dBFS; % same dBFS as for the stored sounds...
+        dBFS_playback = cfg_game.dBFS; % same dBFS as for the stored sounds...
     end
     cfg_game.dBFS_playback = dBFS_playback;
 end
