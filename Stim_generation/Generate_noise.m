@@ -15,35 +15,39 @@ switch lower(noise_type)
     case 'pink'
         insig = noise(N_samples,'pink'); % function from LTFAT toolbox
     case 'smps'
-        % temporary built-in parameters
-        % N_samples = 10432
-        N_samples_temp = 15664;
+        error('Discarded noise algorithm. See previous versions of this script (%s) to still retrieve this algorithm',mfilename);
+    case 'bumpv1p2_10db'
+        % Needs creation
+        sigma_t = 0.02; % temporal width of the bumps (in s)
+        sigma_ERB = 0.5; % spectral width of the bumps (in ERB)
+        
+        A = 10;
+        lvl_target = 65;
+        % 10 is  6.4 dB (- 3.6 dB)
+        % 20 is  9   dB (-11   dB)
+        % 30 is 14.3 dB (-15.7 dB)
+        switch A
+            case 5
+                lvl = lvl_target;
+            case 10
+                lvl = lvl_target - 3.6;
+            case 20
+                lvl = lvl_target - 9;
+            case 30
+                lvl = lvl_target - 11.3;
+            otherwise
+                error('No level empirically obtained...')
+        end
 
-        % tmod: temporal modulation frequency in Hz 
-        tmod_lim = [-25 25];%[-200 200];%2*[-200 200];%
+        dBFS = 100;
+        version = 1.2;
+        insig = bumpnoisegen(N_samples, fs, [], sigma_t, sigma_ERB, A, lvl, dBFS,[],[],version);
+            
+    case 'smpsv1p3'
+        cutoff_t = 35;
+        cutoff_f = 10/1000;
         
-        % smod: spectral modulation frequency in cyc/Hz
-        smod_lim = [-2 2]/1000;%[-2.5 2.5]/1000;%5*[-3 3]/1000;%
-        
-        %%% From old code: ------------------------------------------------
-        % var = load('mAMPS','refAMPS');
-        % refAMPS = var.refAMPS; % = [];
-        % gam = 239766.68634682; 
-        % fr = 16.3;
-        %%% End: From old code --------------------------------------------
-        
-        N = randn(N_samples_temp,1);%N = noise(N_samples_temp,'pink');%
-        [AMPSN,PMPSN,tmodN,smodN] = MPSpec(N,fs);
-        
-        tmodN_idx = tmodN>tmod_lim(1) & tmodN<tmod_lim(2);
-        smodN_idx = smodN>smod_lim(1) & smodN<smod_lim(2);
-        filterMPS = smodN_idx'*tmodN_idx;
-        
-        % generate noise with the filtered AMPS
-        insig = MPS_gen(AMPSN.*filterMPS, PMPSN, tmodN, smodN, length(N), fs);%AMPSN.*(refAMPS/max(refAMPS(:)))
-        
-        % Cut stim to desired length        
-        insig = insig(1:N_samples);
+        insig = MPSnoisegen_debug(N_samples, fs, cutoff_t, cutoff_f);
 end
 
 disp('')

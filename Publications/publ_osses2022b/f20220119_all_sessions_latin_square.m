@@ -1,5 +1,5 @@
-function g20220119_all_sessions_latin_square(modelname,bOnly_init)
-% function g20220119_all_sessions_latin_square(modelname,bOnly_init)
+function f20220119_all_sessions_latin_square(modelname,bOnly_init)
+% function f20220119_all_sessions_latin_square(modelname,bOnly_init)
 %
 % Author: Alejandro Osses
 %
@@ -15,14 +15,23 @@ Conditions = {'white','bumpv1p2_10dB','sMPSv1p3'};
 experiment = 'speechACI_Logatome-abda-S43M'; 
 
 N_conditions = length(Conditions);
+%%% Global variables, change to use only 4000 trials:
+N = 4000;
+N_target = 2;
+N_presentation = N/N_target;
+global_vars.N_presentation = N_presentation;
+%%%
 
 if bOnly_init
-    for i = 1:N_conditions
+    warning('One of the conditions, temporal change')
+    for i = 2 % 1:N_conditions
         noise_type = Conditions{i};
         fastACI_experiment_init(experiment,modelname, noise_type);
     end
     return;
 end
+
+dir_subj = [];
 
 available_hardware = {  'Sony-MDR-Alejandro','Sony-WH-Alejandro', ...
                         'Petite-Cabine', 'Grande-Cabine'};
@@ -53,12 +62,6 @@ global_vars.dBFS = dBFS;
 global_vars.Language = 'EN';
 
 Cond_name2store = [fastACI_paths('dir_output') 'Conditions-for-' modelname '+' experiment '.mat'];
-
-%%% Global variables:
-N = 4000;
-N_target = 2;
-N_presentation = N/N_target;
-global_vars.N_presentation = N_presentation;
 
 N_per_session = 400;
 cfg_game.N = 4000; % a priori knowledge
