@@ -20,7 +20,12 @@ function cfg_inout = speechACI_Logatome_init(cfg_inout)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
 dir_speech_orig = [fastACI_paths('dir_fastACI') 'Stimuli' filesep 'Logatome' filesep];
-dir_noise_spectrum = []; warning('Temporal'); % [cfg_inout.dir_logatome_src 'Noises' filesep];
+
+noise_type = cfg_inout.Condition;
+switch noise_type
+	case 'SSN' % apply the SSN
+        dir_noise_spectrum = []; warning('Temporal'); % [cfg_inout.dir_logatome_src 'Noises' filesep];
+end
 
 dBFS       = cfg_inout.dBFS;
 lvl_target = cfg_inout.SPL;
@@ -122,7 +127,7 @@ for i = 1:cfg_inout.N
     if bGenerate_stimuli
         
         if i == 1
-            noise_type = cfg_inout.Condition;
+            % noise_type = cfg_inout.Condition;
             switch noise_type
                 case 'SSN' % apply the SSN
                     % See g20210401_generate_LTASS.m
@@ -202,10 +207,14 @@ for i = 1:cfg_inout.N
 
         fname = [fname_part1 '_' stimnumber '.wav'];
     else
-        fname = files{i};
+        if nargout >= 1
+            fname = files{i};
+        end
     end
     
-    ListStim(i).name = fname;
+    if nargout >= 1
+        ListStim(i).name = fname;
+    end
      
     if bGenerate_stimuli
         switch noise_type
@@ -236,7 +245,9 @@ end
 %     cfg_inout.Rove_level = cfg_inout.Rove_level(1:cfg_inout.N);
 % end
 
-cfg_inout.ListStim = ListStim;
+if nargout >= 1
+    cfg_inout.ListStim = ListStim;
+end
 
 %%% Seed set back
 if bGenerate_stimuli

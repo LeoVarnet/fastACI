@@ -69,12 +69,12 @@ if ~isempty(files_prev)
         % We will try to generate the waveforms again. They will be generated
         %    if the waveform folders do not exist...
         cfg_crea = []; % loaded again in the next line
-        cfg_crea = load([dir_results files_prev{1}],'cfg_crea');
+        load([dir_results files_prev{1}],'cfg_crea');
         %%% Checking if an *.init file is found on disc:
         script_name = sprintf('%s_init',experiment);
         if exist([script_name '.m'],'file')
             fprintf('\tScript %s.m found on disc...\n',script_name);
-            exp2eval = sprintf('cfg_crea=%s(cfg_crea);',script_name);
+            exp2eval = sprintf('%s(cfg_crea);',script_name); % init script without output arguments...
             eval(exp2eval);
         end
     end
