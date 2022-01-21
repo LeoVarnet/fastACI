@@ -12,16 +12,18 @@ function [fhat] = MPSnoisegen(Ns, fs, cutoff_t, cutoff_f)
 
 bPhaseret_toolbox = exist('rtpghi.m','file');
 if bPhaseret_toolbox == 0
-    if ~exist('fastACI_dir_phaseret.m','file')
-        fastACI_set_phaseret;
+    try
+        if ~exist('fastACI_dir_phaseret.m','file')
+            fastACI_set_phaseret;
+        end
+        dir_phaseret = fastACI_dir_phaseret;
+        addpath(dir_phaseret);
+        phaseretstart;
+
+        phaseretmex_unix(dir_phaseret);
+    catch
+        error('%s.m: The phaseret toolbox was not found in the path. Please find the toolbox and initialise it (phaseretstart)',upper(mfilename));
     end
-    dir_phaseret = fastACI_dir_phaseret;
-    addpath(dir_phaseret);
-    phaseretstart;
-    
-    phaseretmex_unix(dir_phaseret);
-    
-    error('%s.m: The phaseret toolbox was not found in the path. Please find the toolbox and initialise it (phaseretstart)',upper(mfilename));
 end
 bPlot = 0;
 

@@ -1,4 +1,4 @@
-function [S, opts] = bumpnoisegen_debug(Ns, fs, Nb, sigma_t, sigma_ERB, A, lvl, dBFS,loc_t,loc_f,version)
+function [S, opts] = bumpnoisegen(Ns, fs, Nb, sigma_t, sigma_ERB, A, lvl, dBFS,loc_t,loc_f,version)
 %BUMPNOISEGEN_DEBUG Summary of this function goes here
 %   Generates a bump noise of length Ns sample and sampling rate fs. The
 %   bump noise is composed of Nb gaussian bumps randomly placed in the T-F
@@ -12,13 +12,16 @@ function [S, opts] = bumpnoisegen_debug(Ns, fs, Nb, sigma_t, sigma_ERB, A, lvl, 
 % This script uses the stft-istft toolbox instead of LTFAT+phaseret
 % because the latter uses mex files which do not compile on Mac.
 %
-% Léo Varnet - 2021
+% Authors: Leo Varnet, Alejandro Osses
+%
 % Versions:
 % 1: As adapted by Alejandro and used in July 2021 for a pilot. This version
 %    was used in g20210915_characterising_bump_speech.m
 % 1.1: - latest bump at dur-2*sigma_t
 %      - one bump per ERB
-%      - lmax = lvl + 15 remopved
+%      - lmax = lvl + 15 removed
+% 
+% Original name (fastACI_sim repo): bumpnoisegen_debug.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin < 11

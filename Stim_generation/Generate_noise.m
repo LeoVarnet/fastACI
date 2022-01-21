@@ -47,7 +47,7 @@ switch lower(noise_type)
         cutoff_t = 35;
         cutoff_f = 10/1000;
         
-        insig = MPSnoisegen_debug(N_samples, fs, cutoff_t, cutoff_f);
+        insig = MPSnoisegen(N_samples, fs, cutoff_t, cutoff_f);
 end
 
 disp('')

@@ -216,6 +216,13 @@ for i = 1:cfg_inout.N
         end
     end
 end
+if bGenerate_stimuli
+    try
+        fsound = [fastACI_basepath 'Stimuli' filesep 'ready.wav'];
+        [fsound,fs_sound] = audioread(fsound);
+        sound(fsound,fs_sound);
+    end
+end
 
 if isfield(cfg_inout,'bRove_level')
     

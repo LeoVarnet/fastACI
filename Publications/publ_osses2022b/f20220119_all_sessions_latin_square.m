@@ -23,8 +23,7 @@ global_vars.N_presentation = N_presentation;
 %%%
 
 if bOnly_init
-    warning('One of the conditions, temporal change')
-    for i = 2 % 1:N_conditions
+    for i = 1:N_conditions
         noise_type = Conditions{i};
         fastACI_experiment_init(experiment,modelname, noise_type);
     end

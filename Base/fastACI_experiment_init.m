@@ -25,6 +25,9 @@ else
 end
 fprintf('Running %s.m (experiment=%s, subject=%s%s)\n',mfilename,experiment_full,Subject_ID,str_cond);
 
+% [dir_results, dir_results_completed] = Check_local_dir_data(experiment,Subject_ID);
+dir_results = Check_local_dir_data(experiment_full,Subject_ID);
+
 %%% Checking whether there are separable conditions (separator='-')
 if sum(experiment_full=='-') % Checking whether it contains an hyphen
     experiment   = strsplit(experiment_full,'-');
@@ -48,6 +51,39 @@ cfg_crea.Subject_ID  = Subject_ID;
 if ~isempty(Condition)
     cfg_crea.Condition = Condition;
 end
+
+%%%
+% Checking existing crea _files:
+files_prev = Get_filenames(dir_results,['cfgcrea_*' Condition '.mat']);
+if ~isempty(files_prev)
+    fprintf('%s: %.0f create file(s) (cfgcrea) was/were found on disk. No creation file will be created.\n',upper(mfilename),length(files_prev));
+    fprintf('\tIf you really want to create a new create file, remove the existing file: %s\n',files_prev{1});
+    pause_time = 3;
+    fprintf('\t Pausing for %.0f seconds... (press ctrl+c to cancel)\n',pause_time);
+    pause(pause_time);
+    
+    if length(files_prev) > 1
+        % So, one creafile was found only
+        fprintf('\t Skipping the waveform generation because there is more than 1 crea file on disk)\n');
+    elseif length(files_prev) == 1
+        % We will try to generate the waveforms again. They will be generated
+        %    if the waveform folders do not exist...
+        cfg_crea = []; % loaded again in the next line
+        cfg_crea = load([dir_results files_prev{1}],'cfg_crea');
+        %%% Checking if an *.init file is found on disc:
+        script_name = sprintf('%s_init',experiment);
+        if exist([script_name '.m'],'file')
+            fprintf('\tScript %s.m found on disc...\n',script_name);
+            exp2eval = sprintf('cfg_crea=%s(cfg_crea);',script_name);
+            eval(exp2eval);
+        end
+    end
+    fprintf('\t Pausing for %.0f seconds... (press ctrl+c to cancel)\n',pause_time);
+    pause(pause_time);
+    return
+end
+%%%
+
 exp2eval = sprintf('cfg_crea=%s_set(cfg_crea);',experiment);
 eval(exp2eval);
 
@@ -64,9 +100,6 @@ end
 if ~isfield(cfg_crea,'N')
     cfg_crea.N = cfg_crea.N_target*cfg_crea.N_presentation;
 end
-
-% [dir_results, dir_results_completed] = Check_local_dir_data(experiment,Subject_ID);
-dir_results = Check_local_dir_data(experiment_full,Subject_ID);
 
 %%% Checking if an *.init file is found on disc:
 script_name = sprintf('%s_init',experiment);
