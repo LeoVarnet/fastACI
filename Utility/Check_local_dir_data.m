@@ -5,7 +5,7 @@ function [dir_results,dir_results_completed,dir_data] = Check_local_dir_data(exp
 
 try
     % New location since 8/06/2021:
-    dir_data = fastACI_paths('dir_data');
+    dir_data = fastACI_dir_data;
     dir_results           = [dir_data experiment filesep Subject_ID filesep 'Results'               filesep];
     dir_results_completed = [dir_data experiment filesep Subject_ID filesep 'Results_past_sessions' filesep];
     

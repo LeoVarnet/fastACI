@@ -19,7 +19,7 @@ function cfg_inout = speechACI_Logatome_init(cfg_inout)
 %        in speech perception. The noises are, therefore, stored at an SNR=0 dB
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
-dir_speech_orig = [fastACI_paths('dir_fastACI') 'Stimuli' filesep 'Logatome' filesep];
+dir_speech_orig = [fastACI_basepath 'Stimuli' filesep 'Logatome' filesep];
 
 noise_type = cfg_inout.Condition;
 switch noise_type
@@ -31,6 +31,8 @@ dBFS       = cfg_inout.dBFS;
 lvl_target = cfg_inout.SPL;
 dur_ramp   = cfg_inout.dur_ramp; 
 
+cfg_inout = Check_cfg_crea_dirs(cfg_inout); % updates the folders to the local computer if
+                                            % crea comes from another computer
 if ~exist(cfg_inout.dir_data_experiment,'dir')
     error('Please define an existing cfg_inout.dir_data_experiment (Not found: %s)',cfg_inout.dir_data_experiment);
 end
