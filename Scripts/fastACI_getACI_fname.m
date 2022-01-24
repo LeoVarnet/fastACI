@@ -123,11 +123,11 @@ else
         str_out = Get_abbreviation_for_filename('expvar');
         sign_str1 = num2str(abs(keyvals.expvar_limits(1)));
         if keyvals.expvar_limits(1) < 0
-            sign_str1 = ['m' sign_str];
+            sign_str1 = ['m' sign_str1];
         end
         sign_str2 = num2str(abs(keyvals.expvar_limits(2)));
         if keyvals.expvar_limits(2) < 0
-            sign_str2 = ['m' sign_str];
+            sign_str2 = ['m' sign_str2];
         end
         str_expvar_limits = sprintf('-%s_%s_%s',str_out,sign_str1,sign_str2);
     else
