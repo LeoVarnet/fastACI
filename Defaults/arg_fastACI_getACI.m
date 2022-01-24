@@ -20,9 +20,7 @@ definput.keyvals.add_signal = 0; % old: WithSignal
 
 definput.keyvals.skip_if_on_disk = 1;
 definput.keyvals.Data_matrix = [];
-% % 
-% definput.keyvals.cfg_crosspred = {};
-% definput.keyvals.results_crosspred = {};
+
 definput.keyvals.ACI_crosspred = [];
 
 % Default number of permutations N_perm (if do_permutation == 1):
@@ -36,9 +34,13 @@ definput.keyvals.trialtype_analysis = 'total';
 
 definput.keyvals.f_limits = [1 10000]; % Hz, arbitrary frequencies to be used as limits 
 definput.keyvals.t_limits = [0 1]; 
-definput.keyvals.expvar_limits = [];
-definput.keyvals.perc = [];
 
+%%% Used in fastACI_getACI_preprocess.m:
+definput.keyvals.expvar_limits = [];
+definput.keyvals.expvar_after_reversal = 0; % 0 = all trials are used; 4 = all trials 
+                                    % after reversal 4 are kept. New option as of 24/01/2022
+definput.keyvals.perc = [];
+%%%
 definput.keyvals.dir_target = [];
 definput.keyvals.dir_noise  = [];
 definput.keyvals.dir_out    = [];

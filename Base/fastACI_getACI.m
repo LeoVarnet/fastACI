@@ -85,6 +85,9 @@ end
 cfg_ACI = import_cfg(cfg_game, 'dir_noise', 'dir_target', 'N', 'N_target', ... % 'dir_target', 'N_response'
     'stim_order', 'target_names', 'response_correct_target','response_names');
 
+if isfield(cfg_game,'sessionsN')
+    cfg_ACI.L_session = cfg_game.sessionsN; % used in fastACI_getACI_preprocess.m
+end
 if isfield(cfg_game,'Subject_ID')
     cfg_ACI.Subject_ID = cfg_game.Subject_ID;
 end

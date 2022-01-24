@@ -7,6 +7,12 @@ function [y, y_correct, X, U, cfg_ACI] = fastACI_getACI_preprocess(cfg_ACI, data
 % Old name: Script4_Calcul_ACI_preprocess.m (changed on 21/05/2021)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+kv = cfg_ACI.keyvals; % List of configuration parameters defined in arg_fastACI_getACI.m
+fg = cfg_ACI.flags; % List of modules that are activated or bypassed defined in arg_fastACI_getACI.m
+
+do_permutation = fg.do_permutation; % By default the permutation test is 'on'
+do_no_bias     = fg.do_no_bias;
+
 idx_trialselect = cfg_ACI.idx_trialselect;
 if length(idx_trialselect) > length(data_passation.n_responses)
     fprintf('\t%s: incomplete data_passation structure, not all trials seem to have been completed\n',upper(mfilename));
@@ -20,21 +26,20 @@ n_targets   = data_passation.n_targets(idx_trialselect); % expected responses (t
 expvar      = data_passation.expvar(idx_trialselect); % value of the experimental variable (trial order)
 is_correct  = data_passation.is_correct(idx_trialselect);
 
-if ~isempty(cfg_ACI.keyvals.expvar_limits)
-    cfg_ACI.SNR_analysis  = cfg_ACI.keyvals.expvar_limits; % select a range of SNR
+if ~isempty(kv.expvar_limits)
+    cfg_ACI.SNR_analysis  = kv.expvar_limits; % select a range of SNR
+    label_expvar_limits = sprintf('\t\t\t(expvar_limits between %.1f and %.1f)\n',cfg_ACI.SNR_analysis);
 else
     cfg_ACI.SNR_analysis  = [min(expvar) max(expvar)];
+    label_expvar_limits = [];
 end
 
-do_permutation = cfg_ACI.flags.do_permutation; % By default the permutation test is 'on'
 if do_permutation
-    N_perm = cfg_ACI.keyvals.N_perm; 
+    N_perm = kv.N_perm; 
 end 
 
-do_no_bias = cfg_ACI.flags.do_no_bias;
-
 %cfg_ACI.trialtype_analysis = [];
-switch cfg_ACI.keyvals.trialtype_analysis
+switch kv.trialtype_analysis
     case 'incorrect'
         select_trialtype = ~is_correct;
     case 'correct'
@@ -42,9 +47,9 @@ switch cfg_ACI.keyvals.trialtype_analysis
     case 'total'
         select_trialtype = ones(size(is_correct));
     otherwise
-        if cfg_ACI.keyvals.trialtype_analysis(1) == 't' 
-            if str2double(cfg_ACI.keyvals.trialtype_analysis(2:end))<=cfg_ACI.N_target
-                select_trialtype = (n_targets == str2double(cfg_ACI.keyvals.trialtype_analysis(2:end)));
+        if kv.trialtype_analysis(1) == 't' 
+            if str2double(kv.trialtype_analysis(2:end))<=cfg_ACI.N_target
+                select_trialtype = (n_targets == str2double(kv.trialtype_analysis(2:end)));
             else
                 error(['Trialtype condition unrecognised: ' cfg_ACI.trialtype_analysis ' (but there are only ' num2str(cfg_ACI.N_target) ' targets)\n'])
             end
@@ -61,16 +66,47 @@ select_n_trials = (1:N_trialselect>=cfg_ACI.n_trials_analysis(1) & 1:N_trialsele
  
 expvar_trialselect = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_analysis(2));
 
-%%% select_n_signal: to process target 1 or 2, or 1 and 2
-% select_n_signal = zeros(1,N_trialselect);
-% 
-% for i=cfg_ACI.n_signal_analysis
-%     select_n_signal = ((n_targets==i) | select_n_signal);
-% end
-idx_analysis = find(select_n_trials & expvar_trialselect & select_trialtype); % & select_n_signal);
+select_after_reversal = ones(size(idx_trialselect));
+label_expvar_after_reversal = [];
+if isfield(kv,'expvar_after_reversal')
+    if kv.expvar_after_reversal > 0
+        N_reversals_i = kv.expvar_after_reversal;
+        idx_sessions = find(data_passation.resume_trial < length(idx_trialselect));
+        if isfield(cfg_ACI,'L_session')
+            L_session = cfg_ACI.L_session;
+        end
+        % L_session = median(diff(data_passation.resume_trial));
+        for i = 1:length(idx_sessions)
+            idxi = max(data_passation.resume_trial(i),1);
+            if i~= length(idx_sessions)
+                % L_session_here: It will be different than L_session if the
+                %     participant paused the measurements during the sessions:
+                L_session_here = data_passation.resume_trial(i+1) - data_passation.resume_trial(i);
+                idxf = data_passation.resume_trial(i) + L_session_here-1;
+            else
+                idxf = data_passation.resume_trial(i) + L_session;
+            end
+            idxf = min(idxf, length(idx_trialselect)); % limited by the selected number of trials
+            [~,idx2check] = Get_mAFC_reversals(expvar(idxi:idxf));
+            idxs4null = (1:idx2check(N_reversals_i)-1) + idxi-1;
+            
+            select_after_reversal(idxs4null) = 0;
+        end
+        label_expvar_after_reversal = sprintf('\t\t\t(expvar_after_reversal=%.0f: %.0f extra trials are being excluded)\n', ...
+            N_reversals_i, sum(select_after_reversal==0));
+    else
+        % Nothing to do
+    end
+end
 
-%%%%% TRIAL EQUALISATION: if true, discards trials so that the number of
-%%%%% responses 1 and 2 are equal, starting with the more extreme expvar
+%%% Here is where all the filters are applied:
+idx_analysis = find(select_n_trials & expvar_trialselect & select_trialtype & ...
+    select_after_reversal); % & select_n_signal);
+
+%%% do_no_bias=TRIAL EQUALISATION: if equal to 1, this processing discards 
+%     trials so that the number of responses (1 or 2) are equal, starting 
+%     with the more extreme expvar values.
+%     Author: Leo Varnet
 if do_no_bias
     % This is a balancing of the number of trials
     N_r1 = sum(n_responses(idx_analysis)==1);
@@ -88,11 +124,12 @@ if do_no_bias
     end
     idx_analysis = setdiff(idx_analysis,trials2exclude);
 end
-%%%%% END TRIAL EQUALISATION
+%%% END do_no_bias
 
 if length(idx_analysis) ~= size(Data_matrix,1)
     fprintf('\t%s: Selecting a subset of the experimental trials:\n',upper(mfilename));
-    fprintf('\t\t %.0f trials out of %.0f are being processed (expvar_limits between %.1f and %.1f)\n',length(idx_analysis),size(Data_matrix,1),cfg_ACI.SNR_analysis);
+    fprintf('\t\t %.0f trials out of %.0f are being processed:\n%s%s\n', ...
+        length(idx_analysis),size(Data_matrix,1),label_expvar_limits,label_expvar_after_reversal);
     
     N_trialselect = length(idx_analysis);
     cfg_ACI.N_trialselect = N_trialselect;
@@ -138,7 +175,7 @@ end
 
 %%% End: Testing Alejandro on 27/04/2021
     
-switch cfg_ACI.flags.glmfct
+switch fg.glmfct
     case {'lassoglm','lasso', 'lassoslow','lassoglmslow'}
         
         %%% Loading defaults for 'lassoglm' or 'lasso', if not previously loaded
