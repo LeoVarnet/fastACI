@@ -1,6 +1,14 @@
-function cfg_crea = Check_cfg_crea_dirs(cfg_crea)
-% function cfg_crea = Check_cfg_crea_dirs(cfg_crea)
+function cfg_crea = Check_cfg_crea_dirs(cfg_crea, dir_new)
+% function cfg_crea = Check_cfg_crea_dirs(cfg_crea, dir_new)
 %
+% Description:
+%     This script checks whether all the folders specified in cfg_crea exist
+%     locally. If a folder does not exist, assumes that cfg_crea was created
+%     using another computer, and replaces the data folder in cfg_cre by the
+%     folder fastACI_paths('dir_data').
+%
+%     Specify dir_new if you want to update the 'main dir' in a creation file.
+%     
 % Tested for the first time from g20211129_getting_waveforms_SLV.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -9,8 +17,14 @@ if ~exist(cfg_crea.dir_data_experiment,'dir')
     bUpdate = 1;
 end
 
+dir_data = fastACI_paths('dir_data');
+if nargin >= 2
+    dir_data = dir_new;
+    bUpdate = 1;
+end
+
 if bUpdate
-    dir_data_experiment = [fastACI_paths('dir_data') cfg_crea.experiment_full filesep];
+    dir_data_experiment = [dir_data cfg_crea.experiment_full filesep];
     filesep_orig = cfg_crea.dir_data_experiment(end);
     
     str_dir_data = strsplit(cfg_crea.dir_data_experiment(1:end-1),filesep_orig);

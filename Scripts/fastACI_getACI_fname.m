@@ -135,12 +135,15 @@ else
     end
 end
 
+if keyvals.expvar_after_reversal ~= 0
+    str_expvar_rev = sprintf('-rev%.0f',keyvals.expvar_after_reversal);
+else
+    str_expvar_rev = [];
+end
 str_TF_type = Get_abbreviation_for_filename(TF_type);
 str_glmfct  = Get_abbreviation_for_filename(glmfct);  
 fnameACI = [dir_out 'ACI-' cfg_game.Subject_ID '-' cfg_game.experiment Condition ...
             str_trialtype_analysis '-' str_TF_type '-' str_glmfct str_last_trial ...
-            str_add_signal str_expvar_limits '.mat'];
-%%%
-% fastACI_getACI_fname(savegame_file,varargin);
+            str_add_signal str_expvar_limits str_expvar_rev '.mat'];
 
 bCalculation = ~exist(fnameACI,'file');
