@@ -127,9 +127,13 @@ end
 %%% END do_no_bias
 
 if length(idx_analysis) ~= size(Data_matrix,1)
+    
+    label_actual_expvar = sprintf('\t\t\t(Actual expvar values between %.1f and %.1f)\n', ...
+        min(expvar(idx_analysis)),max(expvar(idx_analysis)));
+    
     fprintf('\t%s: Selecting a subset of the experimental trials:\n',upper(mfilename));
-    fprintf('\t\t %.0f trials out of %.0f are being processed:\n%s%s\n', ...
-        length(idx_analysis),size(Data_matrix,1),label_expvar_limits,label_expvar_after_reversal);
+    fprintf('\t\t %.0f trials out of %.0f are being processed:\n%s%s%s\n', ...
+        length(idx_analysis),size(Data_matrix,1),label_expvar_limits,label_expvar_after_reversal,label_actual_expvar);
     
     N_trialselect = length(idx_analysis);
     cfg_ACI.N_trialselect = N_trialselect;
