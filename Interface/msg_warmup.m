@@ -1,6 +1,6 @@
 %% Warmup + instructions message
 clc
-msg_instructions;
+msg_instructions(cfg_game);
 fprintf('\n'); 
 
 switch cfg_game.Language
