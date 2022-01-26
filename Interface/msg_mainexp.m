@@ -2,7 +2,7 @@
 
 clc
 % display_instructions
-msg_instructions;
+msg_instructions(cfg_game);
 switch cfg_game.Language
     case 'EN'
         fprintf('   Press any key to start.\n')

@@ -32,11 +32,11 @@ switch cfg_game.Language
             else
                 if i_current > 100
                     if bias_r1>60
-                        fprintf('\tPercentage of "%s" responses = %.0f %% (trop de "%s") \n',cfg_game.response_names{1},bias_r1,cfg_game.response_names{1});
+                        fprintf('\tPercentage of "%s" responses = %.0f %% (too much "%s") \n',cfg_game.response_names{1},bias_r1,cfg_game.response_names{1});
                     elseif bias_r1<40
-                        fprintf('\tPercentage of "%s" responses = %.0f %% (trop de "%s") \n',cfg_game.response_names{1},bias_r1,cfg_game.response_names{2});
+                        fprintf('\tPercentage of "%s" responses = %.0f %% (too much "%s") \n',cfg_game.response_names{1},bias_r1,cfg_game.response_names{2});
                     else
-                        fprintf('\tPercentage of "%s" responses \n',cfg_game.response_names{1});
+                        fprintf('\tThe percentages of responses "%s" et "%s" are normally balanced \n',cfg_game.response_names{1},cfg_game.response_names{2});
                     end
                 end
             end
