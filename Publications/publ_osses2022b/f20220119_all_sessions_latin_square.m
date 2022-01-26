@@ -5,6 +5,7 @@ function f20220119_all_sessions_latin_square(modelname,bOnly_init)
 %
 % Original name: g20210924_all_sessions_latin_square
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clc
 
 global global_vars
 
@@ -120,6 +121,23 @@ Conditions_nr = Conditions_nr(idx);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for i = idx_count:length(Conditions_nr)
+    
+    if i == idx_count
+        fprintf('\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
+        % This is the first session of today:
+        fprintf('Starting the first session of today\n');
+        fprintf('\tSubject_ID=%s\n',modelname);
+        fprintf('\tHeadphones=%s\n',hardware_cfg);
+        fprintf('\n\tInformed consent signed already?\n');
+        fprintf('\tConditions being loaded from: %s\n',Cond_name2store);
+        fprintf('\tThis is session %.0f of %.0f, is this correct?\n',i,length(Conditions_nr));
+        disp('%-------------------------------------------------------------------------%')
+        fprintf('If all the information above is correct, the session is ready to start.\n');
+        fprintf('Once the participant is seating inside, press any button to start the session\n\t(press ctrl+c to abort)\n');
+        disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+        pause();
+    end
+    
     idx_condition = Conditions_nr(i);
     noise_type = Conditions{idx_condition};
     
