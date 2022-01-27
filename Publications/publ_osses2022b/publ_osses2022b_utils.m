@@ -1,5 +1,5 @@
-function publ_osses2022b_utils
-% function publ_osses2022b_utils
+function publ_osses2022b_utils(Subject_ID, type_action)
+% function publ_osses2022b_utils(Subject_ID, type_action)
 %
 % Author: Alejandro Osses
 %
@@ -11,16 +11,20 @@ experiment = 'speechACI_Logatome-abda-S43M';
 
 dir_dropbox = '/home/alejandro/Dropbox/ENS_lab_shared/';
 
+if nargin == 0
+    Subject_ID = input('Enter the participant ID (e.g. ''S01''): ');
+end
 clc
-type_actions = { 'Check_sounds_for_a_participant', ...
-                'Copy_results_to_Dropbox', ...
-                'Copy_results_from_Dropbox'};
-Show_cell(type_actions);
-bInput = input('Choose your action: ');
+if nargin < 2
+    type_actions = { 'Check_sounds_for_a_participant', ...
+                    'Copy_results_to_Dropbox', ...
+                    'Copy_results_from_Dropbox'};
+    Show_cell(type_actions);
+    bInput = input('Choose your action: ');
 
-type_action = type_actions{bInput};
+    type_action = type_actions{bInput};
+end
 
-Subject_ID = input('Enter the participant ID (e.g. ''S01''): ');
 switch type_action
     case 'Check_sounds_for_a_participant'
         % No sounds should be generated, because we have put all the 
