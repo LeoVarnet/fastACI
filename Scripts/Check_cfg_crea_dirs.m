@@ -13,7 +13,9 @@ function cfg_crea = Check_cfg_crea_dirs(cfg_crea, dir_new)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 bUpdate = 0;
-if ~exist(cfg_crea.dir_data_experiment,'dir')
+if ~isfield(cfg_crea,'dir_data_experiment')
+    bUpdate = 1;
+elseif ~exist(cfg_crea.dir_data_experiment,'dir')
     bUpdate = 1;
 end
 
@@ -23,8 +25,15 @@ if nargin >= 2
     bUpdate = 1;
 end
 
+if ~isfield(cfg_crea,'experiment_full')
+    cfg_crea.experiment_full = cfg_crea.experiment;
+end
+
 if bUpdate
     dir_data_experiment = [dir_data cfg_crea.experiment_full filesep];
+    if ~isfield(cfg_crea,'dir_data_experiment')
+        cfg_crea.dir_data_experiment = dir_data_experiment;
+    end
     filesep_orig = cfg_crea.dir_data_experiment(end);
     
     str_dir_data = strsplit(cfg_crea.dir_data_experiment(1:end-1),filesep_orig);

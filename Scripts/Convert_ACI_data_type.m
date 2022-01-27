@@ -297,3 +297,7 @@ end
 if isfield(cfg_pa,'experiment')
     cfg_pass.experiment = cfg_pa.experiment;
 end
+
+if ~isfield(cfg_pass,'experiment_full')
+    cfg_pass.experiment_full = cfg_pass.experiment;
+end

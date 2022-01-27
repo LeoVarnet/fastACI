@@ -61,6 +61,7 @@ if bFastACI_exp == 1
     paths.Experiments          = [dir_fastACI       'Experiments'          filesep];
     paths.Publications         = [dir_fastACI       'Publications'         filesep];
     paths.publ_osses2022b      = [paths.Publications 'publ_osses2022b'     filesep];
+    paths.publ_varnet2013      = [paths.Publications 'publ_varnet2013'     filesep];
     paths.Interface            = [dir_fastACI       'Interface'            filesep];
     paths.legacy               = [dir_fastACI       'legacy'               filesep];
     paths.modulationACI        = [paths.Experiments 'modulationACI'        filesep];
@@ -72,6 +73,8 @@ if bFastACI_exp == 1
     paths.Scripts              = [dir_fastACI       'Scripts'              filesep];
     paths.Simulations          = [dir_fastACI       'Simulations'          filesep];
     paths.Stats                = [dir_fastACI       'Stats'                filesep];
+    paths.Stats_tb_GLM_penalty = [paths.Stats       'tb_GLM_penalty'       filesep];
+    paths.Stats_tb_optim_legacy= [paths.Stats       'tb_optim_legacy'      filesep];
     paths.Stim_generation      = [dir_fastACI       'Stim_generation'      filesep];
     paths.tb_ACI               = [dir_fastACI       'tb_ACI'               filesep];
 else
