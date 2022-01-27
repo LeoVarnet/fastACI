@@ -120,6 +120,20 @@ end
 Conditions_nr = Conditions_nr(idx);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+bComplete = 0;
+if sum(mod(i_current_all,400)) ~= 0
+    idx_incomplete = find(mod(i_current_all,400)~=0,1,'first');
+    
+    fprintf('An incomplete test condition was found,\n');
+    bComplete = input('do you want to complete that session? (1=yes, 0=no): ');
+    if bComplete
+        idx_count_before = idx_count;
+        % Finds the index of the incomplete session: Normally it is the last
+        % session:
+        idx_count = find(Conditions_nr(1:idx_count)==idx_incomplete,1,'last'); 
+    end
+end
+
 for i = idx_count:length(Conditions_nr)
     
     if i == idx_count
@@ -148,7 +162,13 @@ for i = idx_count:length(Conditions_nr)
         [cfg_game,data_passation] = fastACI_experiment(experiment,modelname,noise_type);
         
         i_current_all(idx_condition) = data_passation.i_current;
-        idx_count = idx_count + 1;
+        if bComplete == 0
+            % This is the default:
+            idx_count = idx_count + 1;
+        else
+            % Going back to the last session that was run:
+            idx_count = idx_count_before;
+        end
         save(Cond_name2store,'idx','i_current_all','idx_count'); % updates
     end
     

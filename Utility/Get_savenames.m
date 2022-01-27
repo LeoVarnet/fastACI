@@ -1,5 +1,5 @@
-function load_name = Get_savenames(dir_results, exp2filter, dir_results_completed)
-% function load_name = Get_savenames(dir_results, exp2filter, dir_results_completed)
+function [load_name_full,load_name] = Get_savenames(dir_results, exp2filter, dir_results_completed)
+% function [load_name_full,load_name] = Get_savenames(dir_results, exp2filter, dir_results_completed)
 %
 % Programmed by Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -15,14 +15,17 @@ for j=index_all
         bytes = ListSavegame(j).bytes; % looks for the largest MAT file
     end
 end
-load_name = [dir_results ListSavegame(index_savegame).name];
+load_name      = ListSavegame(index_savegame).name;
+load_name_full = [dir_results load_name];
 
-% --- Now we will move the old (completed sessions) to the 
-%     subject's folder.
+% --- Now we will move the old (completed sessions) to the subject's folder.
 index_all(index_savegame) = [];
-if ~isempty(index_all)
-    for j=1:length(index_all)
-        movefile([dir_results           ListSavegame(index_all(j)).name], ... % src
-                 [dir_results_completed ListSavegame(index_all(j)).name]);
+if nargin >= 3
+    % Moved only if dir_results_completed is specified
+    if ~isempty(index_all)
+        for j=1:length(index_all)
+            movefile([dir_results           ListSavegame(index_all(j)).name], ... % src
+                     [dir_results_completed ListSavegame(index_all(j)).name]);
+        end
     end
 end
