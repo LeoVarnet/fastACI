@@ -301,3 +301,7 @@ end
 if ~isfield(cfg_pass,'experiment_full')
     cfg_pass.experiment_full = cfg_pass.experiment;
 end
+
+if ~isfield(data_passation,'resume_trial')
+    data_passation.resume_trial = 1;
+end

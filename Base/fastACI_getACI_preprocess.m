@@ -74,6 +74,8 @@ if isfield(kv,'expvar_after_reversal')
         idx_sessions = find(data_passation.resume_trial < length(idx_trialselect));
         if isfield(cfg_ACI,'L_session')
             L_session = cfg_ACI.L_session;
+        else
+            L_session = length(data_passation.expvar)-1;
         end
         % L_session = median(diff(data_passation.resume_trial));
         for i = 1:length(idx_sessions)

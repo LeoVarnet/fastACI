@@ -65,15 +65,20 @@ if isfield(cfg_game,'Condition')
 end
 
 if isempty(cfg_game.Subject_ID)
-    % Trying to find a Subject ID if empty
-    di = cfg_game.dir_noise;
-    if strcmp(di(end),filesep)
-        di = di(1:end-1);
+    try
+        % Trying to find a Subject ID if empty
+        di = cfg_game.dir_noise;
+        if strcmp(di(end),filesep)
+            di = di(1:end-1);
+        end
+        di = strsplit(di,filesep);
+        Subject_ID = di{end-1};
+
+        cfg_game.Subject_ID = Subject_ID;
+    catch
+        warning('No Subject_ID was found...')
+        cfg_game.Subject_ID = '';
     end
-    di = strsplit(di,filesep);
-    Subject_ID = di{end-1};
-    
-    cfg_game.Subject_ID = Subject_ID;
 end
 
 %%%
