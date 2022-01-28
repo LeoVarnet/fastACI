@@ -14,7 +14,7 @@ dir_where = fastACI_dir_data;
 experiment = 'speechACI_varnet2013';
 
 dir_where = [dir_where experiment filesep];
-dirs2check = {'varnet2013_S01','Sujet_Leo_S1','Sujet_Léo_S1'};
+dirs2check = {'varnet2013_S02','Sujet_Leo_S1','Sujet_Léo_S1'};
 
 bAre_stored_locally = ones(size(dirs2check));
 

@@ -29,7 +29,7 @@ function [Data_matrix, cfg_inout] = fastACI_getACI_dataload(cfg_inout, ListStim,
 %          min(diff(f_speclogedges)) = 1.29 Hz BUT step_df should be less...
 
 if ~isfield(cfg_inout,'keyvals') || ~isfield(cfg_inout,'flags')
-    definput.import={'Script4_Calcul_ACI'}; % arg_Script4_Calcul_ACI
+    definput.import={'fastACI_getACI'};
     [cfg_inout.flags,cfg_inout.keyvals]  = ltfatarghelper([],definput,varargin);
     
     fprintf('%s: Default values are being loaded',upper(mfilename));

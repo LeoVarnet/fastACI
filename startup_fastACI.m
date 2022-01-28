@@ -60,6 +60,7 @@ if bFastACI_exp == 1
     paths.Defaults             = [dir_fastACI       'Defaults'             filesep];
     paths.Experiments          = [dir_fastACI       'Experiments'          filesep];
     paths.Publications         = [dir_fastACI       'Publications'         filesep];
+    paths.publ_osses2021c      = [paths.Publications 'publ_osses2021c'     filesep];
     paths.publ_osses2022b      = [paths.Publications 'publ_osses2022b'     filesep];
     paths.publ_varnet2013      = [paths.Publications 'publ_varnet2013'     filesep];
     paths.Interface            = [dir_fastACI       'Interface'            filesep];
