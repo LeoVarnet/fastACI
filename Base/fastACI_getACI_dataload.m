@@ -31,7 +31,8 @@ function [Data_matrix, cfg_inout] = fastACI_getACI_dataload(cfg_inout, ListStim,
 if ~isfield(cfg_inout,'keyvals') || ~isfield(cfg_inout,'flags')
     definput.import={'fastACI_getACI'};
     [cfg_inout.flags,cfg_inout.keyvals]  = ltfatarghelper([],definput,varargin);
-    
+    % [cfg_inout.flags,cfg_inout.keyvals]  = ltfatarghelper({},definput,varargin);
+
     fprintf('%s: Default values are being loaded',upper(mfilename));
 end
 
@@ -69,7 +70,11 @@ if ~isfield(cfg_inout,'idx_trialselect')
     cfg_inout.idx_trialselect = 1:N_trialselect;
 end
 
-cfg_inout = Ensure_field(cfg_inout,'decimation',1);
+switch TF_type
+    case {'lyon','noise_logspect'}
+        % This parameter is only needed for lyon and noise_logspect
+        cfg_inout = Ensure_field(cfg_inout,'decimation',1);
+end
 
 WithSNR    = cfg_inout.keyvals.apply_SNR;
 WithSignal = cfg_inout.keyvals.add_signal;

@@ -55,10 +55,16 @@ Data_matrix = [];
 %%%
 [fnameACI, cfg_game, data_passation, ListStim, flags, keyvals] = fastACI_getACI_fname(savegame_file,varargin{:});
 bCalculation = ~exist(fnameACI,'file');
-if ~exist(cfg_game.dir_noise,'dir')
-    % Prepare ACI analysis
-    cfg_game = Check_cfg_crea_dirs(cfg_game);
+if isempty(keyvals.dir_noise)
+    if ~exist(cfg_game.dir_noise,'dir')
+        % Prepare ACI analysis
+        cfg_game = Check_cfg_crea_dirs(cfg_game);
+    end
+else
+    disp('')
+    % cfg_game.dir_noise = keyvals.dir_noise;
 end
+
 % General parameters
 do_recreate_validation = flags.do_recreate_validation;
 glmfct  = flags.glmfct;

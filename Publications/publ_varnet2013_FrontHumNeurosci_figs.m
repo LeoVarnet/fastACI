@@ -1,5 +1,5 @@
 function publ_varnet2013_FrontHumNeurosci_figs(varargin)
-% function [h,hname] = publ_varnet2013_FrontHumNeurosci_figs(varargin)
+% function publ_varnet2013_FrontHumNeurosci_figs(varargin)
 %
 % Generates the figures
 
@@ -9,6 +9,7 @@ function publ_varnet2013_FrontHumNeurosci_figs(varargin)
 % % To display Fig. 4a of Varnet et al. (2013, Front. Hum. Neurosci.) use :::
 %     publ_varnet2013_FrontHumNeurosci_figs('fig4a');
 %
+% See also the local file (fastACI_sim repo): g20210301_recreating_varnet2013.m
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -22,6 +23,8 @@ hname = [];
 
 definput.flags.type={'missingflag','fig1','fig4a'};
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
+
+do_text = 1; % activate this manually (1=on; 0=off)
 
 f_limits = [0 4050]; % Hz, the exact bin is at 4048 Hz (see the paper, p. 4, top)
 t_limits = [0 0.3425]; % s, first 0.34 s were accounted for (see the paper, p. 3)
@@ -45,16 +48,33 @@ if flags.do_fig1
     files = {'Aba.wav','Ada.wav'};
     [T_dB,f_spec,t_spec] = Time_frequency_converter(dir_target,files,length(files),opts);
     %%%
-    tf_ms = t_limits(end); 
-    ff    = f_limits(end); 
+    tf_s = t_limits(end); 
+    ff   = f_limits(end); 
     
-    idx_t = find(round(100*t_spec)/100 <= tf_ms/1000);
+    idx_t = find(round(100*t_spec)/100 <= tf_s);
     idx_f = find(round(f_spec) <= ff);
     f_spec = f_spec(idx_f);
     t_spec = t_spec(idx_t);
     T_dB   = T_dB(idx_f,idx_t,:);
     %%%
+    if do_text
+        N_f = length(f_spec);
+        N_t = length(t_spec);
 
+        disp('2. Materials and methods');
+        fprintf('\ta) Experimental procedure\n');
+        fprintf('\tc) Deriving auditory classification images\n');
+
+        df = f_spec(2)-f_spec(1);
+        dt_ms = 1000*(t_spec(2)-t_spec(1));
+        fprintf('Resulting in %.2f Hz frequency resolution and %.1f ms temporal resolution\n',df,dt_ms);
+        fprintf('[...] we limited our analysis to a time range of 0-%.1f ms\n', t_spec(end)*1000);
+        fprintf(' and a frequency range of 0-%.1f Hz\n',f_spec(end));
+        fprintf(' The resulting %.0f-by-%.0f matrix [...] is reshaped into a %.0f-by-1 vector\n',N_f,N_t,N_f*N_t);
+
+        disp('%%% two freq. bins too many')
+    end
+    
     max_dB = max(max(max(T_dB)));
 
     figure;

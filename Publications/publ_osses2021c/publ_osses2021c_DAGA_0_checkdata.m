@@ -1,5 +1,5 @@
-function bAre_stored_locally = publ_osses2021c_DAGA_0_checkdata
-% function bAre_stored_locally = publ_osses2021c_DAGA_0_checkdata
+function [bAre_stored_locally,dir_subjects,experiment] = publ_osses2021c_DAGA_0_checkdata(dirs2check)
+% function [bAre_stored_locally,dir_subjects,experiment] = publ_osses2021c_DAGA_0_checkdata(dirs2check)
 %
 % This script checks whether the data related to osses2021c (Osses and Varnet,
 %     2022, DAGA) is located locally and otherwise, it requests the user to
@@ -7,13 +7,16 @@ function bAre_stored_locally = publ_osses2021c_DAGA_0_checkdata
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+dir_subjects = [];
 
 dir_where = fastACI_dir_data;
 experiment = 'speechACI_varnet2013';
 
 dir_where = [dir_where experiment filesep];
-dirs2check = {'osses2021c_S01', ...
-              'osses2021c_S02'};
+if nargin == 0
+    dirs2check = {'osses2021c_S01', ...
+                  'osses2021c_S02'};
+end
 
 bAre_stored_locally = ones(size(dirs2check));
 
@@ -35,6 +38,7 @@ for i = 1:length(dirs2check)
         return;
     else
         bAre_stored_locally = 1;
+        dir_subjects{i} = dir2check;
     end
     
 end
