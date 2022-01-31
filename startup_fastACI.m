@@ -62,6 +62,7 @@ if bFastACI_exp == 1
     paths.Publications         = [dir_fastACI       'Publications'         filesep];
     paths.publ_osses2021c      = [paths.Publications 'publ_osses2021c'     filesep];
     paths.publ_osses2022b      = [paths.Publications 'publ_osses2022b'     filesep];
+    paths.publ_osses2022c      = [paths.Publications 'publ_osses2022c'     filesep];
     paths.publ_varnet2013      = [paths.Publications 'publ_varnet2013'     filesep];
     paths.Interface            = [dir_fastACI       'Interface'            filesep];
     paths.legacy               = [dir_fastACI       'legacy'               filesep];

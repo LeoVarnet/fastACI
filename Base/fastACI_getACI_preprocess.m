@@ -62,8 +62,14 @@ cfg_ACI = set_default_cfg(cfg_ACI, ...
     'n_signal_analysis', 1:cfg_ACI.N_target, 'n_trials_analysis', [1 cfg_ACI.N_trialselect]);
 
 N_trialselect = cfg_ACI.N_trialselect;
+
 select_n_trials = (1:N_trialselect>=cfg_ACI.n_trials_analysis(1) & 1:N_trialselect<=cfg_ACI.n_trials_analysis(2));
- 
+
+if ~isempty(kv.idx_trialselect)
+    idx_set_zero = setxor(1:length(select_n_trials), kv.idx_trialselect);
+    select_n_trials(idx_set_zero) = 0;
+end
+
 expvar_trialselect = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_analysis(2));
 
 select_after_reversal = ones(size(idx_trialselect));
