@@ -9,7 +9,13 @@ function publ_osses2022b_utils(Subject_ID, type_action)
 Conditions = {'white','bumpv1p2_10dB','sMPSv1p3'};
 experiment = 'speechACI_Logatome-abda-S43M';
 
-dir_dropbox = '/home/alejandro/Dropbox/ENS_lab_shared/';
+if ismac
+    dir_dropbox = '~/Dropbox/ENS_lab_shared/';
+elseif isunix
+    dir_dropbox = '/home/alejandro/Dropbox/ENS_lab_shared/';
+elseif iswindows
+    % Leo's folder should go here
+end
 
 if nargin == 0
     Subject_ID = input('Enter the participant ID (e.g. ''S01''): ');
