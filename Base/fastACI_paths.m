@@ -51,9 +51,17 @@ if ispc
     end
     
 elseif ismac
+    
     % Directories in lab's computer:
     paths.dir_output = '/Users/leovarnet/ownCloud/Data/fastACI_data/outputs/';
-    warning('Leo: define and update the following folders...')
+    if ~exist(paths.dir_output,'dir')
+        dir_output = [fastACI_basepath 'outputs' filesep];
+        if ~exist(dir_output,'dir')
+            mkdir(dir_output)
+        end
+        paths.dir_output = dir_output;
+    end
+    % warning('Leo: define and update the following folders...')
     paths.dir_output_fastACI2021_JASA = '';
     paths.dir_output_fastACI2021_JASA_eps = '';
     

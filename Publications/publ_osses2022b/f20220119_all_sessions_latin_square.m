@@ -51,12 +51,10 @@ switch hardware_cfg
         lvl_from_SLM = 91.7; % for the left headphone
         
     case 'Petite-Cabine'
-        error('Not yet enabled')
         lvl_from_SLM = 82.3; % for the left headphone
         
     case 'Grande-Cabine'
-        error('Not yet enabled')
-        lvl_from_SLM = 90.6; % for the left headphone
+        lvl_from_SLM = 82.1; % for  the left headphone, preamp zc 0032, Id No 23156 
 end
 dBFS = 100+(lvl_target-lvl_from_SLM);
 global_vars.dBFS = dBFS;

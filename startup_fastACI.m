@@ -57,6 +57,7 @@ if bFastACI_exp == 1
     
     paths.fast_ACI             = dir_fastACI;
     paths.Base                 = [dir_fastACI       'Base'                 filesep];
+    paths.Calibration          = [dir_fastACI       'Calibration'          filesep];
     paths.Defaults             = [dir_fastACI       'Defaults'             filesep];
     paths.Experiments          = [dir_fastACI       'Experiments'          filesep];
     paths.Publications         = [dir_fastACI       'Publications'         filesep];
