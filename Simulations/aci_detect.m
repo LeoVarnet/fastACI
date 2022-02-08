@@ -1,4 +1,4 @@
-function [response,sim_work] = aci_detect(cfg_game,data_passation,cfg_sim,sim_work)
+function [response,sim_work] = aci_detect(cfg_game,data_passation,cfg_sim,sim_work,keyvals)
 % ACI_DETECT
 %
 % Based on casp_detect.m, an add-on function from the AFC toolbox
@@ -16,7 +16,10 @@ function [response,sim_work] = aci_detect(cfg_game,data_passation,cfg_sim,sim_wo
 %               % 'pianoinnoise' (if pianoinnoise experiment)
 %               % 'pianoinnoise2' (if casp_template_piano)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  
+
+if nargin < 5
+    keyvals = [];
+end
 %%% New name            Old name
 %   cfg_sim             simdef
 
@@ -79,7 +82,7 @@ if (isempty(sim_work.templ_tar) == 1 || cfg_sim.template_every_trial == 1 )
     % generate template if not existing
     switch template_script
         case 'model_template'
-            [templ_tar,templ_ref,cfg_sim] = model_template(cfg_game,data_passation,cfg_sim); 
+            [templ_tar,templ_ref,cfg_sim] = model_template(cfg_game,data_passation,cfg_sim,keyvals); 
     end
     sim_work.templ_tar = templ_tar;
     sim_work.templ_ref = templ_ref;
@@ -107,7 +110,7 @@ type_processing = cfg_game.experiment;
  
 fs = cfg_game.fs;
 modelname = cfg_sim.modelname;
-[modelpars,subfs,params_extra] = model_params(modelname,fs);
+[modelpars,subfs,params_extra] = model_params(modelname,fs,keyvals);
 if ~isempty(params_extra)
     in_var = params_extra.in_var;
 else

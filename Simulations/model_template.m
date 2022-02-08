@@ -1,4 +1,4 @@
-function [templ_tar,templ_ref,cfg_sim] = model_template(cfg_game,data_passation,cfg_sim)
+function [templ_tar,templ_ref,cfg_sim] = model_template(cfg_game,data_passation,cfg_sim,keyvals)
 %MODEL_TEMPLATE
 % 
 % Based on casp_template, add-on of the AFC toolbox.
@@ -12,7 +12,9 @@ function [templ_tar,templ_ref,cfg_sim] = model_template(cfg_game,data_passation,
 %
 % Author: Alejandro Osses, ENS, 2021
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+if nargin < 4
+    keyvals = [];
+end
 i_current    = data_passation.i_current;
 store_expvar = data_passation.expvar(i_current);
 n_stim       = data_passation.n_stim(i_current);
@@ -38,7 +40,7 @@ end
 
 fs = cfg_game.fs;
 modelname = cfg_sim.modelname;
-[modelpars,subfs] = model_params(modelname,fs);
+[modelpars,subfs] = model_params(modelname,fs,keyvals);
 cfg_sim.subfs = subfs;
 %%%
 str_stim = [];

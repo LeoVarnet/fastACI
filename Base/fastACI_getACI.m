@@ -150,18 +150,13 @@ if ~isempty(cfg_ACI.keyvals.ACI_crosspred)
     end
     N_crosspred = length(ACI_crosspred);
     
-    bCrossPred = 1;
-    
-    % % make sure that the config for the old and new ACIs are compatible
-    % % ADD FURTHER CHECKS (if we make sure that the flags are the same, there is no problem)
-    % if ~(cfg_ACI.N_target == cfg_crosspred.N_target && cfg_ACI.lasso_Nlevel == cfg_crosspred.lasso_Nlevel && ...
-    %      cfg_ACI.lasso_Nlevelmin == cfg_crosspred.lasso_Nlevelmin && cfg_ACI.zscore == cfg_crosspred.zscore && ...
-    %      strcmp(cfg_ACI.glmfct, cfg_crosspred.glmfct) && all(cfg_ACI.t_limits == cfg_crosspred.t_limits) && ...
-    %      all(cfg_ACI.f_limits == cfg_crosspred.f_limits) && cfg_ACI.N_folds == cfg_crosspred.N_folds && ...
-    %      cfg_ACI.lambda0 == cfg_crosspred.lambda0 && cfg_ACI.withU == cfg_crosspred.withU && ...
-    %      cfg_ACI.binwidth == cfg_crosspred.binwidth && cfg_ACI.bwmul == cfg_crosspred.bwmul)
-    %     error('configuration parameters cfg_ACI and cfg_crosspred are incompatible')
-    % end
+    fname_cross = Save_crosspred(fnameACI,[],mfilename);
+    if ~exist([fname_cross '.mat'],'file')
+        bCrossPred = 1;
+    else
+        fprintf('Crossprediction found on disk\n')
+        bCrossPred = 0;
+    end
 else
     bCrossPred = 0;
 end

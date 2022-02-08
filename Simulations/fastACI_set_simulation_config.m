@@ -14,6 +14,8 @@ function def_sim = fastACI_set_simulation_config(modelname,def_sim)
 %   case 'optimal_detector'
 %     def_sim.thres_for_bias = $$thres_for_bias$$;
 % end
+%
+% TODO: February 2022: Add keyvals to be loaded here...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin < 2

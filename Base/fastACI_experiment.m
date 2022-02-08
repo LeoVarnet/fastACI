@@ -1,5 +1,5 @@
-function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID, Condition)
-% function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID, Condition)
+function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID, Condition, varargin)
+% function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID, Condition, varargin)
 %
 % Changes by AO:
 %   - cfg_game.resume set to 1 (for oui) or 0 (for non)
@@ -18,6 +18,10 @@ function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID,
 %
 % Old name: Script2_Passation_EN.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% From argument function:
+definput.import={'fastACI_experiment'}; % arg_fastACI_experiment.m
+[flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
 %% Setup
 if nargin < 3
@@ -88,11 +92,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    try
+    % try
         cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
-    catch me
-        error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
-    end
+    % catch me
+    %     error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
+    % end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -239,7 +243,7 @@ if cfg_game.is_simulation == 1
             if ~strcmp(path,path_where_supposed)
                 error('The script %s is supposed to be in %s,\n(not in %s)',model_cfg_src,path_where_supposed,path);
             end
-            exp2eval = sprintf('def_sim = %s;',model_cfg_src);
+            exp2eval = sprintf('def_sim = %s(keyvals);',model_cfg_src);
             eval(exp2eval);
             
             fprintf('Model configuration found on disk. Check whether the configuration is what you expect:\n');
@@ -273,7 +277,7 @@ if cfg_game.is_simulation == 1
     else
         % The the simulation is resuming, we need to read the configuration file:
         addpath(dir_results);
-        exp2eval = sprintf('def_sim = %s;',cfg_game.model_cfg_script(1:end-2));
+        exp2eval = sprintf('def_sim = %s(keyvals);',cfg_game.model_cfg_script(1:end-2));
         eval(exp2eval);
         rmpath(dir_results);
     end
@@ -450,7 +454,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
 
     data_passation.i_current = i_current;
     %%%
-    [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial);
+    [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals);
     response  = outs_trial.response;
     i_current = outs_trial.i_current;
     isbreak   = outs_trial.isbreak;

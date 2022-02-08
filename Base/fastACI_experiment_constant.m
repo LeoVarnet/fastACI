@@ -1,5 +1,5 @@
-function [cfg_game, data_passation] = fastACI_experiment_constant(experiment, Subject_ID, Condition, expvar, Ni, Nf)
-% function [cfg_game, data_passation] = fastACI_experiment_constant(experiment, Subject_ID, Condition, expvar, Ni, Nf)
+function [cfg_game, data_passation] = fastACI_experiment_constant(experiment, Subject_ID, Condition, expvar, varargin)
+% function [cfg_game, data_passation] = fastACI_experiment_constant(experiment, Subject_ID, Condition, expvar, varargin)
 %
 %
 % Changes by AO:
@@ -11,6 +11,10 @@ function [cfg_game, data_passation] = fastACI_experiment_constant(experiment, Su
 %   - An existing cfg_crea
 %   - The waveforms on disk
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% From argument function:
+definput.import={'fastACI_experiment'}; % arg_fastACI_experiment.m
+[flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
 %% Setup
 if nargin < 3
@@ -228,7 +232,7 @@ if cfg_game.is_simulation == 1
             if ~strcmp(path,path_where_supposed)
                 error('The script %s is supposed to be in %s,\n(not in %s)',model_cfg_src,path_where_supposed,path);
             end
-            exp2eval = sprintf('def_sim = %s;',model_cfg_src);
+            exp2eval = sprintf('def_sim = %s(keyvals);',model_cfg_src);
             eval(exp2eval);
             
             fprintf('Model configuration found on disk. Check whether the configuration is what you expect:\n');
@@ -383,21 +387,22 @@ if cfg_game.is_experiment == 1
     end
 end
  
-if nargin < 5
+if isempty(keyvals.Ni)
+    % if nargin < 5
     Ni = data_passation.i_current;
+else
+    Ni = keyvals.Ni;
 end
-if nargin < 6
+if isempty(keyvals.Nf)
+    % if nargin < 6
     N = cfg_game.sessionsN;
     % Nf = data_passation.i_current + cfg_game.sessionsN;
 else
+    Nf = keyvals.Nf;
     N = Nf-Ni+1;
 end
 data_passation.next_session_stop = Nf;
 data_passation.i_current = Ni;
-
-% if nargin < 5
-%     N = cfg_game.N;
-% end
 
 cfg_game.dir_results = dir_results;
 cfg_game.dir_results_completed = dir_results_completed;
@@ -438,7 +443,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
 
     data_passation.i_current = i_current;
     %%%
-    [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial);
+    [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals);
     response  = outs_trial.response;
     i_current = outs_trial.i_current;
     isbreak   = outs_trial.isbreak;

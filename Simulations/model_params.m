@@ -1,5 +1,5 @@
-function [modelpars,subfs,params_extra] = model_params(modelname,fs)
-% function [modelpars,subfs,params_extra] = model_params(modelname,fs)
+function [modelpars,subfs,params_extra] = model_params(modelname,fs,keyvals)
+% function [modelpars,subfs,params_extra] = model_params(modelname,fs,keyvals)
 %
 % modelname = 'osses2021';
 % fs = 44100;
@@ -105,7 +105,7 @@ switch modelname
         params_extra.in_var = pars.in_var;
         
     case 'osses2022a'
-        pars = osses2022a_cfg;
+        pars = osses2022a_cfg(keyvals);
         for i = 1:length(pars.modelpars)
             modelpars{end+1} = pars.modelpars{i};
         end

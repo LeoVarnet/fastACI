@@ -1,5 +1,5 @@
-function [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial)
-% function [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial)
+function [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals)
+% function [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals)
 %
 %
 % Changes by AO:
@@ -13,7 +13,9 @@ function [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 outs_trial = [];
-
+if nargin < 5
+    keyvals = [];
+end
 if isfield(data_passation,'i_current')
     i_current = data_passation.i_current;
 else
@@ -113,7 +115,7 @@ elseif cfg_game.is_simulation
     switch def_sim.decision_script
         case 'aci_detect' 
             % Default for 'dau1997' and 'osses2021'
-            [response,sim_work] = aci_detect(cfg_game,data_passation,def_sim,sim_work);
+            [response,sim_work] = aci_detect(cfg_game,data_passation,def_sim,sim_work,keyvals);
             data_passation.decision_var_mue2choose(i_current,:) = sim_work.decision_var_mue2choose(i_current,:);
 
         case 'king2019_detect'

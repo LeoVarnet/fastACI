@@ -1,4 +1,4 @@
-function publ_osses2021c_DAGA_2_figs(varargin)
+function data = publ_osses2021c_DAGA_2_figs(varargin)
 % function publ_osses2021c_DAGA_2_figs(varargin)
 %
 % Generates the figures
@@ -405,20 +405,29 @@ if flags.do_fig4
     bias = [prctile(response_is_one,75); median(response_is_one); prctile(response_is_one,25)];
 end
 
-dir_out = fastACI_paths('dir_output');
-if ~exist(dir_out,'dir')
-    dir_out = [pwd filesep 'outputs' filesep];
-    mkdir(dir_out);
+bSave = 1;
+if nargout ~= 0
+    data.h = h;
+    data.hname = hname;
+    bSave = 0;
 end
 
-for i = 1:length(h)
-    opts = [];
+if bSave
+    dir_out = fastACI_paths('dir_output');
+    if ~exist(dir_out,'dir')
+        dir_out = [pwd filesep 'outputs' filesep];
+        mkdir(dir_out);
+    end
 
-    opts.format = 'epsc';
-    Saveas(h(i),[dir_out hname{i}],opts);
+    for i = 1:length(h)
+        opts = [];
 
-    opts.format = 'png';
-    Saveas(h(i),[dir_out hname{i}],opts);
+        opts.format = 'epsc';
+        Saveas(h(i),[dir_out hname{i}],opts);
+
+        opts.format = 'png';
+        Saveas(h(i),[dir_out hname{i}],opts);
+    end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

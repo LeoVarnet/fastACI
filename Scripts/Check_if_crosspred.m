@@ -15,6 +15,11 @@ idx = nan([1 N_crosspred]);
 [dir_where,fname] = fileparts(fnameACI);
 dir_where = [dir_where filesep fname filesep]; 
 if exist(dir_where,'dir')
+    try
+        cfg_file = [dir_where(1:end-1) '.mat'];
+        var = load(cfg_file);
+        idxlambda = var.results.idxlambda;
+    end
     fname = [dir_where 'Crosspred.mat'];
     if exist(fname,'file')
         var = load(fname);
@@ -30,6 +35,10 @@ if exist(dir_where,'dir')
         if sum(isnan(idx))==0 
             % then all files were found
             crosspred = var.crosspred(idx);
+            
+            try
+                crosspred.idxlambda = idxlambda;
+            end
         end
     end
 end
