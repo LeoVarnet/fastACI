@@ -24,7 +24,9 @@ var = load(file_savegame);
 
 if nargin < 3
     [version,version_description] = Check_ACI_data_type(file_savegame);
-    fprintf('%s: The file was automatically recognised as: ''%s''\n',upper(mfilename),version_description);
+    if ~strcmp(version,'current')
+        fprintf('%s: The file was automatically recognised as: ''%s''\n',upper(mfilename),version_description);
+    end
 end
 
 [data_pa,cfg_pa] = Read_ACI_data(file_savegame,version);
