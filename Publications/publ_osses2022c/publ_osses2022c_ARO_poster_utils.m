@@ -10,48 +10,58 @@ dir_noise  = [];
 
 switch type_action
     case 'Get_filenames'
+        experiment = 'speechACI_Logatome-abda-S43M';
         bGenerate_stimuli = 0;
         
-        experiment = 'speechACI_Logatome-abda-S43M';
-        
         dir_res = [fastACI_dir_data filesep experiment filesep Subject_ID filesep 'Results' filesep];
-        file = Get_filenames(dir_res,['cfgcrea*' noise_type '.mat']);
-        if length(file) ~= 1
-            error('More than one creafile was found on disk');
-        end
-        load([dir_res file{1}],'cfg_crea');
-
-        cfg_crea = Check_cfg_crea_dirs(cfg_crea);
-
-        dir_target = cfg_crea.dir_target;
-        dir_noise  = cfg_crea.dir_noise;
-        
-        if ~exist(dir_target,'dir')
-            error('Directory %s not found on disk',dir_target);
-        end
-        if ~exist(dir_noise,'dir')
-            bGenerate_stimuli = 1;
-            warning('Directory %s not found on disk',dir_noise);
+        if ~exist(dir_res,'dir')
+            bGenerate_stimuli = 1;    
+        else
+            file = Get_filenames(dir_res,['cfgcrea*' noise_type '.mat']);
+            if isempty(file)
+                bGenerate_stimuli = 1;
+            end
         end
         
-        switch Subject_ID
-            case 'SLV'
-                switch noise_type
-                    case 'white'
-                    case 'sMPSv1p3'
-                    case 'bumpv1p2_10dB'
-                end
-                
-            case 'SAO'
-                switch noise_type
-                    case 'white'
-                    case 'sMPSv1p3'
-                    case 'bumpv1p2_10dB'
-                end
+        if bGenerate_stimuli == 0 % i.e., if dir_res exists
+            file = Get_filenames(dir_res,['cfgcrea*' noise_type '.mat']);
+            if length(file) ~= 1
+                error('More than one creafile was found on disk');
+            end
+            load([dir_res file{1}],'cfg_crea');
+
+            cfg_crea = Check_cfg_crea_dirs(cfg_crea);
+
+            dir_target = cfg_crea.dir_target;
+            dir_noise  = cfg_crea.dir_noise;
+
+            if ~exist(dir_target,'dir')
+                error('Directory %s not found on disk',dir_target);
+            end
+            if ~exist(dir_noise,'dir')
+                bGenerate_stimuli = 1;
+                warning('Directory %s not found on disk',dir_noise);
+            end
+
+            switch Subject_ID
+                case 'SLV'
+                    switch noise_type
+                        case 'white'
+                        case 'sMPSv1p3'
+                        case 'bumpv1p2_10dB'
+                    end
+
+                case 'SAO'
+                    switch noise_type
+                        case 'white'
+                        case 'sMPSv1p3'
+                        case 'bumpv1p2_10dB'
+                    end
+            end
+            outs.dir_target = dir_target;
+            outs.dir_noise  = dir_noise;
         end
         outs.bGenerate_stimuli = bGenerate_stimuli;
-        outs.dir_target = dir_target;
-        outs.dir_noise  = dir_noise;
         % outs.fname_results = fname_results;
         
     case 'Get_flags'

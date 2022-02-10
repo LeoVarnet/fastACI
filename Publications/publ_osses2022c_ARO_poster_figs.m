@@ -39,24 +39,39 @@ experiment = 'speechACI_Logatome-abda-S43M';
 noise_types = {'white','sMPSv1p3','bumpv1p2_10dB'};
 noise_types_label = {'WN','MPS','BP'};
 
-if flags.do_fig3 || flags.do_fig4
-    Subjects = {'SLV','SAO'};
-    Subjects_id = [1 2];
-end
+Subjects = {'SLV','SAO'};
+Subjects_id = [1 2];
+    
 if flags.do_fig2 || flags.do_fig3a || flags.do_fig4a
-    Subjects = {'SLV'};
-    Subjects_id = 1;
+    idx = 1;
+    Subjects = Subjects(idx);
+    Subjects_id = Subjects_id(idx);
 end
 if flags.do_fig3b || flags.do_fig4b
-    Subjects = {'SAO'};
-    Subjects_id = 2;
+    idx = 2;
+    Subjects = Subjects(idx);
+    Subjects_id = Subjects_id(idx);
 end
 %%% First, we check whether the participants' data are stored on disk:
 for i = 1:length(Subjects)
     for j = length(noise_types):-1:1 % reversed order (in case we need to remove one noise condition)
         outs = publ_osses2022c_ARO_poster_utils(Subjects{i},noise_types{j},'Get_filenames');
         if outs.bGenerate_stimuli == 1
-            error('Re-generate waveforms first...')
+            warning('Re-generate waveforms first...');
+            
+            Subject_id_here = ['S' num2str(Subjects_id(i))];
+            dir_crea = [fastACI_basepath 'Publications' filesep 'publ_osses2022c' filesep 'data_' Subject_id_here filesep '0-init' filesep];
+            file_crea = Get_filenames(dir_crea,['cfgcrea*' noise_types{j} '.mat']);
+            if length(file_crea) == 1
+                [~,bReproducible] = fastACI_experiment_init_from_cfg_crea([dir_crea file_crea{1}]);
+                
+                if bReproducible == 0
+                    warning('The sounds for Subject %s, cond=%s, don''t seem reproducible. Skippping this condition.',Subjects{i},noise_types{j});
+                    noise_types(j) = [];
+                    noise_types_label(j) = [];
+                end
+            end
+            
         end
     end
 end
