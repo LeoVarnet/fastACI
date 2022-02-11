@@ -8,7 +8,8 @@ dir_res = [fastACI_dir_data experiment filesep Subject_ID filesep];
 
 bExist = exist(dir_res,'dir');
 if ~bExist
-    warning('The directory %s does not exist...',dir_res);
+    mkdir(dir_res);
+    bExist = 1;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end

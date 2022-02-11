@@ -24,7 +24,7 @@ end
 
 N_created = 0;
 if bReproducible
-    cfg_crea = Check_cfg_crea_dirs(cfg_crea);
+    cfg_crea = Check_cfg_crea_dirs(cfg_crea, fastACI_dir_data);
     
     bGenerate_noises = Check_if_dir_is_empty(cfg_crea.dir_noise,'*.wav');
     
@@ -43,7 +43,7 @@ if bReproducible
     end
 end
 
-if N_created ~= 0
+if bReproducible
     bCopied = Copy_crea_or_savegame_to_subject_dir(cfg_crea,cfg_crea_file,'cfg_crea');
     
     if bCopied

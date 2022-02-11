@@ -43,21 +43,6 @@ switch type_action
                 warning('Directory %s not found on disk',dir_noise);
             end
 
-            switch Subject_ID
-                case 'SLV'
-                    switch noise_type
-                        case 'white'
-                        case 'sMPSv1p3'
-                        case 'bumpv1p2_10dB'
-                    end
-
-                case 'SAO'
-                    switch noise_type
-                        case 'white'
-                        case 'sMPSv1p3'
-                        case 'bumpv1p2_10dB'
-                    end
-            end
             outs.dir_target = dir_target;
             outs.dir_noise  = dir_noise;
         end
