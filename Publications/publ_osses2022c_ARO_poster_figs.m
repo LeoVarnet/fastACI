@@ -4,6 +4,10 @@ function [h, hname] = publ_osses2022c_ARO_poster_figs(varargin)
 % It generates the figures from Osses and Varnet (2022, ARO poster).
 % You need to specify the figure number.
 %
+% % Characterisation of the background noises: 
+% %   You can plot all panels of Fig. 2 by using::
+%   publ_osses2022c_ARO_poster_figs('fig2');
+%
 % % Auditory Classification Images (ACIs): 
 % %   You can plot all panels of Fig. 3 by using::
 %   publ_osses2022c_ARO_poster_figs('fig3');
@@ -13,10 +17,10 @@ function [h, hname] = publ_osses2022c_ARO_poster_figs(varargin)
 %   publ_osses2022c_ARO_poster_figs('fig3b');
 %
 % % Correlation between partial ACIs and full ACIs:
-% %   You can plot the correlations for both participants by using:
+% %   You can plot the correlations for both participants by using::
 %   publ_osses2022c_ARO_poster_figs('fig4');
 %
-% %   or you can plot the correlations for participant S1 or S2 only by using:
+% %   or you can plot the correlations for participant S1 or S2 only by using::
 %   publ_osses2022c_ARO_poster_figs('fig4a');
 %   publ_osses2022c_ARO_poster_figs('fig4b');
 %
@@ -337,15 +341,6 @@ if flags.do_fig3 || flags.do_fig3a || flags.do_fig3b || flags.do_fig4 || flags.d
             end
             fname_results = [dir_res fname_results{1}];
 
-            % %%% Extra flags if needed:
-            % if ~isempty(dir_noise)
-            %     flags_for_input{end+1} = 'dir_noise';
-            %     flags_for_input{end+1} = dir_noise;
-            % end
-            % if ~isempty(dir_target)
-            %     flags_for_input{end+1} = 'dir_target';
-            %     flags_for_input{end+1} = dir_target;
-            % end
             [ACI,cfg_ACI,results, Data_matrix] = fastACI_getACI(fname_results,flags_for_input{:});
 
             if bPlot_ACIs
@@ -382,13 +377,6 @@ if flags.do_fig3 || flags.do_fig3a || flags.do_fig3b || flags.do_fig4 || flags.d
                 if ~isempty(idx)
                     flags_here{idx+1} = lambda_opt; % Replacing the lambda for the optimal lambda
                 end
-
-                % if isempty(Data_matrix)
-                %     % Nothing to do
-                % else
-                %     flags_here{end+1} = 'Data_matrix';
-                %     flags_here{end+1} = Data_matrix;
-                % end
 
                 ACI_all = [];
                 for i = 1:length(trials_partial)
