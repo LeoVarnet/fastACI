@@ -76,209 +76,411 @@ for i = 1:length(Subjects)
     end
 end
 
-%%% Specific ACI configuration:
-TF_type = 'gammatone';
-glmfct  = 'lassoglmslow'; 
-
-N_lambda = 30;
-Lambdas = logspace(-4, -1, N_lambda);
-idx = find(Lambdas >= 10^-3);
-Lambdas = Lambdas(idx);
-%%%
-
-bPlot_ACIs      = ~(flags.do_fig3 + flags.do_fig3a + flags.do_fig3b==0);
-bDo_partialACIs = flags.do_fig4 || flags.do_fig4a || flags.do_fig4b;
-
-do_fig_formatting = 1;
-
-if do_fig_formatting
-    Pos3 = 500;
-    Pos4 = 600;
-    XL = [0 0.5];
-    XT = 0.1:.1:.4;
-    FS = 18;
-end
-
-if bDo_partialACIs
-    LW = 2;
-    Markers = {'o-','s--','d:'};
-    Colours = {rgb('Gray'),rgb('Maroon'),'k'};
-end
-
-for i_subject = 1:length(Subjects)
-    subj = Subjects{i_subject};
-    subj_here = ['S0' num2str(Subjects_id(i_subject))];
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if flags.do_fig2
+    % Migrated from g20220201_characterising_noises_AROposter.m
     
-    for i_noise = 1:length(noise_types)
-        noise_type = noise_types{i_noise};
-        
-        Data_matrix = []; % init
-        dir_noise = []; % init
-        dir_target = []; % init
-        flags_for_input = {TF_type, ...
-                   glmfct, ... % 'dir_noise',dir_noise, 'dir_target',dir_target, ...
-                   'trialtype_analysis', 'total', ...
-                   'add_signal',0, ...
-                   'apply_SNR',0, ...
-                   'skip_if_on_disk',1, ...
-                   'expvar_after_reversal', 4, ...
-                   'lambda', Lambdas, ...
-                   'no_permutation', 'no_bias'}; 
-        if bPlot_ACIs == 0
-            flags_for_input{end+1} = 'no_plot';
-        end
+    % YL = [ 5   80; ... % Ylim
+    %       28   62; ...
+    %       -6.3 3.3; ...
+    %       NaN NaN];
 
-        dir_subj = [fastACI_dir_data experiment filesep subj filesep];
-        dir_res = [dir_subj 'Results' filesep];
-        fname_results = Get_filenames(dir_res,['savegame*' noise_type '.mat']);
-        if length(fname_results) ~= 1
-            error('More than one file was found...')
-        end
-        fname_results = [dir_res fname_results{1}];
-      
-        % %%% Extra flags if needed:
-        % if ~isempty(dir_noise)
-        %     flags_for_input{end+1} = 'dir_noise';
-        %     flags_for_input{end+1} = dir_noise;
-        % end
-        % if ~isempty(dir_target)
-        %     flags_for_input{end+1} = 'dir_target';
-        %     flags_for_input{end+1} = dir_target;
-        % end
-        [ACI,cfg_ACI,results, Data_matrix] = fastACI_getACI(fname_results,flags_for_input{:});
+    Colours = {rgb('Gray'),'k',rgb('Maroon')};
+    %%% Fig. 2A
+    fname_sound = 'Noise_00001.wav';
+    % cfg_affi = [];
+    for i = 1:length(noise_types)
+        outs = publ_osses2022c_ARO_poster_utils('SLV',noise_types{i},'Get_filenames');
+        sound2read = [outs.dir_noise fname_sound];
+        [insig,fs] = audioread(sound2read);
         
-        if bPlot_ACIs
-            h(end+1) = gcf;
-            hname{end+1} = [subj_here '-ACI-' noise_type];
-            ha(end+1) = gca;
-            il_Post_figure;
-        
-            if do_fig_formatting
-                title('');
-
-                text4title = sprintf('%s: %s',subj_here,noise_types_label{i_noise});
-                text(.05,.95,text4title,'Units','Normalized','FontSize',FS,'FontWeight','Bold')
-
-                Pos = get(h(end),'Position');
-                Pos(3) = Pos3; 
-                Pos(4) = Pos4; 
-                set(h(end),'Position',Pos);
-
-                xlim(XL);
-                set(gca,'XTick',XT);
-                set(gca,'FontSize',FS);
-            end
-        end
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if bDo_partialACIs
-            %%% Loading Data_matrix upfront: It will only be reloaded when
-            trials_partial = 400:400:3600;
-            lambda_opt = results.lambdas(results.idxlambda);
+        L = 512;
+        L_overlap = round(0.9*L);
+        L_f = L;
             
-            flags_here = flags_for_input;
-            idx = find(strcmp(flags_here,'lambda'));
-            if ~isempty(idx)
-                flags_here{idx+1} = lambda_opt; % Replacing the lambda for the optimal lambda
-            end
-            
-            % if isempty(Data_matrix)
-            %     % Nothing to do
-            % else
-            %     flags_here{end+1} = 'Data_matrix';
-            %     flags_here{end+1} = Data_matrix;
-            % end
-            
-            ACI_all = [];
-            for i = 1:length(trials_partial)
-                
-                idx_trialselect = 1:trials_partial(i);
-                
-                idx = find(strcmp(flags_here,'idx_trialselect'));
-                if ~isempty(idx)
-                    % Then the field exists and needs to be replaced:
-                    flags_here{idx+1} = idx_trialselect; % Replacing the lambda for the optimal lambda
-                else
-                    % Then the keyval does not exist and can be appended to the list of parametrs:
-                    flags_here{end+1} = 'idx_trialselect';
-                    flags_here{end+1} = idx_trialselect;
-                end
-                fnameACI = fastACI_getACI_fname(fname_results, flags_here{:});
-                
-                Data_partial = [];
-                if ~exist(fnameACI,'file')
-                    % Then the ACI still needs to be generated
-                    if isempty(Data_matrix)
-                        % Loading the data matrix:
-                        trials2load = max(trials_partial);
-                        [cfg_game, data_passation, ListStim] = Convert_ACI_data_type(fname_results);
-                        cfg_ACI_here = cfg_ACI;
-                        cfg_ACI_here.N = trials2load;
-                        cfg_ACI_here.N_trialselect = trials2load;
-                        Data_matrix = fastACI_getACI_dataload(cfg_ACI_here, ListStim,cfg_game);
-                    else
-                        % Nothing to do, because then data matrix exists already
-                    end
-                    Data_partial = Data_matrix(idx_trialselect,:,:);
-                    % calculate ACI lassoslow
-                    % ACI_partial(:,:,i) = fastACI_getACI(fname_results, flags_here{:}, ...
-                    %     'Data_matrix', Data_partial); 
-                end
-            	ACI_partial = fastACI_getACI(fname_results, flags_here{:}, 'no_plot',...
-                    'Data_matrix', Data_partial); 
-             
-                corr_curve_pearson(i_noise,i,i_subject) = corr(ACI_partial(:),ACI(:),'type','Pearson');
-                corr_curve_spearman(i_noise,i,i_subject) = corr(ACI_partial(:),ACI(:),'type','Spearman');
-            end
-        end        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    end
-    
-    if bDo_partialACIs
+        win = hamming(L);
+        [~,f_spec,t_spec,P] = spectrogram(insig,win,L_overlap,L_f,fs);
+        P_dB = 10*log10(abs(P));
+        max_dB = max(P_dB);
+        P_dB = P_dB-max_dB;
+        P_dB(1)   =-65; % 'min value': Trick to fix the ylimits
+        P_dB(end) =  0; % 'max value': Trick to fix the ylimits
+        
         figure;
-        % LW = 2;
-        % Markers = {'o-','s--','d:'};
-        % Colours = {rgb('Gray'),rgb('Maroon'),'k'};
-        for i_noise = 1:length(noise_types)
-            plot(trials_partial,corr_curve_pearson(i_noise,:,i_subject), ...
-                Markers{i_noise}, 'Color', Colours{i_noise}, ...
-                'MarkerFaceColor',Colours{i_noise},'LineWidth',LW); hold on, grid on
-        end
-        text4title = sprintf('%s: Pearson correlation',subj_here);
-        text(.05,.95,text4title,'Units','Normalized','FontSize',FS,'FontWeight','Bold');
+        plot_stft(t_spec,f_spec,P_dB);
+        title4plot = sprintf('%s, Noise0001.wav: Short-time Fourier transform',noise_types_label{i});
+        title(title4plot);
             
-        h(end+1) = gcf;
-        hname{end+1} = [subj_here '-correlation'];
-        ha(end+1) = gca;
+        xlim([t_spec(1) .5])
+        set(gca,'XTick',.1:.1:.4);
+        % ACI: 64x34 (64 freqs)
         il_Post_figure;
         
-        legend(noise_types_label,'Location','SouthEast')
+        h(end+1) = gcf;
+        hname{end+1} = ['STFT-' noise_types_label{i}];
+    end
+    %%% End Fig. 2A
+    N_sounds = 5000; 
 
-        Pos = get(h(end),'Position');
-        Pos(3) = 1.4*Pos3; 
-        Pos(4) = Pos4; 
-        set(h(end),'Position',Pos);
+    opts = [];    
+    % Band levels are always computed
+    do_kohlrausch2021_env = 1; % Modulation spectrum
+    do_V = 1;                  % V metric
+    
+    fmod_xlim = [0 200];
+    fmod_ylim = [10 50];
+    fc_ylim = [30 70];
+    V_lim = [-10 0];
+    %%%
+    
+    for i = 1:length(noise_types)
+        outs = publ_osses2022c_ARO_poster_utils('SLV',noise_types{i},'Get_filenames');
+        dir_where = outs.dir_noise;
+        suff = noise_types_label{i};
+        opts.Colour = Colours{i};
 
-        xlim([0 4000]);
-        set(gca,'XTick',trials_partial);
-        XT_here = [];
-        for i_tick = 1:length(trials_partial)
-            if mod(i_tick,2)==1
-                XT_here{i_tick} = num2str(trials_partial(i_tick));
-            else
-                XT_here{i_tick} = '';
+        dBFS = 100;
+
+        [~,dir2check1] = fileparts(dir_where(1:end-1));
+        % dir_where = [dir_where filesep];
+
+        files1 = Get_filenames(outs.dir_noise,'*.wav');
+        files1 = files1(1:N_sounds);
+
+        lvls = [];
+        for j = 1:N_sounds
+            file = files1{j};
+            [insig,fs] = audioread([outs.dir_noise file]);
+
+            if do_kohlrausch2021_env
+                [env_dB(:,j),xx,env_extra] = Get_envelope_metric(insig,fs,'kohlrausch2021_env_noDC');
+            end
+
+            % if do_varnet2017_env
+            %     % Removed, have a look at g20220201...
+            % end
+
+            [outsig1,fc] = auditoryfilterbank(insig,fs);
+            t = (1:size(outsig1,1))/fs;
+
+            lvls(j,:) = rmsdb(outsig1) + dBFS;
+
+            for i_fc = 1:length(fc)
+                % if do_W
+                %     % Removed, have a look at g20220201...
+                % end
+                if do_V
+                    [V1(j,i_fc),description,yenv1] = Get_envelope_metric(outsig1(:,i_fc),fs,'V');
+                end
+
+            end
+
+            if mod(j,50) == 1
+                fprintf('\tProcessing sound %.0f of %.0f\n',j,N_sounds);
             end
         end
-        set(gca,'XTickLabel',XT_here);
-        set(gca,'YTick',0:.1:1)
-        xlabel('Trials used to assess the partial ACIs')
 
-        ylabel('Correlation value');
-        set(gca,'FontSize',FS);
-        
-        ylim([0 1])
-        
-        disp('')
+        % if do_varnet2017_env
+        %     % Removed, have a look at g20220201...
+        % end
+
+        if do_kohlrausch2021_env
+            extra.f_env  = env_extra.f_env;
+            extra.fs_env = env_extra.fs_env;
+            extra.env_dB_U = prctile(env_dB,95,2);
+            extra.env_dB   = prctile(env_dB,50,2);
+            extra.env_dB_L = prctile(env_dB, 5,2);
+
+            figure;
+            plot(extra.f_env,extra.env_dB,'-','Color',Colours{i},'LineWidth',2); hold on, grid on
+            plot(extra.f_env,extra.env_dB_U,'-','Color',rgb('Gray'));
+            plot(extra.f_env,extra.env_dB_L,'-','Color',rgb('SlateGray'));
+            ylabel('Envelope spectrum (dB)')
+            xlabel('Modulation frequency (Hz)')
+
+            il_Post_figure;
+
+            deltaf = 25;
+            XT = deltaf:deltaf:extra.fs_env/2-deltaf;
+            for i_xt = 1:length(XT)
+                if mod(i_xt,2) == 1
+                    XTL{i_xt} = '';
+                else
+                    XTL{i_xt} = num2str(XT(i_xt));
+                end
+            end
+            set(gca,'XTick',XT);
+            set(gca,'XTickLabel',XTL);
+
+            % Modulation spectrum
+            xlim(fmod_xlim);
+            ylim(fmod_ylim);
+
+            title(sprintf('Envelope for %.0f sounds',N_sounds))
+
+            h(end+1) = gcf;
+            hname{end+1} = sprintf('Env-%s-N-%.0f%s',dir2check1,N_sounds,suff);
+        end
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        L1me = prctile(lvls,50);
+        errLL1 = L1me - prctile(lvls,5);
+        errUL1 = prctile(lvls,95)-L1me;
+
+        figure;
+        semilogx(fc,L1me,'o-','Color',Colours{i},'MarkerFaceColor',Colours{i}); hold on; grid on
+        errorbar(fc,L1me,errLL1,errUL1,'-','Color',Colours{i});
+        ylabel('Band level (dB)')
+        xlabel('Frequency (Hz)')
+
+        XT = [125 250 500 1000 2000 4000 8000];
+        set(gca,'XTick',XT);
+
+        il_Post_figure;
+
+        ylim(fc_ylim);
+
+        title(sprintf('rmsdb for %.0f sounds',N_sounds))
+        h(end+1) = gcf;
+        hname{end+1} = sprintf('BL-%s-N-%.0f%s',dir2check1,N_sounds,suff);
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        if do_V
+            %%% Metric V
+            V1me = prctile(V1,50);
+            errL1 = V1me - prctile(V1,5);
+            errU1 = prctile(V1,95)-V1me;
+
+            figure;
+            semilogx(fc,V1me,'o-','Color',Colours{i},'MarkerFaceColor',Colours{i}); hold on; grid on
+            errorbar(fc,V1me,errL1,errU1,'-','Color',Colours{i});
+
+            ylabel('V (dB)')
+            xlabel('Frequency (Hz)')
+
+            XT = [125 250 500 1000 2000 4000 8000];
+            set(gca,'XTick',XT);
+
+            ylim(V_lim);
+
+            title(sprintf('Metric V for %.0f sounds',N_sounds))
+            h(end+1) = gcf;
+            hname{end+1} = sprintf('V-metric-%s-N-%.0f%s',dir2check1,N_sounds,suff);
+        end
+
+        lvls_broadband = sum_dB_power(lvls);
+        [prctile(lvls_broadband,5) prctile(lvls_broadband,50) prctile(lvls_broadband,95)]
+    end    
+
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Any of the remaining figures:
+if flags.do_fig3 || flags.do_fig3a || flags.do_fig3b || flags.do_fig4 || flags.do_fig4a || flags.do_fig4b
+    
+    bPlot_ACIs      = ~(flags.do_fig3 + flags.do_fig3a + flags.do_fig3b==0);
+    bDo_partialACIs = flags.do_fig4 || flags.do_fig4a || flags.do_fig4b;    
+
+    %%% Specific ACI configuration:
+    TF_type = 'gammatone';
+    glmfct  = 'lassoglmslow'; 
+
+    N_lambda = 30;
+    Lambdas = logspace(-4, -1, N_lambda);
+    idx = find(Lambdas >= 10^-3);
+    Lambdas = Lambdas(idx);
+    %%%
+
+    do_fig_formatting = 1;
+
+    if do_fig_formatting
+        Pos3 = 500;
+        Pos4 = 600;
+        XL = [0 0.5];
+        XT = 0.1:.1:.4;
+        FS = 18;
+    end
+
+    if bDo_partialACIs
+        LW = 2;
+        Markers = {'o-','s--','d:'};
+        Colours = {rgb('Gray'),rgb('Maroon'),'k'};
+    end
+
+    for i_subject = 1:length(Subjects)
+        subj = Subjects{i_subject};
+        subj_here = ['S0' num2str(Subjects_id(i_subject))];
+
+        for i_noise = 1:length(noise_types)
+            noise_type = noise_types{i_noise};
+
+            Data_matrix = []; % init
+            dir_noise = []; % init
+            dir_target = []; % init
+            flags_for_input = {TF_type, ...
+                       glmfct, ... % 'dir_noise',dir_noise, 'dir_target',dir_target, ...
+                       'trialtype_analysis', 'total', ...
+                       'add_signal',0, ...
+                       'apply_SNR',0, ...
+                       'skip_if_on_disk',1, ...
+                       'expvar_after_reversal', 4, ...
+                       'lambda', Lambdas, ...
+                       'no_permutation', 'no_bias'}; 
+            if bPlot_ACIs == 0
+                flags_for_input{end+1} = 'no_plot';
+            end
+
+            dir_subj = [fastACI_dir_data experiment filesep subj filesep];
+            dir_res = [dir_subj 'Results' filesep];
+            fname_results = Get_filenames(dir_res,['savegame*' noise_type '.mat']);
+            if length(fname_results) ~= 1
+                error('More than one file was found...')
+            end
+            fname_results = [dir_res fname_results{1}];
+
+            % %%% Extra flags if needed:
+            % if ~isempty(dir_noise)
+            %     flags_for_input{end+1} = 'dir_noise';
+            %     flags_for_input{end+1} = dir_noise;
+            % end
+            % if ~isempty(dir_target)
+            %     flags_for_input{end+1} = 'dir_target';
+            %     flags_for_input{end+1} = dir_target;
+            % end
+            [ACI,cfg_ACI,results, Data_matrix] = fastACI_getACI(fname_results,flags_for_input{:});
+
+            if bPlot_ACIs
+                h(end+1) = gcf;
+                hname{end+1} = [subj_here '-ACI-' noise_type];
+                ha(end+1) = gca;
+                il_Post_figure;
+
+                if do_fig_formatting
+                    title('');
+
+                    text4title = sprintf('%s: %s',subj_here,noise_types_label{i_noise});
+                    text(.05,.95,text4title,'Units','Normalized','FontSize',FS,'FontWeight','Bold')
+
+                    Pos = get(h(end),'Position');
+                    Pos(3) = Pos3; 
+                    Pos(4) = Pos4; 
+                    set(h(end),'Position',Pos);
+
+                    xlim(XL);
+                    set(gca,'XTick',XT);
+                    set(gca,'FontSize',FS);
+                end
+            end
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            if bDo_partialACIs
+                %%% Loading Data_matrix upfront: It will only be reloaded when
+                trials_partial = 400:400:3600;
+                lambda_opt = results.lambdas(results.idxlambda);
+
+                flags_here = flags_for_input;
+                idx = find(strcmp(flags_here,'lambda'));
+                if ~isempty(idx)
+                    flags_here{idx+1} = lambda_opt; % Replacing the lambda for the optimal lambda
+                end
+
+                % if isempty(Data_matrix)
+                %     % Nothing to do
+                % else
+                %     flags_here{end+1} = 'Data_matrix';
+                %     flags_here{end+1} = Data_matrix;
+                % end
+
+                ACI_all = [];
+                for i = 1:length(trials_partial)
+
+                    idx_trialselect = 1:trials_partial(i);
+
+                    idx = find(strcmp(flags_here,'idx_trialselect'));
+                    if ~isempty(idx)
+                        % Then the field exists and needs to be replaced:
+                        flags_here{idx+1} = idx_trialselect; % Replacing the lambda for the optimal lambda
+                    else
+                        % Then the keyval does not exist and can be appended to the list of parametrs:
+                        flags_here{end+1} = 'idx_trialselect';
+                        flags_here{end+1} = idx_trialselect;
+                    end
+                    fnameACI = fastACI_getACI_fname(fname_results, flags_here{:});
+
+                    Data_partial = [];
+                    if ~exist(fnameACI,'file')
+                        % Then the ACI still needs to be generated
+                        if isempty(Data_matrix)
+                            % Loading the data matrix:
+                            trials2load = max(trials_partial);
+                            [cfg_game, data_passation, ListStim] = Convert_ACI_data_type(fname_results);
+                            cfg_ACI_here = cfg_ACI;
+                            cfg_ACI_here.N = trials2load;
+                            cfg_ACI_here.N_trialselect = trials2load;
+                            Data_matrix = fastACI_getACI_dataload(cfg_ACI_here, ListStim,cfg_game);
+                        else
+                            % Nothing to do, because then data matrix exists already
+                        end
+                        Data_partial = Data_matrix(idx_trialselect,:,:);
+                        % calculate ACI lassoslow
+                        % ACI_partial(:,:,i) = fastACI_getACI(fname_results, flags_here{:}, ...
+                        %     'Data_matrix', Data_partial); 
+                    end
+                    ACI_partial = fastACI_getACI(fname_results, flags_here{:}, 'no_plot',...
+                        'Data_matrix', Data_partial); 
+
+                    corr_curve_pearson(i_noise,i,i_subject) = corr(ACI_partial(:),ACI(:),'type','Pearson');
+                    corr_curve_spearman(i_noise,i,i_subject) = corr(ACI_partial(:),ACI(:),'type','Spearman');
+                end
+            end        
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        end
+
+        if bDo_partialACIs
+            figure;
+            % LW = 2;
+            % Markers = {'o-','s--','d:'};
+            % Colours = {rgb('Gray'),rgb('Maroon'),'k'};
+            for i_noise = 1:length(noise_types)
+                plot(trials_partial,corr_curve_pearson(i_noise,:,i_subject), ...
+                    Markers{i_noise}, 'Color', Colours{i_noise}, ...
+                    'MarkerFaceColor',Colours{i_noise},'LineWidth',LW); hold on, grid on
+            end
+            text4title = sprintf('%s: Pearson correlation',subj_here);
+            text(.05,.95,text4title,'Units','Normalized','FontSize',FS,'FontWeight','Bold');
+
+            h(end+1) = gcf;
+            hname{end+1} = [subj_here '-correlation'];
+            ha(end+1) = gca;
+            il_Post_figure;
+
+            legend(noise_types_label,'Location','SouthEast')
+
+            Pos = get(h(end),'Position');
+            Pos(3) = 1.4*Pos3; 
+            Pos(4) = Pos4; 
+            set(h(end),'Position',Pos);
+
+            xlim([0 4000]);
+            set(gca,'XTick',trials_partial);
+            XT_here = [];
+            for i_tick = 1:length(trials_partial)
+                if mod(i_tick,2)==1
+                    XT_here{i_tick} = num2str(trials_partial(i_tick));
+                else
+                    XT_here{i_tick} = '';
+                end
+            end
+            set(gca,'XTickLabel',XT_here);
+            set(gca,'YTick',0:.1:1)
+            xlabel('Trials used to assess the partial ACIs')
+
+            ylabel('Correlation value');
+            set(gca,'FontSize',FS);
+
+            ylim([0 1])
+
+            disp('')
+        end
     end
 end
 
