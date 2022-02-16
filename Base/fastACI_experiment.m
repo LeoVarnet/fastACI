@@ -345,7 +345,7 @@ if cfg_game.resume == 0
         ListStim = cfg_game.ListStim; 
         
         if cfg_game.N ~= length(ListStim)
-            error('Number of stimuli does not match.')
+            warning('Number of stimuli does not match.')
         end
     end
         

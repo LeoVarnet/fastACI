@@ -1,15 +1,18 @@
-function [ACI,cfg_ACI,sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, results)
+function [ACI,cfg_ACI,sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, idxlambda) % results)
 % function [ACI,cfg_ACI,sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, results)
 %
 % See Script_LassoPyramid_21042021.m by Leo.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if size(B,2) ~= 1
-    % Then multiple lambda values have been obtained
-    idxlambda = results.idxlambda;
-else
+if nargin < 3
     idxlambda = 1;
 end
+% if size(B,2) ~= 1
+%     % Then multiple lambda values have been obtained
+%     idxlambda = results.idxlambda;
+% else
+%     idxlambda = 1;
+% end
 
 temp = B;
 Nlevelmin = cfg_ACI.lasso_Nlevelmin;
@@ -53,6 +56,10 @@ else
     dim_time = 2;
 end
 
+if ~isfield(cfg_ACI,'t_limits_idx')
+    cfg_ACI.t_limits_idx = 1:length(cfg_ACI.t);
+end
+
 if length(cfg_ACI.t_limits_idx) < size(sumReWeight,dim_time) 
     % time was padded for the pyramid calculation, so we truncate it back
     switch dim_time
@@ -62,9 +69,11 @@ if length(cfg_ACI.t_limits_idx) < size(sumReWeight,dim_time)
             % when only one lambda is tested
             sumReWeight = sumReWeight(:,cfg_ACI.t_limits_idx);
     end
-    if cfg_ACI.t_X(1) == cfg_ACI.t(1) && cfg_ACI.t_X(cfg_ACI.N_t) == cfg_ACI.t(cfg_ACI.N_t)
-        % then t_X is equal (but longer than) t
-        cfg_ACI = rmfield(cfg_ACI,'t_X');
+    if isfield(cfg_ACI,'t_X')
+        if cfg_ACI.t_X(1) == cfg_ACI.t(1) && cfg_ACI.t_X(cfg_ACI.N_t) == cfg_ACI.t(cfg_ACI.N_t)
+            % then t_X is equal (but longer than) t
+            cfg_ACI = rmfield(cfg_ACI,'t_X');
+        end
     end
 else
     if isfield(cfg_ACI,'t_X')
@@ -79,14 +88,19 @@ else
     end
 end
 
+if ~isfield(cfg_ACI,'f_limits_idx')
+    cfg_ACI.f_limits_idx = 1:length(cfg_ACI.f);
+end
 if length(cfg_ACI.f_limits_idx) > size(sumReWeight,2) % Dim 2 is frequency
     % we need to truncate the frequency .f
 
-    if cfg_ACI.f(1)==cfg_ACI.f_X(1) && cfg_ACI.f(length(cfg_ACI.f_X))==cfg_ACI.f_X(end)
-        cfg_ACI.f = cfg_ACI.f_X;
-        cfg_ACI.f_limits_idx = cfg_ACI.f_limits_idx(1:length(cfg_ACI.f_X));
+    if isfield(cfg_ACI,'f_X')
+        if cfg_ACI.f(1)==cfg_ACI.f_X(1) && cfg_ACI.f(length(cfg_ACI.f_X))==cfg_ACI.f_X(end)
+            cfg_ACI.f = cfg_ACI.f_X;
+            cfg_ACI.f_limits_idx = cfg_ACI.f_limits_idx(1:length(cfg_ACI.f_X));
 
-        cfg_ACI = rmfield(cfg_ACI,'f_X');
+            cfg_ACI = rmfield(cfg_ACI,'f_X');
+        end
     end
 end
 

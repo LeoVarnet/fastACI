@@ -149,7 +149,7 @@ switch glmfct
         toc
         
         results.idxlambda = idxlambda;
-        [ACI, cfg_ACI, sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, results);
+        [ACI, cfg_ACI, sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, idxlambda);
         
         %%%
         if do_permutation
