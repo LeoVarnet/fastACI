@@ -206,10 +206,10 @@ if strcmp(type,'tvalue')
     data=stats.tstat;
 end
 
-if ~exist('t')
+if ~exist('t','var')
     t=1:size(data,2);
 end
-if ~exist('f')
+if ~exist('f','var')
     f=1:size(data,1);
 end
 if isempty(time_affiche)
