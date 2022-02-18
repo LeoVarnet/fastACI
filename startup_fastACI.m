@@ -75,9 +75,9 @@ if bFastACI_exp == 1
     paths.speechACI_varnet2015 = [paths.Experiments 'speechACI_varnet2015' filesep];
     paths.Scripts              = [dir_fastACI       'Scripts'              filesep];
     paths.Simulations          = [dir_fastACI       'Simulations'          filesep];
-    paths.Model                = [paths.Simulations 'Model'                filesep];
-    paths.Model_arg            = [paths.Simulations 'Model_arg'            filesep];
-    paths.Model_stages         = [paths.Simulations 'Model_stages'         filesep];
+    paths.Model                = [paths.Simulations 'Models'               filesep];
+    paths.Model_arg            = [paths.Simulations 'Models_arg'           filesep];
+    paths.Model_stages         = [paths.Simulations 'Models_stages'        filesep];
     paths.Stats                = [dir_fastACI       'Stats'                filesep];
     paths.Stats_tb_GLM_penalty = [paths.Stats       'tb_GLM_penalty'       filesep];
     paths.Stats_tb_optim_legacy= [paths.Stats       'tb_optim_legacy'      filesep];
