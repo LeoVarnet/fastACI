@@ -1,5 +1,5 @@
-function fastACI_set_phaseret
-% function fastACI_set_phaseret
+function dir_phaseret = fastACI_set_phaseret
+% function dir_phaseret = fastACI_set_phaseret
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -36,4 +36,6 @@ end
 fid = fopen(fname_file, 'w');
 fwrite(fid, text_to_write);
 fclose(fid);
+
+dir_phaseret = target_path;
 %%%

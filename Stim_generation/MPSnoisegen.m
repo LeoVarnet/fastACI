@@ -17,10 +17,20 @@ if bPhaseret_toolbox == 0
             fastACI_set_phaseret;
         end
         dir_phaseret = fastACI_dir_phaseret;
+        if ~exist(dir_phaseret,'dir')
+            dir_phaseret = fastACI_set_phaseret;
+        end
         addpath(dir_phaseret);
         phaseretstart;
 
-        phaseretmex_unix(dir_phaseret);
+        try
+            if isunix
+                phaseretmex_unix(dir_phaseret); % local script validated to complile on linux
+            end
+            % if ispc
+            %     phaseretmex;
+            % end
+        end
     catch
         error('%s.m: The phaseret toolbox was not found in the path. Please find the toolbox and initialise it (phaseretstart)',upper(mfilename));
     end

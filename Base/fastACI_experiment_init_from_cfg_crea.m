@@ -47,17 +47,22 @@ if bReproducible
     bCopied = Copy_crea_or_savegame_to_subject_dir(cfg_crea,cfg_crea_file,'cfg_crea');
     
     if bCopied
-        dir_save = [fileparts(fileparts(cfg_crea_file(1:end-1))) filesep '1-experimental_results' filesep];
-        file_crea = Get_filenames(dir_save,['savegame*' cfg_crea.Condition '.mat']);
-        if length(file_crea) == 1
-            load([dir_save file_crea{1}],'cfg_game')
+        dir_name_results = '1-experimental_results';
+        dir_save = [fileparts(fileparts(cfg_crea_file(1:end-1))) filesep dir_name_results filesep];
+        if exist(dir_save,'dir')
+            file_crea = Get_filenames(dir_save,['savegame*' cfg_crea.Condition '.mat']);
+            if length(file_crea) == 1
+                load([dir_save file_crea{1}],'cfg_game')
+            end
+            cfg_game.dir_target = cfg_crea.dir_target;
+            cfg_game.dir_noise = cfg_crea.dir_noise;
+            if isfield(cfg_game,'dir_data_experiment')
+                cfg_game.dir_data_experiment = [fileparts(fileparts(cfg_game.dir_noise(1:end-1))) filesep];
+            end
+            cfg_crea_file = [dir_save file_crea{1}];
+            bCopied = Copy_crea_or_savegame_to_subject_dir(cfg_game,cfg_crea_file,'cfg_game');
+        else
+            fprintf('%s.m: No ''%s'' was found. Probably the data for this experiment have not been collected yet\n',upper(mfilename),dir_name_results);
         end
-        cfg_game.dir_target = cfg_crea.dir_target;
-        cfg_game.dir_noise = cfg_crea.dir_noise;
-        if isfield(cfg_game,'dir_data_experiment')
-            cfg_game.dir_data_experiment = [fileparts(fileparts(cfg_game.dir_noise(1:end-1))) filesep];
-        end
-        cfg_crea_file = [dir_save file_crea{1}];
-        bCopied = Copy_crea_or_savegame_to_subject_dir(cfg_game,cfg_crea_file,'cfg_game');
     end
 end

@@ -1,12 +1,21 @@
-function publ_osses2022b_utils(Subject_ID, type_action)
-% function publ_osses2022b_utils(Subject_ID, type_action)
+function outs = publ_osses2022b_utils(Subject_ID, noise_type, type_action)
+% function outs = publ_osses2022b_utils(Subject_ID, noise_type, type_action)
 %
 % Author: Alejandro Osses
 %
 % Original name: g20210924_all_sessions_latin_square
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Conditions = {'white','bumpv1p2_10dB','sMPSv1p3'};
+outs = [];
+% outs = publ_osses2022c_ARO_poster_utils(Subject_ID, noise_type, type_action)
+
+if nargin < 2
+    Conditions = {'white','bumpv1p2_10dB','sMPSv1p3'};
+else
+    if ischar(noise_type)
+        Conditions = {noise_type}; % converting to a cell array if noise_type is a char
+    end
+end
 experiment = 'speechACI_Logatome-abda-S43M';
 
 if ismac
@@ -21,7 +30,7 @@ if nargin == 0
     Subject_ID = input('Enter the participant ID (e.g. ''S01''): ');
 end
 clc
-if nargin < 2
+if nargin < 3
     type_actions = { 'Check_sounds_for_a_participant', ...
                     'Copy_results_to_Dropbox', ...
                     'Copy_results_from_Dropbox'};
@@ -37,6 +46,7 @@ switch type_action
         %    waveforms in the test computers upfront.
         bOnly_init = 1;
         f20220119_all_sessions_latin_square(Subject_ID,bOnly_init);
+        
     case 'Copy_results_to_Dropbox'
         N_copied = 0;
          
@@ -90,6 +100,48 @@ switch type_action
             end
         end
         disp('')
+        
+    case 'Get_filenames' % very similar to type_action in publ_osses2022c_ARO_poster_utils.m
+        if length(Conditions) ~= 1
+            error('Re-run this script only requesting one noise type');
+        end
+        bGenerate_stimuli = 0;
+        
+        dir_res = [fastACI_dir_data filesep experiment filesep Subject_ID filesep 'Results' filesep];
+        if ~exist(dir_res,'dir')
+            bGenerate_stimuli = 1;    
+        else
+            file = Get_filenames(dir_res,['cfgcrea*' noise_type '.mat']);
+            if isempty(file)
+                bGenerate_stimuli = 1;
+            end
+        end
+        
+        if bGenerate_stimuli == 0 % i.e., if dir_res exists
+            file = Get_filenames(dir_res,['cfgcrea*' noise_type '.mat']);
+            if length(file) ~= 1
+                error('More than one creafile was found on disk');
+            end
+            load([dir_res file{1}],'cfg_crea');
+
+            cfg_crea = Check_cfg_crea_dirs(cfg_crea);
+
+            dir_target = cfg_crea.dir_target;
+            dir_noise  = cfg_crea.dir_noise;
+
+            if ~exist(dir_target,'dir')
+                error('Directory %s not found on disk',dir_target);
+            end
+            if ~exist(dir_noise,'dir')
+                bGenerate_stimuli = 1;
+                warning('Directory %s not found on disk',dir_noise);
+            end
+
+            outs.dir_target = dir_target;
+            outs.dir_noise  = dir_noise;
+        end
+        outs.bGenerate_stimuli = bGenerate_stimuli;
+        % outs.fname_results = fname_results;
         
     case 'Copy_results_from_Dropbox'
         N_copied = 0;
