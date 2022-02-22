@@ -52,9 +52,6 @@ switch type_action
         f20220119_all_sessions_latin_square(Subject_ID,bOnly_init);
         
     case 'Copy_results_to_Dropbox'
-
-        if isempty(Conditions)
-        end
         N_copied = 0;
          
         dir_subj_dropbox = [dir_dropbox experiment filesep Subject_ID filesep];
