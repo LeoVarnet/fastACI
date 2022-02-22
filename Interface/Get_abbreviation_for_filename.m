@@ -15,13 +15,13 @@ switch str_in % sorted alphabetically
     case 'incorrect'
         str_out = 'inco';
     case 'lasso'
-        str_out = 'l1lm';
-    case 'lassoslow'
-        str_out = 'l1lms';
-    case 'lassoglm'
-        str_out = 'l1glm';
-    case 'lassoglmslow'
-        str_out = 'l1glms';
+        str_out = 'lasso'; % old (before 22/02/2022)='l1lm'
+    case {'l1lm','lassoslow'}
+        str_out = 'l1lm'; % old (before 22/02/2022)='l1lms'
+    case 'lassoglm' 
+        str_out = 'lassoglm'; % old (before 22/02/2022)='l1glm'
+    case {'l1glm','lassoglmslow'}
+        str_out = 'l1glm'; % old (before 22/02/2022)='l1glms'
     case 'no_bias'
         str_out = 'nob';
     case 'perc'

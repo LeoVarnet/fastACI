@@ -120,7 +120,7 @@ switch cfg_ACI.glmfct
         check_cfg(cfg_ACI, 'prior','lambda0', 'stepsize', 'maxiter', 'nobreak', 'minDiffSecondRound');
         cfg_ACI.N_folds   = cfg_ACI.keyvals.N_folds;
         
-    case {'lassoglm','lasso','lassoslow','lassoglmslow'}
+    case {'lassoglm','lasso','lassoslow','l1glm'}
         cfg_ACI.lambda0   = [];
         cfg_ACI.N_folds    = cfg_ACI.keyvals.N_folds; 
         
@@ -333,7 +333,7 @@ if bCrossPred
         crosspred(i).ACI_crosspred = ACI_crosspred{i};
         %%%%TODO%%%%
         switch glmfct
-            case 'lassoglmslow'
+            case 'l1glm'
                 CV=results.FitInfo.CV;
                 % To do: change CV.training into CV.train
 
@@ -358,7 +358,7 @@ if bCrossPred
 
                         %%% Test (or validation):
                         yhat_test = glmval(coef,X(idx_test,:),'logit'); % X(CV.test(i_fold),:)*B_temp + FitInfo_temp.Intercept;
-                        [PC,MSE,Dev,MSE_rounded, yhat_test_rounded,PC_t,MSE_t,Dev_t] = Get_prediction_metrics(yhat_test,y,idx_test);
+                        [PC,MSE,Dev,~, yhat_test_rounded,PC_t,MSE_t,Dev_t] = Get_prediction_metrics(yhat_test,y,idx_test);
 
                         crosspred(i).Dev_test(i_lambda,i_fold) = Dev; % -2*(sum(log(binopdf(y(idx_test),1,yhat_test))) - sum(log(binopdf(y(idx_test),1,y(idx_test)))));
                         crosspred(i).MSE_test(i_lambda,i_fold) = MSE;

@@ -7,8 +7,8 @@ function definput = arg_fastACI_getACI(definput)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 definput.flags.TF_type = {'spect','lyon','noise_logspect','gammatone','adapt','tf'};
-definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','lasso','lassoslow','lassoglmslow','classic_revcorr'};
-% Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','lasso',                           'classic_revcorr'};
+definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','lasso','lassoslow','l1glm'       ,'classic_revcorr'};
+% Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','lasso','lassoslow','lassoglmslow','classic_revcorr'};
 definput.flags.permutation = {'no_permutation','permutation'};
 definput.flags.force_dataload = {'no_force_dataload','force_dataload'};
 definput.flags.bias   = {'bias'  ,'no_bias'};

@@ -112,7 +112,7 @@ switch glmfct
             results.ACI_perm_CI_high  = ACI_perm_CI_high;
         end
 
-    case {'lassoglm','lasso','lassoslow','lassoglmslow'}
+    case {'lassoglm','lasso','l1lm','l1glm'}
         N_folds = cfg_ACI.N_folds; % k_folds validation
         % cfg_ACI = Ensure_field(cfg_ACI,'lambda0',[]);
         lambda0 = cfg_ACI.lambda0;
@@ -128,7 +128,7 @@ switch glmfct
                 [B,FitInfo] = lasso(X,y,'CV',N_folds);
                 idxlambda = FitInfo.IndexMinMSE;
                 
-            case 'lassoslow'
+            case 'l1lm'
                 lambda0 = cfg_ACI.keyvals.lambda;
                 if isempty(lambda0)
                     [B,FitInfo] = lassoslow(X,y,N_folds); % default lambdas will be tested
@@ -137,7 +137,7 @@ switch glmfct
                 end
                 [~, idxlambda] = min(mean(FitInfo.MSEtest,2));
                 
-            case 'lassoglmslow'
+            case 'l1glm'
                 lambda0 = cfg_ACI.keyvals.lambda;
                 if isempty(lambda0)
                     [B,FitInfo] = lassoglmslow(X,y,N_folds); % default lambdas will be tested
