@@ -58,7 +58,7 @@ switch hardware_cfg
 end
 dBFS = 100+(lvl_target-lvl_from_SLM);
 global_vars.dBFS = dBFS;
-global_vars.Language = 'EN';
+global_vars.Language = 'FR';
 
 Cond_name2store = [fastACI_paths('dir_output') 'Conditions-for-' modelname '+' experiment '.mat'];
 

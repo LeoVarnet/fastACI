@@ -15,6 +15,10 @@ else
     if ischar(noise_type)
         Conditions = {noise_type}; % converting to a cell array if noise_type is a char
     end
+    if isempty(noise_type)
+        disp('All noise conditions will be used')
+        Conditions = {'white','bumpv1p2_10dB','sMPSv1p3'};
+    end
 end
 experiment = 'speechACI_Logatome-abda-S43M';
 
@@ -48,6 +52,9 @@ switch type_action
         f20220119_all_sessions_latin_square(Subject_ID,bOnly_init);
         
     case 'Copy_results_to_Dropbox'
+
+        if isempty(Conditions)
+        end
         N_copied = 0;
          
         dir_subj_dropbox = [dir_dropbox experiment filesep Subject_ID filesep];
