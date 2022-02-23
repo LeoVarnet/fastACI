@@ -120,7 +120,7 @@ switch cfg_ACI.glmfct
         check_cfg(cfg_ACI, 'prior','lambda0', 'stepsize', 'maxiter', 'nobreak', 'minDiffSecondRound');
         cfg_ACI.N_folds   = cfg_ACI.keyvals.N_folds;
         
-    case {'lassoglm','lasso','lassoslow','l1glm'}
+    case {'lassoglm','lasso','l1lm','l1glm'}
         cfg_ACI.lambda0   = [];
         cfg_ACI.N_folds    = cfg_ACI.keyvals.N_folds; 
         

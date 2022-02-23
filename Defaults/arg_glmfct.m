@@ -76,7 +76,7 @@ switch glmfct
             end
         end
         
-    case {'lasso','lassoglm','lassoslow','lassoglmslow'}
+    case {'lasso','lassoglm','l1lm','l1glm'}
         
         Nlevel    = 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
         Nlevelmin = 2; % minimum level considered in the analysis (default=2, 
