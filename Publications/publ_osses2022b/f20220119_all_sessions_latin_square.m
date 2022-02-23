@@ -34,8 +34,11 @@ if bOnly_init
     return;
 end
 
-available_hardware = {'Sony-MDR-Alejandro','Sony-WH-Alejandro', ...
-                      'Petite-Cabine', 'Grande-Cabine'};
+available_hardware = {'Petite-Cabine', 'Grande-Cabine'};
+if ~ismac
+    available_hardware{end+1} = 'Sony-MDR-Alejandro';
+    available_hardware{end+1} = 'Sony-WH-Alejandro';
+end
 Show_cell(available_hardware);                    
 bInput = input('Choose your hw config: ');
 hardware_cfg = available_hardware{bInput};
@@ -57,8 +60,6 @@ switch hardware_cfg
         lvl_from_SLM = 82.1; % for  the left headphone, preamp zc 0032, Id No 23156 
 end
 dBFS = 100+(lvl_target-lvl_from_SLM);
-global_vars.dBFS = dBFS;
-global_vars.Language = 'FR';
 
 Cond_name2store = [fastACI_paths('dir_output') 'Conditions-for-' modelname '+' experiment '.mat'];
 
@@ -76,6 +77,19 @@ if bInit_order_sessions == 0
     if max(i_current_all) == 1
         bInit_order_sessions = 1;
     end
+end
+
+bIs_first_session = bInit_order_sessions;
+if bIs_first_session
+    Languages = {'FR','EN'};
+    Show_cell(Languages);
+    Language = input('This is the first session for this participant, please choose the language: ');
+end
+global_vars.dBFS = dBFS;
+if bIs_first_session
+    % Only important for the first session. This choice will be thereafter
+    %   stored in cfg_game.
+    global_vars.Language = Language;
 end
 
 % bInit_order_sessions = 1; warning('temporal')
@@ -118,19 +132,19 @@ end
 Conditions_nr = Conditions_nr(idx);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-bComplete = 0;
-if sum(mod(i_current_all,400)) ~= 0
-    idx_incomplete = find(mod(i_current_all,400)~=0,1,'first');
-    
-    fprintf('An incomplete test condition was found,\n');
-    bComplete = input('do you want to complete that session? (1=yes, 0=no): ');
-    if bComplete
-        idx_count_before = idx_count;
-        % Finds the index of the incomplete session: Normally it is the last
-        % session:
-        idx_count = find(Conditions_nr(1:idx_count)==idx_incomplete,1,'last'); 
-    end
-end
+% bComplete = 0;
+% if sum(mod(i_current_all,400)) ~= 0
+%     idx_incomplete = find(mod(i_current_all,400)~=0,1,'first');
+%     
+%     fprintf('An incomplete test condition was found,\n');
+%     bComplete = input('do you want to complete that session? (1=yes, 0=no): ');
+%     if bComplete
+%         idx_count_before = idx_count;
+%         % Finds the index of the incomplete session: Normally it is the last
+%         % session:
+%         idx_count = find(Conditions_nr(1:idx_count)==idx_incomplete,1,'last'); 
+%     end
+% end
 
 for i = idx_count:length(Conditions_nr)
     
@@ -160,13 +174,23 @@ for i = idx_count:length(Conditions_nr)
         [cfg_game,data_passation] = fastACI_experiment(experiment,modelname,noise_type);
         
         i_current_all(idx_condition) = data_passation.i_current;
-        if bComplete == 0
+        
+        if mod(i_current_all(idx_condition),N_per_session) == 0
+            % bComplete = 1;
             % This is the default:
             idx_count = idx_count + 1;
         else
-            % Going back to the last session that was run:
-            idx_count = idx_count_before;
+            % This means that the session was paused
+            % bComplete = 0;
+            idx_count = idx_count_before; % Next time this session will be resumed
         end
+        % if bComplete == 0
+        %     % This is the default:
+        %     idx_count = idx_count + 1;
+        % else
+        %     % Going back to the last session that was run:
+        %     idx_count = idx_count_before;
+        % end
         save(Cond_name2store,'idx','i_current_all','idx_count'); % updates
     end
     
