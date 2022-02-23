@@ -86,8 +86,14 @@ switch version
         
         disp('')
     case {2021.1,'2021.1'}    
-        cfg_pass = cfg_pa;
+        cfg_pass = cfg_pa; 
         data_passation = data_pa;
+        
+        cfg_pass.experiment = 'AM_revcorr';
+        cfg_pass.response_correct_target = [1,2];
+        cfg_pass.response_names = cfg_pass.target_names;
+        data_passation.i_current = length(data_passation.is_correct);
+        cfg_pass.n_targets_sorted = ones(1,data_passation.i_current);
         
         if isfield(cfg_pass,'dir_noise')
             % Nothing to do...
@@ -101,8 +107,19 @@ switch version
             else
                 cfg_pass.dir_noise = '';
                 warning('dir_noise: No noise folder found')
-            end
-            
+            end            
+        end
+        
+        if isfield(cfg_pass,'dir_target')
+            % Nothing to do...
+        else
+            fn = Get_filenames(cd,'*Target*');
+            if ~isempty(fn)
+                cfg_pass.dir_target = fn{1}; 
+            else
+                cfg_pass.dir_target = '';
+                warning('dir_target: No target folder found')
+            end            
         end
         
         if isfield(data_passation,'ListStim')

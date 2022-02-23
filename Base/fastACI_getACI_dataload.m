@@ -206,6 +206,17 @@ switch TF_type
         cfg_inout.gamma_flags       = flags_gamma;
         cfg_inout.gamma_main_script = 'Gammatone_proc';
         
+    case 'modulationACI_proc'
+        basef = 1000;
+        flags_gamma = {'basef',basef,'flow',950,'fhigh',1050,'bwmul',1, ...
+            'dboffset',100,'no_adt','binwidth',cfg_inout.binwidth, ...
+            'no_outerear','no_middleear', 'hilbert'};
+        [outsig,f,t,extras] = Gammatone_proc(bruit,fs,flags_gamma{:});
+        f = f(:); % column array
+        
+        cfg_inout.gamma_flags       = flags_gamma;
+        cfg_inout.gamma_main_script = 'Gammatone_proc';
+        
     case 'adapt'
         basef = 8000;
         flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',cfg_inout.bwmul, ...
@@ -299,8 +310,8 @@ if dimonly == 0
             % % A=sqrt((Pbruit)*10^(ListStim(n_stim).RSB/10));
             % % bruit = bruit/A;
             
-            warning('WithSNR: temporary version with fixed SNR = 15 dB (from Alejandro: this should just be implemented as a gain to the speech signal)')
-            trial = bruit + 10^(-1)*insig_target(:,idx_here)*(rms(bruit)/rms(insig_target(:,idx_here)));
+            warning('WithSNR: temporary version with fixed SNR = -10 dB (from Alejandro: this should just be implemented as a gain to the speech signal)')
+            trial = bruit + 10^(-10/20)*insig_target(:,idx_here)*(rms(bruit)/rms(insig_target(:,idx_here)));
         end
         
         switch TF_type
@@ -366,7 +377,7 @@ if dimonly == 0
                 end
                 
             % -------------------------------------------------------------    
-            case {'gammatone','adapt'}
+            case {'gammatone','adapt','modulationACI_proc'}
                 outsig = Gammatone_proc(trial,fs,flags_gamma{:});
                 outsig = transpose(outsig); % permute(outsig,[2 1]); % put time in the second dimension and frequency in the first one
                 
