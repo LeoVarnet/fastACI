@@ -129,6 +129,9 @@ else
     
     idx_count = [];
     load(Cond_name2store,'idx_count');
+    
+    hardware_cfg_per_session = [];
+    load(Cond_name2store,'hardware_cfg_per_session');
 end
 
 Conditions_nr = Conditions_nr(idx);
