@@ -157,7 +157,11 @@ switch response
         % Nothing to do
         
     case 3 % play again (if warm-up) or take a break (if main experiment)
-        if ~is_warmup
+        if is_warmup
+            % It is the training session:
+            outs_trial = ins_trial;
+        else
+            % 'Take a break':
             isbreak = 1;
             i_current = i_current-1; % to start with this same trial when resuming the experiment
             data_passation.i_current = i_current;
@@ -168,7 +172,7 @@ switch response
         idx = find(cfg_game.n_response_correct_target_sorted == 1); % looks for all '1's
         data_passation_tmp.n_stim(i_current) = idx(round( (length(idx)-1)*random('unif',0,1) )+1); % picks up one randomly
 
-        exp2eval = sprintf('str_stim =  %s_user(cfg_game,data_passation_tmp);',experiment);
+        exp2eval = sprintf('str_stim =  %s_user(cfg_game,data_passation_tmp);',cfg_game.experiment);
         eval(exp2eval);
         stim_normal = str_stim.stim_tone_alone;
 
@@ -182,13 +186,14 @@ switch response
                 fprintf('\n    Appuyez sur une touche\n');
         end
         pause;
+        outs_trial = ins_trial;
 
     case 5 % play modulated tone
         str_stim = [];
         data_passation_tmp = data_passation;
         idx = find(cfg_game.n_response_correct_target_sorted == 2); % looks for all '2's
         data_passation_tmp.n_stim(i_current) = idx(round( (length(idx)-1)*random('unif',0,1) )+1); % picks up one randomly
-        exp2eval = sprintf('str_stim =  %s_user(cfg_game,data_passation_tmp);',experiment);
+        exp2eval = sprintf('str_stim =  %s_user(cfg_game,data_passation_tmp);',cfg_game.experiment);
         eval(exp2eval);
         stim_normal = str_stim.stim_tone_alone;
 
@@ -202,6 +207,7 @@ switch response
                 fprintf('\n    Appuyez sur une touche\n');
         end
         pause;
+        outs_trial = ins_trial;
 
     case 6 % escape training
         is_warmup = 0;

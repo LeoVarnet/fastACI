@@ -415,6 +415,14 @@ end
 N = cfg_game.N;
 
 % cfg_game.dir_path    = dir_main;
+if isfield(cfg_game,'dir_results')
+    if ~strcmp(cfg_game.dir_results,dir_results)
+        fprintf('\t%s.m: Updating cfg_game.dir_results\n',mfilename);
+    end
+    try
+        cfg_game = Check_cfg_crea_dirs(cfg_game); % if it fails, it won't stop the script from running
+    end
+end
 cfg_game.dir_results = dir_results;
 cfg_game.dir_results_completed = dir_results_completed;
 

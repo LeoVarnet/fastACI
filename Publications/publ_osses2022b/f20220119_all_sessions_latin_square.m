@@ -1,4 +1,4 @@
-function f20220119_all_sessions_latin_square(modelname,bOnly_init)
+function f20220119_all_sessions_latin_square(subjectname,bOnly_init)
 % function f20220119_all_sessions_latin_square(modelname,bOnly_init)
 %
 % Author: Alejandro Osses
@@ -13,7 +13,7 @@ if nargin < 2
     bOnly_init = 0;
 end
 if nargin == 0
-    modelname = input('Enter the ID of the subject to be tested (e.g., ''S09''): '); % 'SAO'; %'SAO'; % modelname = 'king2019';
+    subjectname = input('Enter the ID of the subject to be tested (e.g., ''S09''): '); % 'SAO'; %'SAO'; % modelname = 'king2019';
 end
 Conditions = {'white','bumpv1p2_10dB','sMPSv1p3'};
 experiment = 'speechACI_Logatome-abda-S43M'; 
@@ -29,7 +29,7 @@ global_vars.N_presentation = N_presentation;
 if bOnly_init
     for i = 1:N_conditions
         noise_type = Conditions{i};
-        fastACI_experiment_init(experiment,modelname, noise_type);
+        fastACI_experiment_init(experiment,subjectname, noise_type);
     end
     return;
 end
@@ -61,7 +61,7 @@ switch hardware_cfg
 end
 dBFS = 100+(lvl_target-lvl_from_SLM);
 
-Cond_name2store = [fastACI_paths('dir_output') 'Conditions-for-' modelname '+' experiment '.mat'];
+Cond_name2store = [fastACI_paths('dir_output') 'Conditions-for-' subjectname '+' experiment '.mat'];
 
 N_per_session = 400;
 cfg_game.N = 4000; % a priori knowledge
@@ -83,7 +83,8 @@ bIs_first_session = bInit_order_sessions;
 if bIs_first_session
     Languages = {'FR','EN'};
     Show_cell(Languages);
-    Language = input('This is the first session for this participant, please choose the language: ');
+    bInput = input('This is the first session for this participant, please choose the language: ');
+    Language = Languages{bInput};
 end
 global_vars.dBFS = dBFS;
 if bIs_first_session
@@ -102,7 +103,7 @@ if bInit_order_sessions == 1
     idx_i = 1;
     Sessions_to_fill = N_sessions_to_complete(1);
     for j = 1:length(N_sessions_to_complete)
-        idx_f = N_total_sessions_to_complete(j);
+        % idx_f = N_total_sessions_to_complete(j);
         Cond_here = Sessions_to_fill * N_conditions;
         idx = [idx randperm(Cond_here)+idx_i-1];
         
@@ -115,6 +116,7 @@ if bInit_order_sessions == 1
     end
     Cond_here = Sessions_to_fill * N_conditions;
     idx = [idx randperm(Cond_here)+idx_i-1];
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     i_current_all = ones(1,length(Conditions));
     idx_count = 1; % starting from the very first session...
@@ -132,27 +134,14 @@ end
 Conditions_nr = Conditions_nr(idx);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% bComplete = 0;
-% if sum(mod(i_current_all,400)) ~= 0
-%     idx_incomplete = find(mod(i_current_all,400)~=0,1,'first');
-%     
-%     fprintf('An incomplete test condition was found,\n');
-%     bComplete = input('do you want to complete that session? (1=yes, 0=no): ');
-%     if bComplete
-%         idx_count_before = idx_count;
-%         % Finds the index of the incomplete session: Normally it is the last
-%         % session:
-%         idx_count = find(Conditions_nr(1:idx_count)==idx_incomplete,1,'last'); 
-%     end
-% end
-
 for i = idx_count:length(Conditions_nr)
     
+    hardware_cfg_per_session{i} = hardware_cfg;
     if i == idx_count
         fprintf('\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
         % This is the first session of today:
         fprintf('Starting the first session of today\n');
-        fprintf('\tSubject_ID=%s\n',modelname);
+        fprintf('\tSubject_ID=%s\n',subjectname);
         fprintf('\tHeadphones=%s\n',hardware_cfg);
         fprintf('\n\tInformed consent signed already?\n');
         fprintf('\tConditions being loaded from: %s\n',Cond_name2store);
@@ -171,27 +160,23 @@ for i = idx_count:length(Conditions_nr)
     data_passation.i_current = i_current_all(idx_condition); 
     
     if data_passation.i_current < cfg_game.N
-        [cfg_game,data_passation] = fastACI_experiment(experiment,modelname,noise_type);
+        [cfg_game,data_passation] = fastACI_experiment(experiment,subjectname,noise_type);
         
         i_current_all(idx_condition) = data_passation.i_current;
         
         if mod(i_current_all(idx_condition),N_per_session) == 0
-            % bComplete = 1;
-            % This is the default:
             idx_count = idx_count + 1;
+            bCompleted_this_block = 1;
         else
-            % This means that the session was paused
-            % bComplete = 0;
-            idx_count = idx_count_before; % Next time this session will be resumed
+            % This means that the session was paused: the counter is not incremented
+            bCompleted_this_block = 0;
         end
-        % if bComplete == 0
-        %     % This is the default:
-        %     idx_count = idx_count + 1;
-        % else
-        %     % Going back to the last session that was run:
-        %     idx_count = idx_count_before;
-        % end
-        save(Cond_name2store,'idx','i_current_all','idx_count'); % updates
+        
+        save(Cond_name2store,'idx','i_current_all','idx_count','hardware_cfg_per_session'); % updates
+        if bCompleted_this_block == 0
+            % Stopping this script if the participant chose to take a break
+            return;
+        end
     end
     
     disp('')
