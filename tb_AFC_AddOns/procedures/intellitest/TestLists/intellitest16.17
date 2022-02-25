@@ -1,0 +1,21 @@
+# AFC version by Alejandro Osses Vecchi (ale.a.osses@gmail.com), ENS, PSL University, Paris, France. This file was created on 12/10/2021
+# Intellitest16.2
+TestTeile:	a0
+a0:	{
+arara3a:	arara3a.wav / arara.
+achacha3a:	achacha3a.wav / achacha.
+assassa3a:	assassa3a.wav / assassa.
+adada2a:	adada2a.wav / adada.
+anana1a:	anana1a.wav / anana.
+akaka1a:	akaka1a.wav / akaka.
+apapa2a:	apapa2a.wav / apapa.
+afafa2a:	afafa2a.wav / afafa.
+agaga1a:	agaga1a.wav / agaga.
+avava2a:	avava2a.wav / avava.
+amama2a:	amama2a.wav / amama.
+ajaja2a:	ajaja2a.wav / ajaja.
+atata3a:	atata3a.wav / atata.
+alala1a:	alala1a.wav / alala.
+ababa3a:	ababa3a.wav / ababa.
+azaza1a:	azaza1a.wav / azaza.
+}

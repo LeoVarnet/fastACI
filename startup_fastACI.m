@@ -47,6 +47,17 @@ catch me
     fastACI_set_dirdata;
 end
 
+% This is an optional toolbox, to be able to run the Intellitest:
+bAFC = exist('fastACI_dir_AFCtoolbox','file');
+if bAFC
+    bAFC = input('The optional AFC toolbox can be added, do you want that (1=yes, 0=no): ');
+    
+    if bAFC
+        paths = il_get_subpaths_AFC;
+        Add_paths(paths);
+    end
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp([mfilename '.m: startup file for the fastACI toolbox'])
 
@@ -83,8 +94,28 @@ if bFastACI_exp == 1
     paths.Stats_tb_optim_legacy= [paths.Stats       'tb_optim_legacy'      filesep];
     paths.Stim_generation      = [dir_fastACI       'Stim_generation'      filesep];
     paths.tb_ACI               = [dir_fastACI       'tb_ACI'               filesep];
+    paths.tb_AFC_AddOns        = [dir_fastACI       'tb_AFC_AddOns'        filesep];
+    paths.tb_AFC_AddOns_exp    = [paths.tb_AFC_AddOns 'experiments'        filesep];
+    paths.tb_AFC_AddOns_proc   = [paths.tb_AFC_AddOns 'procedures'         filesep];
 else
     error('%s: bFastACI_exp must be 1)',upper(mfilename));
 end
 paths.Plotting = [dir_fastACI 'Plotting'        filesep];
 paths.Utility  = [dir_fastACI 'Utility' filesep]; % This folder is always added
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function paths = il_get_subpaths_AFC
+
+path = fastACI_dir_AFCtoolbox;
+
+paths.afc    = path;
+paths.addons = [path 'addons' filesep];
+paths.base   = [path 'base'   filesep];
+paths.calibration = [path 'calibration' filesep];
+paths.experiments = [path 'experiments' filesep];
+paths.gui    = [path 'gui' filesep];
+paths.models = [path 'models' filesep];
+paths.scripts = [path 'scripts' filesep];
+% addpath([fileparts(which(mfilename)), filesep, 'soundmexpro', filesep, 'bin'])
+% addpath([fileparts(which(mfilename)), filesep, 'procedures'])
+% addpath([fileparts(which(mfilename)), filesep, 'sessions'])  
