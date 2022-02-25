@@ -5,6 +5,8 @@
 sentences_nr = 16; % 10 for simple, 20 for double, 30 for triple lists
 def.sentences_nr = sentences_nr;
 
+total_lists = 18; % I know there are 18 lists
+lists_nr = randperm(total_lists);
 def.variableCheck = 0; % turn off warning about 'not-recognised sentences_nr field...'
 
 %%% general measurement procedure
@@ -59,7 +61,7 @@ else
 end
 
 % experimental variable (independent variable)
-def.exppar1 = [4 5 6]; % From 1 to 13. vector containing experimental parameters for which the exp is performed
+def.exppar1 = lists_nr(1:3); % First three lists of the permuted list order
 def.exppar1unit = 'Testlist';				% unit of experimental parameter
 def.exppar1description = 'Name of testlist';% description of the experimental parameter
 

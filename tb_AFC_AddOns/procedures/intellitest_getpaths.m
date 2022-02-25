@@ -22,7 +22,12 @@ function misc = intellitest_getpaths(type)
 global global_vars
 
 f = mfilename('fullpath');
-dir_MATLAB = [fileparts(fileparts(fileparts(f(1:end-1)))) filesep]; % 3 levels up
+try
+    % This will be the folder, if fastACI_baseath.m exists:
+    dir_MATLAB = fastACI_basepath;
+catch
+    dir_MATLAB = [fileparts(fileparts(fileparts(f(1:end-1)))) filesep]; % 3 levels up
+end
 
 misc.material_location = [dir_MATLAB 'Stimuli' filesep 'Intellitest' filesep];
 if ~exist(misc.material_location,'dir')
