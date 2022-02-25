@@ -55,6 +55,21 @@ if bAFC
     if bAFC
         paths = il_get_subpaths_AFC;
         Add_paths(paths);
+        
+        dir_dst = [paths.afc 'base' filesep];
+        file_src = [fastACI_basepath 'tb_AFC_AddOns' filesep 'procedures' filesep 'afc_proto_to_copy.m'];
+        info_afc_proto_custom = dir(file_src);
+        
+        file_dst = [dir_dst 'afc_proto.m'];
+        info_afc_proto        = dir(file_dst);
+        
+        if info_afc_proto.bytes == info_afc_proto_custom.bytes
+            % Nothing to do
+        else
+            movefile(file_dst,[file_dst(1:end-2) '_orig.m'])
+            copyfile(file_src,file_dst);
+        end
+        disp('')
     end
 end
 
