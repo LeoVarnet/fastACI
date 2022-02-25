@@ -92,11 +92,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    % try
+    try
         cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
-    % catch me
-    %     error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
-    % end
+    catch me
+        error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
+    end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -142,18 +142,13 @@ switch cfg_game.resume
             
             Language = cfg_game.Language;
             
-            cfg_game = []; % it will be re-loaded now:
-            data_passation = []; % it will be re-loaded now:
-            ListStim = [];
-            
-            load(load_name,'cfg_game'); % loads: cfg_game, data_passation
+            [cfg_game, data_passation, ListStim] = Convert_ACI_data_type(load_name);
             script_legacy = [experiment '_legacy'];
             if exist([script_legacy '.m'],'file')
                 exp2eval = sprintf('cfg_game = %s(cfg_game,0);',script_legacy);
                 eval(exp2eval);
             end
             
-            load(load_name,'data_passation');
             cfg_game.load_name = load_name;
             i_current  = data_passation.i_current+1;
             i_savegame = i_current;
