@@ -62,6 +62,13 @@ end
 if flags.do_ihc
     % 'haircell' envelope extraction
     outsig = ihcenvelope(outsig,fs,'argimport',flags,keyvals);
+    
+    if flags.do_hilbert % Used by Varnet and Lorenzi (2022):
+        fcut = 30; % 30 Hz
+        LP_order = 1;
+        [b,a] = butter(LP_order,fcut/(fs/2),'low');
+        outsig=filter(b,a,outsig);
+    end
 end
 
 if flags.do_adt

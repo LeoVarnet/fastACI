@@ -1,4 +1,4 @@
-function [Data_matrix, cfg_inout] = fastACI_getACI_dataload(cfg_inout, ListStim, cfg_game, varargin)
+function [Data_matrix, cfg_inout] = fastACI_getACI_dataload(cfg_inout, ListStim, cfg_game, data_passation, varargin)
 % [Data_matrix, tf] = fastACI_getACI_dataload(cfg, ListStim) 
 %
 % Load stimuli data and generates appropriate matrix Data_matrix for the
@@ -18,6 +18,7 @@ function [Data_matrix, cfg_inout] = fastACI_getACI_dataload(cfg_inout, ListStim,
 %       a preprocessing of the data and not a 'data load'
 %
 % - cfg_game is only used if the option WithSNR is requested...
+% - data_passation is only used if the option WithSNR is requested...
 %
 % Authors: Leo Varnet and Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -309,9 +310,15 @@ if dimonly == 0
             % % Pbruit = mean(bruit.^2);
             % % A=sqrt((Pbruit)*10^(ListStim(n_stim).RSB/10));
             % % bruit = bruit/A;
+            if i == 1
+                warning('Only validated for AM revcorr')
+                data_pass_here = data_passation;
+                cfg_game_here = modulationACI_set(cfg_game);
+            end
+            data_pass_here.i_current = i;
+            str_stim = modulationACI_user(cfg_game_here,data_pass_here);
             
-            warning('WithSNR: temporary version with fixed SNR = -10 dB (from Alejandro: this should just be implemented as a gain to the speech signal)')
-            trial = bruit + 10^(-10/20)*insig_target(:,idx_here)*(rms(bruit)/rms(insig_target(:,idx_here)));
+            trial = str_stim.tuser; % bruit + target_here;
         end
         
         switch TF_type

@@ -52,7 +52,11 @@ signal = [zeros(length(noise)-length(signal),1); signal];
 
 % create stim
 SNR = cfg.SNR;
-noise_type = cfg.noise_type;
+if isfield(cfg,'noise_type')
+    noise_type = cfg.noise_type;
+else
+    noise_type = 'white';
+end
 SPL = cfg.SPL;
 dur_ramp_samples = cfg.fs*cfg.fadein_s;
 

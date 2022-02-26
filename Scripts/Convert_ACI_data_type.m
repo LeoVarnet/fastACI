@@ -40,7 +40,13 @@ switch version
             cfg_pass.dir_target = cfg_pass.dir_speech;
             cfg_pass = Remove_field(cfg_pass,'dir_speech');
         end
+        if isfield(opts,'dir_target')
+            cfg_pass.dir_target = opts.dir_target; % Assigning the keyval if given in opts
+        end
         
+        if isfield(opts,'dir_noise')
+            cfg_pass.dir_noise = opts.dir_noise; % Assigning the keyval if given in opts
+        end
         if isfield(cfg_pass,'dir_noise')
             % Nothing to do...
         else
@@ -95,6 +101,9 @@ switch version
         data_passation.i_current = length(data_passation.is_correct);
         cfg_pass.n_targets_sorted = ones(1,data_passation.i_current);
         
+        if isfield(opts,'dir_noise')
+            cfg_pass.dir_noise = opts.dir_noise; % Assigning the keyval if given in opts
+        end
         if isfield(cfg_pass,'dir_noise')
             % Nothing to do...
         else
@@ -110,6 +119,10 @@ switch version
             end            
         end
         
+        %%%
+        if isfield(opts,'dir_target')
+            cfg_pass.dir_target = opts.dir_target; % Assigning the keyval if given in opts
+        end
         if isfield(cfg_pass,'dir_target')
             % Nothing to do...
         else
@@ -135,7 +148,6 @@ switch version
             end
             cfg_pass.ListStim = ListStim;
         end
-        
                 
         % if length(cfg_pass.response_names) == cfg_pass.N_target
         %     cfg_pass.target_names = cfg_pa.response_names;
@@ -238,10 +250,16 @@ switch version
             cfg_pass.dir_noise = cfg_pass.FolderInBruit;
             cfg_pass = rmfield(cfg_pass,'FolderInBruit');
         end
+        if isfield(opts,'dir_noise')
+            cfg_pass.dir_noise = opts.dir_noise; % Assigning the keyval if given in opts
+        end
         
         if isfield(cfg_pass,'FolderInSignal')
             cfg_pass.dir_target = cfg_pass.FolderInSignal;
             cfg_pass = rmfield(cfg_pass,'FolderInSignal');
+        end
+        if isfield(opts,'dir_target')
+            cfg_pass.dir_target = opts.dir_target; % Assigning the keyval if given in opts
         end
         
         if isfield(cfg_pass,'N_signal')

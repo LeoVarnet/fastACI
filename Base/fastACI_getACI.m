@@ -221,7 +221,7 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
     
     if isempty(keyvals.Data_matrix)
         % Loading the data regularly:
-        [Data_matrix,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI, ListStim, cfg_game);
+        [Data_matrix,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI, ListStim, cfg_game, data_passation);
     else
         Data_matrix = keyvals.Data_matrix;
         
@@ -229,7 +229,7 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
         N = cfg_ACI.N;
         cfg_ACI_ref = cfg_ACI;
         cfg_ACI_ref.N = N_ref;
-        [Data_matrix_ref,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI_ref, ListStim, cfg_game);
+        [Data_matrix_ref,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI_ref, ListStim, cfg_game, data_passation);
         cfg_ACI.N = N; % restoring the initial N
         
         for ii = 1:N_ref

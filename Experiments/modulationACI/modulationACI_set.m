@@ -12,8 +12,10 @@ end
 % function cfg_out = il_set(cfg_in)
 %
 % Function comparable to *_set.m functions from AFC toolbox
-dir_data_experiment = [fastACI_paths('dir_data') cfg_inout.experiment_full filesep];
-cfg_inout.dir_data_experiment = dir_data_experiment;
+if ~isfield(cfg_inout,'dir_data_experiment')
+    dir_data_experiment = [fastACI_paths('dir_data') cfg_inout.experiment_full filesep];
+    cfg_inout.dir_data_experiment = dir_data_experiment;
+end
 
 cfg = [];
 
@@ -41,8 +43,10 @@ if ~isfield(cfg_inout,'experiment')
     cfg_inout.experiment = fname;
 end
 
-dir_name_noise = ['NoiseStims-' cfg.noise_type]; % nom du dossier a creer contenant les noises
-cfg.folder_name = dir_name_noise;
-cfg.dir_noise  = [dir_data_experiment cfg_inout.Subject_ID filesep dir_name_noise filesep];
+if ~isfield(cfg_inout,'dir_noise')
+    dir_name_noise = ['NoiseStims-' cfg.noise_type]; % nom du dossier a creer contenant les noises
+    cfg.folder_name = dir_name_noise;
+    cfg.dir_noise  = [dir_data_experiment cfg_inout.Subject_ID filesep dir_name_noise filesep];
+end
 
 cfg_inout = Merge_structs(cfg,cfg_inout);
