@@ -176,6 +176,13 @@ for i = idx_count:length(Conditions_nr)
         end
         
         save(Cond_name2store,'idx','i_current_all','idx_count','hardware_cfg_per_session'); % updates
+        
+        try
+            publ_osses2022b_utils(subjectname,[],'Copy_results_to_Dropbox');
+        catch
+            warning('Check what happened in publ_osses2022b_utils.m...');
+        end
+        
         if bCompleted_this_block == 0
             % Stopping this script if the participant chose to take a break
             return;
