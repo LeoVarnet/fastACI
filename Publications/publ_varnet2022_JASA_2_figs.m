@@ -478,7 +478,9 @@ end
 function data = il_load_data(flags)
 
 dir_data = [fastACI_paths('dir_data') 'modulationACI' filesep];
-files = Get_filenames(dir_data,'S*');
+% files = Get_filenames(dir_data,'S*');
+
+files = {'S1','S2','S3','S4','S5','S6','S7','S8','Srej'};
 % (1): S1
 % (2): S2
 % (3): S3

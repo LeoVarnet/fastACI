@@ -29,6 +29,9 @@ if nargin < 3
     end
 end
 
+if nargin < 2
+    opts = [];
+end
 [data_pa,cfg_pa] = Read_ACI_data(file_savegame,version);
 
 switch version
