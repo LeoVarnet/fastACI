@@ -34,15 +34,15 @@ end
 if nargin < 6
     is_norm = 1; 
 end
- 
-Enorm = nan(size(noise_E));
+
+Enorm = nan(size(noise_E)); % memory allocation
 for i_channel = 1:size(noise_E,1)
     if is_norm == 1
         error('Continue validating here...')
         allsamples = noise_E(i_channel,:,:);
         Enorm(i_channel,:,:) = (noise_E(i_channel,:,:) - mean(allsamples(:)))/std(allsamples(:));%squeeze(noise_E(i_channel,:,:) - mean(allsamples(:)))/std(allsamples(:));
     else
-        Enorm(i_channel,:,:) = (noise_E(i_channel,:,:));%squeeze(noise_E(i_channel,:,:));
+        Enorm(i_channel,:,:) = (noise_E(i_channel,:,:));
     end
 end
  
@@ -55,6 +55,12 @@ ResponseMatrix(1,1) = length(idxs_CR); % Correct rejection
 ResponseMatrix(1,2) = length(idxs_FA); % False alarm
 ResponseMatrix(2,1) = length(idxs_M); % Miss
 ResponseMatrix(2,2) = length(idxs_H); % Hit rate
+
+%%% Before (Leo's code), it should be the same:
+% ResponseMatrix(1,1) = sum(list_signal==1 & list_response==1);
+% ResponseMatrix(1,2) = sum(list_signal==1 & list_response==2);
+% ResponseMatrix(2,1) = sum(list_signal==2 & list_response==1);
+% ResponseMatrix(2,2) = sum(list_signal==2 & list_response==2);
 
 % Classification Image (CI) assessed from the mean of the envelope (Enorm) 
 %     across all stimuli (dim=3). One value for each time sample is obtained:
@@ -70,6 +76,15 @@ CI_FA = mean(Enorm(:,:,idxs_FA),dim_for_mean);
 
 CI_targetpresent = CI_H  - CI_M;
 CI_targetabsent  = CI_FA - CI_CR;
+
+%%% Before (Leo's code):
+% CI_H = mean(Enorm(:,:,list_signal==2 & list_response==2),3);
+% CI_M = mean(Enorm(:,:,list_signal==2 & list_response==1),3);
+% CI_CR = mean(Enorm(:,:,list_signal==1 & list_response==1),3);
+% CI_FA = mean(Enorm(:,:,list_signal==1 & list_response==2),3);
+% CI = 0.5 * (CI_H + CI_FA - CI_M - CI_CR);
+% CI_targetpresent = CI_H - CI_M;
+% CI_targetabsent = CI_FA - CI_CR;
 
 CI = (CI_H + CI_FA) - (CI_M + CI_CR); % see Eq. 1 in Murray 2011, equivalent to
                                       %     c = (n12+n22)-(n11+n21)
@@ -88,6 +103,25 @@ CI = (CI_H + CI_FA) - (CI_M + CI_CR); % see Eq. 1 in Murray 2011, equivalent to
 % CIboot_targetpresent = [];
 % CIboot_targetabsent = [];
  
+% 
+% if n_boot>0
+%     for i_boot = 1:n_boot
+%         list_trial = randi(n_trials, 1, n_trials);
+%         boot_response=list_response(list_trial);
+%         boot_signal=list_signal(list_trial);
+%         boot_Enorm=Enorm(:,:,list_trial);
+%         CIboot_H = mean(boot_Enorm(:,:,boot_signal==2 & boot_response==2),3);
+%         CIboot_M = mean(boot_Enorm(:,:,boot_signal==2 & boot_response==1),3);
+%         CIboot_CR = mean(boot_Enorm(:,:,boot_signal==1 & boot_response==1),3);
+%         CIboot_FA = mean(boot_Enorm(:,:,boot_signal==1 & boot_response==2),3);
+%         CIboot(:,:,i_boot) = 0.5 * (CIboot_H + CIboot_FA - CIboot_M - CIboot_CR);%CIrand(i_channel,:,i_rand) + Enorm(i_channel,:,i_trial)*correlator/n_trials;
+%         CIboot_targetpresent(:,:,i_boot) = CIboot_H - CIboot_M;
+%         CIboot_targetabsent(:,:,i_boot) = CIboot_FA - CIboot_CR;
+%     end
+% end
+% end
+% 
+
 if n_rand>0
     for i_rand = 1:n_rand
         rand_response = list_response(randperm(n_trials));
@@ -97,8 +131,9 @@ if n_rand>0
         CIrand_FA = mean(Enorm(:,:,list_signal==resp_if_ref & rand_response==resp_if_tar),dim_for_mean);
         CIrand_targetpresent(:,:,i_rand) = CIrand_H - CIrand_M;
         CIrand_targetabsent(:,:,i_rand) = CIrand_FA - CIrand_CR;
+        % CIrand(:,:,i_rand) = 0.5 * (CIrand_H + CIrand_FA - CIrand_M - CIrand_CR); %%% From Leo's
         
-        CIrand(:,:,i_rand) = CIrand_H + CIrand_FA - CIrand_M - CIrand_CR; 
+        CIrand(:,:,i_rand) = CIrand_H + CIrand_FA - CIrand_M - CIrand_CR; %%% As Alejandro thinks
         % CIrand(i_channel,:,i_rand) + Enorm(i_channel,:,i_trial)*correlator/n_trials;
     end
 end
@@ -113,8 +148,10 @@ if n_boot>0
         CIboot_M  = mean(boot_Enorm(:,:,boot_signal==2 & boot_response==1),dim_for_mean);
         CIboot_CR = mean(boot_Enorm(:,:,boot_signal==1 & boot_response==1),dim_for_mean);
         CIboot_FA = mean(boot_Enorm(:,:,boot_signal==1 & boot_response==2),dim_for_mean);
-        CIboot(:,:,i_boot) = CIboot_H + CIboot_FA - CIboot_M - CIboot_CR;%CIrand(i_channel,:,i_rand) + Enorm(i_channel,:,i_trial)*correlator/n_trials;
+        CIboot(:,:,i_boot) = 0.5 * (CIboot_H + CIboot_FA - CIboot_M - CIboot_CR); %%% From Leo's
+        % CIboot(:,:,i_boot) = CIboot_H + CIboot_FA - CIboot_M - CIboot_CR; %%% As Alejandro thinks
+        
         CIboot_targetpresent(:,:,i_boot) = CIboot_H - CIboot_M;
         CIboot_targetabsent(:,:,i_boot) = CIboot_FA - CIboot_CR;
     end
-end 
+end

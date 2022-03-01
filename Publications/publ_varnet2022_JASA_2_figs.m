@@ -512,7 +512,13 @@ for i_subject = N_subjects:-1:1 % First participant read at last...
         N_m = [];
         % PC_targetabsent = [];
         % PC_targetpresent = [];
-        load([dir_local 'Behavior'])
+        file2load = [dir_local 'Behavior.mat'];
+        if exist(file2load,'file')
+            load(file2load);
+        else
+            publ_varnet2022a_utils(files{i_subject},'Get_Behavior');
+            load(file2load);
+        end
         
         data.hist_N(i_subject,:) = N_m;
         data.hist_H(i_subject,:) = H;
@@ -546,7 +552,13 @@ for i_subject = N_subjects:-1:1 % First participant read at last...
         CIrand_ci = [];
         ideal_template = [];
         tE = [];
-        load([dir_local 'CIt']);
+        file2load = [dir_local 'CIt.mat'];
+        if exist(file2load,'file')
+            load(file2load);
+        else
+            publ_varnet2022a_utils(files{i_subject},'Get_CIt');
+            load(file2load);
+        end
         %%% End loading
         data.tE = tE;
         data.ideal_template = ideal_template;
@@ -743,8 +755,8 @@ for i_subject = N_subjects:-1:1 % First participant read at last...
     % end
 end
 
-%%% Info about the rejected participant:
-dir_local = [dir_data 'Srej' filesep];
-load([dir_local 'Behavior'],'m_windowed','bias_windowed');
-data.m_reject = m_windowed;
-data.bias_reject = bias_windowed;
+% %%% Info about the rejected participant:
+% dir_local = [dir_data 'Srej' filesep];
+% load([dir_local 'Behavior'],'m_windowed','bias_windowed');
+% data.m_reject = m_windowed;
+% data.bias_reject = bias_windowed;

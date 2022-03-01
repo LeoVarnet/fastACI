@@ -70,6 +70,13 @@ if bAFC
             copyfile(file_src,file_dst);
         end
         disp('')
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        file_src = [paths.afc 'scripts' filesep 'rms.m'];
+        if exist(file_src,'file')
+            % This will avoid the shadowing of the MATLAB rms function
+            file_dst = [paths.afc 'scripts' filesep 'rms_orig.m'];
+            movefile(file_src,file_dst);
+        end
     end
 end
 
@@ -91,6 +98,7 @@ if bFastACI_exp == 1
     paths.publ_osses2022b      = [paths.Publications 'publ_osses2022b'     filesep];
     paths.publ_osses2022c      = [paths.Publications 'publ_osses2022c'     filesep];
     paths.publ_varnet2013      = [paths.Publications 'publ_varnet2013'     filesep];
+    paths.publ_varnet2022a     = [paths.Publications 'publ_varnet2022a'    filesep];
     paths.Interface            = [dir_fastACI       'Interface'            filesep];
     paths.legacy               = [dir_fastACI       'legacy'               filesep];
     paths.modulationACI        = [paths.Experiments 'modulationACI'        filesep];
