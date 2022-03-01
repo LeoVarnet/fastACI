@@ -74,14 +74,14 @@ if bUpdate
         % end
     end
     
-    if ~exist(dir_noise,'dir')
+    if ~exist(dir_data_experiment,'dir')
         % This means that all our efforts so far have not succeeded
         msg_here = ['Please indicate where the noise folder (' str_dir{end} ') is...'];
         fprintf('%s\n',msg_here);
         dir_noise = uigetdir(dir_data_experiment,msg_here);
         dir_noise = [dir_noise filesep];
     end
-    if ~exist(dir_target,'dir')
+    if ~exist(dir_data_experiment,'dir')
         % This means that all our efforts so far have not succeeded
         msg_here = 'Please indicate where the speech (target) folder is...';
         fprintf('%s\n',msg_here);

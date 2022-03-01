@@ -32,6 +32,14 @@ if bOnly_init
         fastACI_experiment_init(experiment,subjectname, noise_type);
     end
     return;
+else
+    % Checks whether the participant has completed any condition in another
+    % computer:
+    try
+        publ_osses2022b_utils(subjectname,[],'Copy_results_from_Dropbox');
+    catch
+        warning('Check what happened in publ_osses2022b_utils.m...');
+    end
 end
 
 available_hardware = {'Petite-Cabine', 'Grande-Cabine'};
