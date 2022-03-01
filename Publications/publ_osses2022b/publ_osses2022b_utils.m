@@ -181,12 +181,16 @@ switch type_action
                     info1 = dir(Cond_name2store);
                     info2 = dir(name_dst);
          
-                    fprintf('Trying to overwrite a new file dated: %s\n',info1.date);
-                    fprintf('  by another dated : %s\n',info2.date);
+                    fprintf('Trying to overwrite a new file dated: %s\n',info2.date);
+                    fprintf('  by another dated : %s\n',info1.date);
                     if strcmp(info1.date,info2.date)
                         fprintf('The file %s is already up to date...\n',load_name);
                     else
-                        bOverwrite = input('Press 1 to proceed with the overwritting or 0 to not to: ');
+                        if datenum(info1.date)>datenum(info2.date)
+                            bOverwrite = 1;
+                        else
+                            bOverwrite = input('Press 1 to proceed with the overwritting or 0 to not to: ');
+                        end
                         if bOverwrite
                             copyfile(Cond_name2store,name_dst);
                             fprintf('%s was successfully copied to %s\n',load_name,dir_subj_dropbox);
