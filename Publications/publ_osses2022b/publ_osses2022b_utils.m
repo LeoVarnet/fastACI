@@ -183,7 +183,7 @@ switch type_action
          
                     fprintf('Trying to overwrite a new file dated: %s\n',info1.date);
                     fprintf('  by another dated : %s\n',info2.date);
-                    if strcmp(info1.date,info1.date)
+                    if strcmp(info1.date,info2.date)
                         fprintf('The file %s is already up to date...\n',load_name);
                     else
                         bOverwrite = input('Press 1 to proceed with the overwritting or 0 to not to: ');
