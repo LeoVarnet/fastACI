@@ -66,6 +66,9 @@ if bUpdate
         for i = idxi:idxf
             dir_noise = [dir_noise str_dir{i} filesep];
         end
+        if exist(dir_data_experiment,'dir')
+            mkdir(dir_noise);
+        end
     end
     
     if ~exist(dir_noise,'dir')

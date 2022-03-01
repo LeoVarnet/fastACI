@@ -1,6 +1,10 @@
 function publ_osses2022b_quick(file_savegame)
 % function publ_osses2022b_quick(file_savegame)
 %
+% Folders - Petite cabine:
+%   dir_data    - '/Users/alejandro/Desktop/fastACI_today/fastACI_data/'
+%   dir_dropbox - '/Users/alejandro/Dropbox/ENS_lab_shared/'
+%   dir_output  - '/Users/alejandro/Desktop/fastACI_today/fastACI/outputs/'
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [cfg_game, data_passation, ListStim] = Convert_ACI_data_type(file_savegame);
