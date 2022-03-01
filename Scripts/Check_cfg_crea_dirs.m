@@ -51,6 +51,9 @@ if bUpdate
         for i = idxi:idxf
             dir_target = [dir_target str_dir{i} filesep];
         end
+        % if exist(dir_data_experiment,'dir')
+        %     mkdir(dir_target);
+        % end
     end
     
     str_dir = strsplit(cfg_crea.dir_noise(1:end-1),filesep_orig);
@@ -66,9 +69,9 @@ if bUpdate
         for i = idxi:idxf
             dir_noise = [dir_noise str_dir{i} filesep];
         end
-        if exist(dir_data_experiment,'dir')
-            mkdir(dir_noise);
-        end
+        % if exist(dir_data_experiment,'dir')
+        %     mkdir(dir_noise);
+        % end
     end
     
     if ~exist(dir_noise,'dir')

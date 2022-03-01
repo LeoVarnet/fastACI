@@ -43,12 +43,16 @@ switch version
             cfg_pass.dir_target = cfg_pass.dir_speech;
             cfg_pass = Remove_field(cfg_pass,'dir_speech');
         end
-        if isfield(opts,'dir_target')
-            cfg_pass.dir_target = opts.dir_target; % Assigning the keyval if given in opts
+        if isfield(opts,'dir_target') 
+            if ~isempty(opts.dir_target)
+                cfg_pass.dir_target = opts.dir_target; % Assigning the keyval if given in opts
+            end
         end
         
-        if isfield(opts,'dir_noise')
-            cfg_pass.dir_noise = opts.dir_noise; % Assigning the keyval if given in opts
+        if isfield(opts,'dir_noise') 
+            if ~isempty(opts.dir_noise)
+                cfg_pass.dir_noise = opts.dir_noise; % Assigning the keyval if given in opts
+            end
         end
         if isfield(cfg_pass,'dir_noise')
             % Nothing to do...
