@@ -61,8 +61,9 @@ switch type_action
         
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
     case 'Get_CIt'
-        bLeo = 1;
-        bAlejandro = ~bLeo;
+        bLeo = 0;
+        bAlejandro = 0;
+        bSFA = 1;
         
         % Analyse noise in bands
         basef = 1000;
@@ -72,6 +73,9 @@ switch type_action
         end
         if bAlejandro
             fcut = audtofreq(freqtoaud(basef)+BW_ERB/2*[-1 1]); % here there is a slight difference (ERB2f)
+        end
+        if bSFA
+            fcut = [50 8000];
         end
 
         Nchannel = length(fcut)-1; 
@@ -115,6 +119,9 @@ switch type_action
         if bAlejandro
             method = 'Gammatone_proc';
         end
+        if bSFA
+            method = 'Gammatone_proc2';
+        end
 
         opts = [];
         opts.method = method;
@@ -132,14 +139,14 @@ switch type_action
  
         % Analyse targets and compute ideal template
         idx_order = [1 2];
-        [signal_E] = il_noisetone_converter([],dir_target,ListSignals,idx_order,fcut,undersampling,fcut_noiseE,opts);
-        ideal_template = signal_E(:,:,2)-signal_E(:,:,1);
+        [signal_E, fc, t] = il_noisetone_converter([],dir_target,ListSignals,idx_order,fcut,undersampling,fcut_noiseE,opts);
+        ideal_template = signal_E(:,:,1)-signal_E(:,:,2);
 
         % Ideal template in noise: Deleted but you can find it back in the original Script3_AnalysisComplex.m
         %% Compute CI and target-present and target-absent sub-CI
- 
-        n_rand = 200;
-        n_boot = 200;
+         if bLeo || bAlejandro
+             n_rand = 200;
+             n_boot = 200;
         n_trials = length(n_response);
 
         %subselection of trials
@@ -147,17 +154,39 @@ switch type_action
         is_norm = 0;
         [CI, CIrand, CIboot, ResponseMatrix, CI2, CI2rand, CI2boot, CI1, CI1rand, CI1boot] = computeCI(n_signal(trials2analyze),n_response(trials2analyze), noise_E(:,:,trials2analyze), n_rand, n_boot, is_norm);
 
-        tE=(1:size(CI,2))/(cfg.fs/cfg.save_undersmpl);
+        tE=t;%(1:size(CI,2))/(cfg_game.fs/undersampling);
 
+        CIlim = [2.5 97.5];
         CIrand_ci = [prctile(CIrand,CIlim(2),3); prctile(CIrand,CIlim(1),3)];
         CI1rand_ci = [prctile(CI1rand,CIlim(2),3); prctile(CI1rand,CIlim(1),3)];
         CI2rand_ci = [prctile(CI2rand,CIlim(2),3); prctile(CI2rand,CIlim(1),3)];
         save([dir_subj 'CIt'],'CI','CI1','CI2','CIrand_ci','CI1rand_ci','CI2rand_ci','tE','ideal_template')
 
+         end
+         if bSFA
+cfg_ACI.keyvals = [];cfg_ACI.flags=[];
+cfg_ACI.flags.do_permutation=0; % By default the permutation test is 'on'
+cfg_ACI.flags.do_no_bias=0;
+cfg_ACI.idx_trialselect = 1:3000;
+fastACI_getACI_preprocess(cfg_ACI, data_passation, noise_E)
+data_passation.n_responses=data_passation.n_response;
+data_passation.n_targets=data_passation.N_signal;
+data_passation.expvar = data_passation.m;
+cfg_ACI.keyvals.expvar_limits = [];
+cfg_ACI.keyvals.trialtype_analysis = 'total';
+cfg_ACI.N_target = cfg_game.N_signal;
+cfg_ACI.N_trialselect = 3000;
+cfg_ACI.keyvals.idx_trialselect = 1:3000;
+cfg_ACI.response_correct_target = [1, 2];
+cfg_ACI.flags.glmfct = 'classic_revcorr';
+
+fastACI_getACI_preprocess(cfg_ACI, data_passation, noise_E)
+
+        end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function undersmplE = il_noisetone_converter(dir_target,dir_noise,ListStim,n_stim,fcut,undersampling,fEcut,opts)
+function [undersmplE, fc, t] = il_noisetone_converter(dir_target,dir_noise,ListStim,n_stim,fcut,undersampling,fEcut,opts)
 % New extra input parameter: method
 
 method = opts.method;
@@ -210,15 +239,25 @@ for i_trial=1:length(n_stim)
                     end
                 end
                 E = E(1:undersampling:end);
-                 
-             case 'Gammatone_proc'
+                undersmplE(i_channel, :, i_trial) = E;
+
+                t=(1:size(E,2))/(fs/undersampling);
+                fc = fcut;
+            case 'Gammatone_proc'
                  binwidth = undersampling/fs; % 'undersampling' samples
                  flags_gamma = {'basef',basef,'flow',fcut(i_channel),'fhigh',fcut(i_channel+1), ...
                      'bwmul',1,'dboffset',dBFS,'no_adt','binwidth',binwidth, ...
                     'no_outerear','no_middleear', 'hilbert'};
                  [E, fc, t, outs] = Gammatone_proc(S,fs,flags_gamma{:});
-         end
-         undersmplE(i_channel, :, i_trial) = E;
+                 undersmplE(i_channel, :, i_trial) = E;             
+            case 'Gammatone_proc2'
+                 binwidth = undersampling/fs; % 'undersampling' samples
+                 flags_gamma = {'basef',basef,'flow',700,'fhigh',1200, ...%50,'fhigh',8000, ...
+                     'bwmul',1,'dboffset',dBFS,'no_adt','binwidth',binwidth, ...
+                     'no_outerear','no_middleear', 'hilbert'};
+                 [E, fc, t, outs] = Gammatone_proc(S,fs,flags_gamma{:});
+                 undersmplE(:, :, i_trial) = E;
+        end
     end
 end
 

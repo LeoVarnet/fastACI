@@ -31,7 +31,7 @@ paths.dir_data = fastACI_dir_data;
 if ispc
     % Directories for Leo:
     switch version
-        case '9.7.0.1261785 (R2019b) Update 3' % Leo's old office laptop
+        case {'9.7.0.1261785 (R2019b) Update 3', '9.11.0.1873467 (R2021b) Update 3'} % Leo's old office laptop
             paths.praat = 'C:\Praat\praatcon.exe';%'C:\Program files\Praat\praatcon.exe';
             paths.dir_output = [];
             paths.dir_output_fastACI2021_JASA = 'C:\Users\LeoVarnet\ownCloud\Professionnel\Publications et communications\2020-x - ANR fastACI\';
