@@ -186,7 +186,13 @@ switch type_action
                     if strcmp(info1.date,info2.date)
                         fprintf('The file %s is already up to date...\n',load_name);
                     else
-                        if datenum(info1.date)>datenum(info2.date)
+                        try
+                           bOverwrite = datenum(info1.date)>datenum(info2.date);
+                        catch me
+                            % In my computer, datenum has troubles to detect 'mrt' as March ('mar')
+                            bOverwrite = input('Press 1 to proceed with the overwritting or 0 to not to: ');
+                        end
+                        if bOverwrite
                             bOverwrite = 1;
                         else
                             bOverwrite = input('Press 1 to proceed with the overwritting or 0 to not to: ');
