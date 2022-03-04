@@ -193,6 +193,16 @@ switch type_action
                     flags_here{end+1} = Lambdas;
             end
             [ACI,cfg_ACI,results] = fastACI_getACI(savefilename,flags_here{:});
+            
+            XT  = get(gca,'XTick');
+            XTL = t(XT);
+            set(gca,'XTickLabel',XTL);
+            xlabel('Time (s)');
+            
+            YT = get(gca,'YTick');
+            YTL = round(fc(round(YT)));
+            set(gca,'YTickLabel',YTL);
+            ylabel('Frequency (Hz)');
         end
 end
 
