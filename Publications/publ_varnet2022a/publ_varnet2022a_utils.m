@@ -133,7 +133,11 @@ switch type_action
         opts.SNR  = SNR;
         opts.lvl  = lvl;
         opts.basef= basef;
-        idx_order = data_passation.n_stim;
+        if bSFA
+            idx_order = 1:3000;
+        else
+            data_passation.n_stim;
+        end
         noise_E = il_noisetone_converter(dir_target,dir_noise, ListStim, idx_order, ...
                 fcut, undersampling, fcut_noiseE, opts);
         Data_matrix = permute(noise_E, [3 1 2]);
@@ -173,7 +177,7 @@ switch type_action
                 case 'Gammatone_proc2'
                     method_here = 'gammatone2'; % I added this flag in arg_fastACI_getACI.m
             end
-            % glmfct = 'classic_revcorr';
+            %glmfct = 'classic_revcorr';
             glmfct = 'l1glm';
             
             flags_here = {glmfct,'Data_matrix',Data_matrix, ...
