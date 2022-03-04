@@ -75,7 +75,7 @@ switch type_action
             end
         end
         
-        if N_copied ~= 0
+        % if N_copied ~= 0
             % Then we need to copy the Conditions_file too...
             load_name = ['Conditions-for-' Subject_ID '+' experiment '.mat'];
             Cond_name2store = [fastACI_paths('dir_output') load_name];
@@ -102,7 +102,7 @@ switch type_action
                     fprintf('%s was successfully copied to %s\n',load_name,dir_subj_dropbox);
                 end
             end
-        end
+        % end
         disp('')
         
     case 'Get_filenames' % very similar to type_action in publ_osses2022c_ARO_poster_utils.m
