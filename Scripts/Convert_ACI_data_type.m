@@ -109,17 +109,26 @@ switch version
         cfg_pass.n_targets_sorted = ones(1,data_passation.i_current);
         
         if isfield(opts,'dir_noise')
-            cfg_pass.dir_noise = opts.dir_noise; % Assigning the keyval if given in opts
+            if ~isempty(opts.dir_noise)
+                cfg_pass.dir_noise = opts.dir_noise; % Assigning the keyval if given in opts
+            end
         end
         if isfield(cfg_pass,'dir_noise')
             % Nothing to do...
-        else
-            fn = Get_filenames(cd,'*Bruit*');
+        else % if isempty(cfg_pass,'dir_noise') || ~isfield(cfg_pass,'dir_noise')
+            dir_savegame = fileparts(file_savegame);
+            if isempty(dir_savegame)
+                dir_savegame = cd; % assuming that the sound folders can be in the current folder
+            else
+                dir_savegame = [dir_savegame filesep];
+            end
+            
+            fn = Get_filenames(dir_savegame,'*Bruit*');
             if isempty(fn)
-                fn = Get_filenames(cd,'*Noise*');
+                fn = Get_filenames(dir_savegame,'*Noise*');
             end
             if ~isempty(fn)
-                cfg_pass.dir_noise = fn{1}; 
+                cfg_pass.dir_noise = [dir_savegame fn{1} filesep]; 
             else
                 cfg_pass.dir_noise = '';
                 warning('dir_noise: No noise folder found')
@@ -128,14 +137,23 @@ switch version
         
         %%%
         if isfield(opts,'dir_target')
-            cfg_pass.dir_target = opts.dir_target; % Assigning the keyval if given in opts
+            if ~isempty(opts.dir_target)
+                cfg_pass.dir_target = opts.dir_target; % Assigning the keyval if given in opts
+            end
         end
         if isfield(cfg_pass,'dir_target')
             % Nothing to do...
-        else
-            fn = Get_filenames(cd,'*Target*');
+        else % if isempty(cfg_pass,'dir_target') || ~isfield(cfg_pass,'dir_target')
+            dir_savegame = fileparts(file_savegame);
+            if isempty(dir_savegame)
+                dir_savegame = cd; % assuming that the sound folders can be in the current folder
+            else
+                dir_savegame = [dir_savegame filesep];
+            end
+            
+            fn = Get_filenames(dir_savegame,'*Target*');
             if ~isempty(fn)
-                cfg_pass.dir_target = fn{1}; 
+                cfg_pass.dir_target = [dir_savegame fn{1} filesep]; 
             else
                 cfg_pass.dir_target = '';
                 warning('dir_target: No target folder found')

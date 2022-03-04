@@ -6,7 +6,9 @@ function definput = arg_fastACI_getACI(definput)
 % Old name: arg_Script4_Calcul_ACI.m (changed on 21/05/2021)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-definput.flags.TF_type = {'spect','lyon','noise_logspect','gammatone','adapt','tf','modulationACI_proc'};
+definput.flags.TF_type = {'spect','lyon','noise_logspect','gammatone','adapt','tf', ...
+    'gammatone2', ... % This is a temporal name
+    'modulationACI_proc'}; % This name will be removed
 definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','lasso','lassoslow','l1glm'       ,'classic_revcorr'};
 % Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','lasso','lassoslow','lassoglmslow','classic_revcorr'};
 definput.flags.permutation = {'no_permutation','permutation'};
@@ -19,6 +21,7 @@ definput.keyvals.apply_SNR  = 0; % old: WithSNR
 definput.keyvals.add_signal = 0; % old: WithSignal 
 
 definput.keyvals.skip_if_on_disk = 1;
+definput.keyvals.consistency_check = 1;
 definput.keyvals.Data_matrix = [];
 
 definput.keyvals.ACI_crosspred = [];

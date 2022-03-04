@@ -1,4 +1,4 @@
-function cfg_crea = Check_cfg_crea_dirs(cfg_crea, dir_new)
+function cfg_crea = Check_cfg_crea_dirs(cfg_crea, dir_data_new)
 % function cfg_crea = Check_cfg_crea_dirs(cfg_crea, dir_new)
 %
 % Description:
@@ -21,7 +21,7 @@ end
 
 dir_data = fastACI_paths('dir_data');
 if nargin >= 2
-    dir_data = dir_new;
+    dir_data = dir_data_new;
     bUpdate = 1;
 end
 

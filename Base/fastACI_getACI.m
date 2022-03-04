@@ -225,20 +225,41 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
     else
         Data_matrix = keyvals.Data_matrix;
         
-        N_ref = 10;
-        N = cfg_ACI.N;
-        cfg_ACI_ref = cfg_ACI;
-        cfg_ACI_ref.N = N_ref;
-        [Data_matrix_ref,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI_ref, ListStim, cfg_game, data_passation);
-        cfg_ACI.N = N; % restoring the initial N
-        
-        for ii = 1:N_ref
-            diffe(ii) = sum(Data_matrix(ii,:)-Data_matrix_ref(ii,:));
+        switch flags.TF_type
+            case {'spect','gammatone'} % Then Data_matrix is checked for consistency
+                if keyvals.consistency_check
+                    N_ref = 10;
+                    N = cfg_ACI.N;
+                    cfg_ACI_ref = cfg_ACI;
+                    cfg_ACI_ref.N = N_ref;
+                    [Data_matrix_ref,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI_ref, ListStim, cfg_game, data_passation);
+                    cfg_ACI.N = N; % restoring the initial N
+
+                    for ii = 1:N_ref
+                        diffe(ii) = sum(Data_matrix(ii,:)-Data_matrix_ref(ii,:));
+                    end
+                    if sum(diffe) ~= 0
+                        error('The input Data_matrix seems to be different from the expected Data_matrix loaded from ListStim');
+                    end
+                end
+                bConsistency_check = keyvals.consistency_check;
+            otherwise
+                bConsistency_check = 0;
         end
-        if sum(diffe) ~= 0
-            error('The input Data_matrix seems to be different from the expected Data_matrix loaded from ListStim');
-        end
         
+        if bConsistency_check == 0
+            if ~isfield(cfg_ACI,'f')
+                cfg_ACI.f = transpose(1:size(Data_matrix,2));
+                cfg_ACI.f_description = 'Frequency bin';
+            end
+            if ~isfield(cfg_ACI,'t')
+                cfg_ACI.t = 1:size(Data_matrix,3);
+                cfg_ACI.t_description = 'Time bin';
+            end
+            % cfg_ACI.N_t = lengt;
+            % N_f = cfg_ACI.N_f;
+            warning('flags.TF_type=%s seems to be a custom T-F configuration. No Data_matrix consistency will be checked...',flags.TF_type);
+        end
     end
 end
  
@@ -412,6 +433,13 @@ if flags.do_plot || nargout == 0
         figure;
         affichage_tf(ACI, 'CI', 'cfg',cfg_ACI);
         title(glmfct)
+        
+        if isfield(cfg_ACI,'t_description')
+            xlabel(cfg_ACI.t_description);
+        end
+        if isfield(cfg_ACI,'f_description')
+            ylabel(cfg_ACI.f_description);
+        end
         
         % figure
         % affichage_tf(ACI_norm, 'CI', 'cfg',cfg_ACI); affichage_tf(ACI, 'CInorm', 'cfg', cfg_ACI)

@@ -219,7 +219,13 @@ switch fg.glmfct
         t_X = cfg_ACI.t;
         f_X = cfg_ACI.f;
 
-        N_t = cfg_ACI.N_t;
+        if ~isfield(cfg_ACI,'N_t')
+            cfg_ACI.N_t = length(cfg_ACI.t);
+        end
+        if ~isfield(cfg_ACI,'N_f')
+            cfg_ACI.N_f = length(cfg_ACI.f);
+        end
+        N_t = cfg_ACI.N_t;    
         N_f = cfg_ACI.N_f;
         
         if Nt_X>N_t % Along time dimension, zero padding

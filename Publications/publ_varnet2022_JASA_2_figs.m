@@ -31,7 +31,7 @@ end
 h = [];
 hname = [];
 
-definput.flags.type={'missingflag','fig2','fig3','fig4','fig1_suppl','fig2_suppl'};
+definput.flags.type={'missingflag','fig2','fig3','fig3c','fig4','fig1_suppl','fig2_suppl'};
 definput.keyvals.models=[];
 
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
@@ -41,7 +41,7 @@ N_subjects = data.N_subjects;
 
 plot_models = 0;
 
-if N_subjects == 8
+% if N_subjects == 8
     colorcode = {   [0 0.447 0.741]; ...     % Colour for S1
                     [0.85 0.325 0.098]; ...  %            S2
                     [0.929 0.694 0.125]; ... %            S3
@@ -57,9 +57,9 @@ if N_subjects == 8
     IT_LineWidth = 2; 
     IT_LineStyle = ':';
     IT_Color = 'b'; % Ideal template colour
-else
-    error('The number of participants should be 8, please check why MATLAB cannot find all the raw data...')
-end
+% else
+%     error('The number of participants should be 8, please check why MATLAB cannot find all the raw data...')
+% end
 
 %% do_fig2: H, CR rates ---------------------------------------------------
 if flags.do_fig2
@@ -480,16 +480,22 @@ function data = il_load_data(flags)
 dir_data = [fastACI_paths('dir_data') 'modulationACI' filesep];
 % files = Get_filenames(dir_data,'S*');
 
-files = {'S1','S2','S3','S4','S5','S6','S7','S8','Srej'};
-% (1): S1
-% (2): S2
-% (3): S3
-% (4): S4
-% (5): S5
-% (6): S6
-% (7): S7
-% (8): S8
-% (9): Srej
+if flags.do_fig3c
+    files = {'S3'};
+else
+    % All participants:
+    files = {'S1','S2','S3','S4','S5','S6','S7','S8','Srej'};
+    % (1): S1
+    % (2): S2
+    % (3): S3
+    % (4): S4
+    % (5): S5
+    % (6): S6
+    % (7): S7
+    % (8): S8
+    % (9): Srej
+end
+
 N_subjects = length(files);
 if N_subjects == 9
     if strcmp(files{end},'Srej')
@@ -542,7 +548,7 @@ for i_subject = N_subjects:-1:1 % First participant read at last...
         % PC(i_subject,:) = (PC_targetabsent+PC_targetpresent)/2;
     end
     
-    if flags.do_fig3
+    if flags.do_fig3 || flags.do_fig3c
         %%% Loading the data from 'CIt'
         CI = [];
         CI1 = [];
