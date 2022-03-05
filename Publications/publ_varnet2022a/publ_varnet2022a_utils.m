@@ -1,5 +1,5 @@
-function publ_varnet2022a_utils(Subject_ID,type_action)
-% function publ_varnet2022a_utils(Subject_ID,type_action)
+function publ_varnet2022a_utils(Subject_ID,type_action,flags)
+% function publ_varnet2022a_utils(Subject_ID,type_action,flags)
 %
 % - I don't understand why '[tone, fs] = audioread([dir_target 'nontarget.wav']);' in il_noisetone_
 % - New: level adjustment for targets before loading noises (for i = 1:length(fname_targets))
@@ -10,7 +10,6 @@ function publ_varnet2022a_utils(Subject_ID,type_action)
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 experiment = 'modulationACI';
 dir_subj = [fastACI_dir_data experiment filesep Subject_ID filesep];
 
@@ -64,9 +63,9 @@ switch type_action
         
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
     case 'Get_CIt'
-        bLeo = 0;
+        bLeo = flags.do_varnet2022a_JASA;
         bAlejandro = 0;
-        bSFA = 1;
+        bSFA = flags.do_varnet2022b_CFA;
         
         % Analyse noise in bands
         basef = 1000;
@@ -182,8 +181,8 @@ switch type_action
                 case 'Gammatone_proc2'
                     method_here = 'gammatone2'; % I added this flag in arg_fastACI_getACI.m
             end
-            glmfct = 'classic_revcorr';
-            % glmfct = 'l1glm';
+            % glmfct = 'classic_revcorr';
+            glmfct = 'l1glm';
             
             flags_here = {glmfct,'Data_matrix',Data_matrix, ...
                 'expvar_limits',[], ...
