@@ -191,27 +191,32 @@ switch version
                 end
                 
                 if isfield(var.ListStim,'n_response')
-                    exp2eval= ['[' str(1:end-1) ']=var.ListStim(:).n_response;'];
-                    eval(exp2eval);
-                    data_passation.n_responses = tmp;
+                    % Then I don't read ListStim(:).n_response, but I read 'n_response'
+                    data_passation.n_responses = var.data_passation.n_response;
+                    
+                    % exp2eval= ['[' str(1:end-1) ']=var.ListStim(:).n_response;'];
+                    % eval(exp2eval);
+                    % data_passation.n_responses = tmp;
 
                     var.ListStim = Remove_field(var.ListStim,'n_response');
                 end
 
                 if isfield(var.ListStim,'m')
-                    exp2eval= ['[' str(1:end-1) ']=var.ListStim(:).m;'];
-                    eval(exp2eval);
-                    data_passation.expvar = tmp;
+                    % Then I don't read ListStim(:).m, but I read 'm'
+                    data_passation.expvar = var.data_passation.m; % already sorted in increasing trial presentation
+                    % exp2eval= ['[' str(1:end-1) ']=var.ListStim(:).m;'];
+                    % eval(exp2eval);
+                    % data_passation.expvar = tmp;
 
                     cfg_game.expvar_description = 'modulation depth (dB)';
-
                     var.ListStim = Remove_field(var.ListStim,'m');
                 end
 
                 if isfield(var.ListStim,'n_presentation')
-                    exp2eval= ['[' str(1:end-1) ']=var.ListStim(:).n_presentation;'];
-                    eval(exp2eval);
-                    data_passation.n_stim = tmp;
+                    % exp2eval= ['[' str(1:end-1) ']=var.ListStim(:).n_presentation;'];
+                    % eval(exp2eval);
+                    % data_passation.n_stim = tmp;
+                    data_passation.n_stim = var.data_passation.n_stim;
 
                     var.ListStim = Remove_field(var.ListStim,'n_presentation');
                 end

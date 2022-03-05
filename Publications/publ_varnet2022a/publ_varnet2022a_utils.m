@@ -21,14 +21,17 @@ else
     error('Problem finding savegame file...')
 end
 
-ListStim = []; % : [3000×1 struct]
-cfg_game = []; % : [1×1 struct]
-data_passation = []; % : [1×1 struct]
-load(savefilename);
-n_response = data_passation.n_response;
-n_signal   = data_passation.N_signal(1:length(n_response));
-m          = data_passation.m(1:length(n_response));
-                
+% cfg_game = []; % : [1×1 struct]
+% data_passation = []; % : [1×1 struct]
+% load(savefilename);
+         
+% ListStim: [3000×1 struct]
+[cfg_game, data_passation, ListStim] = Convert_ACI_data_type(savefilename);
+m = data_passation.expvar;
+n_signal = data_passation.n_targets; % (old field data_passation.N_signal) 
+                                      % 1 a target was presented, 2 a nontarget was presented
+n_response = data_passation.n_responses;
+
 switch type_action
     case 'Get_Behavior'
         
@@ -133,14 +136,16 @@ switch type_action
         opts.SNR  = SNR;
         opts.lvl  = lvl;
         opts.basef= basef;
-        if bSFA
-            idx_order = 1:3000;
-        else
-            data_passation.n_stim;
-        end
+
+        idx_order = cfg_game.stim_order; % data_passation.n_stim; % should be the same, remove n_stim
+      
         noise_E = il_noisetone_converter(dir_target,dir_noise, ListStim, idx_order, ...
                 fcut, undersampling, fcut_noiseE, opts);
-        Data_matrix = permute(noise_E, [3 1 2]);
+        [au,fsau] = audioread([fastACI_basepath 'Stimuli' filesep 'ready.wav']);
+        sound(au,fsau);
+        
+        % Data_matrix = permute(noise_E, [3 1 2]);
+        Data_matrix = permute(noise_E, [3 2 1]);
         % noise_E     = 1x360x3000
         % Data_matrix = 3000x1x360
 
@@ -177,8 +182,8 @@ switch type_action
                 case 'Gammatone_proc2'
                     method_here = 'gammatone2'; % I added this flag in arg_fastACI_getACI.m
             end
-            %glmfct = 'classic_revcorr';
-            glmfct = 'l1glm';
+            glmfct = 'classic_revcorr';
+            % glmfct = 'l1glm';
             
             flags_here = {glmfct,'Data_matrix',Data_matrix, ...
                 'expvar_limits',[], ...

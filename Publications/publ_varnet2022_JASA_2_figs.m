@@ -31,7 +31,7 @@ end
 h = [];
 hname = [];
 
-definput.flags.type={'missingflag','fig2','fig3','fig3c','fig4','fig1_suppl','fig2_suppl'};
+definput.flags.type={'missingflag','fig2','fig3','fig3a','fig3c','fig3d','fig4','fig1_suppl','fig2_suppl'};
 definput.keyvals.models=[];
 
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
@@ -480,8 +480,12 @@ function data = il_load_data(flags)
 dir_data = [fastACI_paths('dir_data') 'modulationACI' filesep];
 % files = Get_filenames(dir_data,'S*');
 
-if flags.do_fig3c
-    files = {'S3'};
+if flags.do_fig3a
+    files = {'S1'}; % S_AO
+elseif flags.do_fig3c
+    files = {'S3'}; % LL
+elseif flags.do_fig3d
+    files = {'S4'}; % S_LV2
 else
     % All participants:
     files = {'S1','S2','S3','S4','S5','S6','S7','S8','Srej'};
@@ -548,7 +552,7 @@ for i_subject = N_subjects:-1:1 % First participant read at last...
         % PC(i_subject,:) = (PC_targetabsent+PC_targetpresent)/2;
     end
     
-    if flags.do_fig3 || flags.do_fig3c
+    if flags.do_fig3 || flags.do_fig3a || flags.do_fig3c || flags.do_fig3d
         %%% Loading the data from 'CIt'
         CI = [];
         CI1 = [];
