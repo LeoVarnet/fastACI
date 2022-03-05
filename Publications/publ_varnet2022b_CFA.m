@@ -20,11 +20,15 @@ hname = [];
 definput.flags.type={'missingflag','fig2_mod22'};
 definput.flags.subject = {'SA','SB'};
 definput.flags.publ = {'varnet2022b_CFA','varnet2022a_JASA'}; % default is varnet2022b_CFA
-definput.keyvals.models=[];
+definput.keyvals.dir_out = [fastACI_paths('dir_output') 'varnet2022b_CFA' filesep];
 
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
 dir_data = [fastACI_paths('dir_data') 'modulationACI' filesep];
+dir_output = keyvals.dir_out;
+if ~exist(dir_output,'dir')
+    mkdir(dir_output);
+end
 
 if flags.do_fig2_mod22
     if flags.do_SA
@@ -40,10 +44,10 @@ N_subjects = length(files);
 data.N_subjects = N_subjects;
 
 for i_subject = N_subjects:-1:1 % First participant read at last...
-    dir_local = [dir_data files{i_subject} filesep];
+    % dir_local = [dir_data files{i_subject} filesep];
     
     if flags.do_fig2_mod22
-        publ_varnet2022a_utils(files{i_subject},'Get_CIt',flags);
+        publ_varnet2022a_utils(files{i_subject},'Get_CIt',flags,keyvals);
     end
 end
 

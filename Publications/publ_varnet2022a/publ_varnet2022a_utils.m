@@ -1,5 +1,5 @@
-function publ_varnet2022a_utils(Subject_ID,type_action,flags)
-% function publ_varnet2022a_utils(Subject_ID,type_action,flags)
+function publ_varnet2022a_utils(Subject_ID,type_action,flags,keyvals)
+% function publ_varnet2022a_utils(Subject_ID,type_action,flags,keyvals)
 %
 % - I don't understand why '[tone, fs] = audioread([dir_target 'nontarget.wav']);' in il_noisetone_
 % - New: level adjustment for targets before loading noises (for i = 1:length(fname_targets))
@@ -70,17 +70,15 @@ switch type_action
         % Analyse noise in bands
         basef = 1000;
         BW_ERB = 1;
+        undersampling = 100;
         if bLeo
             fcut = ERB2f(f2ERB(basef)+BW_ERB/2*[-1 1]);
-            undersampling = 100;
         end
         if bAlejandro
             fcut = audtofreq(freqtoaud(basef)+BW_ERB/2*[-1 1]); % here there is a slight difference (ERB2f)
-            undersampling = 100;
         end
         if bSFA
             fcut = [40 8000]; % Hz
-            undersampling = 100; % warning('undersampling=150 instead of 100 (test)')
         end
 
         Nchannel = length(fcut)-1; 
@@ -120,15 +118,56 @@ switch type_action
 
         if bLeo
             method = 'butter';
+            bCalculate = 1;
         end
         if bAlejandro
             method = 'Gammatone_proc';
+            bCalculate = 1;
         end
         if bSFA
             % method = 'Gammatone_proc2';
             method = 'Gammatone_proc'; warning('Temporarily changed to Gammatome_proc')
         end
 
+        if bSFA
+            switch method
+                case 'Gammatone_proc'
+                    method_here = 'gammatone';
+                case 'Gammatone_proc2'
+                    method_here = 'gammatone2'; % I added this flag in arg_fastACI_getACI.m
+            end
+            % glmfct = 'classic_revcorr';
+            glmfct = 'l1glm';
+            
+            flags_here = {glmfct, ...
+                'expvar_limits',[], ...
+                'trialtype_analysis','total', ...
+                'consistency_check',0, ... % new option to disable the consistency check
+                method_here};
+            
+            switch glmfct
+                case 'l1glm' % 'lassoglmslow'
+                    N_lambda = 30;
+                    Lambdas = logspace(-4, -1, N_lambda);
+                    idx = find(Lambdas >= 10^-3);
+                    Lambdas = Lambdas(idx);
+
+                    flags_here{end+1} = 'lambda';
+                    flags_here{end+1} = Lambdas;
+            end
+            if isfield(keyvals,'dir_out')
+                if exist(keyvals.dir_out,'dir')
+                    flags_here{end+1} = 'dir_out';
+                    flags_here{end+1} = keyvals.dir_out;
+                end
+            end
+            fnameACI = fastACI_getACI_fname(savefilename,flags_here{:});
+            
+            if exist(fnameACI,'file')
+                bCalculate = 0;
+            end
+        end
+        
         opts = [];
         opts.method = method;
         opts.dBFS = dBFS;
@@ -138,15 +177,20 @@ switch type_action
 
         idx_order = cfg_game.stim_order; % data_passation.n_stim; % should be the same, remove n_stim
       
-        noise_E = il_noisetone_converter(dir_target,dir_noise, ListStim, idx_order, ...
-                fcut, undersampling, fcut_noiseE, opts);
-        [au,fsau] = audioread([fastACI_basepath 'Stimuli' filesep 'ready.wav']);
-        sound(au,fsau);
-        
-        % Data_matrix = permute(noise_E, [3 1 2]);
-        Data_matrix = permute(noise_E, [3 2 1]);
-        % noise_E     = 1x360x3000
-        % Data_matrix = 3000x1x360
+        if bCalculate
+            noise_E = il_noisetone_converter(dir_target,dir_noise, ListStim, idx_order, ...
+                    fcut, undersampling, fcut_noiseE, opts);
+            [au,fsau] = audioread([fastACI_basepath 'Stimuli' filesep 'ready.wav']);
+            sound(au,fsau);
+            
+            % Data_matrix = permute(noise_E, [3 1 2]);
+            Data_matrix = permute(noise_E, [3 2 1]);
+            % noise_E     = 1x360x3000
+            % Data_matrix = 3000x1x360
+            
+            flags_here{end+1} = 'Data_matrix';
+            flags_here{end+1} = Data_matrix;
+        end
 
         % Analyse targets and compute ideal template
         idx_order = [1 2];
@@ -175,35 +219,10 @@ switch type_action
         end
          
          if bSFA
-            switch method
-                case 'Gammatone_proc'
-                    method_here = 'gammatone';
-                case 'Gammatone_proc2'
-                    method_here = 'gammatone2'; % I added this flag in arg_fastACI_getACI.m
-            end
-            % glmfct = 'classic_revcorr';
-            glmfct = 'l1glm';
-            
-            flags_here = {glmfct,'Data_matrix',Data_matrix, ...
-                'expvar_limits',[], ...
-                'trialtype_analysis','total', ...
-                'consistency_check',0, ... % new option to disable the consistency check
-                method_here};
-            
-            switch glmfct
-                case 'l1glm' % 'lassoglmslow'
-                    N_lambda = 30;
-                    Lambdas = logspace(-4, -1, N_lambda);
-                    idx = find(Lambdas >= 10^-3);
-                    Lambdas = Lambdas(idx);
-
-                    flags_here{end+1} = 'lambda';
-                    flags_here{end+1} = Lambdas;
-            end
             [ACI,cfg_ACI,results] = fastACI_getACI(savefilename,flags_here{:});
             
             XT  = get(gca,'XTick');
-            XTL = t(XT);
+            XTL = round(100*t(XT))/100;
             set(gca,'XTickLabel',XTL);
             xlabel('Time (s)');
             
@@ -211,6 +230,15 @@ switch type_action
             YTL = round(fc(round(YT)));
             set(gca,'YTickLabel',YTL);
             ylabel('Frequency (Hz)');
+            
+            if flags.do_SA
+                title('SA (S4 in varnet2022a, S-LV)')
+            end
+            if flags.do_SB
+                title('SB (S1 in varnet2022a, S-AO)')
+            end
+            
+            disp('')
         end
 end
 
