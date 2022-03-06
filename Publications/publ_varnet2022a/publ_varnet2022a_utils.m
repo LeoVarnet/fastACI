@@ -1,5 +1,5 @@
-function publ_varnet2022a_utils(Subject_ID,type_action,flags,keyvals)
-% function publ_varnet2022a_utils(Subject_ID,type_action,flags,keyvals)
+function data = publ_varnet2022a_utils(Subject_ID,type_action,flags,keyvals)
+% function data = publ_varnet2022a_utils(Subject_ID,type_action,flags,keyvals)
 %
 % - I don't understand why '[tone, fs] = audioread([dir_target 'nontarget.wav']);' in il_noisetone_
 % - New: level adjustment for targets before loading noises (for i = 1:length(fname_targets))
@@ -10,6 +10,8 @@ function publ_varnet2022a_utils(Subject_ID,type_action,flags,keyvals)
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+data = [];
+
 experiment = 'modulationACI';
 dir_subj = [fastACI_dir_data experiment filesep Subject_ID filesep];
 
@@ -70,7 +72,7 @@ switch type_action
         % Analyse noise in bands
         basef = 1000;
         BW_ERB = 1;
-        undersampling = 100;
+        undersampling_ms = 10; % 100;
         if bLeo
             fcut = ERB2f(f2ERB(basef)+BW_ERB/2*[-1 1]);
         end
@@ -116,13 +118,12 @@ switch type_action
             %%%
         end
 
+        bCalculate = 1;
         if bLeo
             method = 'butter';
-            bCalculate = 1;
         end
         if bAlejandro
             method = 'Gammatone_proc';
-            bCalculate = 1;
         end
         if bSFA
             % method = 'Gammatone_proc2';
@@ -140,6 +141,8 @@ switch type_action
             glmfct = 'l1glm';
             
             flags_here = {glmfct, ...
+                'no_bias', ...
+                'no_permutation', ...
                 'expvar_limits',[], ...
                 'trialtype_analysis','total', ...
                 'consistency_check',0, ... % new option to disable the consistency check
@@ -179,7 +182,7 @@ switch type_action
       
         if bCalculate
             noise_E = il_noisetone_converter(dir_target,dir_noise, ListStim, idx_order, ...
-                    fcut, undersampling, fcut_noiseE, opts);
+                    fcut, undersampling_ms, fcut_noiseE, opts);
             [au,fsau] = audioread([fastACI_basepath 'Stimuli' filesep 'ready.wav']);
             sound(au,fsau);
             
@@ -194,7 +197,7 @@ switch type_action
 
         % Analyse targets and compute ideal template
         idx_order = [1 2];
-        [signal_E, fc, t] = il_noisetone_converter([],dir_target,ListSignals,idx_order,fcut,undersampling,fcut_noiseE,opts);
+        [signal_E, f, t] = il_noisetone_converter([],dir_target,ListSignals,idx_order,fcut,undersampling_ms,fcut_noiseE,opts);
         ideal_template = signal_E(:,:,1)-signal_E(:,:,2);
 
         % Ideal template in noise: Deleted but you can find it back in the original Script3_AnalysisComplex.m
@@ -221,29 +224,17 @@ switch type_action
          if bSFA
             [ACI,cfg_ACI,results] = fastACI_getACI(savefilename,flags_here{:});
             
-            XT  = get(gca,'XTick');
-            XTL = round(100*t(XT))/100;
-            set(gca,'XTickLabel',XTL);
-            xlabel('Time (s)');
+            data.ACI = ACI;
+            data.cfg_ACI = cfg_ACI;
+            data.results = results;
             
-            YT = get(gca,'YTick');
-            YTL = round(fc(round(YT)));
-            set(gca,'YTickLabel',YTL);
-            ylabel('Frequency (Hz)');
-            
-            if flags.do_SA
-                title('SA (S4 in varnet2022a, S-LV)')
-            end
-            if flags.do_SB
-                title('SB (S1 in varnet2022a, S-AO)')
-            end
-            
-            disp('')
+            data.f = f;
+            data.t = t;
         end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [undersmplE, fc, t] = il_noisetone_converter(dir_target,dir_noise,ListStim,n_stim,fcut,undersampling,fEcut,opts)
+function [undersmplE, fc, t] = il_noisetone_converter(dir_target,dir_noise,ListStim,n_stim,fcut,undersampling_ms,fEcut,opts)
 % New extra input parameter: method
 
 method = opts.method;
@@ -265,6 +256,10 @@ for i_trial=1:length(n_stim)
     fprintf(['stim #' num2str(i_trial) '\n'])
     [noise, fs] = audioread([dir_noise ListStim(n_stim(i_trial)).name ]);
     
+    if i_trial == 1
+        undersampling = round((undersampling_ms*1e-3)*fs);
+        fprintf('Undersampling every %.0f samples will be applied\n',undersampling)
+    end
     % ATTENTION BRICOLAGE %
     if ~isempty(tone)
         %   Creating the trial (but always using the non-modulated sound)
@@ -302,7 +297,7 @@ for i_trial=1:length(n_stim)
                 fc = fcut;
             case 'Gammatone_proc'
                  binwidth = undersampling/fs; % 'undersampling' samples
-                 flags_gamma = {'basef',basef,'flow',fcut(i_channel),'fhigh',fcut(i_channel+1), ...
+                 flags_gamma = {'basef',fcut(i_channel+1),'flow',fcut(i_channel),'fhigh',fcut(i_channel+1), ...
                      'bwmul',.5,'dboffset',dBFS,'no_adt','binwidth',binwidth, ...
                     'no_outerear','no_middleear', 'hilbert'};
                  [E, fc, t, outs] = Gammatone_proc(S,fs,flags_gamma{:});
