@@ -35,7 +35,8 @@ if nargin == 0
 end
 clc
 if nargin < 3
-    type_actions = { 'Check_sounds_for_a_participant', ...
+    type_actions = {'Play_intellitest', ...
+                    'Check_sounds_for_a_participant', ...
                     'Copy_results_to_Dropbox', ...
                     'Copy_results_from_Dropbox'};
     Show_cell(type_actions);
@@ -45,6 +46,27 @@ if nargin < 3
 end
 
 switch type_action
+    case 'Play_intellitest'
+        dir_where = [fastACI_basepath 'Stimuli' filesep 'Intellitest' filesep];
+        files = Get_filenames(dir_where,'*1a.wav');
+        
+        Show_cell(files);
+        
+        bInput = input('Input 0 to listen all sounds once, or the number of the sound to hear: ');
+        
+        if bInput == 0
+        else
+            files = files(bInput);
+        end
+        
+        for i = 1:length(files)
+            [insig,fs] = audioread([dir_where files{i}]);
+            
+            fprintf('Playing %s\n',files{i}(1:end-5));
+            sound(insig,fs);
+            pause(3);
+        end
+        
     case 'Check_sounds_for_a_participant'
         % No sounds should be generated, because we have put all the 
         %    waveforms in the test computers upfront.

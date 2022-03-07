@@ -11,6 +11,7 @@ function [h,hname] = publ_varnet2022b_CFA(varargin)
 % publ_varnet2022b_CFA('fig2_mod22','SA',flags{:});
 % publ_varnet2022b_CFA('fig2_mod22','SB',flags{:});
 %
+% publ_varnet2022b_CFA('fig2_abda13','SA',flags{:}); 
 % publ_varnet2022b_CFA('fig2_abda13','SB',flags{:}); 
 %
 % publ_varnet2022b_CFA('fig2_abda21','SA',flags{:}); % DAGA
