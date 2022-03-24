@@ -1,5 +1,5 @@
-function publ_osses2022b_quick(file_savegame)
-% function publ_osses2022b_quick(file_savegame)
+function [cfg_game, data_passation] = publ_osses2022b_quick(file_savegame)
+% function [cfg_game, data_passation] = publ_osses2022b_quick(file_savegame)
 %
 % Folders - Petite cabine:
 %   dir_data    - '/Users/alejandro/Desktop/fastACI_today/fastACI_data/'
