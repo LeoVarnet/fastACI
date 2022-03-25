@@ -102,7 +102,8 @@ if bFastACI_exp == 1
     paths.Interface            = [dir_fastACI       'Interface'            filesep];
     paths.legacy               = [dir_fastACI       'legacy'               filesep];
     paths.modulationACI        = [paths.Experiments 'modulationACI'        filesep];
-    paths.modulationACI_seeds  = [paths.Experiments 'modulationACI_seeds'  filesep];
+    paths.modulationFM         = [paths.Experiments 'modulationFM'         filesep];
+  % paths.modulationACI_seeds  = [paths.Experiments 'modulationACI_seeds'  filesep]; % removed on 25/03/2022
     paths.Praat                = [dir_fastACI       'Praat'                filesep];
     paths.speechACI_Logatome   = [paths.Experiments 'speechACI_Logatome'   filesep];
     paths.speechACI_varnet2013 = [paths.Experiments 'speechACI_varnet2013' filesep];
