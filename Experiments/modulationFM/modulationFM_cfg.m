@@ -25,19 +25,20 @@ cfg.sessionsN      = 500; % CAUTION: Overwritten in the case of simulation
 cfg.adapt          = 1; % 'out';%
 cfg.randorder      = 1;
 
-cfg.startvar = 100;  % i.e., 0.1 times 1000 Hz
+cfg.startvar = 40;  % i.e., 0.04 times 1000 Hz, according to King et al. 2019
 cfg.expvar_description = 'Frequency deviation (Hz)';
 
-cfg.maxvar = 1000;
+cfg.maxvar = 1000; % basically this is not set
 cfg.minvar =    0;
 
 % Staircase algorithm parameters
 switch cfg.adapt 
     case {1,'transformed-up-down'}
-        cfg.start_stepsize     = .1*100;  % Hz
-        cfg.min_stepsize       = 2; % Hz, Varnet and Lorenzi (2022, JASA)
-        cfg.adapt_stepsize     = 90/100; % Varnet and Lorenzi (2022, JASA)
-        cfg.step_resolution = 'linear';
+        % cfg.step_resolution = 'linear';
+        cfg.start_stepsize     = 1.58; % Hz
+        cfg.min_stepsize       = 1.1172; % Hz, King et al. (2019, JASA)
+        cfg.adapt_stepsize     = 1/(sqrt(sqrt(2))); % King et al. (2019, JASA) Implicit choice
+        cfg.step_resolution = 'multiplicative';
     otherwise
         error('Not validated yet...')
 end

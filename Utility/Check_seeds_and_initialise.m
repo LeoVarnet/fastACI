@@ -100,13 +100,18 @@ if bDo_the_check
             warning('dir_speech is deprecated (old cfg_crea is being used)')
             var.cfg_crea.dir_target = var.cfg_crea.dir_speech;
         end
-        if exist(var.cfg_crea.dir_target,'dir')
-            cfg_inout.dir_target = var.cfg_crea.dir_target;
+        if isfield(var.cfg_crea,'dir_target')
+            if exist(var.cfg_crea.dir_target,'dir')
+                cfg_inout.dir_target = var.cfg_crea.dir_target;
+            else
+                idx = strfind(cfg_inout.dir_target,cfg_inout.dir_target(end));
+                dir_target = cfg_inout.dir_target(idx(end-1)+1:end-1);
+                dir_new   = [cfg_inout.dir_data_experiment list_other_subjects{bInput} filesep];
+                cfg_inout.dir_target = [dir_new dir_target filesep];
+            end
         else
-            idx = strfind(cfg_inout.dir_target,cfg_inout.dir_target(end));
-            dir_target = cfg_inout.dir_target(idx(end-1)+1:end-1);
-            dir_new   = [cfg_inout.dir_data_experiment list_other_subjects{bInput} filesep];
-            cfg_inout.dir_target = [dir_new dir_target filesep];
+            % Nothing to do. Experiments where this can happen:
+            %   modulationACI, modulationFM
         end
         if isfield(var.cfg_crea,'stim_order')
             cfg_inout.stim_order     = var.cfg_crea.stim_order; 

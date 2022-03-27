@@ -26,12 +26,11 @@ if ~iscorrect
     switch cfg.step_resolution
         case 'linear'
             expvar = expvar + stepsize*cfg.step_up;
+        case 'multiplicative'
+            expvar = expvar*(stepsize*cfg.step_up);
         case 'octave'
-            if expvar == 0
-                expvar = -1;
-            else
-                expvar = sign(expvar)*abs(expvar)*2^(-stepsize*cfg.step_up);
-            end
+            % Removed on 27/03/2022, this option was originally used in the 
+            %   first pilots using bump noises.
     end
     
     if ~isempty(staircase_direction)
@@ -50,12 +49,12 @@ elseif n_correctinarow == n_down
         case 'linear'
             expvar = expvar - stepsize*cfg.step_down;
         
+        case 'multiplicative'
+            expvar = expvar/(stepsize*cfg.step_down);
+            
         case 'octave'
-            if abs(expvar) < 1
-                expvar = -1;
-            else
-                expvar = sign(expvar)*abs(expvar)*2^(stepsize*cfg.step_down);
-            end
+            % Removed on 27/03/2022, this option was originally used in the 
+            %   first pilots using bump noises.
     end
     n_correctinarow=0;
     
