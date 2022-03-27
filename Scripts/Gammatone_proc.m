@@ -86,7 +86,9 @@ if mod(dur_samples, binwidth_samples) ~= 0
 end
 
 outsig_orig = outsig;
-outsig = il_downsample(outsig,binwidth_samples);
+if binwidth_samples ~= 1
+    outsig = il_downsample(outsig,binwidth_samples);
+end
 
 t = (1:size(outsig,1))/subfs;
 
