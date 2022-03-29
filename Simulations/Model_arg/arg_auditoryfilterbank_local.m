@@ -23,6 +23,8 @@ definput.flags.internalnoise= {'no_internalnoise', 'internalnoise'};
 
 %% Groups
 definput.groups.afb_dau1997 = {'dboffset',100,'basef',1000};
+definput.groups.afb_bruce2018_debug = {'no_outerear','middleear','bwmul',[], ...
+         'flow',125,'fhigh',16000,'fs_up',100e3};
 definput.groups.afb_zilany2014     = {'dboffset',94,'fs_up',100e3,'flow',125};
 definput.groups.afb_zilany2014_erb = {'fs_up',100e3,'flow',125,'fhigh',8000, ...
     'bwmul',.6};
