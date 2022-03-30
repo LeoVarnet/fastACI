@@ -145,10 +145,17 @@ if keyvals.expvar_after_reversal ~= 0
 else
     str_expvar_rev = [];
 end
+
+if contains(savegame_file,'swap-tar.mat')
+    str_target_order = '-swap';
+else
+    str_target_order = '';
+end
+
 str_TF_type = Get_abbreviation_for_filename(TF_type);
 str_glmfct  = Get_abbreviation_for_filename(glmfct);  
 fnameACI = [dir_out 'ACI-' cfg_game.Subject_ID '-' cfg_game.experiment Condition ...
             str_trialtype_analysis '-' str_TF_type '-' str_glmfct str_last_trial ...
-            str_add_signal str_expvar_limits str_expvar_rev '.mat'];
+            str_add_signal str_expvar_limits str_expvar_rev str_target_order '.mat'];
 
 bCalculation = ~exist(fnameACI,'file');
