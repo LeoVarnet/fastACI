@@ -65,7 +65,7 @@ stim_normal = str_stim.tuser;
 %%% Create signal: end
 
 if cfg_game.is_experiment
-    sil4playing = zeros(0.1*cfg_game.fs,1);
+    sil4playing = zeros(0.1*cfg_game.fs,size(stim_normal,2));
     player = audioplayer(cfg_game.gain_play*[sil4playing; stim_normal],cfg_game.fs);
 end
 if cfg_game.is_simulation

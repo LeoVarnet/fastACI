@@ -106,7 +106,7 @@ switch version
         cfg_pass.response_correct_target = [1,2];
         cfg_pass.response_names = cfg_pass.target_names;
         data_passation.i_current = length(data_passation.is_correct);
-        cfg_pass.n_targets_sorted = ones(1,data_passation.i_current);
+        cfg_pass.n_targets_sorted = sort(data_passation.n_targets); %ones(1,data_passation.i_current);
         
         if isfield(opts,'dir_noise')
             if ~isempty(opts.dir_noise)
@@ -118,7 +118,7 @@ switch version
         else % if isempty(cfg_pass,'dir_noise') || ~isfield(cfg_pass,'dir_noise')
             dir_savegame = fileparts(file_savegame);
             if isempty(dir_savegame)
-                dir_savegame = cd; % assuming that the sound folders can be in the current folder
+                dir_savegame = [cd filesep]; % assuming that the sound folders can be in the current folder
             else
                 dir_savegame = [dir_savegame filesep];
             end
