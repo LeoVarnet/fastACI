@@ -31,27 +31,27 @@ for i_lambda = 1:N_lambda
         [B_temp,FitInfo_temp] = lasso(X(idx_train,:),y(idx_train),'Lambda',FitInfo.Lambda(i_lambda));
         FitInfo.Intercept(i_lambda,i_fold) = FitInfo_temp.Intercept;
         FitInfo.DF(i_lambda,i_fold)        = FitInfo_temp.DF;
-        FitInfo.MSEtrain(i_lambda,i_fold)  = FitInfo_temp.MSE;
+        FitInfo.MSE_train(i_lambda,i_fold)  = FitInfo_temp.MSE;
         B(:,i_lambda,i_fold ) = B_temp;
         
         %%% Training:
         yhat_train = X(idx_train,:)*B_temp + FitInfo_temp.Intercept;
         [PC,MSE,Dev,MSE_rounded] = Get_prediction_metrics(yhat_train,y,idx_train);
         
-        FitInfo.MSEtrain(i_lambda,i_fold) = MSE;
-        FitInfo.PCtrain(i_lambda,i_fold)  = PC;
+        FitInfo.MSE_train(i_lambda,i_fold) = MSE;
+        FitInfo.PC_train(i_lambda,i_fold)  = PC;
         FitInfo.yhat_train(i_lambda,i_fold,1:length(yhat_train)) = yhat_train;
         
         %%% Test (or validation):
         yhat_test = X(idx_test,:)*B_temp + FitInfo_temp.Intercept;
         [PC,MSE,Dev,MSE_rounded,yhat_test_rounded,PC_t,MSE_t,Dev_t] = Get_prediction_metrics(yhat_test,y,idx_test);
         
-        FitInfo.MSEtest(i_lambda,i_fold) = MSE;
-        FitInfo.PCtest(i_lambda,i_fold)  = PC;
+        FitInfo.MSE_test(i_lambda,i_fold) = MSE;
+        FitInfo.PC_test(i_lambda,i_fold)  = PC;
         FitInfo.yhat_test(i_lambda,i_fold,1:length(yhat_test)) = yhat_test;
         
-        FitInfo.PCtest_t(i_lambda,i_fold,1:length(yhat_test))  = PC_t; % yhat_test_rounded==y(idx_test);
-        FitInfo.MSEtest_t(i_lambda,i_fold,1:length(yhat_test)) = MSE_t; % (y(idx_test) - yhat_test).^2;
+        FitInfo.PC_test_t(i_lambda,i_fold,1:length(yhat_test))  = PC_t; % yhat_test_rounded==y(idx_test);
+        FitInfo.MSE_test_t(i_lambda,i_fold,1:length(yhat_test)) = MSE_t; % (y(idx_test) - yhat_test).^2;
 
     end
 end
