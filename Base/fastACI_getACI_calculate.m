@@ -135,7 +135,7 @@ switch glmfct
                 else
                     [B,FitInfo] = lassoslow(X,y,N_folds,lambda0); 
                 end
-                [~, idxlambda] = min(mean(FitInfo.MSEtest,2));
+                [~, idxlambda] = min(mean(FitInfo.MSE_test,2));
                 
             case 'l1glm'
                 lambda0 = cfg_ACI.keyvals.lambda;
@@ -144,7 +144,7 @@ switch glmfct
                 else
                     [B,FitInfo] = lassoglmslow(X,y,N_folds,lambda0); 
                 end
-                [~, idxlambda] = min(mean(FitInfo.Devtest,2));
+                [~, idxlambda] = min(mean(FitInfo.Dev_test,2));
         end
         toc
         

@@ -41,20 +41,21 @@ for i_lambda = 1:N_lambda
         [PC,MSE,Dev,MSE_rounded] = Get_prediction_metrics(yhat_train,y,idx_train);
         % Devtrain = Dev;
         
-        FitInfo.MSEtrain(i_lambda,i_fold) = MSE;
-        FitInfo.PCtrain(i_lambda,i_fold)  = PC;
+        FitInfo.Dev_train(i_lambda,i_fold) = Dev;
+        FitInfo.MSE_train(i_lambda,i_fold) = MSE;
+        FitInfo.PC_train(i_lambda,i_fold)  = PC;
         FitInfo.yhat_train(i_lambda,i_fold,1:length(yhat_train)) = yhat_train;
         
         %%% Test (or validation):
         yhat_test = glmval(coef,X(idx_test,:),'logit'); % X(CV.test(i_fold),:)*B_temp + FitInfo_temp.Intercept;
         [PC,MSE,Dev,MSE_rounded, yhat_test_rounded, PC_t, MSE_t, Dev_t] = Get_prediction_metrics(yhat_test,y,idx_test);
         
-        FitInfo.Devtest(i_lambda,i_fold) = Dev;
-        FitInfo.MSEtest(i_lambda,i_fold) = MSE;
-        FitInfo.PCtest(i_lambda,i_fold)  = PC;
+        FitInfo.Dev_test(i_lambda,i_fold) = Dev;
+        FitInfo.MSE_test(i_lambda,i_fold) = MSE;
+        FitInfo.PC_test(i_lambda,i_fold)  = PC;
         FitInfo.yhat_test(i_lambda,i_fold,1:length(yhat_test)) = yhat_test;
-        FitInfo.PCtest_t(i_lambda,i_fold,1:length(yhat_test))  = PC_t;
-        FitInfo.Devtest_t(i_lambda,i_fold,1:length(yhat_test)) = Dev_t;
+        FitInfo.PC_test_t(i_lambda,i_fold,1:length(yhat_test))  = PC_t;
+        FitInfo.Dev_test_t(i_lambda,i_fold,1:length(yhat_test)) = Dev_t;
     end
 end
 
