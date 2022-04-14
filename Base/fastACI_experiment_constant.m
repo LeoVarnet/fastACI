@@ -12,10 +12,6 @@ function [cfg_game, data_passation] = fastACI_experiment_constant(experiment, Su
 %   - The waveforms on disk
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% From argument function:
-definput.import={'fastACI_experiment'}; % arg_fastACI_experiment.m
-[flags,keyvals]  = ltfatarghelper({},definput,varargin);
-
 %% Setup
 if nargin < 3
     Condition = []; % No condition
@@ -31,6 +27,7 @@ if nargin == 0
     experiment = experiments{bExp};
 end
 
+Subject_ID_full = Subject_ID;
 if sum(Subject_ID=='_')
     idx = find(Subject_ID=='_');
     Subject_ID = Subject_ID(1:idx-1);
@@ -45,6 +42,14 @@ switch Subject_ID
     otherwise
         bSimulation = 0;
 end
+
+% From argument function:
+definput.import={'fastACI_experiment'}; % arg_fastACI_experiment.m
+if bSimulation
+    definput.import{end+1} = 'fastACI_simulations';
+end
+[flags,keyvals]  = ltfatarghelper({},definput,varargin);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if sum(Subject_ID=='_') && bSimulation == 0
     error('%s: Subject name (Subject_ID) with the character ''_'' is reserved for the use of auditory models. Please define a new Subject_ID without that character',upper(mfilename))
@@ -100,6 +105,11 @@ if isempty(cfg_game.resume)
         cfg_game.resume = 0; % 'non';
     else
         cfg_game.resume = 1; % 'oui';
+        %%% Disabling the possibility to resume automatically (added 14/04/2022):
+        if cfg_game.resume == 1
+            cfg_game.resume = 0;
+            fprintf('\t%s: By-passing ''resume'', as we are controlling the start and end trial using Ni and Nf\n',upper(mfilename));
+        end
     end
 else
 	error('Not validated yet...')
@@ -130,18 +140,13 @@ switch cfg_game.resume
             
             Language = cfg_game.Language;
             
-            cfg_game = []; % it will be re-loaded now:
-            data_passation = []; % it will be re-loaded now:
-            ListStim = [];
-            
-            load(load_name,'cfg_game'); % loads: cfg_game, data_passation
+            [cfg_game, data_passation, ListStim] = Convert_ACI_data_type(load_name);
             script_legacy = [experiment '_legacy'];
             if exist([script_legacy '.m'],'file')
                 exp2eval = sprintf('cfg_game = %s(cfg_game,0);',script_legacy);
                 eval(exp2eval);
             end
             
-            load(load_name,'data_passation');
             cfg_game.load_name = load_name;
             i_current  = data_passation.i_current+1;
             i_savegame = i_current;
@@ -167,8 +172,7 @@ switch cfg_game.resume
             end
             if ~isfield(cfg_game,'experiment')
                 cfg_game.experiment = 'modulationACI';
-            end
-            
+            end           
         else
             error('%s: No savegame with the specified name',upper(mfilename))
         end
@@ -243,6 +247,7 @@ if cfg_game.is_simulation == 1
             pause(10);
             
         else
+            error('Not validated recently (message by AO on 13/04)')
             def_sim = [];
             def_sim.modelname = Subject_ID;
 
@@ -266,28 +271,19 @@ if cfg_game.is_simulation == 1
     else
         % The the simulation is resuming, we need to read the configuration file:
         addpath(dir_results);
-        exp2eval = sprintf('def_sim = %s;',cfg_game.model_cfg_script(1:end-2));
+        exp2eval = sprintf('def_sim = %s(keyvals);',cfg_game.model_cfg_script(1:end-2));
         eval(exp2eval);
         rmpath(dir_results);
     end
         
-    switch cfg_game.experiment
-        case 'speechACI_Logatome'
-            switch cfg_game.Condition
-                case 'bump'
-                    warning('det_lev for ''bump'' noises is fixed at the moment...')
-                    def_sim.det_lev = 0; % -6 of the expvar
-            end
-    end
-
     sim_work = [];
     sim_work.templ_ref = [];
     sim_work.templ_tar = [];
     
     if def_sim.bStore_template == 1
         if exist('fastACI_file_template.m','file')
-            file_template = fastACI_file_template(cfg_game.experiment_full, Subject_ID, def_sim.type_decision);
-
+            file_template = fastACI_file_template(cfg_game.experiment_full, ...
+                                    Subject_ID, def_sim.type_decision, keyvals);
             if exist(file_template,'file')
                 fprintf('Pausing for 10 s. Press ctr+c to cancel the simulations.\n');
                 fprintf('%s: Template found on disk, if this is not what you want, remove/rename the file and re-run the simulations\n (template file: %s).\n',upper(mfilename),file_template);
@@ -304,6 +300,8 @@ if cfg_game.is_simulation == 1
                 sim_work.templ_ref = templ_ref;
                 sim_work.templ_tar = templ_tar;
             end
+        else
+           % Nothing to do here: the template will be later assessed    
         end
     end
     
@@ -326,7 +324,7 @@ if cfg_game.resume == 0
         ListStim = cfg_game.ListStim; 
         
         if cfg_game.N ~= length(ListStim)
-            error('Number of stimuli does not match.')
+            warning('Number of stimuli does not match.')
         end
     end
         
@@ -361,6 +359,7 @@ end
 
 outs_trial = [];
 
+%%% Initialises the 'staircase' from which the expvar value will be obtained
 str_inout = [];
 str_inout.debut_i = debut_i;
 [str_inout, cfg_game] = staircase_init(str_inout,cfg_game);
@@ -372,7 +371,8 @@ end
 i_current  = str_inout.i_current;
 cfg_game.adapt = 0;
 isbreak = 0;
-    
+%%% Ends: Initialises
+
 data_passation_init = [];
 is_warmup = cfg_game.warmup;
 if cfg_game.is_experiment == 1
@@ -388,15 +388,12 @@ if cfg_game.is_experiment == 1
 end
  
 if isempty(keyvals.Ni)
-    % if nargin < 5
     Ni = data_passation.i_current;
 else
     Ni = keyvals.Ni;
 end
 if isempty(keyvals.Nf)
-    % if nargin < 6
     N = cfg_game.sessionsN;
-    % Nf = data_passation.i_current + cfg_game.sessionsN;
 else
     Nf = keyvals.Nf;
     N = Nf-Ni+1;
@@ -413,7 +410,7 @@ if cfg_game.is_experiment
     if isfield(global_vars,'dBFS')
         dBFS_playback = global_vars.dBFS;
     else
-        dBFS_playback = dBFS; % same dBFS as for the stored sounds...
+        dBFS_playback = cfg_game.dBFS; % same dBFS as for the stored sounds...
     end
     cfg_game.dBFS_playback = dBFS_playback;
 end
@@ -443,22 +440,10 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
 
     data_passation.i_current = i_current;
     %%%
-    [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals);
+    [cfg_game, data_passation, outs_trial, sim_work] = ...
+        fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals);
     response  = outs_trial.response;
     i_current = outs_trial.i_current;
     isbreak   = outs_trial.isbreak;
-    expvar    = outs_trial.expvar;
-
-    if ~isempty(response)
-        switch response
-            case 3.14 % This is a ''pause''
-                clock_str = Get_date_and_time_str;
-                data_passation.date_end{length(data_passation.date_start)} = clock_str;
-                savename = il_get_savename(experiment_full,Subject_ID,clock_str);
-                save([dir_results savename], 'i_current', 'ListStim', 'cfg_game', 'data_passation');
-                fprintf('  Saving game to "%s.mat" (folder path: %s)\n',savename,dir_results);
-        end
-    end
-    %%%%
-    
+    expvar    = outs_trial.expvar;    
 end 

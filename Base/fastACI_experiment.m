@@ -50,7 +50,7 @@ switch Subject_ID
         bSimulation = 0;
 end
 
-% Loading defaults:
+% From argument function:
 definput.import={'fastACI_experiment'}; % arg_fastACI_experiment.m
 if bSimulation
     definput.import{end+1} = 'fastACI_simulations';
@@ -211,6 +211,10 @@ cfg_game.is_experiment = ~bSimulation;
 % Simulation parameters
 if cfg_game.is_simulation == 1
     
+    %%% Calibrate the model if keyvals.thres_for_bias is not specified:
+    if isempty(keyvals.thres_for_bias)
+        keyvals = fastACI_model_calibration(experiment_full,Subject_ID,Condition,keyvals);
+    end
     if ~strcmp(cfg_game.Language,'EN')
         fprintf('%s: Switching the language of the simulations to English\n',upper(mfilename));
         cfg_game.Language = 'EN';
@@ -288,8 +292,8 @@ if cfg_game.is_simulation == 1
     
     if def_sim.bStore_template == 1
         if exist('fastACI_file_template.m','file')
-            file_template = fastACI_file_template(cfg_game.experiment_full, Subject_ID, def_sim.type_decision, keyvals);
-
+            file_template = fastACI_file_template(cfg_game.experiment_full, ...
+                                    Subject_ID, def_sim.type_decision, keyvals);
             if exist(file_template,'file')
                 fprintf('Pausing for 10 s. Press ctr+c to cancel the simulations.\n');
                 fprintf('%s: Template found on disk, if this is not what you want, remove/rename the file and re-run the simulations\n (template file: %s).\n',upper(mfilename),file_template);
@@ -317,12 +321,6 @@ if cfg_game.is_simulation == 1
         cfg_game.sessionsN = cfg_game.N;
     end
 end
-
-if cfg_game.is_simulation == 1
-    % % display welcome message
-    % msg_welcome
-end
-%%%
 
 if ~isfield(cfg_game,'feedback')
     cfg_game.feedback = 0; % feedback is disabled by default
@@ -453,7 +451,8 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
 
     data_passation.i_current = i_current;
     %%%
-    [cfg_game, data_passation, outs_trial, sim_work] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals);
+    [cfg_game, data_passation, outs_trial, sim_work] = ...
+        fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals);
     response  = outs_trial.response;
     i_current = outs_trial.i_current;
     isbreak   = outs_trial.isbreak;
