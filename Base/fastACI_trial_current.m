@@ -1,5 +1,5 @@
-function [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals)
-% function [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals)
+function [cfg_game, data_passation, outs_trial, sim_work] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals)
+% function [cfg_game, data_passation, outs_trial, sim_work] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals)
 %
 %
 % Changes by AO:
@@ -11,7 +11,7 @@ function [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game
 %   - An existing cfg_crea
 %   - The waveforms on disk
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+sim_work = [];
 outs_trial = [];
 if nargin < 5
     keyvals = [];

@@ -19,10 +19,6 @@ function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID,
 % Old name: Script2_Passation_EN.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% From argument function:
-definput.import={'fastACI_experiment'}; % arg_fastACI_experiment.m
-[flags,keyvals]  = ltfatarghelper({},definput,varargin);
-
 %% Setup
 if nargin < 3
     Condition = []; % No condition
@@ -53,6 +49,14 @@ switch Subject_ID
     otherwise
         bSimulation = 0;
 end
+
+% Loading defaults:
+definput.import={'fastACI_experiment'}; % arg_fastACI_experiment.m
+if bSimulation
+    definput.import{end+1} = 'fastACI_simulations';
+end
+[flags,keyvals]  = ltfatarghelper({},definput,varargin);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if sum(Subject_ID=='_') && bSimulation == 0
     error('%s: Subject name (Subject_ID) with the character ''_'' is reserved for the use of auditory models. Please define a new Subject_ID without that character',upper(mfilename))
@@ -92,11 +96,11 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    % try
+    try
         cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
-    % catch me
-    %     error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
-    % end
+    catch me
+        error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
+    end
 end
 
 if ~isfield(cfg_game,'resume')
@@ -249,6 +253,7 @@ if cfg_game.is_simulation == 1
             pause(10);
             
         else
+            error('Not validated recently (message by AO on 13/04)')
             def_sim = [];
             def_sim.modelname = Subject_ID;
 
@@ -277,22 +282,13 @@ if cfg_game.is_simulation == 1
         rmpath(dir_results);
     end
         
-    switch cfg_game.experiment
-        case 'speechACI_Logatome'
-            switch cfg_game.Condition
-                case 'bump'
-                    warning('det_lev for ''bump'' noises is fixed at the moment...')
-                    def_sim.det_lev = 0; % -6 of the expvar
-            end
-    end
-
     sim_work = [];
     sim_work.templ_ref = [];
     sim_work.templ_tar = [];
     
     if def_sim.bStore_template == 1
         if exist('fastACI_file_template.m','file')
-            file_template = fastACI_file_template(cfg_game.experiment_full, Subject_ID, def_sim.type_decision);
+            file_template = fastACI_file_template(cfg_game.experiment_full, Subject_ID, def_sim.type_decision, keyvals);
 
             if exist(file_template,'file')
                 fprintf('Pausing for 10 s. Press ctr+c to cancel the simulations.\n');
@@ -457,7 +453,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
 
     data_passation.i_current = i_current;
     %%%
-    [cfg_game, data_passation, outs_trial] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals);
+    [cfg_game, data_passation, outs_trial, sim_work] = fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals);
     response  = outs_trial.response;
     i_current = outs_trial.i_current;
     isbreak   = outs_trial.isbreak;

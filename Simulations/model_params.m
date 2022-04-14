@@ -55,7 +55,7 @@ switch modelname
         
     case 'king2019'
         
-        pars = king2019_cfg;
+        pars = king2019_cfg(keyvals);
         for i = 1:length(pars.modelpars)
             modelpars{end+1} = pars.modelpars{i};
         end
@@ -89,7 +89,7 @@ switch modelname
         subfs = fs;
         
     case {'relanoiborra2019','relanoiborra2019_preproc_debug'}
-        pars = relanoiborra2019_cfg;
+        pars = relanoiborra2019_cfg(keyvals);
         for i = 1:length(pars.modelpars)
             modelpars{end+1} = pars.modelpars{i};
         end
@@ -97,7 +97,7 @@ switch modelname
         params_extra.in_var = pars.in_var;
         
     case 'osses2021'
-        pars = osses2021_cfg;
+        pars = osses2021_cfg(keyvals);
         for i = 1:length(pars.modelpars)
             modelpars{end+1} = pars.modelpars{i};
         end

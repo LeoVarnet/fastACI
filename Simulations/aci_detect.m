@@ -90,14 +90,14 @@ if (isempty(sim_work.templ_tar) == 1 || cfg_sim.template_every_trial == 1 )
     % def.calculate_template = 0;
     if sim_work.bStore_template
         
-        fname = fastACI_file_template(cfg_game.experiment_full,cfg_game.Subject_ID,cfg_sim.type_decision);
+        fname = fastACI_file_template(cfg_game.experiment_full,cfg_game.Subject_ID,cfg_sim.type_decision,keyvals);
         % fname = sprintf('%stemplate-%s-%s-trial-1',cfg_game.dir_results,cfg_game.Subject_ID,cfg_game.experiment_full);
         if exist(fname,'file')
             disp('A template was found on disk. Press ctrl+c to abort or press any button to continue (and overwrite) the previous template')
             pause
         end
         save(fname,'templ_tar','templ_ref','cfg_sim');
-        % fastACI_set_template([fname '.mat'], cfg_game);
+        
     end
     
 end
