@@ -9,7 +9,6 @@ fastACI_dir_data.m
 fastACI_dir_amtoolbox.m
 fastACI_dir_phaseret.m
 fastACI_dir_AFCtoolbox.m
-fastACI_file_template.m
 dau1997_cfg.m
 king2019_cfg.m
 maxwell2020_cfg.m
