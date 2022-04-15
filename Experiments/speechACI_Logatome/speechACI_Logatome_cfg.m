@@ -35,25 +35,12 @@ cfg_out.randorder  = 1;
   
 cfg.startvar = 0;  % old name 'm_start'
 if isfield(cfg_in,'Condition')
-    switch cfg_in.Condition
-        case 'bump'
-            cfg.expvar_description = 'minus the number of bumps';
-            cfg.step_resolution = 'octave';
-            cfg.start_stepsize = 1; % dB
-            cfg.adapt          = 2; 
-            cfg.min_stepsize = 0.5; % oct
-            % cfg.maxvar = -300; % 300 bumps
-            
-            warning('Check the step down...')
-            
-        otherwise
-            cfg.adapt    = 2; % warning('default is 1 - now we are only testing')    %  1; warning('adapt type temporarily set to 1\n');%      
-            cfg.expvar_description = 'SNR (dB)';
-            cfg.step_resolution = 'linear';
-            cfg.start_stepsize = 2; % dB
-            cfg.min_stepsize = 1; % dB
-            % cfg.maxvar = 10;
-    end
+    cfg.adapt    = 2; % warning('default is 1 - now we are only testing')    %  1; warning('adapt type temporarily set to 1\n');%      
+    cfg.expvar_description = 'SNR (dB)';
+    cfg.step_resolution = 'linear';
+    cfg.start_stepsize = 2; % dB
+    cfg.min_stepsize = 1; % dB
+    % cfg.maxvar = 10;
 end
  
 cfg.adapt_stepsize = 50/100;

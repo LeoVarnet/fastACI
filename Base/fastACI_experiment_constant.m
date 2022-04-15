@@ -391,13 +391,16 @@ if isempty(keyvals.Ni)
     Ni = data_passation.i_current;
 else
     Ni = keyvals.Ni;
+    i_current = Ni;
 end
 if isempty(keyvals.Nf)
-    N = cfg_game.sessionsN;
+    % N = cfg_game.sessionsN;
 else
     Nf = keyvals.Nf;
-    N = Nf-Ni+1;
+    % N = Nf-Ni+1;
 end
+N = cfg_game.N;
+
 data_passation.next_session_stop = Nf;
 data_passation.i_current = Ni;
 

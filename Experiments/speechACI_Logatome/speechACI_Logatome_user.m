@@ -6,17 +6,8 @@ function [str_stim,data_passation] = speechACI_Logatome_user(cfg,data_passation)
 str_stim = [];
 
 i_current = data_passation.i_current;
-switch cfg.noise_type
-    case 'bump'
-        Nb = round(-data_passation.expvar(i_current));
-        if Nb < 0
-            disp('Minimum step reached, 0 bumps will be used...')
-            Nb = 0;
-        end
-        SNR = -5;
-    otherwise
-        SNR = data_passation.expvar(i_current);
-end
+SNR       = data_passation.expvar(i_current);
+
 n_stim    = data_passation.n_stim(i_current);
 n_signal  = cfg.n_targets_sorted(n_stim);
 
@@ -32,7 +23,6 @@ end
 fname_noise = [cfg.dir_noise cfg.ListStim(n_stim).name];
 switch cfg.noise_type
     case 'bump'
-        
         %%% Fixing the seed
         if isfield(cfg,'seeds_order')
             bStore_seeds = 1;

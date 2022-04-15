@@ -25,4 +25,6 @@ else
     error('No %s directory was found, please create it and re-run this script',dir_where);
 end
 
+Play_ready;
+
 fprintf('%s: file successfully stored... \n',upper(mfilename),fname_out);

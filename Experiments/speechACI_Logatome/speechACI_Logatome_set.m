@@ -107,7 +107,7 @@ cfg.Language = Language; % or 'EN'
 if isfield(global_vars,'N_presentation')
     N_presentation = global_vars.N_presentation;
 else
-    N_presentation = 2500;
+    N_presentation = 2000; % before 14/04/2022, this value was 2500
 end
 cfg.N_presentation = N_presentation; % number of stimuli / condition
 cfg.N_target  = 2;     % Number of conditions

@@ -8,9 +8,6 @@ function keyvals = fastACI_model_calibration(experiment, model, Condition, keyva
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 switch experiment
-    case 'speechACI_Logatome-abda-S43M'
-        suff_exp = '';
-        
     case 'speechACI_varnet2013'
         
         validated_conds = {'white','SSN'};
@@ -46,19 +43,19 @@ bRe_init = 1;
 % end
 bContinue = 1;
 if bRe_init
-    thres_for_bias = -1.4813; % -1.2173; % 0;
+    thres_for_bias = 0; % -1.2173; % 0;
     in_std = 0;
     % in_std = 3.14;
     % save(outfile,'thres_for_bias','in_std');
 end
 %%% 
-Ni = 1;
-N = 400;
+Ni = 1; N = 400;
+% Ni = 1; N = 4000;
 
 Iterations = 1;
 while bContinue == 1 && Iterations <= 20
     Nf = Ni + N;
-    flags_here = {'Ni',Ni,'Nf',Nf,'thres_for_bias',thres_for_bias}; % ,'file_model_decision_config',file_model_decision_config};
+    flags_here = {'Ni',Ni,'Nf',Nf,'thres_for_bias',thres_for_bias,'fname_template_suffix',keyvals.fname_template_suffix}; % ,'file_model_decision_config',file_model_decision_config};
 
     try
         [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar,flags_here{:});
@@ -78,19 +75,26 @@ while bContinue == 1 && Iterations <= 20
         thres_for_bias = median(diffe);
     end
 
-    idxs = 1:N;
+    Play_ready;
+    
+    idxs = Ni:Nf-1;
     bias_r1(Iterations) = 100*sum(data_passation.n_responses(idxs)==1)/N;
     bias_r2(Iterations) = 100*sum(data_passation.n_responses(idxs)==2)/N;
     score(Iterations)   = 100*sum(data_passation.is_correct(idxs)==1)/N;
 
     thres_tested(Iterations) = thres_for_bias;
+    if mod(Iterations,2) == 1
+        factor = 0.8; % arbitrary to avoid to fall in a loop
+    else
+        factor = 1;
+    end
     if bias_r1(Iterations) > 54
         if Iterations ~= 1
-            thres_for_bias = thres_for_bias-bias_step;
+            thres_for_bias = thres_for_bias-factor*bias_step;
         end
     elseif bias_r1(Iterations) < 46
         if Iterations ~= 1
-            thres_for_bias = thres_for_bias+bias_step;
+            thres_for_bias = thres_for_bias+factor*bias_step;
         end
     else
         bContinue = 0;
