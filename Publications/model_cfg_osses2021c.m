@@ -16,11 +16,11 @@ end
 
 p = [];
 p.modelname = modelname;
-if ~contains(modelname,'_') 
+if isempty(strfind('_',modelname)) % contains(modelname,'_') 
     modelname_script = modelname;
 else
     % The case for relanoiborra2019:
-    modelname_script = strspli(modelname,'_');
+    modelname_script = strsplit(modelname,'_');
     modelname_script = modelname_script{1};
 end
 p.modelname_script = modelname_script;

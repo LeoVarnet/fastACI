@@ -262,7 +262,7 @@ if cfg_game.is_simulation == 1
             def_sim.modelname = Subject_ID;
 
             %%%
-            def_sim = fastACI_set_simulation_config(Subject_ID,def_sim);
+            def_sim = fastACI_set_simulation_config(Subject_ID,def_sim,keyvals);
             %%%
         end
         

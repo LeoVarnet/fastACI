@@ -1,5 +1,5 @@
-function def_sim = fastACI_set_simulation_config(modelname,def_sim)
-% function def_sim = fastACI_set_simulation_config(modelname,def_sim)
+function def_sim = fastACI_set_simulation_config(modelname,def_sim,keyvals)
+% function def_sim = fastACI_set_simulation_config(modelname,def_sim,keyvals)
 %
 % This script is related to model_cfg_replace.txt.
 %
@@ -61,6 +61,7 @@ if bInput == 0
                 p.modelname = modelname;
                 p.modelname_script = modelname_script;
                 p.in_std = 0;
+                
                 text_to_write = readfile_replace('model_cfg_replace.txt',p);
 
                 dir_here = [fastACI_basepath 'Simulations' filesep];
@@ -77,7 +78,7 @@ if bInput == 0
                 fwrite(fid, text_to_write);
                 fclose(fid);
 
-                exp2eval = ['def_sim = ' modelname '_cfg;'];
+                exp2eval = ['def_sim = ' modelname '_cfg(keyvals);'];
                 eval(exp2eval);
             end
             
@@ -104,7 +105,7 @@ if bInput == 0
             % File optimal_detector_cfg.m no longer being generated;
             %%%
             
-            exp2eval = ['def_sim = ' modelname '_cfg;'];
+            exp2eval = ['def_sim = ' modelname '_cfg(keyvals);'];
             eval(exp2eval);
             
         case {'dau1997','relanoiborra2019'}

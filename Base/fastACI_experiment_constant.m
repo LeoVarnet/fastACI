@@ -247,12 +247,11 @@ if cfg_game.is_simulation == 1
             pause(10);
             
         else
-            error('Not validated recently (message by AO on 13/04)')
             def_sim = [];
             def_sim.modelname = Subject_ID;
 
             %%%
-            def_sim = fastACI_set_simulation_config(Subject_ID,def_sim);
+            def_sim = fastACI_set_simulation_config(Subject_ID,def_sim,keyvals);
             %%%
         end
         
