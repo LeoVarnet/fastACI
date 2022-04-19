@@ -102,7 +102,7 @@ if flags.do_fig_page13_bottom % (old 'bPlot_thres_corr' variable)
  
         dir_subject = [fastACI_dir_data experiment_full filesep subject filesep];
  
-        fname_suff = ['ACI-' subject '-' experiment '-' noise_type '-nob-gt-l1glms.mat'];
+        fname_suff = ['ACI-' subject '-' experiment '-' noise_type '-nob-gt-l1glm.mat'];
         fname_save_filt = ['savegame_*' subject '_' experiment '*' noise_type '*.mat'];
  
         switch subject

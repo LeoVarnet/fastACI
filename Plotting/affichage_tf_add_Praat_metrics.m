@@ -41,7 +41,12 @@ else
     % Nothing to do: just using the information in outs_from_Praat
 end
 
-Nsounds = length(outs_from_Praat.f0);
+if isfield(outs_from_Praat,'f0')
+    Nsounds = length(outs_from_Praat.f0);
+else
+    disp('');
+end
+    
 if Nsounds ~= length(Styles)
     warning('Metrics of more than two waveforms are being plotted: Repeating the format used in the second sound...');
     disp('')

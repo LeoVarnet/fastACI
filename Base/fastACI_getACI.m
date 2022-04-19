@@ -287,8 +287,37 @@ else
     ACI = [];
     cfg_ACI = [];
     results = [];
+    
+    bCheck_target = 0;
+    if isfield(cfg_ACI,'dir_target')
+        dir_target = cfg_ACI.dir_target;
+        bCheck_target = 1;
+    end
+    bCheck_noise = 0;
+    if isfield(cfg_ACI,'dir_noise')
+        dir_noise = cfg_ACI.dir_noise;
+        bCheck_noise = 1;
+    end
+    
     load(fnameACI,'ACI','cfg_ACI','results');
  
+    if isfield(cfg_ACI,'fnameACI')
+        if ~strcmp(cfg_ACI.fnameACI,fnameACI)
+            % In this case fnameACI is probably a location where the ACI MAT 
+            %   file was moved to, after the creation of the MAT file:
+            cfg_ACI.fnameACI = fnameACI;
+        end
+    end
+    if bCheck_noise
+        if ~strcmp(cfg_ACI.dir_noise,dir_noise)
+            cfg_ACI.dir_noise = dir_noise;
+        end
+    end
+    if bCheck_target
+        if ~strcmp(cfg_ACI.dir_target,dir_target)
+            cfg_ACI.dir_target = dir_target;
+        end
+    end
     % if isfield(results,'lambdas')
     %     % This data display is just to make the user aware what for data are being loaded
     %     [round(results.lambdas') round(10*results.cvgofs')/10]
