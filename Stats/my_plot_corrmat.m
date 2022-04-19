@@ -160,7 +160,7 @@ which_scan = 1;
 % multi_series = false;
 curr_data_type = 1;
 
-%% Initialize:
+%% Initialise:
 if non_corrmat_mode
     data_types = zeros(1,12); data_types(1) = 1;
     data_types_str = {'Raw: ','Linear Detrend: ','Quadratic Detrend: ',...
@@ -240,7 +240,7 @@ end
 
 %% Plot
 if parsed_inputs.plot
-    % Initialize Figure
+    % Initialise Figure
     h_corrmat = figure('Position',figure_pos,'MenuBar','none',...
             'Name',parsed_inputs.title,'NumberTitle','on','Color',[1,1,1]); % [.8,.88,.98]
         
@@ -317,8 +317,8 @@ if parsed_inputs.plot
     h_title = title(ax,parsed_inputs.title,'Visible','on','Units',...
         'normalized','PickableParts','all','FontName',title_FontName,...
         'FontSize',title_FontSize,'FontWeight',title_FontWeight); 
-    center_axes = (ax_pos(3)+ax_pos(1))-.5*ax_pos(3); % axes center in norm fig units
-    adjust1 = (.5-center_axes)/ax_pos(3); % adjustment needed in axes units
+    centre_axes = (ax_pos(3)+ax_pos(1))-.5*ax_pos(3); % axes center in norm fig units
+    adjust1 = (.5-centre_axes)/ax_pos(3); % adjustment needed in axes units
     title_pos = get(h_title,'Position');
     title_pos(1) = .5 - .5*title_pos(3) + adjust1; title_pos(2) = .99;
     if isempty(parsed_inputs.insert_axes)

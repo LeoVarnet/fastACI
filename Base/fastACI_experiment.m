@@ -184,8 +184,9 @@ switch cfg_game.resume
         end
         
         data_passation.resume_trial = [data_passation.resume_trial, i_savegame];
-        clock_str = Get_date_and_time_str;
-        data_passation.start_date = {data_passation.date_start, clock_str};
+        % % Removed on 17/04/2022 (useless information):
+        % clock_str = Get_date_and_time_str;
+        % data_passation.start_date = {data_passation.date_start, clock_str}; 
         
     case {0,'non','no'}
             

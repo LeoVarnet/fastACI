@@ -44,11 +44,11 @@ end
 
 % Pre-stores information of the current trial
 if ~is_warmup
-    clock_now = clock;
+    % clock_now = clock; % Commented on 17/04/2022
     data_passation.i_current = i_current;
     data_passation.n_stim(i_current) = n_stim;
     data_passation.expvar(i_current) = expvar;
-    data_passation.date(i_current,:) = clock_now;
+    % data_passation.date(i_current,:) = clock_now; % Commented on 17/04/2022
 end
 
 if cfg_game.displayN == 1 || cfg_game.is_simulation
