@@ -121,6 +121,25 @@ if ~isfield(cfg_crea,'response_correct_target')
     end
 end
 
+
+switch Subject_ID
+    case {'dau1997','king2019','relanoiborra2019','maxwell2020','osses2021','osses2022a'} % alphabetical order
+        bSimulation = 1;
+    otherwise
+        bSimulation = 0;
+end
+            
+if bSimulation
+    bRove_level = input('Do you want to apply roving? (1=yes, 0=no): ');
+    if bRove_level == 0
+        if isfield(cfg_crea,'bRove_level')
+            cfg_crea = Remove_field(cfg_crea,'bRove_level');  
+        end
+        if isfield(cfg_crea,'Rove_level')
+            cfg_crea = Remove_field(cfg_crea,'Rove_level');  
+        end
+    end
+end
 %%% Save parameters
 [clock_str, clock_now] = Get_date_and_time_str;
 cfg_crea.date = clock_now;

@@ -17,7 +17,7 @@ N = size(A,2);
 
 if strcmp(direction, 'reduce')
     scaleFactor = 0.5;
-    outputSize = ceil([M N]/2);
+    outputSize = ceil([M N]/scaleFactor);
     kernel = makePiecewiseConstantFunction( ...
         [3.5 2.5      1.5    0.5    -0.5   -1.5    -Inf], ...
         [0.0 0.0625   0.25   0.375   0.25   0.0625  0.0]);
@@ -25,7 +25,7 @@ if strcmp(direction, 'reduce')
     
 else
     scaleFactor = 2;
-    outputSize = 2*[M N];
+    outputSize = scaleFactor*[M N];
     kernel = makePiecewiseConstantFunction(...
         [1.25   0.75    0.25   -0.25   -0.75   -1.25   -Inf],...
         [0.0    0.125   0.5     0.75    0.5    0.125    0.0]);
