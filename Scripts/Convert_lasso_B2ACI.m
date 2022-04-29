@@ -1,5 +1,5 @@
-function [ACI,cfg_ACI,sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, idxlambda) % results)
-% function [ACI,cfg_ACI,sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, results)
+function [ACI,cfg_ACI,sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, idxlambda,keyvals) 
+% function [ACI,cfg_ACI,sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, results,keyvals)
 %
 % See Script_LassoPyramid_21042021.m by Leo.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -7,28 +7,24 @@ function [ACI,cfg_ACI,sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, idxlambda) 
 if nargin < 3
     idxlambda = 1;
 end
-% if size(B,2) ~= 1
-%     % Then multiple lambda values have been obtained
-%     idxlambda = results.idxlambda;
-% else
-%     idxlambda = 1;
-% end
 
 temp = B;
 Nlevelmin = cfg_ACI.lasso_Nlevelmin;
 Nlevel    = cfg_ACI.lasso_Nlevel;
 Pyra_size = cfg_ACI.lasso_Pyra_size;
 
+N_iterations = size(B,2);
+
 for i_level = Nlevelmin:Nlevel
     %%% 1. Getting the 'reduced' ACIs per level
     idxi = 1;
     idxf = Pyra_size(i_level,1)*Pyra_size(i_level,2);
-    N_iterations = size(B,2);
     Pyra_here = temp(idxi:idxf,:);
     Size_reshape = [Pyra_size(i_level,1) Pyra_size(i_level,2) N_iterations];
     Pyra_here = reshape(Pyra_here,Size_reshape);
+    
     Pyra_here = permute(Pyra_here,[3 1 2]); % time and frequency dimensions in the proper location
-
+    
     WeightPyramid{i_level} = Pyra_here;
 
     temp = temp(idxf+1:end,:); % The assigned bins are removed
@@ -37,9 +33,17 @@ for i_level = Nlevelmin:Nlevel
     % Interpolate so that dimension 1 has length Nt_X in each level of the
     % pyramid -- this is the same procedure as before with RePyramid 
 
-    % Pyra_here = reshape(WeightPyramid{i_level},[Pyra_size(i_level,1),Pyra_size(i_level,2), N_iterations]);
-    for j_level = 1:i_level-1
-        Pyra_here = Script4_Calcul_ACI_modified_impyramid(Pyra_here, 'expand');
+    switch keyvals.pyramid_script
+        case 'imgaussfilt'
+            keyvals.i_level   = i_level;
+            keyvals.Pyra_size = Pyra_size;
+            Pyra_here = fastACI_impyramid(Pyra_here,'expand',keyvals);
+            
+        case 'imresize'
+            % Pyra_here = reshape(WeightPyramid{i_level},[Pyra_size(i_level,1),Pyra_size(i_level,2), N_iterations]);
+            for j_level = 1:i_level-1
+                Pyra_here = fastACI_impyramid(Pyra_here, 'expand',keyvals);
+            end
     end
     ReWeightPyramid{i_level} = squeeze(Pyra_here(:,:,:));
 end

@@ -154,6 +154,10 @@ end
 
 str_TF_type = Get_abbreviation_for_filename(TF_type);
 str_glmfct  = Get_abbreviation_for_filename(glmfct);  
+if strcmp(keyvals.pyramid_script,'imgaussfilt')
+    str_glmfct = [str_glmfct '+pyrga'];
+end
+    
 fnameACI = [dir_out 'ACI-' cfg_game.Subject_ID '-' cfg_game.experiment Condition ...
             str_trialtype_analysis '-' str_TF_type '-' str_glmfct str_last_trial ...
             str_add_signal str_expvar_limits str_expvar_rev str_target_order '.mat'];

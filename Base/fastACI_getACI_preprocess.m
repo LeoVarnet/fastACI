@@ -265,12 +265,14 @@ switch fg.glmfct
             % Comment from Leo, via Slack on 15/11/2021:
             %     Nlevelmin >= 3 could be useful in the long run if we want 
             %     to use ACIs with higher resolution but the same size of 
-            %     gaussian elements int he Pyramid basis. But with our 
+            %     gaussian elements in the Pyramid basis. But with our 
             %     current resolution I agree that Nlevelmin should be 1 or 2
         end
         
+        % version = 'original';
         for i_level = i_level_start:Nlevel
-            Pyramid{i_level} = Script4_Calcul_ACI_modified_impyramid(Pyramid{i_level-1}, 'reduce'); 
+            kv.i_level = i_level; % only used if kv.pyramid_script is 'imgaussfilt'
+            Pyramid{i_level} = fastACI_impyramid(Pyramid{i_level-1}, 'reduce',kv);
         end
 
         %% Reconstructing the Pyramid 
@@ -281,9 +283,10 @@ switch fg.glmfct
         %    resulting pyramid.
            
         X = [];
+        Pyra_size = fastACI_impyramid_get_size(Pyramid,Nlevelmin,Nlevel);
+        
         for i_level = Nlevelmin:Nlevel
             Pyra_here = squeeze(Pyramid{i_level});
-            Pyra_size(i_level,:) = [size(Pyra_here,2) size(Pyra_here,3)];
             X = cat(2, X, reshape(Pyra_here,N_trialselect,[])); % along Dim=2
         end
         cfg_ACI.lasso_Pyra_size = Pyra_size;

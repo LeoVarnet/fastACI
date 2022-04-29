@@ -149,7 +149,7 @@ switch glmfct
         toc
         
         results.idxlambda = idxlambda;
-        [ACI, cfg_ACI, sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, idxlambda);
+        [ACI, cfg_ACI, sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, idxlambda, cfg_ACI.keyvals);
         
         %%%
         if do_permutation
@@ -168,7 +168,7 @@ switch glmfct
                     case 'lasso'
                         [B_perm,FitInfo_perm] = lasso(X,cfg_perm.y_perm(:,i),'CV',N_folds,'Lambda',Lambda);
                 end
-                ACI_perm(:,:,i) = Convert_lasso_B2ACI(B_perm, cfg_ACI);
+                ACI_perm(:,:,i) = Convert_lasso_B2ACI(B_perm, cfg_ACI, cfg_ACI.keyvals);
             end
             
             ACI_perm_CI_low  = prctile(ACI_perm,5,3);
