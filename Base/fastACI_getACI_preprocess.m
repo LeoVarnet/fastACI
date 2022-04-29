@@ -269,10 +269,14 @@ switch fg.glmfct
             %     current resolution I agree that Nlevelmin should be 1 or 2
         end
         
-        % version = 'original';
         for i_level = i_level_start:Nlevel
-            kv.i_level = i_level; % only used if kv.pyramid_script is 'imgaussfilt'
-            Pyramid{i_level} = fastACI_impyramid(Pyramid{i_level-1}, 'reduce',kv);
+            switch kv.pyramid_script
+                case 'imgaussfilt'
+                    kv.i_level = i_level; % only used if kv.pyramid_script is 'imgaussfilt'
+                    Pyramid{i_level} = fastACI_impyramid(Pyramid{1}, 'reduce',kv);
+                otherwise
+                    Pyramid{i_level} = fastACI_impyramid(Pyramid{i_level-1}, 'reduce',kv);
+            end
         end
 
         %% Reconstructing the Pyramid 

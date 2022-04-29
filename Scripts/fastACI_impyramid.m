@@ -28,12 +28,12 @@ switch keyvals.pyramid_script
         switch direction
             case 'reduce'
                 Ablur = imgaussfilt(A,sigma,'Padding',pyramid_padding); % blur
-                if pyramid_shape == -1
-                    warning('Need further validation (AO on 29/04/2022)');
-                    idx_step = 2^(i_level-1+pyramid_shape);
-                else
-                    idx_step = 2; % comment added by AO
-                end
+                % if pyramid_shape == -1
+                idx_step = 2^(i_level-1+pyramid_shape);
+                % else
+                %     warning('Need further validation (AO on 29/04/2022)');
+                %     idx_step = 2^(i_level-1+pyramid_shape);
+                % end
                 B = Ablur(1:idx_step:end,1:idx_step:end,:); % downsample, old name for B was Ablursub
             case 'expand'
                 
