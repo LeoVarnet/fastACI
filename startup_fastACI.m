@@ -6,6 +6,7 @@ function startup_fastACI
 
 bAMT         = 1;
 bFastACI_exp = 1;
+bFastACI_sim = 1; % only if found... (Leo's or Alejandro's)
 
 dir_fastACI  = [fileparts(which(mfilename)) filesep];
 
@@ -80,6 +81,12 @@ if bAFC
     end
 end
 
+fastACI_path = [fileparts(fileparts(fastACI_basepath)) filesep 'fastACI_sim' filesep];
+if exist(fastACI_path,'dir')
+    fprintf('fastACI_sim toolbox found: only the tb_fastACI_AddOns folder will be added...\n');
+    addpath([fastACI_path 'MATLAB' filesep 'tb_fastACI_AddOns' filesep]);
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp([mfilename '.m: startup file for the fastACI toolbox'])
 
@@ -99,6 +106,7 @@ if bFastACI_exp == 1
     paths.publ_osses2022c      = [paths.Publications 'publ_osses2022c'     filesep];
     paths.publ_varnet2013      = [paths.Publications 'publ_varnet2013'     filesep];
     paths.publ_varnet2022a     = [paths.Publications 'publ_varnet2022a'    filesep];
+    paths.pres_osses2022_02    = [paths.Publications 'pres_osses2022_02'   filesep];
     paths.Interface            = [dir_fastACI       'Interface'            filesep];
     paths.legacy               = [dir_fastACI       'legacy'               filesep];
     paths.modulationACI        = [paths.Experiments 'modulationACI'        filesep];

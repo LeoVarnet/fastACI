@@ -1,5 +1,5 @@
-function pres_osses2022_02_03_AABBA(varargin)
-% functiong pres_osses2022_02_03_AABBA(varargin)
+function pres_osses2022_02_AABBA(varargin)
+% functiong pres_osses2022_02_AABBA(varargin)
 %
 % Generates some figures from the presentation titled 'Paris II - Simulating 
 %   the perception of soundscapes, speech-, AM-, and FM-sounds' given in the
@@ -10,20 +10,20 @@ function pres_osses2022_02_03_AABBA(varargin)
 %
 % % To display the figure in page 11 of the final presentation (PDF) use :::
 %     % ACI of participant S2 from Osses & Varnet (2021, DAGA):
-%     pres_osses2022_02_03_AABBA('fig_page11');
+%     pres_osses2022_02_AABBA('fig_page11');
 %
 % % To display the top figure in page 13 use :::
-%     pres_osses2022_02_03_AABBA('fig_page13_top'); % ACIs for models and the human listener
+%     pres_osses2022_02_AABBA('fig_page13_top'); % ACIs for models and the human listener
 %
 % % To display the bottom figure in page 13 use :::
-%     pres_osses2022_02_03_AABBA('fig_page13_bottom'); % thresholds and correlation plot
+%     pres_osses2022_02_AABBA('fig_page13_bottom'); % thresholds and correlation plot
 %
 % Author: Alejandro Osses
 % Original name: g20220202_analysis_pipeline_sim_AABBA.m (fastACI_sim)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin == 0
-    help pres_osses2022_02_03_AABBA;
+    help pres_osses2022_02_AABBA;
     return
 end
 
@@ -33,7 +33,8 @@ h = [];
 hname = [];
 
 definput.flags.type={'missingflag','fig_page11','fig_page13_top','fig_page13_bottom'};
-definput.keyvals.models=[];
+% definput.keyvals.models=[];
+definput.keyvals.dir_out=[];
 
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
@@ -41,9 +42,14 @@ definput.keyvals.models=[];
 experiment_full = 'speechACI_Logatome-abda-S43M';
 %%%    
 
+if ~isempty(keyvals.dir_out)
+    flags_here = {'dir_out',keyvals.dir_out};
+else
+    flags_here = {};
+end
 if flags.do_fig_page11
     %%% ACI for participant S2 from Osses2021c (DAGA paper):
-    data = publ_osses2021c_DAGA_2_figs('fig1b');
+    data = publ_osses2021c_DAGA_2_figs('fig1b',flags_here{:});
     
     for i = 1:length(data.h)
         if strfind(data.hname{i},'ACI-')
@@ -56,43 +62,46 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % experiment = 'speechACI_Logatome-abda-S43M';
  
+subjects   = {'dau1997','king2019','relanoiborra2019','osses2021','osses2022a','SLV'};
+    
 if flags.do_fig_page13_top % Old: bPlot_ACI
     % g20220113_analysis_pipeline_versie_Alejandro
     
     Pos3 = 350;
     
     noise_type = 'white';
-    Subjs = {'SLV','dau1997','king2019','relanoiborra2019','osses2021','osses2022a'};
-    % 'osses2021','osses2022a','maxwell2020','relanoiborra2019'
+    N_subjects = length(subjects);
     
-    for i_subj = 1:length(Subjs)
-        subj_here = {Subjs{i_subj}};
-        [h1,hname1] = g20220202_AABBA_the_other_plots_and_pipeline_white(experiment_full, subj_here,noise_type);
+    figure; 
+    tiledlayout(1,N_subjects);
+    for i_subj = 1:N_subjects
         
-        idx = 4;
-        if strfind(hname1{idx},'ACI')
-            h(end+1) = h1(idx);
-            hname{end+1} = ['Subj-' subj_here{1} '-' hname1{idx}];
-            
-            h1(idx) = [];
-            close(h1);
-            
-            Pos = get(h(end),'Position');
-            Pos(3) = Pos3;
-            set(gcf,'Position',Pos);
-            
-        else
-            error('ACI plot not found...')
+        subj_here = subjects{i_subj};
+        [h1,hname1,outs1] = pres_osses2022_02_AABBA_utils(experiment_full, subj_here, noise_type,flags_here{:});
+        
+        % figure(handle_here);
+        nexttile;
+        affichage_tf(outs1.ACI,'CI', 'cfg', outs1.cfg_ACI); hold on
+        outs_aff = affichage_tf_add_Praat_metrics(outs1.cfg_game.dir_target, ...
+            outs1.cfg_ACI,[], {'-','-.'},{[0.6,0,0],[0,0,0.6]},1.5);
+        
+        if i_subj ~= N_subjects
+            set(outs_aff.hl,'Visible','off'); % Removes the legend
         end
+        title(subj_here)
     end
+    Pos = get(gcf,'Position');
+    Pos(3:4) = [1500 420];
+    set(gcf,'Position',Pos);
+    
+    h(end+1) = gcf;
+    hname{end+1} = 'fig13-top';
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig_page13_bottom % (old 'bPlot_thres_corr' variable)
     
     experiment      = strsplit(experiment_full,'-'); experiment = experiment{1};
-
-    subjects   = {'SLV','dau1997','king2019','osses2021','osses2022a','relanoiborra2019'};
     lab4plot = [];
 
     noise_type = 'white'; % 'sMPSv1p3';

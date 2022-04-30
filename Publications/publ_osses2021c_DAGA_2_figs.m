@@ -16,10 +16,10 @@ function data = publ_osses2021c_DAGA_2_figs(varargin)
 %     publ_osses2021c_DAGA_2_figs('fig3a');
 %
 % % To display Fig. 3B of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig1a');
+%     publ_osses2021c_DAGA_2_figs('fig3b');
 %
 % % To display Fig. 4 of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig1a');
+%     publ_osses2021c_DAGA_2_figs('fig4');
 %
 % Original name:
 %   g20210810_analysing_simulation_sessions_abda.m (Figs. 1A-3b)
@@ -38,7 +38,8 @@ h = [];
 hname = [];
 
 definput.flags.type={'missingflag','fig1a','fig1b','fig2','fig3a','fig3b','fig4'};
-definput.keyvals.models=[];
+% definput.keyvals.models=[];
+definput.keyvals.dir_out=[];
 
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
@@ -166,7 +167,11 @@ if flags.do_fig1a || flags.do_fig1b || flags.do_fig2 || flags.do_fig3a || flags.
             DimCI = 'gammatone';
             add_signal = 0; % '1' to add signal in the ACI assessment, '0' to use noise alone trials
 
-            dir_out_ACI = [dir_where 'Results_ACI' filesep];
+            if isempty(keyvals.dir_out)
+                dir_out_ACI = [dir_where 'Results_ACI' filesep];
+            else
+                dir_out_ACI = keyvals.dir_out;
+            end
             if ~exist(dir_out_ACI,'dir')
                 mkdir(dir_out_ACI);
             end
@@ -207,13 +212,15 @@ if flags.do_fig1a || flags.do_fig1b || flags.do_fig2 || flags.do_fig3a || flags.
                     otherwise
                         idx_trialselect = 1:trial_select(ii);
                 end
-                fg_ACI = {'dir_noise', dir_noise, 'dir_target', dir_target, 'dir_out', dir_out_ACI, 'no_plot', ...
+                fg_ACI = {'dir_noise', dir_noise, 'dir_target', dir_target, ...
+                  'dir_out', dir_out_ACI, 'no_plot', ...
                   'idx_trialselect', idx_trialselect, ...
                   'f_limits',f_limits, ...
                   't_limits',t_limits, ... % 'spect_NFFT',512,'spect_Nwindow',512,'spect_overlap',.75 ... %'spect_NFFT',1024,'spect_Nwindow',1024,'spect_overlap',.5...
                   'skip_if_on_disk',1, ...
                   'add_signal',add_signal, ...
-                  'N_perm',20 ...
+                  'N_perm',20, ...
+                  'pyramid_script','imresize' ...
                 };
 
                 if isempty(Data_matrix)
