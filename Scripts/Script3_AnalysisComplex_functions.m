@@ -34,7 +34,7 @@ switch lower(fct)
         data = il_get_percentile(data_passation);
         return;
         
-    case {'histogram-leo','histogram'}
+    case {'histogram-leo','histogram','histogram-group'}
         
         expvar = data_passation.expvar;
         is_correct = data_passation.is_correct;
@@ -63,14 +63,19 @@ switch lower(fct)
             % If bump noises
             bin_step = 0.25;
         end
-        bin_centres   = expvar_L: bin_step : expvar_U;  % linspace(expvar_L,expvar_U,9);
-        
+
+        switch lower(fct)
+            case 'histogram-group'
+                bin_centres   = -20: bin_step : -5;  % linspace(expvar_L,expvar_U,9);
+            otherwise
+                bin_centres   = expvar_L: bin_step : expvar_U;  % linspace(expvar_L,expvar_U,9);
+        end
         switch lower(fct)
             case 'histogram-leo'
                 % bin_centres = linspace(prctile(expvar,SNRprctile(1)),prctile(expvar,SNRprctile(2)),10);
                 bin_edges   = mean([bin_centres(1:end-1);bin_centres(2:end)]); 
                 bin_edges   = [bin_edges(1)-bin_step bin_edges bin_edges(end)+bin_step];
-            case 'histogram'
+            case {'histogram', 'histogram-group'}
                 % bin_centres = -15.5:1:-0.5;
 
                 % [N_m,m_edge] = histcounts(m, nbins); % Only in newer MATLAB versions
