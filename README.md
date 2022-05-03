@@ -31,9 +31,6 @@ Next we present the command line required to run each of the ACI experiments tha
 ### modulationACI: Experiment as in varnet2021 
     fastACI_experiment('modulationACI','S01');
     
-### modulationACI_seeds: Experiment as in varnet2021 (alternative without storing files on disk)
-    fastACI_experiment('modulationACI_seeds','S01');
-    
 ### speechACI_varnet2013
     fastACI_experiment('speechACI_varnet2013','S01','white'); % to run it as in varnet2013
     fastACI_experiment('speechACI_varnet2013','S01','SSN');   % to run it as in osses2021c
@@ -47,6 +44,10 @@ Alda/Alga/Arda/Arga discrimination using a male speaker
 Aba/Ada discrimination using a female speaker (S41F from the Logatome corpus):
 
     fastACI_experiment('speechACI_Logatome-abda-S41F','S01','white');
+
+Aba/Ada discrimination using a male speaker (S43M from the Logatome corpus):
+
+    fastACI_experiment('speechACI_Logatome-abda-S43M','S01','white');
 
 # Simulating a listening experiment
 A listening experiment can be simulated using an artificial listener or, in other words, an auditory model. So far, we have validated the use of the models `osses2021` (Osses & Kohlrausch, 2021) and `king2019` (King et al., 2019), both available within AMT 1.0.

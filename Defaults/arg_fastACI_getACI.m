@@ -57,7 +57,9 @@ definput.keyvals.dir_target = [];
 definput.keyvals.dir_noise  = [];
 definput.keyvals.dir_out    = [];
 
-definput.groups.varnet2013 = {'spect','glmfitqp','f_limits',[0 4050],'t_limits',[0 0.3425]};
+definput.groups.varnet2013 = {'spect','glmfitqp', ...
+    'pyramid_script','imresize', ... % this keyval is irrelevant for processing
+    'f_limits',[0 4050],'t_limits',[0 0.3425]};
 
 %%% Only used in 'spect' is used:
 definput.keyvals.spect_overlap = 0;    % Parametres de calcul du spectrogramme

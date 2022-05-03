@@ -137,4 +137,5 @@ outs.ACI = ACI;
 outs.cfg_ACI = cfg_ACI;
 outs.results = results;
 outs.cfg_game = cfg_game;
+outs.data_passation = data_passation;
 %%% End ACI analysis

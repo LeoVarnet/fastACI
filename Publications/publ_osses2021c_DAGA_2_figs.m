@@ -111,10 +111,8 @@ if flags.do_fig1a || flags.do_fig1b || flags.do_fig2 || flags.do_fig3a || flags.
             files = Get_filenames(dir_where,filt);
 
             fname_results = [dir_where files{1}];
-            cfg_game = [];
-            data_passation = [];
-            load(fname_results,'cfg_game','data_passation');
-
+            [cfg_game, data_passation] = Convert_ACI_data_type(fname_results);
+            
             N_sessions = length(data_passation.resume_trial);
             for j = 1:N_sessions
 
@@ -170,17 +168,34 @@ if flags.do_fig1a || flags.do_fig1b || flags.do_fig2 || flags.do_fig3a || flags.
             if isempty(keyvals.dir_out)
                 dir_out_ACI = [dir_where 'Results_ACI' filesep];
             else
-                dir_out_ACI = keyvals.dir_out;
+                % Creating a new subfolder for each model run. This is 
+                %   important because all model runs will produce the same
+                %   ACI name.
+                dir_out_ACI = [keyvals.dir_out model '-' folders{i} filesep];
+                if ~exist(dir_out_ACI,'dir')
+                    mkdir(dir_out_ACI);
+                end
             end
             if ~exist(dir_out_ACI,'dir')
                 mkdir(dir_out_ACI);
             end
             dir_noise  = cfg_game.dir_noise;
+            dirname4waveforms = Get_subjectname_from_dirname(dir_noise);
+            
+            switch dirname4waveforms
+                case 'SLeo' % this folder does not exist anymore:
+                    dir_new = 'osses2021c_S01';
+            end
+            idx = strfind(dir_noise,dirname4waveforms);
+            idx = idx + length(dirname4waveforms);
+            dir_noise = [fastACI_paths('dir_data') experiment filesep dir_new filesep dir_noise(idx+1:end-1) filesep];
+            
             if isfield(cfg_game,'dir_speech')
                 cfg_game.dir_target = cfg_game.dir_speech;
             end
             dir_target = cfg_game.dir_target; 
 
+            
             if ~exist(dir_noise,'dir')
                 idx = strfind(dir_noise,filesep);
                 dir_noise = [data_folder_full dir_noise(idx(end-1)+1:end-1) filesep];

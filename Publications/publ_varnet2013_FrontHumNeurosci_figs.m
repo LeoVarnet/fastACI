@@ -22,7 +22,10 @@ h = [];
 hname = [];
 
 definput.flags.type={'missingflag','fig1','fig4a'};
+definput.keyvals.dir_out = [];
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
+
+dir_out = keyvals.dir_out;
 
 do_text = 1; % activate this manually (1=on; 0=off)
 
@@ -127,15 +130,8 @@ if flags.do_fig4a
 
     flags_for_input = {'dir_target',dir_target, ...
                        'dir_noise' ,dir_noise, ...
+                       'dir_out',dir_out, ...
                        'varnet2013'}; % loads the group flags
-    % The use of the flag 'varnet2013' is equivalent to specify:
-    % TF_type = 'spect';
-    % glmfct = 'glmfitqp';
-    % flags_for_input = {TF_type,glmfct,'trialtype_analysis', 'total',...
-    %                 'N_folds', 10, 'add_signal',0, ...
-    %                 'apply_SNR',0, 'skip_if_on_disk',1, ...
-    %                 'permutation', ...
-    %                 'f_limits', f_limits,'t_limits', t_limits};
     [ACI,cfg_ACI,results] = fastACI_getACI(fname_results,flags_for_input{:});
     h(end+1) = gcf;
     hname{end+1} = 'fig4a-middle-SLV';

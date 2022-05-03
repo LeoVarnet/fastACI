@@ -15,17 +15,22 @@ data = [];
 experiment = 'modulationACI';
 dir_subj = [fastACI_dir_data experiment filesep Subject_ID filesep];
 
-file = Get_filenames(dir_subj,'save*.mat');
+filt2use = 'save*';
+switch flags.publ
+    case 'varnet2022b_CFA'
+        filt2use = [filt2use 'swap-tar'];
+end
+file = Get_filenames(dir_subj,[filt2use '*.mat']);
 if length(file) == 1
     savefilename = [dir_subj file{1}];
+elseif ~isempty(file)
+    Show_cell(file);
+    bInput = input('Choose the savegame file to use from the list above: ');
+    savefilename = [dir_subj file{bInput}];
 else
     error('Problem finding savegame file...')
 end
 
-% cfg_game = []; % : [1×1 struct]
-% data_passation = []; % : [1×1 struct]
-% load(savefilename);
-         
 % ListStim: [3000×1 struct]
 [cfg_game, data_passation, ListStim] = Convert_ACI_data_type(savefilename);
 m = data_passation.expvar;
@@ -65,21 +70,18 @@ switch type_action
         
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
     case 'Get_CIt'
-        bLeo = flags.do_varnet2022a_JASA;
-        bAlejandro = 0;
-        bSFA = flags.do_varnet2022b_CFA;
+        do_varnet2022a_JASA = flags.do_varnet2022a_JASA;
+        do_varnet2022b_CFA  = flags.do_varnet2022b_CFA;
         
         % Analyse noise in bands
         basef = 1000;
         BW_ERB = 1;
         undersampling_ms = 10; % 100;
-        if bLeo
+        if do_varnet2022a_JASA
             fcut = ERB2f(f2ERB(basef)+BW_ERB/2*[-1 1]);
+            % fcut = audtofreq(freqtoaud(basef)+BW_ERB/2*[-1 1]); % Alejandro says: here there is a slight difference (ERB2f)
         end
-        if bAlejandro
-            fcut = audtofreq(freqtoaud(basef)+BW_ERB/2*[-1 1]); % here there is a slight difference (ERB2f)
-        end
-        if bSFA
+        if do_varnet2022b_CFA
             fcut = [40 8000]; % Hz
         end
 
@@ -119,18 +121,15 @@ switch type_action
         end
 
         bCalculate = 1;
-        if bLeo
+        if do_varnet2022a_JASA
             method = 'butter';
         end
-        if bAlejandro
-            method = 'Gammatone_proc';
-        end
-        if bSFA
+        if do_varnet2022b_CFA
             % method = 'Gammatone_proc2';
-            method = 'Gammatone_proc'; warning('Temporarily changed to Gammatome_proc')
+            method = 'Gammatone_proc'; % warning('Temporarily changed to Gammatome_proc')
         end
 
-        if bSFA
+        if do_varnet2022b_CFA
             switch method
                 case 'Gammatone_proc'
                     method_here = 'gammatone';
@@ -146,6 +145,8 @@ switch type_action
                 'expvar_limits',[], ...
                 'trialtype_analysis','total', ...
                 'consistency_check',0, ... % new option to disable the consistency check
+                'pyramid_script','imresize', ...
+                'pyramid_shape',0, ...
                 method_here};
             
             switch glmfct
@@ -202,7 +203,7 @@ switch type_action
 
         % Ideal template in noise: Deleted but you can find it back in the original Script3_AnalysisComplex.m
         %% Compute CI and target-present and target-absent sub-CI
-        if bLeo || bAlejandro
+        if do_varnet2022a_JASA % || bAlejandro
             n_rand = 200;
             n_boot = 200;
             n_trials = length(n_response);
@@ -221,7 +222,7 @@ switch type_action
             save([dir_subj 'CIt'],'CI','CI1','CI2','CIrand_ci','CI1rand_ci','CI2rand_ci','tE','ideal_template')
         end
          
-         if bSFA
+         if do_varnet2022b_CFA
             [ACI,cfg_ACI,results] = fastACI_getACI(savefilename,flags_here{:});
             
             data.ACI = ACI;

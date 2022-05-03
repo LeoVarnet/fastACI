@@ -169,17 +169,8 @@ if non_corrmat_mode
         'Nuisance/Linear/Bandpass: ','Nuisance/Quadratic/Bandpass:',...
         'Nuisance/Bandpass: '};
      
-    % Initialize final time series cell array:
+    % Initialise final time series cell array:
     alldata = cell(1,12);
-    % alldata{1} = timeSeries;
-    % for i = 2:12
-    %     alldata{i} = cell(1,nSeries);
-    % end
-    % 
-    % which_scan = parsed_inputs.which_scan; % Grand Mean (0, default); Other scan (1:nSeries)
-    % if which_scan==0
-    %     which_scan = nSeries+1;
-    % end
 end
 
 N_cmap = '64';
@@ -253,79 +244,79 @@ if parsed_inputs.plot
 
         % Display Menu:
         display_menu = uimenu(h_corrmat,'Label','Display');
-            colormap_menu = uimenu(display_menu,'Label','Colormap');
-                uimenu(colormap_menu,'Label','blue-red','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','blue-red (2)','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','blue-red (3)','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','jet','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','hot','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','cool','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','gray','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','hsv','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','bone','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','copper','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','spring','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','summer','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','winter','Callback',@colormap_callback);
-                uimenu(colormap_menu,'Label','pink','Callback',@colormap_callback);
-            caxis_menu = uimenu(display_menu,'Label','Color Axis');
-                uimenu(caxis_menu,'Label','Automatic','Callback',{@caxis_callback,1});
-                uimenu(caxis_menu,'Label','Specify...','Callback',{@caxis_callback,0});
-            title_menu = uimenu(display_menu,'Label','Title');
-                uimenu(title_menu,'Label','Edit','Callback',@title_edit);
-                uimenu(title_menu,'Label','FontName','Callback',{@title_font,1}); 
-                uimenu(title_menu,'Label','FontSize','Callback',{@title_font,2}); 
-                title_font_bold = uimenu(title_menu,'Label','FontWeight'); 
-                    uimenu(title_font_bold,'Label','Normal','Callback',{@title_font,3}); 
-                    uimenu(title_font_bold,'Label','Bold','Callback',{@title_font,4}); 
-            labels_menu = uimenu(display_menu,'Label','Labels');
-                uimenu(labels_menu,'Label','Enable/Disable','Callback',{@labels_callback,1});
-                labels_font = uimenu(labels_menu,'Label','Font');
-                uimenu(labels_font,'Label','FontName','Callback',{@labels_callback,2}); 
-                uimenu(labels_font,'Label','FontSize','Callback',{@labels_callback,3}); 
-                font_bold = uimenu(labels_font,'Label','FontWeight'); 
-                    uimenu(font_bold,'Label','Normal','Callback',{@labels_callback,4}); 
-                    uimenu(font_bold,'Label','Bold','Callback',{@labels_callback,5}); 
-            colorbar_menu = uimenu(display_menu,'Label','ColorBar');
-                uimenu(colorbar_menu,'Label','Enable/Disable','Callback',{@colorbar_callback,1});
-                colorbar_font_menu = uimenu(colorbar_menu,'Label','Font');
-                uimenu(colorbar_font_menu,'Label','FontName','Callback',{@colorbar_callback,2}); 
-                uimenu(colorbar_font_menu,'Label','FontSize','Callback',{@colorbar_callback,3}); 
-                colorbar_font_bold = uimenu(colorbar_font_menu,'Label','FontWeight'); 
-                    uimenu(colorbar_font_bold,'Label','Normal','Callback',{@colorbar_callback,4}); 
-                    uimenu(colorbar_font_bold,'Label','Bold','Callback',{@colorbar_callback,5}); 
-            highlight_menu = uimenu(display_menu,'Label','Highlight');
-                choose_color_menu = uimenu(highlight_menu,'Label','Choose Color');
-                    uimenu(choose_color_menu,'Label','Yellow','Callback',{@highlight_callback,1});
-                    uimenu(choose_color_menu,'Label','Green','Callback',{@highlight_callback,2});
-                    uimenu(choose_color_menu,'Label','Magenta','Callback',{@highlight_callback,3});
-                    uimenu(choose_color_menu,'Label','Cyan','Callback',{@highlight_callback,4});
-                    uimenu(choose_color_menu,'Label','Red','Callback',{@highlight_callback,5});
-                    uimenu(choose_color_menu,'Label','Blue','Callback',{@highlight_callback,6});
-                    uimenu(choose_color_menu,'Label','White','Callback',{@highlight_callback,7});
-                    uimenu(choose_color_menu,'Label','Black','Callback',{@highlight_callback,8});
+        colormap_menu = uimenu(display_menu,'Label','Colormap');
+        uimenu(colormap_menu,'Label','blue-red'    ,'Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','blue-red (2)','Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','blue-red (3)','Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','jet','Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','hot','Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','cool','Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','gray','Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','hsv','Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','bone','Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','copper','Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','spring','Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','summer','Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','winter','Callback',@colormap_callback);
+        uimenu(colormap_menu,'Label','pink','Callback',@colormap_callback);
+        caxis_menu = uimenu(display_menu,'Label','Color Axis');
+        uimenu(caxis_menu,'Label','Automatic','Callback',{@caxis_callback,1});
+        uimenu(caxis_menu,'Label','Specify...','Callback',{@caxis_callback,0});
+        title_menu = uimenu(display_menu,'Label','Title');
+        uimenu(title_menu,'Label','Edit','Callback',@title_edit);
+        uimenu(title_menu,'Label','FontName','Callback',{@title_font,1}); 
+        uimenu(title_menu,'Label','FontSize','Callback',{@title_font,2}); 
+        title_font_bold = uimenu(title_menu,'Label','FontWeight'); 
+        uimenu(title_font_bold,'Label','Normal','Callback',{@title_font,3}); 
+        uimenu(title_font_bold,'Label','Bold','Callback',{@title_font,4}); 
+        labels_menu = uimenu(display_menu,'Label','Labels');
+        uimenu(labels_menu,'Label','Enable/Disable','Callback',{@labels_callback,1});
+        labels_font = uimenu(labels_menu,'Label','Font');
+        uimenu(labels_font,'Label','FontName','Callback',{@labels_callback,2}); 
+        uimenu(labels_font,'Label','FontSize','Callback',{@labels_callback,3}); 
+        font_bold = uimenu(labels_font,'Label','FontWeight'); 
+        uimenu(font_bold,'Label','Normal','Callback',{@labels_callback,4}); 
+        uimenu(font_bold,'Label','Bold','Callback',{@labels_callback,5}); 
+        colorbar_menu = uimenu(display_menu,'Label','ColorBar');
+        uimenu(colorbar_menu,'Label','Enable/Disable','Callback',{@colorbar_callback,1});
+        colorbar_font_menu = uimenu(colorbar_menu,'Label','Font');
+        uimenu(colorbar_font_menu,'Label','FontName','Callback',{@colorbar_callback,2}); 
+        uimenu(colorbar_font_menu,'Label','FontSize','Callback',{@colorbar_callback,3}); 
+        colorbar_font_bold = uimenu(colorbar_font_menu,'Label','FontWeight'); 
+        uimenu(colorbar_font_bold,'Label','Normal','Callback',{@colorbar_callback,4}); 
+        uimenu(colorbar_font_bold,'Label','Bold','Callback',{@colorbar_callback,5}); 
+        highlight_menu = uimenu(display_menu,'Label','Highlight');
+        choose_color_menu = uimenu(highlight_menu,'Label','Choose Color');
+        uimenu(choose_color_menu,'Label','Yellow','Callback',{@highlight_callback,1});
+        uimenu(choose_color_menu,'Label','Green','Callback',{@highlight_callback,2});
+        uimenu(choose_color_menu,'Label','Magenta','Callback',{@highlight_callback,3});
+        uimenu(choose_color_menu,'Label','Cyan','Callback',{@highlight_callback,4});
+        uimenu(choose_color_menu,'Label','Red','Callback',{@highlight_callback,5});
+        uimenu(choose_color_menu,'Label','Blue','Callback',{@highlight_callback,6});
+        uimenu(choose_color_menu,'Label','White','Callback',{@highlight_callback,7});
+        uimenu(choose_color_menu,'Label','Black','Callback',{@highlight_callback,8});
 
-                uimenu(highlight_menu,'Label','Disable','Callback',{@highlight_callback,0});
-            outline_menu = uimenu(display_menu,'Label','Outline','Checked','off','Callback',@change_outline);
+        uimenu(highlight_menu,'Label','Disable','Callback',{@highlight_callback,0});
+        outline_menu = uimenu(display_menu,'Label','Outline','Checked','off','Callback',@change_outline);
         
-        % Initialize Axes
+        % Initialise Axes
         ax = axes('Position',ax_pos,'XDir','reverse','YDir','reverse','XLim',[.5,numrois+.5],...
             'YLim',[.5,numrois-.5],'Box','off','XTick',[],'YTick',[],'Visible','off'); 
         hold(ax,'on'); view(-90,90);
 
-    % Add Title:
-    h_title = title(ax,parsed_inputs.title,'Visible','on','Units',...
-        'normalized','PickableParts','all','FontName',title_FontName,...
-        'FontSize',title_FontSize,'FontWeight',title_FontWeight); 
-    centre_axes = (ax_pos(3)+ax_pos(1))-.5*ax_pos(3); % axes center in norm fig units
-    adjust1 = (.5-centre_axes)/ax_pos(3); % adjustment needed in axes units
-    title_pos = get(h_title,'Position');
-    title_pos(1) = .5 - .5*title_pos(3) + adjust1; title_pos(2) = .99;
-    if isempty(parsed_inputs.insert_axes)
-        set(h_title,'Position',title_pos);
-    end
-    % Update Plot:
-    update_plot(1,curr_data_type);
+        % Add Title:
+        h_title = title(ax,parsed_inputs.title,'Visible','on','Units',...
+            'normalized','PickableParts','all','FontName',title_FontName,...
+            'FontSize',title_FontSize,'FontWeight',title_FontWeight); 
+        centre_axes = (ax_pos(3)+ax_pos(1))-.5*ax_pos(3); % axes center in norm fig units
+        adjust1 = (.5-centre_axes)/ax_pos(3); % adjustment needed in axes units
+        title_pos = get(h_title,'Position');
+        title_pos(1) = .5 - .5*title_pos(3) + adjust1; title_pos(2) = .99;
+        if isempty(parsed_inputs.insert_axes)
+            set(h_title,'Position',title_pos);
+        end
+        % Update Plot:
+        il_update_plot(1,curr_data_type);
 end
 
 % If 'outline' input is specified:
@@ -334,7 +325,7 @@ if parsed_inputs.outline
     change_outline(hObject)
 end
     
-function update_plot(initialize,curr_data_type,~)
+function il_update_plot(initialize,curr_data_type,~)
     if ~initialize && isgraphics(h_image,'image')
         cla(ax); delete(h_colorbar);
     end
@@ -484,16 +475,6 @@ end
 
 h_oval = rand(1,6);
 
-% function save_mat(~,~,~)
-%     [filename,PathName] = uiputfile('*.mat','Specify filename:');
-%     if filename
-%         save(fullfile(PathName,filename),'corrmat');
-%     else
-%         disp('User cancelled action.'); 
-%         return
-%     end
-% end
-
 function export_var(~,~,~)
     prompt = 'Specify variable name:';
     dlg_title = 'Export'; 
@@ -510,7 +491,7 @@ function which_scan_callback(~,~,type)
         lab2 = get(h_which_scan_menu(which_scan),'Label');
         set(h_which_scan_menu(which_scan),'Label',lab2(1:end-2));
         which_scan = type;
-        update_plot(0,curr_data_type);
+        il_update_plot(0,curr_data_type);
     end
 end
 
@@ -522,7 +503,7 @@ function nuisance_callback(~,~,~)
     end
     nuisance_curr = ~nuisance_curr;
     determine_curr_data_type;
-    update_plot(0,curr_data_type);
+    il_update_plot(0,curr_data_type);
 end
 
 function change_detrend_callback(~,~,type)
@@ -563,7 +544,7 @@ function change_detrend_callback(~,~,type)
         end
         parsed_inputs.detrend = type;
         determine_curr_data_type;
-        update_plot(0,curr_data_type);
+        il_update_plot(0,curr_data_type);
     end
 end
 
@@ -582,7 +563,7 @@ function change_bandpass_callback(~,~,type)
             end
             bandpass_on = type;
             determine_curr_data_type;
-            update_plot(0,curr_data_type);
+            il_update_plot(0,curr_data_type);
         end
     else
         parsed_inputs.bandpass = [0,0];
@@ -592,7 +573,7 @@ function change_bandpass_callback(~,~,type)
         bandpass_on_menu.Label = 'On *';
         bandpass_off_menu.Label = 'Off';
         determine_curr_data_type;
-        update_plot(0,curr_data_type);
+        il_update_plot(0,curr_data_type);
     end
 end
 
@@ -664,7 +645,7 @@ function colormap_callback(hObject,~,~)
     % only update if called from menu item 
     % (otherwise being called from within update_plot itself)
     if ~isempty(hObject) 
-        update_plot(0,curr_data_type);
+        il_update_plot(0,curr_data_type);
     end
 end
 
@@ -686,7 +667,7 @@ function caxis_callback(~,~,type)
             caxis_auto = true;
         end
     end
-    update_plot(0,curr_data_type,1);
+    il_update_plot(0,curr_data_type,1);
 end
 
 function title_edit(~,~,~)
@@ -724,7 +705,7 @@ function title_font(~,~,type)
         case 3, h_title.FontWeight = 'normal';
         case 4, h_title.FontWeight = 'bold';
     end
-    update_plot(0,curr_data_type);
+    il_update_plot(0,curr_data_type);
 end
 
 function labels_callback(~,~,type)
@@ -762,7 +743,7 @@ function labels_callback(~,~,type)
         case 4, FontWeight = 'normal';
         case 5, FontWeight = 'bold';
     end
-    update_plot(0,curr_data_type);
+    il_update_plot(0,curr_data_type);
 end
 
 function colorbar_callback(~,~,type)
@@ -775,7 +756,7 @@ function colorbar_callback(~,~,type)
                 colorbar_on = true;
                 set(ax,'Position',ax_pos);
             end
-            update_plot(0,curr_data_type);
+            il_update_plot(0,curr_data_type);
         case 2 % FontName
             if colorbar_on
                 dlg_title = 'Font';
@@ -1264,4 +1245,3 @@ function il_perform_bandpass(initial)
         end
     end
 end
-

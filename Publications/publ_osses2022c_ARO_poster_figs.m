@@ -27,8 +27,11 @@ function [h, hname] = publ_osses2022c_ARO_poster_figs(varargin)
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-definput.flags.type={'fig2','fig3','fig3a','fig3b','fig4','fig4a','fig4b'};
+definput.flags.type={'fig2a','fig2b','fig2c','fig2d','fig3','fig3a','fig3b', ...
+    'fig4','fig4a','fig4b'};
+definput.keyvals.dir_out = [];
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
+dir_out = keyvals.dir_out; % relevant for 'fig3' and 'fig4'
 
 if nargin == 0
     close all
@@ -46,7 +49,9 @@ noise_types_label = {'WN','MPS','BP'};
 Subjects = {'SLV','SAO'};
 Subjects_id = [1 2];
     
-if flags.do_fig2 || flags.do_fig3a || flags.do_fig4a
+do_fig2 = flags.do_fig2a || flags.do_fig2b || flags.do_fig2c || flags.do_fig2d;
+
+if do_fig2 || flags.do_fig3a || flags.do_fig4a
     idx = 1;
     Subjects = Subjects(idx);
     Subjects_id = Subjects_id(idx);
@@ -81,200 +86,202 @@ for i = 1:length(Subjects)
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig2
+if do_fig2
     % Migrated from g20220201_characterising_noises_AROposter.m
     
-    % YL = [ 5   80; ... % Ylim
-    %       28   62; ...
-    %       -6.3 3.3; ...
-    %       NaN NaN];
-
     Colours = {rgb('Gray'),'k',rgb('Maroon')};
-    %%% Fig. 2A
-    fname_sound = 'Noise_00001.wav';
-    % cfg_affi = [];
-    for i = 1:length(noise_types)
-        outs = publ_osses2022c_ARO_poster_utils('SLV',noise_types{i},'Get_filenames');
-        sound2read = [outs.dir_noise fname_sound];
-        [insig,fs] = audioread(sound2read);
-        
-        L = 512;
-        L_overlap = round(0.9*L);
-        L_f = L;
-            
-        win = hamming(L);
-        [~,f_spec,t_spec,P] = spectrogram(insig,win,L_overlap,L_f,fs);
-        P_dB = 10*log10(abs(P));
-        max_dB = max(P_dB);
-        P_dB = P_dB-max_dB;
-        P_dB(1)   =-65; % 'min value': Trick to fix the ylimits
-        P_dB(end) =  0; % 'max value': Trick to fix the ylimits
-        
-        figure;
-        plot_stft(t_spec,f_spec,P_dB);
-        title4plot = sprintf('%s, Noise0001.wav: Short-time Fourier transform',noise_types_label{i});
-        title(title4plot);
-            
-        xlim([t_spec(1) .5])
-        set(gca,'XTick',.1:.1:.4);
-        % ACI: 64x34 (64 freqs)
-        il_Post_figure;
-        
-        h(end+1) = gcf;
-        hname{end+1} = ['STFT-' noise_types_label{i}];
+    
+    if flags.do_fig2a 
+        fname_sound = 'Noise_00001.wav';
+        % cfg_affi = [];
+        for i = 1:length(noise_types)
+            outs = publ_osses2022c_ARO_poster_utils('SLV',noise_types{i},'Get_filenames');
+            sound2read = [outs.dir_noise fname_sound];
+            [insig,fs] = audioread(sound2read);
+
+            L = 512;
+            L_overlap = round(0.9*L);
+            L_f = L;
+
+            win = hamming(L);
+            [~,f_spec,t_spec,P] = spectrogram(insig,win,L_overlap,L_f,fs);
+            P_dB = 10*log10(abs(P));
+            max_dB = max(P_dB);
+            P_dB = P_dB-max_dB;
+            P_dB(1)   =-65; % 'min value': Trick to fix the ylimits
+            P_dB(end) =  0; % 'max value': Trick to fix the ylimits
+
+            figure;
+            plot_stft(t_spec,f_spec,P_dB);
+            title4plot = sprintf('%s, Noise0001.wav: Short-time Fourier transform',noise_types_label{i});
+            title(title4plot);
+
+            xlim([t_spec(1) .5])
+            set(gca,'XTick',.1:.1:.4);
+            % ACI: 64x34 (64 freqs)
+            il_Post_figure;
+
+            h(end+1) = gcf;
+            hname{end+1} = ['STFT-' noise_types_label{i}];
+        end
     end
-    %%% End Fig. 2A
-    N_sounds = 5000; 
-
-    opts = [];    
-    % Band levels are always computed
-    do_kohlrausch2021_env = 1; % Modulation spectrum
-    do_V = 1;                  % V metric
     
-    fmod_xlim = [0 200];
-    fmod_ylim = [10 50];
-    fc_ylim = [30 70];
-    V_lim = [-10 0];
-    %%%
-    
-    for i = 1:length(noise_types)
-        outs = publ_osses2022c_ARO_poster_utils('SLV',noise_types{i},'Get_filenames');
-        dir_where = outs.dir_noise;
-        suff = noise_types_label{i};
-        opts.Colour = Colours{i};
+    if flags.do_fig2b || flags.do_fig2c || flags.do_fig2d
+        N_sounds = 5000;
+        opts = [];    
+        
+        % Band levels are always computed
+        do_kohlrausch2021_env = flags.do_fig2c; % Modulation spectrum
+        do_V                  = flags.do_fig2d; % V metric
 
-        dBFS = 100;
+        fmod_xlim = [0 200];
+        fmod_ylim = [10 50];
+        fc_ylim = [30 70];
+        V_lim = [-10 0];
+        %%%
 
-        [~,dir2check1] = fileparts(dir_where(1:end-1));
-        % dir_where = [dir_where filesep];
+        for i = 1:length(noise_types)
+            outs = publ_osses2022c_ARO_poster_utils('SLV',noise_types{i},'Get_filenames');
+            dir_where = outs.dir_noise;
+            suff = noise_types_label{i};
+            opts.Colour = Colours{i};
 
-        files1 = Get_filenames(outs.dir_noise,'*.wav');
-        files1 = files1(1:N_sounds);
+            dBFS = 100;
 
-        lvls = [];
-        for j = 1:N_sounds
-            file = files1{j};
-            [insig,fs] = audioread([outs.dir_noise file]);
+            [~,dir2check1] = fileparts(dir_where(1:end-1));
+            % dir_where = [dir_where filesep];
 
-            if do_kohlrausch2021_env
-                [env_dB(:,j),xx,env_extra] = Get_envelope_metric(insig,fs,'kohlrausch2021_env_noDC');
+            files1 = Get_filenames(outs.dir_noise,'*.wav');
+            files1 = files1(1:N_sounds);
+
+            lvls = [];
+            for j = 1:N_sounds
+                file = files1{j};
+                [insig,fs] = audioread([outs.dir_noise file]);
+
+                if do_kohlrausch2021_env
+                    [env_dB(:,j),xx,env_extra] = Get_envelope_metric(insig,fs,'kohlrausch2021_env_noDC');
+                end
+
+                % if do_varnet2017_env
+                %     % Removed, have a look at g20220201...
+                % end
+
+                [outsig1,fc] = auditoryfilterbank(insig,fs);
+                t = (1:size(outsig1,1))/fs;
+
+                lvls(j,:) = rmsdb(outsig1) + dBFS;
+
+                for i_fc = 1:length(fc)
+                    % if do_W
+                    %     % Removed, have a look at g20220201...
+                    % end
+                    if do_V
+                        [V1(j,i_fc),description,yenv1] = Get_envelope_metric(outsig1(:,i_fc),fs,'V');
+                    end
+
+                end
+
+                if mod(j,50) == 1
+                    fprintf('\tProcessing sound %.0f of %.0f\n',j,N_sounds);
+                end
             end
 
             % if do_varnet2017_env
             %     % Removed, have a look at g20220201...
             % end
 
-            [outsig1,fc] = auditoryfilterbank(insig,fs);
-            t = (1:size(outsig1,1))/fs;
+            if do_kohlrausch2021_env
+                extra.f_env  = env_extra.f_env;
+                extra.fs_env = env_extra.fs_env;
+                extra.env_dB_U = prctile(env_dB,95,2);
+                extra.env_dB   = prctile(env_dB,50,2);
+                extra.env_dB_L = prctile(env_dB, 5,2);
 
-            lvls(j,:) = rmsdb(outsig1) + dBFS;
+                figure;
+                plot(extra.f_env,extra.env_dB,'-','Color',Colours{i},'LineWidth',2); hold on, grid on
+                plot(extra.f_env,extra.env_dB_U,'-','Color',rgb('Gray'));
+                plot(extra.f_env,extra.env_dB_L,'-','Color',rgb('SlateGray'));
+                ylabel('Envelope spectrum (dB)')
+                xlabel('Modulation frequency (Hz)')
 
-            for i_fc = 1:length(fc)
-                % if do_W
-                %     % Removed, have a look at g20220201...
-                % end
-                if do_V
-                    [V1(j,i_fc),description,yenv1] = Get_envelope_metric(outsig1(:,i_fc),fs,'V');
+                il_Post_figure;
+
+                deltaf = 25;
+                XT = deltaf:deltaf:extra.fs_env/2-deltaf;
+                for i_xt = 1:length(XT)
+                    if mod(i_xt,2) == 1
+                        XTL{i_xt} = '';
+                    else
+                        XTL{i_xt} = num2str(XT(i_xt));
+                    end
                 end
+                set(gca,'XTick',XT);
+                set(gca,'XTickLabel',XTL);
 
+                % Modulation spectrum
+                xlim(fmod_xlim);
+                ylim(fmod_ylim);
+
+                title(sprintf('Envelope for %.0f sounds',N_sounds))
+
+                h(end+1) = gcf;
+                hname{end+1} = sprintf('Env-%s-N-%.0f%s',dir2check1,N_sounds,suff);
             end
 
-            if mod(j,50) == 1
-                fprintf('\tProcessing sound %.0f of %.0f\n',j,N_sounds);
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            if flags.do_fig2b
+                L1me = prctile(lvls,50);
+                errLL1 = L1me - prctile(lvls,5);
+                errUL1 = prctile(lvls,95)-L1me;
+
+                figure;
+                semilogx(fc,L1me,'o-','Color',Colours{i},'MarkerFaceColor',Colours{i}); hold on; grid on
+                errorbar(fc,L1me,errLL1,errUL1,'-','Color',Colours{i});
+                ylabel('Band level (dB)')
+                xlabel('Frequency (Hz)')
+
+                XT = [125 250 500 1000 2000 4000 8000];
+                set(gca,'XTick',XT);
+
+                il_Post_figure;
+
+                ylim(fc_ylim);
+
+                title(sprintf('rmsdb for %.0f sounds',N_sounds))
+                h(end+1) = gcf;
+                hname{end+1} = sprintf('BL-%s-N-%.0f%s',dir2check1,N_sounds,suff);
             end
-        end
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            if do_V
+                %%% Metric V
+                V1me = prctile(V1,50);
+                errL1 = V1me - prctile(V1,5);
+                errU1 = prctile(V1,95)-V1me;
 
-        % if do_varnet2017_env
-        %     % Removed, have a look at g20220201...
-        % end
+                figure;
+                semilogx(fc,V1me,'o-','Color',Colours{i},'MarkerFaceColor',Colours{i}); hold on; grid on
+                errorbar(fc,V1me,errL1,errU1,'-','Color',Colours{i});
 
-        if do_kohlrausch2021_env
-            extra.f_env  = env_extra.f_env;
-            extra.fs_env = env_extra.fs_env;
-            extra.env_dB_U = prctile(env_dB,95,2);
-            extra.env_dB   = prctile(env_dB,50,2);
-            extra.env_dB_L = prctile(env_dB, 5,2);
+                ylabel('V (dB)')
+                xlabel('Frequency (Hz)')
 
-            figure;
-            plot(extra.f_env,extra.env_dB,'-','Color',Colours{i},'LineWidth',2); hold on, grid on
-            plot(extra.f_env,extra.env_dB_U,'-','Color',rgb('Gray'));
-            plot(extra.f_env,extra.env_dB_L,'-','Color',rgb('SlateGray'));
-            ylabel('Envelope spectrum (dB)')
-            xlabel('Modulation frequency (Hz)')
+                XT = [125 250 500 1000 2000 4000 8000];
+                set(gca,'XTick',XT);
 
-            il_Post_figure;
+                ylim(V_lim);
 
-            deltaf = 25;
-            XT = deltaf:deltaf:extra.fs_env/2-deltaf;
-            for i_xt = 1:length(XT)
-                if mod(i_xt,2) == 1
-                    XTL{i_xt} = '';
-                else
-                    XTL{i_xt} = num2str(XT(i_xt));
-                end
+                title(sprintf('Metric V for %.0f sounds',N_sounds))
+                h(end+1) = gcf;
+                hname{end+1} = sprintf('V-metric-%s-N-%.0f%s',dir2check1,N_sounds,suff);
             end
-            set(gca,'XTick',XT);
-            set(gca,'XTickLabel',XTL);
 
-            % Modulation spectrum
-            xlim(fmod_xlim);
-            ylim(fmod_ylim);
-
-            title(sprintf('Envelope for %.0f sounds',N_sounds))
-
-            h(end+1) = gcf;
-            hname{end+1} = sprintf('Env-%s-N-%.0f%s',dir2check1,N_sounds,suff);
-        end
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        L1me = prctile(lvls,50);
-        errLL1 = L1me - prctile(lvls,5);
-        errUL1 = prctile(lvls,95)-L1me;
-
-        figure;
-        semilogx(fc,L1me,'o-','Color',Colours{i},'MarkerFaceColor',Colours{i}); hold on; grid on
-        errorbar(fc,L1me,errLL1,errUL1,'-','Color',Colours{i});
-        ylabel('Band level (dB)')
-        xlabel('Frequency (Hz)')
-
-        XT = [125 250 500 1000 2000 4000 8000];
-        set(gca,'XTick',XT);
-
-        il_Post_figure;
-
-        ylim(fc_ylim);
-
-        title(sprintf('rmsdb for %.0f sounds',N_sounds))
-        h(end+1) = gcf;
-        hname{end+1} = sprintf('BL-%s-N-%.0f%s',dir2check1,N_sounds,suff);
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if do_V
-            %%% Metric V
-            V1me = prctile(V1,50);
-            errL1 = V1me - prctile(V1,5);
-            errU1 = prctile(V1,95)-V1me;
-
-            figure;
-            semilogx(fc,V1me,'o-','Color',Colours{i},'MarkerFaceColor',Colours{i}); hold on; grid on
-            errorbar(fc,V1me,errL1,errU1,'-','Color',Colours{i});
-
-            ylabel('V (dB)')
-            xlabel('Frequency (Hz)')
-
-            XT = [125 250 500 1000 2000 4000 8000];
-            set(gca,'XTick',XT);
-
-            ylim(V_lim);
-
-            title(sprintf('Metric V for %.0f sounds',N_sounds))
-            h(end+1) = gcf;
-            hname{end+1} = sprintf('V-metric-%s-N-%.0f%s',dir2check1,N_sounds,suff);
-        end
-
-        lvls_broadband = sum_dB_power(lvls);
-        [prctile(lvls_broadband,5) prctile(lvls_broadband,50) prctile(lvls_broadband,95)]
-    end    
-
+            if flags.do_fig2b
+                lvls_broadband = sum_dB_power(lvls);
+                [prctile(lvls_broadband,5) prctile(lvls_broadband,50) prctile(lvls_broadband,95)]
+            end
+        end    
+    end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -286,13 +293,30 @@ if flags.do_fig3 || flags.do_fig3a || flags.do_fig3b || flags.do_fig4 || flags.d
 
     %%% Specific ACI configuration:
     TF_type = 'gammatone';
-    glmfct  = 'lassoglmslow'; 
+    glmfct  = 'l1glm'; 
 
     N_lambda = 30;
     Lambdas = logspace(-4, -1, N_lambda);
     idx = find(Lambdas >= 10^-3);
     Lambdas = Lambdas(idx);
     %%%
+
+    flags_for_input = {TF_type, ...
+                       glmfct, ... % 'dir_noise',dir_noise, 'dir_target',dir_target, ...
+                       'trialtype_analysis', 'total', ...
+                       'add_signal',0, ...
+                       'apply_SNR',0, ...
+                       'skip_if_on_disk',1, ...
+                       'expvar_after_reversal', 4, ...
+                       'lambda', Lambdas, ...
+                       'no_permutation', 'no_bias', ...
+                       'pyramid_script','imresize', ...
+                       'pyramid_shape',0}; 
+    if bPlot_ACIs == 0
+        flags_for_input{end+1} = 'no_plot';
+    end
+    flags_for_input{end+1} = 'dir_out';
+    flags_for_input{end+1} = dir_out;
 
     do_fig_formatting = 1;
 
@@ -320,19 +344,7 @@ if flags.do_fig3 || flags.do_fig3a || flags.do_fig3b || flags.do_fig4 || flags.d
             Data_matrix = []; % init
             dir_noise = []; % init
             dir_target = []; % init
-            flags_for_input = {TF_type, ...
-                       glmfct, ... % 'dir_noise',dir_noise, 'dir_target',dir_target, ...
-                       'trialtype_analysis', 'total', ...
-                       'add_signal',0, ...
-                       'apply_SNR',0, ...
-                       'skip_if_on_disk',1, ...
-                       'expvar_after_reversal', 4, ...
-                       'lambda', Lambdas, ...
-                       'no_permutation', 'no_bias'}; 
-            if bPlot_ACIs == 0
-                flags_for_input{end+1} = 'no_plot';
-            end
-
+            
             dir_subj = [fastACI_dir_data experiment filesep subj filesep];
             dir_res = [dir_subj 'Results' filesep];
             fname_results = Get_filenames(dir_res,['savegame*' noise_type '.mat']);
@@ -473,15 +485,15 @@ if flags.do_fig3 || flags.do_fig3a || flags.do_fig3b || flags.do_fig4 || flags.d
 end
 
 if nargout == 0
-    dir_out = fastACI_paths('dir_output');
+    dir_out_figs = fastACI_paths('dir_output');
 
     for i = 1:length(h)
         opts = [];
         opts.format = 'epsc';
-        Saveas(h(i),[dir_out hname{i}],opts);
+        Saveas(h(i),[dir_out_figs hname{i}],opts);
 
         opts.format = 'fig';
-        Saveas(h(i),[dir_out hname{i}],opts);
+        Saveas(h(i),[dir_out_figs hname{i}],opts);
     end
 end
 

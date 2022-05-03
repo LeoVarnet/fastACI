@@ -34,14 +34,15 @@ hname = [];
 definput.flags.type={'missingflag','fig2_abda13','fig2_abda21','fig2_abda22','fig2_mod22'};
 definput.flags.subject = {'SA','SB'};
 definput.flags.publ = {'varnet2022b_CFA','varnet2022a_JASA'}; % default is varnet2022b_CFA
-definput.keyvals.dir_out  = [fastACI_paths('dir_output') 'varnet2022b_CFA' filesep];
+definput.keyvals.dir_out  = [];
 definput.keyvals.dir_data = fastACI_paths('dir_data');
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
 dir_data   = keyvals.dir_data;
 dir_output = keyvals.dir_out;
-if ~exist(dir_output,'dir')
-    mkdir(dir_output);
+dir_out_figs = [fastACI_paths('dir_output') 'varnet2022b_CFA' filesep];
+if ~exist(dir_out_figs,'dir')
+    mkdir(dir_out_figs);
 end
 
 %%%
@@ -49,7 +50,9 @@ flags_for_input = {'trialtype_analysis','total', ...'t1',...
     'N_folds', 10, ...
     'no_permutation', ...
     'no_bias', ...
-    'no_plot'...
+    'no_plot', ...
+    'pyramid_script','imresize', ...
+    'pyramid_shape',0 ...
     };
 DimCI = 'gammatone'; 
 
@@ -142,6 +145,7 @@ for i_subject = 1:N_subjects
         files = Get_filenames(dir_results,'savegame_*.mat');
         if length(files) > 1
             Show_cell(files)
+            fprintf('Looking for %s noises\n',masker);
             bInput = input(['Choose the one that you want to choose (expected=' masker '): ']);
             files = files(bInput);
         end
@@ -191,10 +195,8 @@ for i_subject = 1:N_subjects
         flags_for_input{end+1} = dir_output;
         
         % type = 'lassoglm';
-        [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(fname_results, DimCI, type, flags_for_input{:},'Data_matrix',Data_matrix);
-
-        [au,fsau] = audioread([fastACI_basepath 'Stimuli' filesep 'ready.wav']);
-        sound(au,fsau);
+        [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(fname_results, DimCI, ...
+            type, flags_for_input{:},'Data_matrix',Data_matrix);
     end
     
     if flags.do_fig2_mod22
@@ -247,10 +249,10 @@ hname{end+1} = [exp_label '-' subj_label];
 for i = 1:length(h)
     opts = [];
     opts.format = 'epsc';
-    Saveas(h(i),[dir_output hname{i}],opts);
+    Saveas(h(i),[dir_out_figs hname{i}],opts);
     
     opts.format = 'png';
-    Saveas(h(i),[dir_output hname{i}],opts);
+    Saveas(h(i),[dir_out_figs hname{i}],opts);
 end
 %%% End of the script
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

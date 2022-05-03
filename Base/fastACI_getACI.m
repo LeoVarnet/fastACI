@@ -48,10 +48,6 @@ end
 
 Data_matrix = [];
 
-% % From argument function:
-% definput.import={'fastACI_getACI'}; % arg_fastACI_getACI.m
-% [flags,keyvals]  = ltfatarghelper({},definput,varargin);
-
 %%%
 [fnameACI, cfg_game, data_passation, ListStim, flags, keyvals] = fastACI_getACI_fname(savegame_file,varargin{:});
 bCalculation = ~exist(fnameACI,'file');
