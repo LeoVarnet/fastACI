@@ -49,11 +49,20 @@ if bRe_init
     % save(outfile,'thres_for_bias','in_std');
 end
 %%% 
-Ni = 1; N = 400;
-% Ni = 1; N = 4000;
+if isempty(keyvals.Ni)
+    Ni = 1; 
+else
+    Ni = keyvals.Ni;
+end
+
+if isempty(keyvals.Nf)
+    N = 400;
+else
+    N = keyvals.Nf;
+end
 
 Iterations = 1;
-while bContinue == 1 && Iterations <= 20
+while bContinue == 1 && Iterations <= 20 
     Nf = Ni + N;
     flags_here = {'Ni',Ni,'Nf',Nf,'thres_for_bias',thres_for_bias,'fname_template_suffix',keyvals.fname_template_suffix}; % ,'file_model_decision_config',file_model_decision_config};
 
@@ -103,8 +112,9 @@ while bContinue == 1 && Iterations <= 20
     Iterations = Iterations + 1;
 
     Ni = Ni + N;
-    if Ni > cfg_game.N
-        Ni = 1;
+    if Ni >= cfg_game.N
+        % Ni = 1;
+        break;
     end
 end
 
@@ -119,12 +129,11 @@ date = date.date2print;
 
 %%%
 fname = ['optimal_detector-' model '-' Condition '-' date];
-
+ 
 pars = [];
 pars.thres_for_bias = thres_for_bias;
 pars.in_std = in_std;
 pars.description = ['Calibration using ' mfilename];
-
 Save_model_calibration(fname,pars);
 
 %%%

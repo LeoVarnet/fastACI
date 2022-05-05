@@ -182,13 +182,15 @@ if flags.do_fig1a || flags.do_fig1b || flags.do_fig2 || flags.do_fig3a || flags.
             dir_noise  = cfg_game.dir_noise;
             dirname4waveforms = Get_subjectname_from_dirname(dir_noise);
             
-            switch dirname4waveforms
-                case 'SLeo' % this folder does not exist anymore:
-                    dir_new = 'osses2021c_S01';
+            if ~exist(dir_noise,'dir')
+                switch dirname4waveforms
+                    case 'SLeo' % this folder does not exist anymore:
+                        dir_new = 'osses2021c_S01';
+                end
+                idx = strfind(dir_noise,dirname4waveforms);
+                idx = idx + length(dirname4waveforms);
+                dir_noise = [fastACI_paths('dir_data') experiment filesep dir_new filesep dir_noise(idx+1:end-1) filesep];
             end
-            idx = strfind(dir_noise,dirname4waveforms);
-            idx = idx + length(dirname4waveforms);
-            dir_noise = [fastACI_paths('dir_data') experiment filesep dir_new filesep dir_noise(idx+1:end-1) filesep];
             
             if isfield(cfg_game,'dir_speech')
                 cfg_game.dir_target = cfg_game.dir_speech;

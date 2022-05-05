@@ -34,7 +34,8 @@ end
 p.time          = [num2str(DateNum(4)),':',num2str(DateNum(5)),':',num2str(DateNum(6)),' (hh:mm:ss)'];
 p.date2print    = [p.yyyy,'-',p.mm,'-',p.dd,'-at-' num2str(DateNum(4)),'h-',num2str(DateNum(5)),'m-',num2str(DateNum(6)),'s'];
 p.date4plots    = [p.yyyy,'-',p.mm,'-',p.dd,',' num2str(DateNum(4)),':',num2str(DateNum(5)),''];
-p.date4files    = [p.yyyy p.mm p.dd];
+p.date4files    = [p.yyyy '-' p.mm '-' p.dd];
+p.date4scripts  = [p.yyyy p.mm p.dd];
 numeric_y = DateNum;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,5 +1,5 @@
-function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID, Condition, varargin)
-% function [cfg_game, data_passation] = fastACI_experiment(experiment, Subject_ID, Condition, varargin)
+function [cfg_game, data_passation, keyvals] = fastACI_experiment(experiment, Subject_ID, Condition, varargin)
+% function [cfg_game, data_passation, keyvals] = fastACI_experiment(experiment, Subject_ID, Condition, varargin)
 %
 % Changes by AO:
 %   - cfg_game.resume set to 1 (for oui) or 0 (for non)
@@ -214,7 +214,12 @@ if cfg_game.is_simulation == 1
     
     %%% Calibrate the model if keyvals.thres_for_bias is not specified:
     if isempty(keyvals.thres_for_bias)
-        keyvals = fastACI_model_calibration(experiment_full,Subject_ID,Condition,keyvals);
+        kv_here = keyvals;
+        kv_here.Nf = cfg_game.N;
+        kv_here = fastACI_model_calibration(experiment_full,Subject_ID,Condition,kv_here);
+        keyvals.in_std = kv_here.in_std;
+        keyvals.thres_for_bias = kv_here.thres_for_bias;
+        return; % it stops after running the calibration
     end
     if ~strcmp(cfg_game.Language,'EN')
         fprintf('%s: Switching the language of the simulations to English\n',upper(mfilename));

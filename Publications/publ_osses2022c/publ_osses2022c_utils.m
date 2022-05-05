@@ -106,13 +106,13 @@ switch type_action
         outs.glmfct = glmfct;
         outs.TF_type = TF_type;
         
-    case 'Model-calibrate'
-        % publ_osses2022c_utils('osses2022a','SSN','Model-calibrate')
-        
-        % Completed on 2/02/2022 at 11:59...
-        model = 'osses2022a';
-        experiment = 'speechACI_varnet2013';
-        g20211207_calibrating_the_model(experiment,model);
+    % case 'Model-calibrate'
+    %     % publ_osses2022c_utils('osses2022a','SSN','Model-calibrate')
+    % 
+    %     % Completed on 2/02/2022 at 11:59...
+    %     model = 'osses2022a';
+    %     experiment = 'speechACI_varnet2013';
+    %     g20211207_calibrating_the_model(experiment,model);
         
     case 'Model-run'
         % publ_osses2022c_utils('osses2022a','white','Model-run')
@@ -122,6 +122,9 @@ switch type_action
             warning('Ignoring Subject_ID and using the model name...');
         end
         
+        % load('../fastACI/Interim_results/osses2022a-optimal_detector-20220202-SSN.mat')
+        %     SSN  , thres_for_bias is 1.2
+        %     white, thres_for_bias is 0.9
         file_model_decision_config = [fastACI_basepath 'Interim_results' filesep 'osses2022a-optimal_detector-20220202-' noise_type '.mat'];
         flags_here = {'file_model_decision_config',file_model_decision_config};
         experiment = 'speechACI_varnet2013';

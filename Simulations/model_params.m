@@ -102,7 +102,11 @@ switch modelname
             modelpars{end+1} = pars.modelpars{i};
         end
         subfs = pars.subfs;
-        params_extra.in_var = pars.in_var;
+        if isfield(pars,'in_var')
+            params_extra.in_var = pars.in_var;
+        else
+            params_extra.in_var = 0;
+        end
         
     case 'osses2022a'
         pars = osses2022a_cfg(keyvals);

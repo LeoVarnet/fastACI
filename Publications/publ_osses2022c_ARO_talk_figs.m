@@ -14,12 +14,6 @@ close all
 h = [];
 hname = [];
 
-% if nargin == 0
-%     help publ_osses2022c_ARO_talk_figs;
-%     return
-% end
-
-% definput.flags.type={'missingflag','fig1','fig4a'};
 definput.keyvals.dir_out = [];
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
@@ -49,13 +43,30 @@ for i_subject = 1:length(Subjects)
                     case 'white'
                         dir_target = []; % outs.dir_target;
                         dir_noise  = []; % outs.dir_noise;
-                        fname_results = [fastACI_dir_data 'speechACI_varnet2013' filesep 'osses2022a' filesep 'Results' filesep 'savegame_2022_02_02_14_29_osses2022a_speechACI_varnet2013_white.mat'];
+                        % fname_results = [fastACI_dir_data 'speechACI_varnet2013' filesep 'osses2022a' filesep 'Results' filesep 'savegame_2022_02_02_14_29_osses2022a_speechACI_varnet2013_white.mat'];
+                        folder2look = {'Results-run-1-white'};
                     case 'SSN'
                         dir_target = []; % outs.dir_target;
                         dir_noise  = []; % outs.dir_noise;
-                        fname_results = [fastACI_dir_data 'speechACI_varnet2013' filesep 'osses2022a' filesep 'Results' filesep 'savegame_2022_02_02_19_35_osses2022a_speechACI_varnet2013_SSN.mat'];
+                        % fname_results = [fastACI_dir_data 'speechACI_varnet2013' filesep 'osses2022a' filesep 'Results' filesep 'savegame_2022_02_02_19_35_osses2022a_speechACI_varnet2013_SSN.mat'];
+                        folder2look = {'Results-run-1-SSN'};
                 end
-                
+                dir_subj = [fastACI_dir_data 'speechACI_varnet2013' filesep subj filesep];
+                dir_local = Get_filenames(dir_subj,[folder2look{1} '*']);
+                if length(dir_local)>1
+                    Show_cell(dir_local);
+                    bInput = input('Please indicate the folder that should contain the results to process: ');
+                    dir_local = dir_local{bInput};
+                else
+                    dir_local = dir_local{1};
+                end
+                dir_local = [dir_subj dir_local filesep];
+                fname_results = Get_filenames(dir_local,['savegame*' noise_type '.mat']); % [fastACI_dir_data 'speechACI_varnet2013' filesep subj filesep folders{1} filesep 'savegame_*_SSN.mat'];
+                fname_results = [dir_local fname_results{1}];
+                if ~exist(fname_results,'file')
+                    % If no savegame file is found, the simulations will be run
+                    publ_osses2022c_ARO_talk_1_sim;
+                end
                 
             otherwise
                 outs = publ_osses2022c_utils(subj,noise_type,'Get_filenames');
