@@ -57,15 +57,20 @@ for i_subject = 1:length(Subjects)
                     Show_cell(dir_local);
                     bInput = input('Please indicate the folder that should contain the results to process: ');
                     dir_local = dir_local{bInput};
-                else
+                elseif ~isempty(dir_local)
                     dir_local = dir_local{1};
+                else
+                    % if not found at all
+                    dir_local = [];
                 end
                 dir_local = [dir_subj dir_local filesep];
                 fname_results = Get_filenames(dir_local,['savegame*' noise_type '.mat']); % [fastACI_dir_data 'speechACI_varnet2013' filesep subj filesep folders{1} filesep 'savegame_*_SSN.mat'];
-                fname_results = [dir_local fname_results{1}];
+                if ~isempty(fname_results)
+                    fname_results = [dir_local fname_results{1}];
+                end
                 if ~exist(fname_results,'file')
                     % If no savegame file is found, the simulations will be run
-                    publ_osses2022c_ARO_talk_1_sim;
+                    publ_osses2022c_ARO_talk_1_sim(noise_type);
                 end
                 
             otherwise

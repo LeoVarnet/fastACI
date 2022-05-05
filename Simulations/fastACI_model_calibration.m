@@ -10,21 +10,24 @@ function keyvals = fastACI_model_calibration(experiment, model, Condition, keyva
 switch experiment
     case 'speechACI_varnet2013'
         
-        validated_conds = {'white','SSN'};
-        Show_cell(validated_conds);
+        % validated_conds = {'white','SSN'};
+        % Show_cell(validated_conds);
         
-        bInput = input('Enter the number of the conditions you want to test (one or more numeric values are accepted, or enter 0 for all): ');
-        if bInput == 0
-            Conds = validated_conds;
-        else
-            Conds = validated_conds(bInput); 
-        end
+        % bInput = input('Enter the number of the conditions you want to test (one or more numeric values are accepted, or enter 0 for all): ');
+        % if bInput == 0
+        %     Conds = validated_conds;
+        % else
+        %     Conds = validated_conds(bInput); 
+        % end
         
-        suff_exp = ['-' experiment];
+        % suff_exp = ['-' experiment];
         
-        if ~strcmp(Conds{1},'white')
-            suff_exp = [suff_exp '-' Conds{1}];
-        end
+        % if ~strcmp(Conds{1},'white')
+        %     suff_exp = [suff_exp '-' Conds{1}];
+        % end
+        % if ~strcmp(Condition,'white')
+        %     suff_exp = [suff_exp '-' Condition];
+        % end        
 end
 
 expvar = -40; % This is a very low experimental variable
