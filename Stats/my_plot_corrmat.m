@@ -325,8 +325,9 @@ if parsed_inputs.outline
     change_outline(hObject)
 end
     
-function il_update_plot(initialize,curr_data_type,~)
-    if ~initialize && isgraphics(h_image,'image')
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function il_update_plot(initialise,curr_data_type,~)
+    if ~initialise && isgraphics(h_image,'image')
         cla(ax); delete(h_colorbar);
     end
     % Determine CData Idx:
@@ -372,7 +373,7 @@ function il_update_plot(initialize,curr_data_type,~)
         end
     end
     % Colormap:
-    if initialize
+    if initialise
         main_colormap = bluewhitered(str2double(N_cmap),cmin,cmax);
         colormap(ax,main_colormap);
     end

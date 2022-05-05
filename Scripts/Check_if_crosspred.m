@@ -1,4 +1,4 @@
-function crosspred = Check_if_crosspred(fnameACI,file_crosspred)
+function [crosspred, fname] = Check_if_crosspred(fnameACI,file_crosspred)
 % function crosspred = Check_if_crosspred(fnameACI,file_crosspred)
 %
 % Used in l20211217_crossprediction_version_Alejandro_v2.m
@@ -32,13 +32,17 @@ if exist(dir_where,'dir')
             end
         end
         
+        crosspred = var.crosspred;
+        
         if sum(isnan(idx))==0 
             % then all files were found
-            crosspred = var.crosspred(idx);
-            
-            try
-                crosspred.idxlambda = idxlambda;
-            end
+            % crosspred = var.crosspred(idx);
+            % 
+            % try
+            %   crosspred.idxlambda = idxlambda;
+            % end
+        else
+            warning('This cross prediction file seems to be incomplete...')
         end
     end
 end

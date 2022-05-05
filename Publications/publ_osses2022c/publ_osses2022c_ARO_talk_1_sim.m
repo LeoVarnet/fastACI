@@ -64,8 +64,6 @@ p = Get_date;
 fname_template_suffix = [noise_type '-' p.date4files]; % trick to always get a new template
 flags_here = {'thres_for_bias',[],'in_std',in_std,'fname_template_suffix',fname_template_suffix};
 
-data_passation.i_current = 1; % idle numbers
-
 bCalibration = 1;
 if bCalibration
     %%% Runs the calibration first:
@@ -79,6 +77,7 @@ end
 flags_here = {'thres_for_bias',thres_for_bias,'in_std',in_std,'fname_template_suffix',fname_template_suffix};
 
 cfg_game.N = 5000; % idle numbers, overwritten after the first pass of the while loop, below
+data_passation.i_current = 1; % idle numbers
 while data_passation.i_current < cfg_game.N
     [cfg_game,data_passation] = fastACI_experiment(experiment,modelname,noise_type,flags_here{:});
 end

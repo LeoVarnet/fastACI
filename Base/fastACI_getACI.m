@@ -408,12 +408,12 @@ if bCrossPred
         end
         
         crosspred(i).Subject_test = cfg_ACI.Subject_ID;
-        crosspred(i).ACI_test = fnameACI;
-        crosspred(i).ACI_ref = ACI_crosspred{i};
+        crosspred(i).fnameACI_ref = ACI_crosspred{i};
         crosspred(i).bProcessed = bProceed;
         
         if bProceed && ~bProcessed_already
-            fprintf('%s: Cross validating participant %s',upper(mfilename),crosspred(i).Subject_test,crosspred(i).Subject_ref)
+            fprintf('%s: Cross validating participant %s''s data using %s\n', ...
+                upper(mfilename),crosspred(i).Subject_test,crosspred(i).fnameACI_ref);
             var = load(ACI_crosspred{i},'cfg_ACI');
             cfg_crosspred = var.cfg_ACI;
 
