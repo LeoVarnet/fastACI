@@ -1,30 +1,31 @@
-function [h,hname] = publ_varnet2022_JASA_2_figs(varargin)
-% function [h,hname] = publ_varnet2022_JASA_2_figs(varargin)
+function [h,hname] = publ_varnet2022a_JASA_figs(varargin)
+% function [h,hname] = publ_varnet2022a_JASA_figs(varargin)
 %
-% Generates the figures
+% Generates the figures from the publication by Varnet and Lorenzi (2022,
+%   JASA). This script requires some preprocessed MAT files.
 %
 % % To display Fig. 2 of Varnet and Lorenzi (2022, JASA) use :::
-%     publ_varnet2022_JASA_2_figs('fig2');
+%     publ_varnet2022a_JASA_figs('fig2');
 %
 % % To display Fig. 3 of Varnet and Lorenzi (2022, JASA) use :::
-%     publ_varnet2022_JASA_2_figs('fig3');
+%     publ_varnet2022a_JASA_figs('fig3');
 %
 % % To display Fig. 4 of Varnet and Lorenzi (2022, JASA) use :::
-%     publ_varnet2022_JASA_2_figs('fig4');
+%     publ_varnet2022a_JASA_figs('fig4');
 %
 % % To display Fig. 1 of the supplementary materials of Varnet and Lorenzi 
 % %     (2022, JASA) use :::
-%     publ_varnet2022_JASA_2_figs('fig1_suppl');
+%     publ_varnet2022a_JASA_figs('fig1_suppl');
 %
 % % To display Fig. 2 of the supplementary materials of Varnet and Lorenzi 
 % %     (2022, JASA) use :::
-%     publ_varnet2022_JASA_2_figs('fig2_suppl');
+%     publ_varnet2022a_JASA_figs('fig2_suppl');
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin == 0
-    help publ_varnet2022_JASA_2_figs;
+    help publ_varnet2022a_JASA_figs;
     return
 end
 
@@ -33,10 +34,18 @@ hname = [];
 
 definput.flags.type={'missingflag','fig2','fig3','fig3a','fig3c','fig3d','fig4','fig1_suppl','fig2_suppl'};
 definput.keyvals.models=[];
-
+definput.flags.publ = {'varnet2022a_JASA','do_varnet2022b_CFA'}; % the first one is the default
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
-data = il_load_data(flags);
+%%% Checking whether the data are stored locally:
+bAre_stored_locally = publ_varnet2022a_JASA_0_checkdata;
+if ~isempty(find(bAre_stored_locally==0))
+    fprintf('%s: Please make sure you donwload the experimental data from Zenodo\n',upper(mfilename));
+    fprintf('\tas instructed in the script publ_varnet2022a_JASA_0_checkdata.m\n');
+end
+%%%
+
+data = il_load_data(flags,keyvals);
 N_subjects = data.N_subjects;
 
 plot_models = 0;
@@ -377,7 +386,7 @@ if flags.do_fig1_suppl
          15, 10,  5,  5, 10,  5,  5, 20, 25, 10,  5, 10, 10, 10, 10, -5, 10, 10, 25, 15; ...
          10, 10, 10,  5, 10,  0,  0,  5, 25, 15, 10,  5, 10, 10,  5,  5,  5, 10, 20,  5; ...
          -5,  0,  0,  0,  5,  0, -5, 15, 30,  0,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan; ... % S4
-          5,  0, -5,  0,  0,  0,  5, 20, 10, gly 0,  5,  0, -5,  0,  0,  0,  5, 20, 15,  5; ...
+          5,  0, -5,  0,  0,  0,  5, 20, 10, 0,  5,  0, -5,  0,  0,  0,  5, 20, 15,  5; ...
          15, 10, 10, 10, 10,  5,  5,  5, 25,  5, 10,  5,  5,  0,  0,  5, -5,  5, 15, -5; ...
          10, 10,  5,  5, 10, 15, 10, 15, 25, 10,  5, 10, 10,  5,  5, 10, 10, 15, 20, 15; ...
           5,  0,  5,  5,  5,  5, -5,-10,  5,  5,  5,  0,  0,  0,  5,  5,  5, -5, 15, 10; ...
@@ -475,7 +484,7 @@ if flags.do_fig2_suppl
 end
 %%% End of the script
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function data = il_load_data(flags)
+function data = il_load_data(flags,keyvals)
 
 dir_data = [fastACI_paths('dir_data') 'modulationACI' filesep];
 % files = Get_filenames(dir_data,'S*');
@@ -526,7 +535,7 @@ for i_subject = N_subjects:-1:1 % First participant read at last...
         if exist(file2load,'file')
             load(file2load);
         else
-            publ_varnet2022a_utils(files{i_subject},'Get_Behavior');
+            publ_varnet2022a_utils(files{i_subject},'Get_Behavior',flags);
             load(file2load);
         end
         
@@ -566,7 +575,7 @@ for i_subject = N_subjects:-1:1 % First participant read at last...
         if exist(file2load,'file')
             load(file2load);
         else
-            publ_varnet2022a_utils(files{i_subject},'Get_CIt');
+            publ_varnet2022a_utils(files{i_subject},'Get_CIt',flags);
             load(file2load);
         end
         %%% End loading
@@ -594,7 +603,12 @@ for i_subject = N_subjects:-1:1 % First participant read at last...
         
         fE = [];
         % ideal_templatecfft = [];
-        load([dir_local 'CIf'])
+        file2load = [dir_local 'CIf'];
+        if exist(file2load,'file')
+            load(file2load)
+        else
+            publ_varnet2022a_utils(files{i_subject},'Get_CIf',flags);
+        end
         %%% End loading
          
         CIf_all(i_subject,:) = abs(CIfft);
@@ -768,5 +782,5 @@ end
 % %%% Info about the rejected participant:
 % dir_local = [dir_data 'Srej' filesep];
 % load([dir_local 'Behavior'],'m_windowed','bias_windowed');
-% data.m_reject = m_windowed;
-% data.bias_reject = bias_windowed;
+data.m_reject = m_windowed;
+data.bias_reject = bias_windowed;

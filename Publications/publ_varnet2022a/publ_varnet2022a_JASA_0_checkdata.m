@@ -1,5 +1,5 @@
-function bAre_stored_locally = publ_varnet2022_JASA_0_checkdata
-% function bAre_stored_locally = publ_varnet2022_JASA_0_checkdata
+function bAre_stored_locally = publ_varnet2022a_JASA_0_checkdata
+% function bAre_stored_locally = publ_varnet2022a_JASA_0_checkdata
 %
 % This script checks whether the data related to varnet2022 (Varnet and Lorenzi,
 %     2022, JASA) is located locally and otherwise, it requests the user to
@@ -30,16 +30,12 @@ for i = 1:length(dirs2check)
             mkdir(dir_where)
         end
         
-        bAre_stored_locally = 0;
+        bAre_stored_locally(i) = 0;
+        fprintf('%s: directory %s NOT found on disk\n',upper(mfilename),dir2check);
         return;
     else
-        bAre_stored_locally = 1;
+        bAre_stored_locally(i) = 1;
+        fprintf('%s: directory %s successfully found on disk\n',upper(mfilename),dir2check);
     end
     
-end
-
-if bAre_stored_locally == 1
-    fprintf('%s: directory %s successfully found on disk\n',upper(mfilename),dir2check);
-    % fprintf('\t If you wish, you can now run either publ_osses2021c_DAGA_1_sim or publ_osses2021c_DAGA_2_figs... \n');
-end
-        
+end        

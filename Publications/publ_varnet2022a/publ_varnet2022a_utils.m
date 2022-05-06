@@ -10,6 +10,12 @@ function data = publ_varnet2022a_utils(Subject_ID,type_action,flags,keyvals)
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if nargin < 3
+    definput.flags.publ = {'varnet2022a_JASA','do_varnet2022b_CFA'}; % the first one is the default
+    [flags,keyvals]  = ltfatarghelper({},definput,varargin);
+end
+
 data = [];
 
 experiment = 'modulationACI';
@@ -19,6 +25,9 @@ filt2use = 'save*';
 switch flags.publ
     case 'varnet2022b_CFA'
         filt2use = [filt2use 'swap-tar'];
+end
+if strcmp(filt2use(end),'*')
+    filt2use = filt2use(1:end-1);
 end
 file = Get_filenames(dir_subj,[filt2use '*.mat']);
 if length(file) == 1
@@ -70,8 +79,16 @@ switch type_action
         
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
     case 'Get_CIt'
-        do_varnet2022a_JASA = flags.do_varnet2022a_JASA;
-        do_varnet2022b_CFA  = flags.do_varnet2022b_CFA;
+        if isfield(flags,'do_varnet2022a_JASA')
+            do_varnet2022a_JASA = flags.do_varnet2022a_JASA;
+        else
+            do_varnet2022a_JASA = 0;
+        end
+        if isfield(flags,'do_varnet2022b_CFA')
+            do_varnet2022b_CFA = flags.do_varnet2022b_CFA;
+        else
+            do_varnet2022b_CFA = 0;
+        end
         
         % Analyse noise in bands
         basef = 1000;
@@ -231,7 +248,10 @@ switch type_action
             
             data.f = f;
             data.t = t;
-        end
+         end
+        
+    case 'Get_CIf'
+        error('Under construction... (6/05/2022)')
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

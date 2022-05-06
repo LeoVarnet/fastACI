@@ -1,25 +1,25 @@
-function data = publ_osses2021c_DAGA_2_figs(varargin)
-% function publ_osses2021c_DAGA_2_figs(varargin)
+function data = publ_osses2021c_DAGA_figs(varargin)
+% function publ_osses2021c_DAGA_figs(varargin)
 %
 % Generates the figures
 %
 % % To display Fig. 1A of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig1a');
+%     publ_osses2021c_DAGA_figs('fig1a');
 %
 % % To display Fig. 1B of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig1b');
+%     publ_osses2021c_DAGA_figs('fig1b');
 %
 % % To display Fig. 2 of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig2');
+%     publ_osses2021c_DAGA_figs('fig2');
 %
 % % To display Fig. 3A of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig3a');
+%     publ_osses2021c_DAGA_figs('fig3a');
 %
 % % To display Fig. 3B of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig3b');
+%     publ_osses2021c_DAGA_figs('fig3b');
 %
 % % To display Fig. 4 of Osses and Varnet, (2021, DAGA) use :::
-%     publ_osses2021c_DAGA_2_figs('fig4');
+%     publ_osses2021c_DAGA_figs('fig4');
 %
 % Original name:
 %   g20210810_analysing_simulation_sessions_abda.m (Figs. 1A-3b)
@@ -30,7 +30,7 @@ function data = publ_osses2021c_DAGA_2_figs(varargin)
 close all, clc
 
 if nargin == 0
-    help publ_osses2021c_DAGA_2_figs;
+    help publ_osses2021c_DAGA_figs;
     return
 end
 
