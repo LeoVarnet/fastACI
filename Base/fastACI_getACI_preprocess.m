@@ -228,27 +228,29 @@ switch fg.glmfct
         N_t = cfg_ACI.N_t;    
         N_f = cfg_ACI.N_f;
         
-        if Nt_X>N_t % Along time dimension, zero padding
-            [N,M,P] = size(preX);
-            nullMatrix = zeros(N,M,Nt_X-P);
-            preX = cat(3,preX,nullMatrix);
-            dt = diff(cfg_ACI.t(1:2));
-            t_X = (1:Nt_X)*dt;
-        end
+%         %this part is not needed anymore
+%         if Nt_X>N_t % Along time dimension, zero padding
+%             [N,M,P] = size(preX);
+%             nullMatrix = zeros(N,M,Nt_X-P);
+%             preX = cat(3,preX,nullMatrix);
+%             dt = diff(cfg_ACI.t(1:2));
+%             t_X = (1:Nt_X)*dt;
+%         end
+%         
+%         if Nt_X<N_t % Along time dimension, truncating
+%             preX = preX(:,:,1:Nt_X);
+%             t_X = cfg_ACI.t(1:Nt_X);
+%         end
+%         
+%         if Nf_X<N_f % Along frequency dimension, truncating
+%             preX = preX(:,1:Nf_X,:);
+%             f_X = cfg_ACI.f(1:Nf_X);
+%         elseif Nf_X == N_f
+%             % Nothing to do
+%         else
+%             warning('Choose a higher value for NFFT')
+%         end
         
-        if Nt_X<N_t % Along time dimension, truncating
-            preX = preX(:,:,1:Nt_X);
-            t_X = cfg_ACI.t(1:Nt_X);
-        end
-        
-        if Nf_X<N_f % Along frequency dimension, truncating
-            preX = preX(:,1:Nf_X,:);
-            f_X = cfg_ACI.f(1:Nf_X);
-        elseif Nf_X == N_f
-            % Nothing to do
-        else
-            warning('Choose a higher value for NFFT')
-        end
         
         % Gaussian pyramid reduction
 
