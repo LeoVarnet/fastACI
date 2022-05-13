@@ -47,7 +47,9 @@ end
 definput.import={'fastACI_experiment'}; % arg_fastACI_experiment.m
 if bSimulation
     definput.import{end+1} = 'fastACI_simulations';
+    definput.import{end+1} = 'fastACI_simulation_detect';
 end
+% From argument function:
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -1,4 +1,4 @@
-function [response,sim_work] = aci_detect(cfg_game,data_passation,cfg_sim,sim_work,keyvals)
+function [response,sim_work] = aci_detect(cfg_game,data_passation,cfg_sim,sim_work,varargin) %keyvals)
 % ACI_DETECT
 %
 % Based on casp_detect.m, an add-on function from the AFC toolbox
@@ -17,18 +17,12 @@ function [response,sim_work] = aci_detect(cfg_game,data_passation,cfg_sim,sim_wo
 %               % 'pianoinnoise2' (if casp_template_piano)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if nargin < 5
-    keyvals = [];
-end
 %%% New name            Old name
 %   cfg_sim             simdef
-
 %   def.experiment      def.expname
-% warning('Modelling under construction: Not validated yet...')
 
-% global def
-% global work
-% def = [];
+definput.import={'fastACI_simulation_detect'}; % arg_fastACI_simulation_detect.m
+[flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
 response = NaN; % initialisation
 
@@ -152,17 +146,35 @@ switch type_decision
         sim_work.decision_var_mue2choose(data_passation.i_current,:) = [decision_with_tar.dfinal decision_with_ref.dfinal];
         
     case 'optimal_detector'
-        mue_tar = optimal_detector(sim_work.current_signal,sim_work.templ_tar,subfs);
-        mue_ref = optimal_detector(sim_work.current_signal,sim_work.templ_ref,subfs);
         
-        %%% Cross-correlation with different time lags:
-        % mu1    = il_get_optimal_detector(sim_work.current_signal,sim_work.templ_tar,subfs); 
-        % mu1rev = il_get_optimal_detector(sim_work.templ_tar,sim_work.current_signal,subfs); 
-        % mu1 = max([mu1 mu1rev]);
-        % 
-        % mu2    = il_get_optimal_detector(sim_work.current_signal,sim_work.templ_ref,subfs);
-        % mu2rev = il_get_optimal_detector(sim_work.templ_ref,sim_work.current_signal,subfs);
-        % mu2 = max([mu2 mu2rev]);
+        if keyvals.maxtimelag_ms == 0
+            % The value at lag=0
+            mue_tar = optimal_detector(sim_work.current_signal,sim_work.templ_tar,subfs);
+            mue_ref = optimal_detector(sim_work.current_signal,sim_work.templ_ref,subfs);
+
+        else
+            %%% Cross-correlation with different time lags:
+            mue_forw  = il_get_optimal_detector(sim_work.current_signal,sim_work.templ_tar,subfs,keyvals.maxtimelag_ms); 
+            mue_backw = il_get_optimal_detector(sim_work.templ_tar,sim_work.current_signal,subfs,keyvals.maxtimelag_ms); 
+            ccf = [flip(mue_backw) mue_forw(2:end)]; % first element of mue_forw is at zero lag (removed, already in mue_backw)
+            [mue_tar,idx_lag] = max(ccf);
+            lag = -keyvals.maxtimelag_ms:1:keyvals.maxtimelag_ms; % so far only spaced at 1 ms;
+            if lag(idx_lag) == 0
+                % Nothing to do
+            else
+                fprintf('\t%s: A time lag different from 0 was chosen (lag=%.0f ms) for the target criteron\n',upper(mfilename),lag);
+            end    
+            
+            mue_forw  = il_get_optimal_detector(sim_work.current_signal,sim_work.templ_ref,subfs,keyvals.maxtimelag_ms);
+            mue_backw = il_get_optimal_detector(sim_work.templ_ref,sim_work.current_signal,subfs,keyvals.maxtimelag_ms);
+            ccf = [flip(mue_backw) mue_forw(2:end)];
+            [mue_ref,idx_lag] = max(ccf);
+            if lag(idx_lag) == 0 % idx_lag == 1 || idx_lag == 1+length(mue_forw)
+                % Nothing to do
+            else
+                fprintf('\t%s: A time lag different from 0 was chosen (lag=%.0f) for the reference criteron\n',upper(mfilename),lag);
+            end
+        end
         
         mue2choose_nonoise = [mue_ref mue_tar];
         if in_var ~= 0
@@ -193,15 +205,20 @@ switch type_decision
 end
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% function mue = il_get_optimal_detector(aktsig,template,subfs)
-% 
-% res = floor(1e-3*subfs);
-% sample_max = 50*res; % from +/- 100 ms to +/- 50 ms, changed on 24/11/2017 at 15:52
-% 
-% N = size(template,1);
-% 
-% j = 1;
-% for i = 1:res:sample_max
-%     mue(j) = 1/subfs*sum(aktsig(1:N-i+1).*template(i:N));
-%     j = j + 1;
-% end
+function mue = il_get_optimal_detector(aktsig,template,subfs,maxtimelag_ms)
+ 
+% Here, the second input signal ('template') is shifted backwards with respect
+%   to the first input signal ('aktsig'), or, equivalently, that aktsig is 
+%   shifted forward. In other words a positive time lag is applied to aktsig
+
+res = floor(1e-3*subfs);
+sample_max = maxtimelag_ms*res; % from +/- 100 ms to +/- 50 ms, changed on 24/11/2017 at 15:52
+
+N = size(template,1);
+
+j = 1;
+for i = 1:res:sample_max+1
+    % It starts always with zero lag:
+    mue(j) = optimal_detector(aktsig(1:N-i+1),template(i:N),subfs);
+    j = j + 1;
+end

@@ -115,7 +115,8 @@ elseif cfg_game.is_simulation
     switch def_sim.decision_script
         case 'aci_detect' 
             % Default for 'dau1997' and 'osses2021'
-            [response,sim_work] = aci_detect(cfg_game,data_passation,def_sim,sim_work,keyvals);
+            [response,sim_work] = aci_detect(cfg_game,data_passation,def_sim,sim_work, ...
+                'argimport',{},keyvals); % {} = empty flags
             data_passation.decision_var_mue2choose(i_current,:) = sim_work.decision_var_mue2choose(i_current,:);
 
         case 'king2019_detect'

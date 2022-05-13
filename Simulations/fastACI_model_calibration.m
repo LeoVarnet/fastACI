@@ -1,10 +1,14 @@
-function keyvals = fastACI_model_calibration(experiment, model, Condition, keyvals)
+function keyvals = fastACI_model_calibration(experiment, model, Condition, flags,keyvals)
 % function fastACI_model_calibration(experiment,model)
 %
 % Calibration of a model: This script assesses the criterion value K.
 %
 % Original name: g20211207_calibrating_the_model.m (snapshot on 14/04/2022)
 % Author: Alejandro Osses
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% definput.import={'fastACI_experiment','fastACI_simulations','fastACI_simulation_detect'};
+% [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 switch experiment
@@ -67,10 +71,14 @@ end
 Iterations = 1;
 while bContinue == 1 && Iterations <= 20 
     Nf = Ni + N;
-    flags_here = {'Ni',Ni,'Nf',Nf,'thres_for_bias',thres_for_bias,'fname_template_suffix',keyvals.fname_template_suffix}; % ,'file_model_decision_config',file_model_decision_config};
-
+    flags_here = {};
+    kv_here = keyvals;
+    kv_here.Ni = Ni;
+    kv_here.Nf = Nf;
+    kv_here.thres_for_bias = thres_for_bias;
+    
     try
-        [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar,flags_here{:});
+        [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar,'argimport',flags_here,kv_here);
     catch
         %%% Run the following first, to create a create file
         % [cfg_game, data_passation] = fastACI_experiment(experiment,model,noise_cond);

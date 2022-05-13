@@ -54,6 +54,7 @@ end
 definput.import={'fastACI_experiment'}; % arg_fastACI_experiment.m
 if bSimulation
     definput.import{end+1} = 'fastACI_simulations';
+    definput.import{end+1} = 'fastACI_simulation_detect';
 end
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -216,7 +217,7 @@ if cfg_game.is_simulation == 1
     if isempty(keyvals.thres_for_bias)
         kv_here = keyvals;
         kv_here.Nf = cfg_game.N;
-        kv_here = fastACI_model_calibration(experiment_full,Subject_ID,Condition,kv_here);
+        kv_here = fastACI_model_calibration(experiment_full,Subject_ID,Condition,{},kv_here);
         keyvals.in_std = kv_here.in_std;
         keyvals.thres_for_bias = kv_here.thres_for_bias;
         return; % it stops after running the calibration
