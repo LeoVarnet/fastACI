@@ -29,7 +29,7 @@ switch keyvals.pyramid_script
             case 'reduce'
                 Ablur = imgaussfilt(A,sigma,'Padding',pyramid_padding); % blur
                 % if pyramid_shape == -1
-                idx_step = 2^(i_level-1+pyramid_shape);
+                idx_step = sigma;%2^(i_level-1+pyramid_shape);
                 % else
                 %     warning('Need further validation (AO on 29/04/2022)');
                 %     idx_step = 2^(i_level-1+pyramid_shape);
@@ -46,7 +46,7 @@ switch keyvals.pyramid_script
                 FinalSize = [(2+pyramid_shape)*Nf_and_Nt N_iterations]; % Temporary solution
                 % zero-padding
                 Azeroed = zeros(FinalSize);
-                idx_step = size(Azeroed,1)/size(A,1); % idx_step = 2^(i_level-1+pyramid_shape);
+                idx_step = round(size(Azeroed,1)/size(A,1)); % idx_step = 2^(i_level-1+pyramid_shape);
                 Azeroed(1:idx_step:end,1:idx_step:end,:) = A;
                 % blur
                 UR = imgaussfilt(1,sigma,'Padding',keyvals.pyramid_padding);
