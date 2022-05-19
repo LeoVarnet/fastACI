@@ -96,8 +96,13 @@ if isfield(kv,'expvar_after_reversal')
             end
             idxf = min(idxf, length(idx_trialselect)); % limited by the selected number of trials
             [~,idx2check] = Get_mAFC_reversals(expvar(idxi:idxf));
-            idxs4null = (1:idx2check(N_reversals_i)-1) + idxi-1;
-            
+            if ~isempty(idx2check)
+                idxs4null = (1:idx2check(N_reversals_i)-1) + idxi-1;
+            else
+                fprintf('%s: Less than %.0f reversals were found, %.0f trials (trials between %.0f and %.0f) will be excluded anyway\n',upper(mfilename),N_reversals_i,idxf-idxi+1,idxi,idxf);
+                idxs4null = idxi:idxf;
+            end
+                        
             select_after_reversal(idxs4null) = 0;
         end
         label_expvar_after_reversal = sprintf('\t\t\t(expvar_after_reversal=%.0f: %.0f extra trials are being excluded)\n', ...
