@@ -29,7 +29,7 @@ switch keyvals.pyramid_script
             case 'reduce'
                 Ablur = imgaussfilt(A,sigma,'Padding',pyramid_padding); % blur
                 % if pyramid_shape == -1
-                idx_step = sigma;%2^(i_level-1+pyramid_shape);
+                idx_step = sigma+1+pyramid_shape;%2^(i_level-1+pyramid_shape);
                 % else
                 %     warning('Need further validation (AO on 29/04/2022)');
                 %     idx_step = 2^(i_level-1+pyramid_shape);
