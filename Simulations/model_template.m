@@ -79,12 +79,27 @@ if bClean_target
     signal2 = str_stim.stim_tone_alone;
 end
 %%%
-
-[ir_signal,params] = model_representation(signal1,modelname,modelpars);
-ir_reference       = model_representation(signal2,modelname,modelpars);
-
-[templ_ref,sizeIR] = Ensure_intrep_is_numeric(ir_reference);
-templ_tar          = Ensure_intrep_is_numeric(ir_signal);
+N_Ch = size(signal1,2);
+if N_Ch == 1
+    % Monaural signals
+    [ir_signal,params] = model_representation(signal1,modelname,modelpars);
+    ir_reference       = model_representation(signal2,modelname,modelpars);
+    
+    [templ_ref,sizeIR] = Ensure_intrep_is_numeric(ir_reference);
+    templ_tar          = Ensure_intrep_is_numeric(ir_signal);
+else
+    % Validated for binaural signals on 20/05/2022
+    templ_ref = [];
+    templ_tar = [];
+    for n = 1:N_Ch
+        [ir_signal,params] = model_representation(signal1(:,n),modelname,modelpars);
+        ir_reference       = model_representation(signal2(:,n),modelname,modelpars);
+        
+        [ir_reference,sizeIR] = Ensure_intrep_is_numeric(ir_reference);
+        templ_ref = [templ_ref; ir_reference];
+        templ_tar = [templ_tar; Ensure_intrep_is_numeric(ir_signal)];
+    end
+end
 
 for i = 1:(cfg_sim.templ_num - 1)
   
@@ -100,14 +115,32 @@ for i = 1:(cfg_sim.templ_num - 1)
     signal2 = str_stim.tuser;
     %%%
 
-    ir_signal    = model_representation(signal1,modelname,modelpars);
-    ir_reference = model_representation(signal2,modelname,modelpars);
+    if N_Ch == 1
+        ir_signal    = model_representation(signal1,modelname,modelpars);
+        ir_reference = model_representation(signal2,modelname,modelpars);
+        
+        ir_reference = Ensure_intrep_is_numeric(ir_reference);
+        ir_signal    = Ensure_intrep_is_numeric(ir_signal);
+        
+        templ_tar  = templ_tar  + ir_signal;
+        templ_ref  = templ_ref + ir_reference;
+    else
+        templ_ref_here = [];
+        templ_tar_here = [];
+        for n = 1:N_Ch
+            [ir_signal,params] = model_representation(signal1(:,n),modelname,modelpars);
+            ir_reference       = model_representation(signal2(:,n),modelname,modelpars);
+
+            [ir_reference,sizeIR] = Ensure_intrep_is_numeric(ir_reference);
+            templ_ref_here = [templ_ref_here; ir_reference];
+            templ_tar_here = [templ_tar_here; Ensure_intrep_is_numeric(ir_signal)];
+        end
+        
+        templ_tar  = templ_tar + templ_tar_here;
+        templ_ref  = templ_ref + templ_ref_here;
+    end
     
-    ir_reference = Ensure_intrep_is_numeric(ir_reference);
-    ir_signal    = Ensure_intrep_is_numeric(ir_signal);
     
-    templ_tar  = templ_tar  + ir_signal;
-    templ_ref  = templ_ref + ir_reference;
 end
 
 templ_tar = templ_tar / cfg_sim.templ_num;  % rescaling

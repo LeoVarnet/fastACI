@@ -120,12 +120,29 @@ switch type_processing
         % see my codes from TU/e
         
     otherwise % normal calculation
-        try
-            [ir_signal,xx,mfc] = feval(modelname,tuser,modelpars{:}); % xx is unused
-        catch
-            ir_signal = feval(modelname,tuser,modelpars{:});
+        N_Ch = size(tuser,2);
+        if N_Ch == 1
+            % Monaural input signal
+            try
+                [ir_signal,xx,mfc] = feval(modelname,tuser,modelpars{:}); % xx is unused
+            catch
+                ir_signal = feval(modelname,tuser,modelpars{:});
+            end
+            [sim_work.current_signal, xx, info] = Ensure_intrep_is_numeric(ir_signal); % xx is unused
+        else
+            % Monaural input signal
+            sim_work.current_signal = [];
+            for n = 1:N_Ch
+                try
+                    [ir_signal,xx,mfc] = feval(modelname,tuser(:,n),modelpars{:}); % xx is unused
+                catch
+                    ir_signal = feval(modelname,tuser(:,n),modelpars{:});
+                end
+                [ir_signal, xx, info] = Ensure_intrep_is_numeric(ir_signal); % xx is unused
+                sim_work.current_signal = [sim_work.current_signal; ir_signal];
+            end
+            
         end
-        [sim_work.current_signal, xx, info] = Ensure_intrep_is_numeric(ir_signal); % xx is unused
 end
 
 switch type_decision
@@ -162,7 +179,7 @@ switch type_decision
             if lag(idx_lag) == 0
                 % Nothing to do
             else
-                fprintf('\t%s: A time lag different from 0 was chosen (lag=%.0f ms) for the target criteron\n',upper(mfilename),lag);
+                fprintf('\t%s: A time lag different from 0 was chosen (lag=%.0f ms) for the target criteron\n',upper(mfilename),lag(idx_lag));
             end    
             
             mue_forw  = il_get_optimal_detector(sim_work.current_signal,sim_work.templ_ref,subfs,keyvals.maxtimelag_ms);
@@ -172,7 +189,7 @@ switch type_decision
             if lag(idx_lag) == 0 % idx_lag == 1 || idx_lag == 1+length(mue_forw)
                 % Nothing to do
             else
-                fprintf('\t%s: A time lag different from 0 was chosen (lag=%.0f) for the reference criteron\n',upper(mfilename),lag);
+                fprintf('\t%s: A time lag different from 0 was chosen (lag=%.0f) for the reference criteron\n',upper(mfilename),lag(idx_lag));
             end
         end
         

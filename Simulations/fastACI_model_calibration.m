@@ -11,30 +11,13 @@ function keyvals = fastACI_model_calibration(experiment, model, Condition, flags
 % [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-switch experiment
-    case 'speechACI_varnet2013'
-        
-        % validated_conds = {'white','SSN'};
-        % Show_cell(validated_conds);
-        
-        % bInput = input('Enter the number of the conditions you want to test (one or more numeric values are accepted, or enter 0 for all): ');
-        % if bInput == 0
-        %     Conds = validated_conds;
-        % else
-        %     Conds = validated_conds(bInput); 
-        % end
-        
-        % suff_exp = ['-' experiment];
-        
-        % if ~strcmp(Conds{1},'white')
-        %     suff_exp = [suff_exp '-' Conds{1}];
-        % end
-        % if ~strcmp(Condition,'white')
-        %     suff_exp = [suff_exp '-' Condition];
-        % end        
+if isfield(keyvals,'expvar_cal')
+    expvar_cal = keyvals.expvar_cal;
+else
+    expvar_cal = -40; % This is a very low experimental variable
+    fprintf('%s: Using default expvar value of %.1f dB\n',upper(mfilename),expvar_cal);
 end
 
-expvar = -40; % This is a very low experimental variable
 switch model
     case 'king2019'
         bias_step = (5e-5)/100; % based on Osses2022_preprint Fig. 10B
@@ -78,14 +61,14 @@ while bContinue == 1 && Iterations <= 20
     kv_here.thres_for_bias = thres_for_bias;
     
     try
-        [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar,'argimport',flags_here,kv_here);
+        [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar_cal,'argimport',flags_here,kv_here);
     catch
         %%% Run the following first, to create a create file
         % [cfg_game, data_passation] = fastACI_experiment(experiment,model,noise_cond);
 
         % It means that the experiment has to be initialised first
         fastACI_experiment_init(experiment,model, Condition);
-        [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar,flags_here{:});
+        [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar_cal,flags_here{:});
     end
 
     if Iterations == 1
