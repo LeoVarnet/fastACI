@@ -233,32 +233,38 @@ switch fg.glmfct
         N_t = cfg_ACI.N_t;    
         N_f = cfg_ACI.N_f;
         
-%         %this part is not needed anymore
-%         if Nt_X>N_t % Along time dimension, zero padding
-%             [N,M,P] = size(preX);
-%             nullMatrix = zeros(N,M,Nt_X-P);
-%             preX = cat(3,preX,nullMatrix);
-%             dt = diff(cfg_ACI.t(1:2));
-%             t_X = (1:Nt_X)*dt;
-%         end
-%         
-%         if Nt_X<N_t % Along time dimension, truncating
-%             preX = preX(:,:,1:Nt_X);
-%             t_X = cfg_ACI.t(1:Nt_X);
-%         end
-%         
-%         if Nf_X<N_f % Along frequency dimension, truncating
-%             preX = preX(:,1:Nf_X,:);
-%             f_X = cfg_ACI.f(1:Nf_X);
-%         elseif Nf_X == N_f
-%             % Nothing to do
-%         else
-%             warning('Choose a higher value for NFFT')
-%         end
+        if iswindows
+            error('Leo: The lines you commented broke the backward compatibility with previous papers. Furthermore, the zero padding is required along the time dimension - Let''s talk!');
+        else
+            warning('Remove this warning from Leo''s computer')
+        end
         
+        %%% Time dimension: if the current time vector is not multiple of 
+        %     a power of 2, it is zero padded:
+        if Nt_X>N_t % Along time dimension, zero padding
+            [N,M,P] = size(preX);
+            nullMatrix = zeros(N,M,Nt_X-P);
+            preX = cat(3,preX,nullMatrix);
+            dt = diff(cfg_ACI.t(1:2));
+            t_X = (1:Nt_X)*dt;
+        end
         
-        % Gaussian pyramid reduction
-
+        if Nt_X<N_t % Along time dimension, truncating
+            preX = preX(:,:,1:Nt_X);
+            t_X = cfg_ACI.t(1:Nt_X);
+        end
+         
+        %%% Frequency dimension:
+        if Nf_X<N_f % Along frequency dimension, truncating
+            preX = preX(:,1:Nf_X,:);
+            f_X = cfg_ACI.f(1:Nf_X);
+        elseif Nf_X == N_f
+            % Nothing to do
+        else
+            warning('Choose a higher value for NFFT')
+        end
+                
+        %%% Gaussian pyramid reduction
         Pyramid = {preX}; % structure containing the different levels of the pyramid
 
         % Filters the matrix level by level into a Nlevel Gaussian pyramid

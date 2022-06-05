@@ -168,12 +168,16 @@ if flags.do_fig1a || flags.do_fig1b || flags.do_fig2 || flags.do_fig3a || flags.
             if isempty(keyvals.dir_out)
                 dir_out_ACI = [dir_where 'Results_ACI' filesep];
             else
-                % Creating a new subfolder for each model run. This is 
-                %   important because all model runs will produce the same
-                %   ACI name.
-                dir_out_ACI = [keyvals.dir_out model '-' folders{i} filesep];
-                if ~exist(dir_out_ACI,'dir')
-                    mkdir(dir_out_ACI);
+                if cfg_game.is_simulation
+                    % Creating a new subfolder for each model run. This is 
+                    %   important because all model runs will produce the same
+                    %   ACI name.
+                    dir_out_ACI = [keyvals.dir_out model '-' folders{i} filesep];
+                    if ~exist(dir_out_ACI,'dir')
+                        mkdir(dir_out_ACI);
+                    end
+                else
+                    dir_out_ACI = keyvals.dir_out;
                 end
             end
             if ~exist(dir_out_ACI,'dir')
@@ -184,8 +188,10 @@ if flags.do_fig1a || flags.do_fig1b || flags.do_fig2 || flags.do_fig3a || flags.
             
             if ~exist(dir_noise,'dir')
                 switch dirname4waveforms
-                    case 'SLeo' % this folder does not exist anymore:
+                    case {'SLeo','SLeoVarnet2013'} % this folder does not exist anymore:
                         dir_new = 'osses2021c_S01';
+                    case 'SAO-5000-trials'
+                        dir_new = 'osses2021c_S02';
                 end
                 idx = strfind(dir_noise,dirname4waveforms);
                 idx = idx + length(dirname4waveforms);
