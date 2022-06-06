@@ -243,6 +243,12 @@ f = f(cfg_inout.f_limits_idx);
 
 cfg_inout.t_limits_idx = find(t>=cfg_inout.t_limits(1) & t<=cfg_inout.t_limits(2));
 t = t(cfg_inout.t_limits_idx);
+switch cfg_game.experiment
+    case 'localisationILD'
+        % Adding an exception:
+        cfg_inout.t_limits_idx = [cfg_inout.t_limits_idx cfg_inout.t_limits_idx+length(t)];
+        t = [t t+max(t)];
+end
 
 N_t = length(t);
 N_f = length(f); 
@@ -302,7 +308,17 @@ if dimonly == 0
             trial = bruit + insig_target(:,idx_here);
         else
             % This is the default
-            trial = bruit;
+            switch cfg_game.experiment
+                case 'localisationILD'
+                    data_passation_here = data_passation;
+                    data_passation_here.i_current = i;
+                    str_stim = localisationILD_user(cfg_game,data_passation_here);
+                    
+                    trial = str_stim.tuser(:); % collated in time
+                    
+                otherwise
+                    trial = bruit;
+            end
         end
         
         if WithSNR
@@ -385,8 +401,15 @@ if dimonly == 0
                 
             % -------------------------------------------------------------    
             case {'gammatone','adapt','modulationACI_proc'}
-                outsig = Gammatone_proc(trial,fs,flags_gamma{:});
-                outsig = transpose(outsig); % permute(outsig,[2 1]); % put time in the second dimension and frequency in the first one
+                switch cfg_game.experiment
+                    case 'localisationILD'
+                        outsig = Gammatone_proc(trial,fs,flags_gamma{:});
+                        outsig = transpose(outsig); % permute(outsig,[2 1]); % put time in the second dimension and frequency in the first one
+                        
+                    otherwise
+                        outsig = Gammatone_proc(trial,fs,flags_gamma{:});
+                        outsig = transpose(outsig); % permute(outsig,[2 1]); % put time in the second dimension and frequency in the first one
+                end
                 
                 % outsig=20*log10(abs(outsig));
                 % idx = find(isnan(outsig));

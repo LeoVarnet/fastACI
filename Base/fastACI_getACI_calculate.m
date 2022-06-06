@@ -185,22 +185,8 @@ switch glmfct
         % results.cvgofs  = FitInfo.Deviance; % this is already the mean value
         results.FitInfo = FitInfo;
         results.B       = B;
-        % results.w       = B(:,FitInfo.IndexMinDeviance);
-        % results.finalfit.w = results.w;
-        
-        results.ACI = ACI;
-        results.ACIs = sumReWeight;
-        
-        if flags.do_plot
-            figure; 
-            % h=pcolor(t_X, f_X, -sumReWeight(:,:,idxlambda)); set(h, 'EdgeColor', 'none'); xlabel('time (s)'); ylabel('freq (Hz)'); colorbar; title('betaSmooth: ACI obtained with a lasso regression on smooth basis'); colorbar; caxis([-1 1]*max(abs(caxis)));
-            h=pcolor(cfg_ACI.t, cfg_ACI.f, ACI); 
-            set(h, 'EdgeColor', 'none'); 
-            xlabel('time (s)'); 
-            ylabel('freq (Hz)'); colorbar; 
-            title('betaSmooth: ACI obtained with a lasso regression on smooth basis'); 
-            colorbar; % caxis([-1 1]*max(abs(caxis)));
-        end
+        results.ACI     = ACI;
+        results.ACIs    = sumReWeight;
 
     otherwise
         error('Function %s not debugged yet...',glmfct);

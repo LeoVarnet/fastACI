@@ -2,7 +2,7 @@ function publ_varnet2013_FrontHumNeurosci_figs(varargin)
 % function publ_varnet2013_FrontHumNeurosci_figs(varargin)
 %
 % Generates the figures
-
+%
 % % To display Fig. 1 of Varnet et al. (2013, Front. Hum. Neurosci.) use :::
 %     publ_varnet2013_FrontHumNeurosci_figs('fig1');
 %

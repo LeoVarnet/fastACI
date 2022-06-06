@@ -1,5 +1,5 @@
-function [h,hname] = publ_varnet2022b_CFA(varargin)
-% function [h,hname] = publ_varnet2022b_CFA(varargin)
+function [h,hname,outs] = publ_varnet2022b_CFA(varargin)
+% function [h,hname,outs] = publ_varnet2022b_CFA(varargin)
 %
 % Generates the figures
 %
@@ -28,8 +28,15 @@ if nargin == 0
     return
 end
 
+if nargout ~= 0
+    bPlot = 0;
+else
+    bPlot = 1;
+end
+
 h = [];
 hname = [];
+outs = [];
 
 definput.flags.type={'missingflag','fig2_abda13','fig2_abda21','fig2_abda22','fig2_mod22'};
 definput.flags.subject = {'SA','SB'};
@@ -197,6 +204,10 @@ for i_subject = 1:N_subjects
         % type = 'lassoglm';
         [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(fname_results, DimCI, ...
             type, flags_for_input{:},'Data_matrix',Data_matrix);
+        
+        outs.ACI = ACI;
+        outs.cfg_ACI = cfg_ACI;
+        outs.results = results;
     end
     
     if flags.do_fig2_mod22
@@ -206,53 +217,62 @@ for i_subject = 1:N_subjects
         
         results = data.results;
         cfg_ACI = data.cfg_ACI;
+        
+        outs.ACI = data.ACI;
+        outs.cfg_ACI = cfg_ACI;
+        outs.results = results;
     end
     %% display ACI
-    figure('Position', [100 100 400 300])
-    affichage_tf(squeeze(results.ACI),'CI', 'cfg', cfg_ACI); hold on
-    
-    if flags.do_fig2_mod22
-        XT  = get(gca,'XTick');
-        XTL = round(100*t(XT))/100;
-        set(gca,'XTickLabel',XTL);
-        xlabel('Time (s)');
-            
-        YT = get(gca,'YTick');
-        YTL = round(f(round(YT)));
-        set(gca,'YTickLabel',YTL);
-        ylabel('Frequency (Hz)');
-            
-        % if flags.do_SA
-        %     title('SA (S4 in varnet2022a, S-LV)')
-        % end
-        % if flags.do_SB
-        %     title('SB (S1 in varnet2022a, S-AO)')
-        % end
+    if bPlot
+        figure('Position', [100 100 400 300])
+        affichage_tf(squeeze(results.ACI),'CI', 'cfg', cfg_ACI); hold on
+
+        if flags.do_fig2_mod22
+            XT  = get(gca,'XTick');
+            XTL = round(100*t(XT))/100;
+            set(gca,'XTickLabel',XTL);
+            xlabel('Time (s)');
+
+            YT = get(gca,'YTick');
+            YTL = round(f(round(YT)));
+            set(gca,'YTickLabel',YTL);
+            ylabel('Frequency (Hz)');
+
+            % if flags.do_SA
+            %     title('SA (S4 in varnet2022a, S-LV)')
+            % end
+            % if flags.do_SB
+            %     title('SB (S1 in varnet2022a, S-AO)')
+            % end
+        end
+        if flags.do_SA
+            subj_label = 'SA';
+        end
+        if flags.do_SB
+            subj_label = 'SB';
+        end
+        title_here = [exp_label ', ' subj_label];
+        title(title_here,'interpreter','none')
+
+        % xlim([0 0.75])
     end
-    if flags.do_SA
-        subj_label = 'SA';
-    end
-    if flags.do_SB
-        subj_label = 'SB';
-    end
-    title_here = [exp_label ', ' subj_label];
-    title(title_here,'interpreter','none')
-    
-    % xlim([0 0.75])
 end
+
 h = [];
 hname = [];
 
-h(end+1) = gcf;
-hname{end+1} = [exp_label '-' subj_label];
+if bPlot
+    h(end+1) = gcf;
+    hname{end+1} = [exp_label '-' subj_label];
 
-for i = 1:length(h)
-    opts = [];
-    opts.format = 'epsc';
-    Saveas(h(i),[dir_out_figs hname{i}],opts);
-    
-    opts.format = 'png';
-    Saveas(h(i),[dir_out_figs hname{i}],opts);
+    for i = 1:length(h)
+        opts = [];
+        opts.format = 'epsc';
+        Saveas(h(i),[dir_out_figs hname{i}],opts);
+
+        opts.format = 'png';
+        Saveas(h(i),[dir_out_figs hname{i}],opts);
+    end
 end
 %%% End of the script
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

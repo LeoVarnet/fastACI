@@ -224,6 +224,13 @@ if cfg_game.is_simulation == 1
         end
     end
     
+    if ~isempty(keyvals.model_cfg_script)
+        if isfield(cfg_game,'model_cfg_script')
+            warning('Ignoring the field cfg_game.model_cfg_script and using the model_cfg_script indicated in the keyvalues');
+        end
+        cfg_game.model_cfg_script = keyvals.model_cfg_script;
+    end
+    
     % Model parameters;
     if ~isfield(cfg_game,'model_cfg_script')
         % First time the model is run, then the configuration file is read 
@@ -269,12 +276,25 @@ if cfg_game.is_simulation == 1
         cfg_game.model_cfg_script_full = [dir_results file_config];
         dir_here = [fileparts(which(model_cfg_src)) filesep];
         copyfile([dir_here model_cfg_src '.m'],cfg_game.model_cfg_script_full);
-    else
+    elseif exist([dir_results cfg_game.model_cfg_script '.m'],'file')
         % The the simulation is resuming, we need to read the configuration file:
         addpath(dir_results);
         exp2eval = sprintf('def_sim = %s(keyvals);',cfg_game.model_cfg_script(1:end-2));
         eval(exp2eval);
         rmpath(dir_results);
+    else
+        path_src = [fastACI_basepath 'Simulations' filesep 'Stored_cfg' filesep];
+        path_dst = [fastACI_basepath 'Simulations' filesep];
+        model_cfg_dst = [Subject_ID '_cfg'];
+        
+        fsrc = [path_src cfg_game.model_cfg_script '.m'];
+        fdst = [path_dst model_cfg_dst '.m'];
+        if exist(fsrc,'file')
+            copyfile(fsrc,fdst);
+        end
+        
+        exp2eval = sprintf('def_sim = %s(keyvals);',model_cfg_dst);
+        eval(exp2eval);  
     end
         
     sim_work = [];

@@ -340,6 +340,8 @@ for num_CI = 1:N_CI
             ylabel(tcolorbar, 'p-value')
             set(tcolorbar,'YTick',[alphalevel 1])
         end
+        outs.tcolorbar = tcolorbar;
+        outs.tcolorbar_description = 'Colour bar handle';
     end
    
     axis xy;
@@ -368,10 +370,10 @@ for num_CI = 1:N_CI
     lastline=(num_CI>(msubplot*nsubplot)-nsubplot);
     firstcolumn=(mod(num_CI-1,nsubplot)==0);
     
-    % afficher les axes (si demand�)
+    % afficher les axes (if requested)
 
     if isyes(displayaxes) && lastline
-        xlabel('time (s)');
+        xlabel('Time (s)');
         if ~isempty(NtimeTicks)
             XT = linspace(round(10*t(1))/10,round(10*t(end))/10,NtimeTicks);
             set(gca,'XTick',XT);
@@ -382,7 +384,7 @@ for num_CI = 1:N_CI
         set(gca,'XTick',[])
     end
     if isyes(displayaxes) && firstcolumn
-        ylabel('frequency (Hz)');
+        ylabel('Frequency (Hz)');
         if ~isempty(NfrequencyTicks)
             N_f = length(f);
             YT  = linspace(f(1),f(N_f),NfrequencyTicks);
@@ -415,20 +417,20 @@ for num_CI = 1:N_CI
         end
     end
     
-    % afficher une grille (si demand�)
+    % afficher une grille (if requested)
     if grid_on
         grid on
     end
     
     
-    % afficher les trac�s des formants (si demand�)
+    % afficher les trac�s des formants (if requested)
     Ftemp=F;
     t_Ftemp=t_F;
         minf=min(f);
         maxf=max(f);
     for i=1:length(F)
         hold on
-        % convertir le trac� dans l'�chelle appropri�e (si demand�)
+        % convertir le trac� dans l'�chelle appropri�e (if requested)
         Ftemp{i}(find(Ftemp{i}<minf))=NaN;
         Ftemp{i}(find(Ftemp{i}>maxf))=NaN;
         
@@ -444,7 +446,7 @@ for num_CI = 1:N_CI
         clear style
     end
     
-    % afficher une ROI (si demand�)
+    % afficher une ROI (if requested)
     for i=1:length(ROI)
         hold on
         if ROI{i}(1)>ROI{i}(2)
@@ -462,12 +464,12 @@ for num_CI = 1:N_CI
     end
 end
 
-% afficher un super-titre (si demand�)
+% afficher un super-titre (if requested)
 if ~isempty(suptitle_CI)
     mtit(strrep(suptitle_CI,'_',' '),'xoff', 0, 'yoff',.03,'fontsize',14,'FontWeight', 'bold')
 end
 
-% calcul et affichage de la moyenne temporelle et/ou fr�quentielle de l'image (si demand�)
+% calcul et affichage de la moyenne temporelle et/ou fr�quentielle de l'image (if requested)
 if N_CI==1
     if isyes(meant)
         xlabel('')
@@ -482,7 +484,7 @@ if N_CI==1
         CI_f = sum((data(freq_affiche_Index,time_affiche_Index)).^2,2);
         axes('Position',[0.1,posit(2),posit(1)-0.1-0.05,posit(4)])
         plot(1:length(freq_affiche_Index),CI_f);view([90 90])
-        xlabel('frequency (Hz)');
+        xlabel('Frequency (Hz)');
         
         set(gca,'XTick',linspace(1, length(freq_affiche_Index),9))
         set(gca,'XTickLabel',round(f(round(linspace(1,end,9)))))
@@ -493,7 +495,7 @@ if N_CI==1
         CI_t = sum((data(freq_affiche_Index,time_affiche_Index)).^2,1);
         axes('Position',[posit(1),0.1,posit(3),posit(2)-0.1-0.05])
         plot(t(time_affiche_Index),CI_t)
-        xlabel('time (s)');
+        xlabel('Time (s)');
         xlim([t(time_affiche_Index(1)) t(time_affiche_Index(end))])
     end
 end

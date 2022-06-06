@@ -240,8 +240,21 @@ switch type_action
         end
          
          if do_varnet2022b_CFA
-            [ACI,cfg_ACI,results] = fastACI_getACI(savefilename,flags_here{:});
+            [ACI,cfg_ACI,results,~,extra_outs] = fastACI_getACI(savefilename,flags_here{:});
             
+            if extra_outs.bCalculation
+                fnameACI = cfg_ACI.fnameACI;
+                load(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+                cfg_ACI.t = t;
+                cfg_ACI.t_description = 'Time (s)';
+                cfg_ACI.f = f(:);
+                cfg_ACI.f_description = 'Frequency (Hz)';
+                save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+            end
+            
+            results.fnameACI = fnameACI;
+            results.fnameACI_description = 'File name where the fastACI results were stored...';
+    
             data.ACI = ACI;
             data.cfg_ACI = cfg_ACI;
             data.results = results;

@@ -1,5 +1,5 @@
-function [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(savegame_file,varargin)
-% function [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(savegame_file,varargin)
+function [ACI,cfg_ACI,results,Data_matrix,extra_outs] = fastACI_getACI(savegame_file,varargin)
+% function [ACI,cfg_ACI,results,Data_matrix,extra_outs] = fastACI_getACI(savegame_file,varargin)
 %
 % 1. Description (FR):
 %       Se placer dans le dossier contenant le dossier contenant les donnees 
@@ -99,7 +99,8 @@ end
 if isfield(cfg_game,'Condition')
     cfg_ACI.Condition = cfg_game.Condition;
 end
-%
+
+extra_outs.bCalculation = bCalculation;
 
 cfg_ACI = arg_TF_type(cfg_ACI, flags, keyvals);
 cfg_ACI = arg_glmfct(cfg_ACI, flags);
