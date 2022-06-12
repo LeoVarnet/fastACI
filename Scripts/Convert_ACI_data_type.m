@@ -102,7 +102,7 @@ switch version
         cfg_pass = cfg_pa; 
         data_passation = data_pa;
         
-        cfg_pass.experiment = 'AM_revcorr';
+        cfg_pass.experiment = 'modulationACI';
         cfg_pass.response_correct_target = [1,2];
         cfg_pass.response_names = cfg_pass.target_names;
         data_passation.i_current = length(data_passation.is_correct);
@@ -358,6 +358,11 @@ end
 
 if isfield(cfg_pa,'experiment')
     cfg_pass.experiment = cfg_pa.experiment;
+    switch cfg_pass.experiment
+        case 'AM_revcorr'
+            % Updating to the current name
+            cfg_pass.experiment = 'modulationACI';
+    end
 end
 
 if ~isfield(cfg_pass,'experiment_full')
