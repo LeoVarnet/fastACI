@@ -108,9 +108,6 @@ parsed_inputs = struct('ROI',[],'nuisance',[],'detrend',0,'bandpass',[0,0],...
 
 if isfield(opts,'corrmat')
     parsed_inputs.corrmat = opts.corrmat;
-% else
-%     fprintf('A correlation matrix was found, the input data will be ignored\n');
-%     indata = [];
 end
 
 if isfield(opts,'label_FontSize')
@@ -177,8 +174,15 @@ N_cmap = '64';
 h_image = 28.1873;
 h_colorbar = 71.3747;
 h_line = zeros(1,size(corrmat{1},1)); % outline handles
-caxis_auto = true;
-cmin = -.1; cmax = .1;
+if isfield(opts,'cmin') && isfield(opts,'cmax')
+    caxis_auto = false;
+    cmin = opts.cmin;
+    cmax = opts.cmax;
+    error('Alejandro has to continue debugging...')
+else
+    caxis_auto = true;
+    cmin = -.1; cmax = .1;
+end
 labels_on = true;
 colorbar_on = true;
 FontName = 'Arial'; FontSize = parsed_inputs.label_FontSize; FontWeight = 'normal';
@@ -197,9 +201,15 @@ alpha_data = triu(ones(numrois),1);
 alpha_data2 = tril(ones(numrois),-1);
 
 % Positioning:
-screen_res = get(0,'MonitorPositions'); % get(0,'ScreenSize');
-figure_pos = [.236*screen_res(3),.063*screen_res(4),...
-    .537*screen_res(3), .86*screen_res(4)];
+if isfield(opts,'Position')
+    figure_pos = [50 50 opts.Position];
+    bCustom_pos = 1;
+else
+    screen_res = get(0,'MonitorPositions'); % get(0,'ScreenSize');
+    figure_pos = [.236*screen_res(3),.063*screen_res(4),...
+        .537*screen_res(3), .86*screen_res(4)];
+    bCustom_pos = 0;
+end
 
 ax_pos = [.14,.1,.78,.88]; % leave x at .45 to leave room when large decimals on y-axis
 colorbar_pos = [ax_pos(1),.034,ax_pos(3),.06];
@@ -236,7 +246,7 @@ if parsed_inputs.plot
             'Name',parsed_inputs.title,'NumberTitle','on','Color',[1,1,1]); % [.8,.88,.98]
         
     file_menu = uimenu(h_corrmat,'Label','File');
-    uimenu(file_menu,'Label','Save Figure','Callback',@save_figure_callback);
+    uimenu(file_menu,'Label','Save Figure','Callback',@il_save_figure_callback);
     uimenu(file_menu,'Label','Print','Callback',{@print_callback,0});
     
     % Plot Menus
@@ -270,21 +280,21 @@ if parsed_inputs.plot
         uimenu(title_font_bold,'Label','Normal','Callback',{@title_font,3}); 
         uimenu(title_font_bold,'Label','Bold','Callback',{@title_font,4}); 
         labels_menu = uimenu(display_menu,'Label','Labels');
-        uimenu(labels_menu,'Label','Enable/Disable','Callback',{@labels_callback,1});
+        uimenu(labels_menu,'Label','Enable/Disable','Callback',{@il_labels_callback,1});
         labels_font = uimenu(labels_menu,'Label','Font');
-        uimenu(labels_font,'Label','FontName','Callback',{@labels_callback,2}); 
-        uimenu(labels_font,'Label','FontSize','Callback',{@labels_callback,3}); 
+        uimenu(labels_font,'Label','FontName','Callback',{@il_labels_callback,2}); 
+        uimenu(labels_font,'Label','FontSize','Callback',{@il_labels_callback,3}); 
         font_bold = uimenu(labels_font,'Label','FontWeight'); 
-        uimenu(font_bold,'Label','Normal','Callback',{@labels_callback,4}); 
-        uimenu(font_bold,'Label','Bold','Callback',{@labels_callback,5}); 
+        uimenu(font_bold,'Label','Normal','Callback',{@il_labels_callback,4}); 
+        uimenu(font_bold,'Label','Bold','Callback',{@il_labels_callback,5}); 
         colorbar_menu = uimenu(display_menu,'Label','ColorBar');
-        uimenu(colorbar_menu,'Label','Enable/Disable','Callback',{@colorbar_callback,1});
+        uimenu(colorbar_menu,'Label','Enable/Disable','Callback',{@il_colorbar_callback,1});
         colorbar_font_menu = uimenu(colorbar_menu,'Label','Font');
-        uimenu(colorbar_font_menu,'Label','FontName','Callback',{@colorbar_callback,2}); 
-        uimenu(colorbar_font_menu,'Label','FontSize','Callback',{@colorbar_callback,3}); 
+        uimenu(colorbar_font_menu,'Label','FontName','Callback',{@il_colorbar_callback,2}); 
+        uimenu(colorbar_font_menu,'Label','FontSize','Callback',{@il_colorbar_callback,3}); 
         colorbar_font_bold = uimenu(colorbar_font_menu,'Label','FontWeight'); 
-        uimenu(colorbar_font_bold,'Label','Normal','Callback',{@colorbar_callback,4}); 
-        uimenu(colorbar_font_bold,'Label','Bold','Callback',{@colorbar_callback,5}); 
+        uimenu(colorbar_font_bold,'Label','Normal','Callback',{@il_colorbar_callback,4}); 
+        uimenu(colorbar_font_bold,'Label','Bold','Callback',{@il_colorbar_callback,5}); 
         highlight_menu = uimenu(display_menu,'Label','Highlight');
         choose_color_menu = uimenu(highlight_menu,'Label','Choose Color');
         uimenu(choose_color_menu,'Label','Yellow','Callback',{@highlight_callback,1});
@@ -297,7 +307,7 @@ if parsed_inputs.plot
         uimenu(choose_color_menu,'Label','Black','Callback',{@highlight_callback,8});
 
         uimenu(highlight_menu,'Label','Disable','Callback',{@highlight_callback,0});
-        outline_menu = uimenu(display_menu,'Label','Outline','Checked','off','Callback',@change_outline);
+        outline_menu = uimenu(display_menu,'Label','Outline','Checked','off','Callback',@il_change_outline);
         
         % Initialise Axes
         ax = axes('Position',ax_pos,'XDir','reverse','YDir','reverse','XLim',[.5,numrois+.5],...
@@ -311,7 +321,12 @@ if parsed_inputs.plot
         centre_axes = (ax_pos(3)+ax_pos(1))-.5*ax_pos(3); % axes center in norm fig units
         adjust1 = (.5-centre_axes)/ax_pos(3); % adjustment needed in axes units
         title_pos = get(h_title,'Position');
-        title_pos(1) = .5 - .5*title_pos(3) + adjust1; title_pos(2) = .99;
+        if bCustom_pos == 0
+            title_pos(1) = .5 - .5*title_pos(3) + adjust1; 
+            title_pos(2) = .99;
+        else
+            title_pos(2) = 0.95;
+        end
         if isempty(parsed_inputs.insert_axes)
             set(h_title,'Position',title_pos);
         end
@@ -322,7 +337,7 @@ end
 % If 'outline' input is specified:
 if parsed_inputs.outline
     hObject = struct('Checked','off');
-    change_outline(hObject)
+    il_change_outline(hObject)
 end
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -335,7 +350,9 @@ function il_update_plot(initialise,curr_data_type,~)
     if caxis_auto
         cmin = min(imdata(:)); cmax = max(imdata(:));  % min & max color value
     end
-    if cmin==cmax; cmax = cmin + 1; end
+    if cmin==cmax; 
+        cmax = cmin + 1; 
+    end
     if nargin==3 %&& update_cmap % update cmap:
         colormap_callback([],[],[]);
     end
@@ -374,7 +391,7 @@ function il_update_plot(initialise,curr_data_type,~)
     end
     % Colormap:
     if initialise
-        main_colormap = bluewhitered(str2double(N_cmap),cmin,cmax);
+        main_colormap = il_bluewhitered(str2double(N_cmap),cmin,cmax);
         colormap(ax,main_colormap);
     end
     % Add Labels:
@@ -392,7 +409,7 @@ function il_update_plot(initialise,curr_data_type,~)
     % Outline
     if strcmp(get(outline_menu,'Checked'),'on')
         outline_menu.Checked = 'off';
-        change_outline(outline_menu)
+        il_change_outline(outline_menu)
     end
 end
 
@@ -630,7 +647,7 @@ function colormap_callback(hObject,~,~)
         main_colormap_selection = get(hObject,'Label');
     end
     if strcmp(main_colormap_selection,'blue-red') % default
-        main_colormap = bluewhitered(str2double(N_cmap),cmin,cmax);
+        main_colormap = il_bluewhitered(str2double(N_cmap),cmin,cmax);
         rb3_cmap = false;
     elseif strcmp(main_colormap_selection,'blue-red (2)') % default
         main_colormap = il_redblue(str2double(N_cmap));
@@ -709,7 +726,8 @@ function title_font(~,~,type)
     il_update_plot(0,curr_data_type);
 end
 
-function labels_callback(~,~,type)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function il_labels_callback(~,~,type)
     switch type
         case 1 % Labels On/Off
             if labels_on
@@ -747,7 +765,7 @@ function labels_callback(~,~,type)
     il_update_plot(0,curr_data_type);
 end
 
-function colorbar_callback(~,~,type)
+function il_colorbar_callback(~,~,type)
     switch type
         case 1 % Colorbar On/Off
             if colorbar_on
@@ -806,7 +824,7 @@ function colorbar_callback(~,~,type)
 end
 
 % Save Figure Function:
-function save_figure_callback(~,~,~)
+function il_save_figure_callback(~,~,~)
     % Identify File Extension:
     [title1,path1] = uiputfile('*.fig','Specify filename:');
     if isnumeric(path1) && path1==0
@@ -817,7 +835,7 @@ function save_figure_callback(~,~,~)
     disp(['Saved figure: ', figure_title])
 end
 
-function change_outline(hObject,~,~)
+function il_change_outline(hObject,~,~)
     if strcmp(hObject.Checked,'on')
         outline_menu.Checked = 'off';
         for jx = 1:length(h_line); delete(h_line(jx)); end
@@ -840,7 +858,7 @@ end % end funct_view_spectrum
 % distributed under the GNU license(http://www.gnu.org/copyleft/gpl.html).
 % Author Credits: John Mosher, Francois Tadel, 2014
 
-function [x,b,a] = bst_bandpass_filtfilt(x, Fs, HighPass, LowPass, isStopBand, FilterType)
+function [x,b,a] = il_bst_bandpass_filtfilt(x, Fs, HighPass, LowPass, isStopBand, FilterType)
 % BST_BANDPASS_FILTFILT: Bandpass filter for the signal x, using the filtfilt function (used by default after Nov 2014)
 %
 % USAGE:  [x,b,a] = bst_bandpass_filtfilt(x, Fs, HighPass, LowPass, isStopBand=0, FilterType='fir')
@@ -1024,7 +1042,7 @@ end
 
 %% REDBLUE colormap generation:
 
-function newmap = bluewhitered(m,cmin,cmax)
+function newmap = il_bluewhitered(m,cmin,cmax)
 %BLUEWHITERED   Blue, white, and red color map.
 %   BLUEWHITERED(M) returns an M-by-3 matrix containing a blue to white
 %   to red colormap, with white corresponding to the CAXIS value closest
@@ -1212,7 +1230,7 @@ function il_perform_bandpass(initial)
     for iter = find((data_types(1:3)-data_types(4:6))==1)
         for ixxx = 1:nSeries
             try
-            [bandpassed,~,~] = bst_bandpass_filtfilt(alldata{iter}{ixxx}',fs,...
+            [bandpassed,~,~] = il_bst_bandpass_filtfilt(alldata{iter}{ixxx}',fs,...
                 parsed_inputs.bandpass(1), parsed_inputs.bandpass(2), 0, 'iir');
             catch
                 error('Bandpass Filter Error: Check if ''Fs'' was specified accurately.')
@@ -1232,7 +1250,7 @@ function il_perform_bandpass(initial)
             out_ind = iter2(iter);
             for ixxx = 1:nSeries
                 try
-                [bandpassed,~,~] = bst_bandpass_filtfilt(alldata{iter+6}{ixxx}',fs,...
+                [bandpassed,~,~] = il_bst_bandpass_filtfilt(alldata{iter+6}{ixxx}',fs,...
                     parsed_inputs.bandpass(1), parsed_inputs.bandpass(2), 0, 'iir');
                 catch
                     error('Bandpass Filter Error: Check if ''Fs'' was specified accurately.')

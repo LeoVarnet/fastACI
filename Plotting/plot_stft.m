@@ -17,9 +17,9 @@ opts = Ensure_field(opts,'bColourBar',1);
 % end
 % 
 % stft = 20*log10(stft + 1e-6);
-% 
-% if isfield(info,'dB_min')
-%     idx = find(stft < info.dB_min); stft(idx) = info.dB_min;
+
+% if isfield(opts,'dB_min')
+%     idx = find(stft < info.dB_min); stft(idx) = opts.dB_min;
 % end
 
 normalise_time_factor = 1;
@@ -45,9 +45,15 @@ set(gca,'YDir','normal'); % set(gca,'YDir','reverse');
 
 % set(gca, 'FontName', 'Times New Roman', 'FontSize', 14);
 NfrequencyTicks = 9;
+if ~isfield(opts,'YTickLabel')
+    YTickLabel = round(f(round(linspace(1,end,NfrequencyTicks))));
+else
+    YTickLabel = opts.YTickLabel;
+end
+
 if ~isempty(NfrequencyTicks)
     set(gca,'YTick',linspace(f(1),f(end),NfrequencyTicks))
-    set(gca,'YTickLabel',round(f(round(linspace(1,end,NfrequencyTicks)))))
+    set(gca,'YTickLabel',YTickLabel)
 end
 
 opts = Ensure_field(opts,'XLabel','Time (s)');

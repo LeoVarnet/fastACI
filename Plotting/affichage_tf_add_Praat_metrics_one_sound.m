@@ -44,6 +44,11 @@ if isempty(outs_from_Praat)
     outs_from_Praat = Get_all_metrics_from_Praat(dir_where,par_formants);
 else
     % Nothing to do: just using the information in outs_from_Praat
+    if ~isfield(outs_from_Praat,'f0')
+        % This means that maybe you have not yet the Praat parameters
+        par_formants = outs_from_Praat;
+        outs_from_Praat = Get_all_metrics_from_Praat(dir_where,par_formants);
+    end
 end
 
 if isfield(outs_from_Praat,'f0')

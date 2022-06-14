@@ -55,6 +55,16 @@ if isempty(keyvals.dir_noise)
     if ~exist(cfg_game.dir_noise,'dir')
         % Prepare ACI analysis
         cfg_game = Check_cfg_crea_dirs(cfg_game);
+        
+        if bCalculation == 1
+            files = Get_filenames(cfg_game.dir_noise,'*.wav');
+            if isempty(files) % then dir_noise does not exist yet...
+                str_here = sprintf('Experiment=%s, subject=%s, condition=%s',cfg_game.experiment_full,cfg_game.Subject_ID, cfg_game.Condition);
+                cfg_game.dir_noise = uigetdir([pwd filesep],str_here);
+
+                cfg_game.dir_noise = [cfg_game.dir_noise filesep];
+            end
+        end
     end
 else
     disp('')

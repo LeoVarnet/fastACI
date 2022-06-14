@@ -82,6 +82,19 @@ switch type
         
         extra.basef = basef;
         
+    case {'varnet2021_env_BB'}
+        outsig = ihcenvelope(insig,fs,'ihc_king2019');
+        
+        % Extra LPF filter at 30 Hz:
+        cutofffreq=30;
+        ihc_filter_order = 2;
+        [b, a] = butter(1, cutofffreq*2/fs);
+        for ii=1:ihc_filter_order
+            outsig = filter(b,a, outsig);
+        end
+        metric = outsig;
+        description = 'BB waveform + HWR + LPF at 30 Hz';
+        
     case {'varnet2017_AMi'}
         metric = varnet2017_AMi(insig,fs);
         description = 'AMi as described by Varnet et al. (2017)';
