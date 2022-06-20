@@ -3,6 +3,7 @@ function definput = arg_fastACI_experiment(definput)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+definput.flags.idle = {'idle','no_idle'}; % No influence in anything at all
 definput.keyvals.Ni  = []; % it will use i_current according to the stored experimental results
 definput.keyvals.Nf  = []; % it will use the N from the experiment
 % definput.keyvals.file_model_decision_config  = []; % commented on 13/04/2022

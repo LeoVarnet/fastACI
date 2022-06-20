@@ -54,7 +54,8 @@ end
 Iterations = 1;
 while bContinue == 1 && Iterations <= 20 
     Nf = Ni + N;
-    flags_here = {};
+    flags_here = Get_idle_flag;
+        
     kv_here = keyvals;
     kv_here.Ni = Ni;
     kv_here.Nf = Nf;
