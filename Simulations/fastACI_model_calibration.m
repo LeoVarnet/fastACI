@@ -129,7 +129,9 @@ pars = [];
 pars.thres_for_bias = thres_for_bias;
 pars.in_std = in_std;
 pars.description = ['Calibration using ' mfilename];
-Save_model_calibration(fname,pars);
+try
+    Save_model_calibration(fname,pars);
+end
 
 %%%
 

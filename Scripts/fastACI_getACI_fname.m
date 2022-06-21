@@ -146,9 +146,13 @@ else
     str_expvar_rev = [];
 end
 
-if contains(savegame_file,'swap-tar.mat')
-    str_target_order = '-swap';
-else
+try
+    if contains(savegame_file,'swap-tar.mat')
+        str_target_order = '-swap';
+    else
+        str_target_order = '';
+    end
+catch
     str_target_order = '';
 end
 
