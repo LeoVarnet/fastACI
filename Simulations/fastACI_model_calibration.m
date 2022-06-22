@@ -54,29 +54,45 @@ end
 Iterations = 1;
 while bContinue == 1 && Iterations <= 20 
     Nf = Ni + N;
-    flags_here = Get_idle_flag;
+    if isempty(flags)
+        flags = Get_idle_flag;
+    end
         
     kv_here = keyvals;
+    
     kv_here.Ni = Ni;
     kv_here.Nf = Nf;
     kv_here.thres_for_bias = thres_for_bias;
     
     try
-        [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar_cal,'argimport',flags_here,kv_here);
+        [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar_cal,'argimport',flags,kv_here);
     catch
         %%% Run the following first, to create a create file
         % [cfg_game, data_passation] = fastACI_experiment(experiment,model,noise_cond);
 
         % It means that the experiment has to be initialised first
         fastACI_experiment_init(experiment,model, Condition);
-        [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar_cal,flags_here{:});
+        [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar_cal,flags{:});
     end
 
+    sessionN = cfg_game.sessionsN;
+    idxi = 1:sessionN:cfg_game.N;
+    idxf = sessionN:sessionN:cfg_game.N;
+    
     if Iterations == 1
         % First adjustment, based on one session:
         mues = data_passation.decision_var_mue2choose;
         diffe = mues(:,2)-mues(:,1);
         thres_for_bias = median(diffe);
+        
+        for i = 1:length(idxi)
+            try
+                thres_for_bias_each_session(i) = prctile( diffe(idxi(i):idxf(i)) , 50);
+            catch
+                thres_for_bias_each_session(i) = nan;
+            end
+        end
+        
     end
 
     Play_ready;
@@ -127,6 +143,7 @@ fname = ['optimal_detector-' model '-' Condition '-' date];
  
 pars = [];
 pars.thres_for_bias = thres_for_bias;
+pars.thres_for_bias_each_session = thres_for_bias_each_session;
 pars.in_std = in_std;
 pars.description = ['Calibration using ' mfilename];
 try
@@ -136,4 +153,5 @@ end
 %%%
 
 keyvals.thres_for_bias = thres_for_bias;
+keyvals.thres_for_bias_each_session = thres_for_bias_each_session;
 keyvals.in_std         = in_std;

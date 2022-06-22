@@ -116,7 +116,18 @@ if bDo_the_check
         if isfield(var.cfg_crea,'stim_order')
             cfg_inout.stim_order     = var.cfg_crea.stim_order; 
             if length(var.cfg_crea.stim_order) ~= cfg_inout.N
-                idx2use = find(cfg_inout.stim_order<=cfg_inout.N);
+                fprintf('%s: Your participant has by default %.0f trials but you are copying the information from another participant with %.0f trials.\n',upper(mfilename),cfg_inout.N,var.cfg_crea.N);
+                bCopy = input('Press 1 to copy the new number of trials or 0 to keep the original number: ');
+                switch bCopy
+                    case 1
+                        % Thus, we need to update the trial numbers
+                        cfg_inout.N = var.cfg_crea.N;
+                        cfg_inout.N_presentation = var.cfg_crea.N_presentation;
+                        % cfg_inout.n_targets_sorted = var.cfg_crea.n_targets_sorted;
+                        idx2use = 1:length(cfg_inout.stim_order);
+                    case 0
+                        idx2use = find(cfg_inout.stim_order<=cfg_inout.N);
+                end
                 cfg_inout.stim_order = cfg_inout.stim_order(idx2use);
             else
                 idx2use = 1:length(cfg_inout.stim_order);

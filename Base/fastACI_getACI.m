@@ -316,7 +316,14 @@ if bCalculation
         cfg_ACI.keyvals = Remove_field(cfg_ACI.keyvals,'Data_matrix');
     end
     info_toolbox = Get_toolbox_info(mfilename);
-    save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+    try
+        save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+    catch
+        [dir_where,file,ext] = fileparts(fnameACI);
+        mkdir(dir_where);
+        % warning('No destination folder could be created...')
+        save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+    end
     results.fnameACI = fnameACI;
     results.fnameACI_description = 'File name where the fastACI results were stored...';
     

@@ -54,20 +54,27 @@ end
 type_decision = cfg_sim.type_decision; % 'relanoiborra2019_decision'; 'optimal_detector'; % type_processing;
 sim_work.type_decision = type_decision;
 
-if isfield(cfg_sim,'thres_for_bias')
-    thres_for_bias = cfg_sim.thres_for_bias;
-else
-    switch type_decision
-        case 'optimal_detector'
-            disp('Non calibrated thres_for_bias')
-            thres_for_bias = 0;
+if flags.do_bias_global || flags.do_no_bias_each_session
+    if isfield(cfg_sim,'thres_for_bias')
+        thres_for_bias = cfg_sim.thres_for_bias;
+    else
+        switch type_decision
+            case 'optimal_detector'
+                disp('Non calibrated thres_for_bias')
+                thres_for_bias = 0;
+        end
     end
-    % switch cfg_sim.modelname
-    %     case 'osses2021'
-    %         thres_for_bias = 0.37; 
-    %     case 'king2019'
-    %         thres_for_bias = 9.2685e-07; %1.2358e-06; 
-    % end
+end
+idx_session = length(data_passation.resume_trial);
+if flags.do_no_bias_global || flags.do_bias_each_session
+    if isfield(cfg_sim,'thres_for_bias_each_session')
+        thres_for_bias = cfg_sim.thres_for_bias_each_session(idx_session);
+        if (data_passation.i_current - data_passation.resume_trial(end) == 0) || data_passation.i_current == 1
+            fprintf('%s: Using one bias value (thres_for_bias=%.4f) for each section of %.0f trials\n',upper(mfilename),thres_for_bias,cfg_game.sessionsN);
+        end
+    else
+        error('%s: if do_bias_each_session, you need to specify the keyval ''thres_for_bias_each_session''.',upper(mfilename));
+    end
 end
 
 if (isempty(sim_work.templ_tar) == 1 || cfg_sim.template_every_trial == 1 )

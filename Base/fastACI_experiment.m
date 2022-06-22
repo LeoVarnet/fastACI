@@ -215,11 +215,22 @@ if cfg_game.is_simulation == 1
     
     %%% Calibrate the model if keyvals.thres_for_bias is not specified:
     if isempty(keyvals.thres_for_bias)
-        kv_here = keyvals;
-        kv_here.Nf = cfg_game.N;
-        kv_here = fastACI_model_calibration(experiment_full,Subject_ID,Condition,{},kv_here);
-        keyvals.in_std = kv_here.in_std;
-        keyvals.thres_for_bias = kv_here.thres_for_bias;
+        bDo = 1;
+        if bDo
+            kv_here = keyvals;
+            kv_here.Nf = cfg_game.N;
+            if isempty(flags)
+                flags = Get_idle_flag; % Gets idle flags
+            end
+            kv_here = fastACI_model_calibration(experiment_full,Subject_ID,Condition,flags,kv_here);
+            keyvals.in_std = kv_here.in_std;
+            keyvals.thres_for_bias = kv_here.thres_for_bias;
+            keyvals.thres_for_bias_each_session = kv_here.thres_for_bias_each_session;
+        else
+            % var = load('/home/alejandro/Documents/MATLAB/MATLAB_ENS/fastACI/Interim_results/optimal_detector-osses2022a-white-2022-6-21-at-17h-45m-22s.mat');
+            % keyvals.in_std = var.in_std; keyvals.thres_for_bias = var.thres_for_bias; keyvals.thres_for_bias_each_session = var.thres_for_bias_each_session;
+        end
+                                             
         return; % it stops after running the calibration
     end
     if ~strcmp(cfg_game.Language,'EN')
@@ -479,7 +490,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
     data_passation.i_current = i_current;
     %%%
     [cfg_game, data_passation, outs_trial, sim_work] = ...
-        fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals);
+        fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, flags, keyvals);
     response  = outs_trial.response;
     i_current = outs_trial.i_current;
     isbreak   = outs_trial.isbreak;

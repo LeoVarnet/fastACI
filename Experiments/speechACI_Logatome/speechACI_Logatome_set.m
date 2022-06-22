@@ -3,7 +3,7 @@ function cfg_inout = speechACI_Logatome_set(cfg_inout)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-global mock global_vars
+global global_vars
 
 if nargin == 0
     cfg_inout = [];
@@ -107,7 +107,11 @@ cfg.Language = Language; % or 'EN'
 if isfield(global_vars,'N_presentation')
     N_presentation = global_vars.N_presentation;
 else
-    N_presentation = 2000; % before 14/04/2022, this value was 2500
+    if ~isfield(cfg_inout,'N_presentation')
+        N_presentation = 2000; % before 14/04/2022, this value was 2500
+    else
+        N_presentation = cfg_inout.N_presentation;
+    end
 end
 cfg.N_presentation = N_presentation; % number of stimuli / condition
 cfg.N_target  = 2;     % Number of conditions

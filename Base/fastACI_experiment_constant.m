@@ -465,7 +465,7 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
     data_passation.i_current = i_current;
     %%%
     [cfg_game, data_passation, outs_trial, sim_work] = ...
-        fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, keyvals);
+        fastACI_trial_current(cfg_game, data_passation, expvar, ins_trial, flags, keyvals);
     response  = outs_trial.response;
     i_current = outs_trial.i_current;
     isbreak   = outs_trial.isbreak;

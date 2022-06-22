@@ -22,6 +22,9 @@ if ~isempty(keyvals.thres_for_bias)
 else
     thres_for_bias = input('Enter the value for thres_for_bias (MU) - press 0 if you don''t know:');
 end
+if ~isempty(keyvals.thres_for_bias_each_session)
+    pars.thres_for_bias_each_session = keyvals.thres_for_bias_each_session;
+end
 pars.thres_for_bias = thres_for_bias;
 
 in_std = pars.in_std;
