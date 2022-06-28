@@ -97,6 +97,7 @@ function [h_image,h_colourbar] = my_image_plot(indata, opts)
 
 % Get name-value pair arguments:
 
+indata_orig = indata;
 if isfield(opts,'cmin') && isfield(opts,'cmax')
     cmin = opts.cmin;
     cmax = opts.cmax;
@@ -105,15 +106,22 @@ else
     cmax = max(max(indata));
 end
 
+if ~isfield(opts,'bText')
+    opts.bText = 0;
+end
+bText = opts.bText;
+
 opts = Ensure_field(opts,'bColourbar',1);
 bColourbar = opts.bColourbar;
 
 alpha_data = ones(size(indata));
 
+idx = find(isnan(indata));
+indata(idx) = 0;
+
 crange = cmax-cmin;
 m = 257;
 indata = min(m,round((m-1)*(indata-cmin)/(cmax-cmin)));
-
 h_image = image(indata,'AlphaData',alpha_data);
 
 set(gca,'XTick',1:size(indata,1));
@@ -122,6 +130,16 @@ set(gca,'YTick',1:size(indata,1));
 if isfield(opts,'Labels')
     set(gca,'XTickLabel',opts.Labels);
     set(gca,'YTickLabel',opts.Labels);
+end
+
+if bText
+    for i = 1:size(indata,1)
+        for j = 1:size(indata,2)
+            if ~isnan(indata_orig(i,j))
+                text(j,i,sprintf('%.1f',indata_orig(i,j)),'HorizontalAlignment','center');
+            end
+        end
+    end
 end
 
 if bColourbar
