@@ -332,6 +332,7 @@ if cfg_game.is_simulation == 1
         if exist('fastACI_file_template.m','file')
             file_template = fastACI_file_template(cfg_game.experiment_full, ...
                                     Subject_ID, def_sim.type_decision, keyvals);
+            def_sim.file_template = file_template;
             if exist(file_template,'file')
                 fprintf('Pausing for 10 s. Press ctr+c to cancel the simulations.\n');
                 fprintf('%s: Template found on disk, if this is not what you want, remove/rename the file and re-run the simulations\n (template file: %s).\n',upper(mfilename),file_template);
