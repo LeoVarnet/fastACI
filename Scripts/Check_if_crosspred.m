@@ -28,8 +28,26 @@ if exist(dir_where,'dir')
         N_existing = length(var.crosspred);
         for i = 1:N_crosspred % each requested file_crosspred
             for j = 1:N_existing
-                if strcmp(file_crosspred{i},var.crosspred(j).ACI_crosspred)
+                file1 = file_crosspred{i};
+                file2 = var.crosspred(j).ACI_crosspred;
+                if strcmp(file1,file2)
                     idx(i) = j;
+                else
+                    % Then the files are 'different' but maybe because they
+                    %   differ in their absolute path, or were obtained using
+                    %   different operating systems.
+                    
+                    % file1 is formatted using the current OS:
+                    [xx,fname1,ext] = fileparts(file1); % fileparts will work
+                    fname1 = [fname1 ext];
+                    fname2 = file2(end+1-length(fname1):end);
+                    
+                    fprintf('%s: Comparing the file names (%s) but not the absolute paths...\n',upper(mfilename),fname1);
+                    
+                    if strcmp(fname1,fname2)
+                        idx(i) = j;
+                    end
+                
                 end
             end
         end
