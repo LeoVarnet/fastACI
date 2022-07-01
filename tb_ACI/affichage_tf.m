@@ -246,13 +246,14 @@ for num_CI = 1:N_CI
     else
         subplot(msubplot,nsubplot,num_CI)
     end
-    try
-        maxabsdata = max(max(max(abs(data(freq_affiche_Index,time_affiche_Index,:)))));
-    catch
-        disp('')
-    end
+%     try
+%         maxabsdata = max(max(max(abs(data(freq_affiche_Index,time_affiche_Index,:)))));
+%     catch
+%         disp('')
+%     end
     datatoplot=data(freq_affiche_Index,time_affiche_Index,i_CI);
-    
+    maxabsdata = max(abs(datatoplot(:)));
+
     if ~isempty(binaryalphamap)
         if iscell(binaryalphamap)
             if length(binaryalphamap)==1
@@ -272,7 +273,11 @@ for num_CI = 1:N_CI
     t2plot = t(time_affiche_Index);
     f2plot = f(freq_affiche_Index);
     if strcmp(type, 'CInorm')
-        imagesc(t2plot, f2plot, datatoplot/max(abs((datatoplot(:)))));
+        if maxabsdata > 0
+            imagesc(t2plot, f2plot, datatoplot/maxabsdata);
+        else
+            imagesc(t2plot, f2plot, datatoplot);
+        end
     elseif length(type)>5 && strcmp(type(1:6), 'zscore')
         imagesc(t2plot, f2plot, (datatoplot-mean(datatoplot(:)))/std(datatoplot(:)));
     else
@@ -283,11 +288,11 @@ for num_CI = 1:N_CI
         colormap(mymap);
     elseif strcmp(type(1:2), 'CI') || strcmp(type,'tvalue')
         colormap(jet);
-        try
+        if maxabsdata > 0
             caxis([-maxabsdata maxabsdata]);
-        catch
-            warning('maxansdata seems to be a NaN, setting to -1 and 1')
-            caxis([-1 1]);
+        else
+            warning('maxansdata seems to be a NaN');%, setting to -1 and 1')
+            %caxis([-1 1]);
         end
     elseif strcmp(type, 'ACI')
         % New by Alejandro
