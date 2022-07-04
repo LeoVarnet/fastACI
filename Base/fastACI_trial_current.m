@@ -118,10 +118,11 @@ elseif cfg_game.is_simulation
     switch def_sim.decision_script
         case 'aci_detect' 
             % Default for 'dau1997' and 'osses2021'
-            [response,sim_work] = aci_detect(cfg_game,data_passation,def_sim,sim_work, ...
+            [response,sim_work,def_sim] = aci_detect(cfg_game,data_passation,def_sim,sim_work, ...
                 'argimport',flags,keyvals); 
             data_passation.decision_var_mue2choose(i_current,:) = sim_work.decision_var_mue2choose(i_current,:);
 
+            disp('')
         case 'king2019_detect'
             % Default for 'king2019'
             [response,sim_work,def_sim] = king2019_detect(cfg_game,data_passation,def_sim,sim_work);
@@ -344,6 +345,18 @@ switch response
         end
 
         i_current = i_current+1; 
+        
+        if cfg_game.is_simulation
+            if i_current == data_passation.next_session_stop
+                if isfield(cfg_game.def_sim,'ir_reference')
+                    cfg_game.def_sim = Remove_field(cfg_game.def_sim,'ir_reference'); % removing the individual internal representations for the template
+                end
+                if isfield(def_sim,'ir_signal')
+                    cfg_game.def_sim = Remove_field(cfg_game.def_sim,'ir_signal'); % removing the individual internal representations for the template
+                end
+            end
+        end
+        
     otherwise
         warning('%s: Keyboard response not recognised',upper(mfilename))
 end

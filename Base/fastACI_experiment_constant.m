@@ -454,7 +454,11 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
         ins_trial.n_correctinarow = outs_trial.n_correctinarow;
     end
     if cfg_game.is_simulation
-        ins_trial.def_sim  = def_sim;
+        if isfield(cfg_game,'def_sim')
+            ins_trial.def_sim = cfg_game.def_sim; % normally this is the case after running the first trial
+        else
+            ins_trial.def_sim  = def_sim;
+        end
         ins_trial.sim_work = sim_work;
     end
     ins_trial.debut_i = debut_i;

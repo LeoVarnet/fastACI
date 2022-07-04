@@ -39,9 +39,20 @@ outsig=cell(nfreqchannels,1);
 % first order modulation Butterworth lowpass filter with a cut-off
 % frequency of 150 Hz. This is to remove all modulation frequencies
 % above 150 Hz. The motivation behind this filter can be found in kohlrausch2000
-if flags.do_LP_150_Hz % modbank_LPfilter
-    [b_highest,a_highest] = butter(1,150/(fs/2));
-    insig = filter(b_highest,a_highest,insig);
+if flags.do_LP_150_Hz || flags.do_LP_150_Hz_att % modbank_LPfilter
+    [b_lp_150_Hz,a_lp_150_Hz] = butter(1,150/(fs/2));
+    if flags.do_LP_150_Hz
+        % In this case, the filtering is directly applied
+        insig = filter(b_lp_150_Hz,a_lp_150_Hz,insig);
+    end
+    %%%
+    if flags.do_LP_150_Hz_att
+        % In this case the frequency response is assessed
+        K =  8192; % arbitrary number
+        f = (0:K-1)/K * fs/2;
+        hLPF    = freqz(b_lp_150_Hz,a_lp_150_Hz, K); % frequency response of the 150 Hz filter
+        hLPF_dB = 20*log10(abs(hLPF));
+    end
 end
 mfc_upper_limit_max = kv.mfc_upper_limit_max; % Hz
 if flags.do_mfc_upper_limit
@@ -73,25 +84,21 @@ else
     logfmc = linspace(log(mflow), log(mfhigh), modbank_Nmod); %log(fmin):log((sqrt(4*Qfactor^2+1)+1)/(sqrt(4*Qfactor^2+1)-1)):log(fmax);
 end
 mfc = exp(logfmc);
-% if umf(freqchannel)==0
-%     % ----------- only lowpass ---------------------
-%     outsigblock = filter(b_lowpass,a_lowpass,outtmp);
-%     mfc = 0;
-% end
 
 for ichan = 1:modbank_Nmod
     flim(ichan,:) = mfc(ichan)*sqrt(4+1/Q_mfb^2)/2 +  [-1 +1]*mfc(ichan)/Q_mfb/2;
     [b(ichan,:),a(ichan,:)] = butter(2,2*[flim(ichan,:)]/fs); 
 end
 mfc = [2.5 mfc];
-% b = [nan(1,size(b,2)); b];
-% a = [nan(1,size(a,2)); a];
 b = [b_lowpass 0 0; b];
 a = [a_lowpass 0 0; a];
 Nchannels = modbank_Nmod+1;
 
 flim = [0 2.5; flim];
 
+if flags.do_LP_150_Hz_att
+    mfc_gains = interp1(f(:)',hLPF_dB(:)',mfc);
+end
 % -------------------------------------------------------------------------
 % 2. apply_filterbank.m
 if size(a,1)~= Nchannels
@@ -102,6 +109,10 @@ for j = 1:nfreqchannels
     for i=1:Nchannels
         if mfc(i)<=umf(j)
             outsig{j}(:,i) = filter(b(i,:),a(i,:),insig(:,j));
+            
+            if flags.do_LP_150_Hz_att
+                outsig{j}(:,i) = gaindb( outsig{j}(:,i), mfc_gains(i));
+            end
         end
     end
 end

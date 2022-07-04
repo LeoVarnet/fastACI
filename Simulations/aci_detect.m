@@ -1,4 +1,4 @@
-function [response,sim_work] = aci_detect(cfg_game,data_passation,cfg_sim,sim_work,varargin) %keyvals)
+function [response,sim_work,cfg_sim] = aci_detect(cfg_game,data_passation,cfg_sim,sim_work,varargin) %keyvals)
 % ACI_DETECT
 %
 % Based on casp_detect.m, an add-on function from the AFC toolbox
@@ -83,7 +83,11 @@ if (isempty(sim_work.templ_tar) == 1 || cfg_sim.template_every_trial == 1 )
     % generate template if not existing
     switch template_script
         case 'model_template'
-            [templ_tar,templ_ref,cfg_sim] = model_template(cfg_game,data_passation,cfg_sim,keyvals); 
+            if cfg_sim.template_every_trial == 0
+                [templ_tar,templ_ref,cfg_sim] = model_template(cfg_game,data_passation,cfg_sim,keyvals); 
+            else
+                [templ_tar,templ_ref,cfg_sim] = model_template_update(cfg_game,data_passation,cfg_sim,keyvals); 
+            end
     end
     sim_work.templ_tar = templ_tar;
     sim_work.templ_ref = templ_ref;

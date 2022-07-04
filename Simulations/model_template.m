@@ -158,5 +158,5 @@ disp('')
 % restore work.expvaract to experiment_cfg startvar:
 data_passation.expvar(i_current) = store_expvar;
 
-disp('template calculation finished');
-
+% disp('template calculation finished');
+fprintf('%s: template calculation finished\n',upper(mfilename));
