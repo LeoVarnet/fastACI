@@ -31,7 +31,7 @@ for i_lambda = 1:N_lambda
         [B_temp,FitInfo_temp] = lassoglm(X(idx_train,:),y(idx_train),'binomial','Lambda',FitInfo.Lambda(i_lambda));
         FitInfo.Intercept(i_lambda,i_fold) = FitInfo_temp.Intercept;
         FitInfo.DF(i_lambda,i_fold) = FitInfo_temp.DF;
-        FitInfo.Devtrain(i_lambda,i_fold) = FitInfo_temp.Deviance;
+        FitInfo.Dev_train(i_lambda,i_fold) = FitInfo_temp.Deviance;
         B(:,i_lambda,i_fold ) = B_temp;
         
         coef = [FitInfo_temp.Intercept; B_temp];
@@ -41,7 +41,7 @@ for i_lambda = 1:N_lambda
         [PC,MSE,Dev,MSE_rounded] = Get_prediction_metrics(yhat_train,y,idx_train);
         % Devtrain = Dev;
         
-        FitInfo.Dev_train(i_lambda,i_fold) = Dev;
+        % FitInfo.Dev_train(i_lambda,i_fold) = Dev; should be the same as FitInfo_temp.Deviance;
         FitInfo.MSE_train(i_lambda,i_fold) = MSE;
         FitInfo.PC_train(i_lambda,i_fold)  = PC;
         FitInfo.yhat_train(i_lambda,i_fold,1:length(yhat_train)) = yhat_train;

@@ -81,12 +81,23 @@ if (isempty(sim_work.templ_tar) == 1 || cfg_sim.template_every_trial == 1 )
 
     % def.calculate_template = 1;
     % generate template if not existing
+    if cfg_sim.template_every_trial == 1
+        cfg_game_here = cfg_game;
+        if exist([cfg_game.experiment '_online_user.m'],'file')
+            cfg_game_here.experiment = [cfg_game.experiment '_online'];
+        end
+    else
+        cfg_game_here = cfg_game;
+    end
     switch template_script
         case 'model_template'
-            if cfg_sim.template_every_trial == 0
-                [templ_tar,templ_ref,cfg_sim] = model_template(cfg_game,data_passation,cfg_sim,keyvals); 
+            [templ_tar,templ_ref,cfg_sim] = model_template(cfg_game_here,data_passation,cfg_sim,keyvals); 
+            
+        case 'model_template_update'
+            if cfg_sim.template_every_trial == 1
+                [templ_tar,templ_ref,cfg_sim] = model_template_update(cfg_game_here,data_passation,cfg_sim,keyvals); 
             else
-                [templ_tar,templ_ref,cfg_sim] = model_template_update(cfg_game,data_passation,cfg_sim,keyvals); 
+                error('%s: The template script ''model_template_update.m'' is only compatible with the option template_every_trial set to 1',upper(mfilename));
             end
     end
     sim_work.templ_tar = templ_tar;

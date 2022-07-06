@@ -64,16 +64,16 @@ while bContinue == 1 && Iterations <= 20
     kv_here.Nf = Nf;
     kv_here.thres_for_bias = thres_for_bias;
     
-    try
-        [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar_cal,'argimport',flags,kv_here);
-    catch
-        %%% Run the following first, to create a create file
-        % [cfg_game, data_passation] = fastACI_experiment(experiment,model,noise_cond);
-
-        % It means that the experiment has to be initialised first
-        fastACI_experiment_init(experiment,model, Condition);
-        [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar_cal,flags{:});
-    end
+    % try
+    [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar_cal,'argimport',flags,kv_here);
+    % catch
+    %     %%% Run the following first, to create a create file
+    %     % [cfg_game, data_passation] = fastACI_experiment(experiment,model,noise_cond);
+    % 
+    %     % It means that the experiment has to be initialised first
+    %     fastACI_experiment_init(experiment,model, Condition);
+    %     [cfg_game, data_passation] = fastACI_experiment_constant(experiment,model,Condition,expvar_cal,flags{:});
+    % end
 
     sessionN = cfg_game.sessionsN;
     idxi = 1:sessionN:cfg_game.N;

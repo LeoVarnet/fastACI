@@ -295,10 +295,11 @@ for num_CI = 1:N_CI
             %caxis([-1 1]);
         end
     elseif strcmp(type, 'ACI')
-        % New by Alejandro
-        mymap = Get_colourmap_rgb('RdGy');
+        % % New by Alejandro
+        % mymap = Get_colourmap_rgb('RdGy'); % This colour is nicer (0 is white) but still not colour blind
+        mymap = Get_colourmap_rgb('Audition');
         cmap = colormap(mymap);
-        caxis([-maxabsdata maxabsdata])    
+        caxis([-maxabsdata maxabsdata]) 
     elseif strcmp(type, 'formants')
         colormap([1 1 1])
     elseif length(type)>5 && strcmp(type(1:6), 'zscore')

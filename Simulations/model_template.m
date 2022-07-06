@@ -101,6 +101,12 @@ else
     end
 end
 
+%%%
+if isfield(cfg_sim,'templ_num_partial')
+    count_partial = 1; % starts from the first specified template
+end
+%%%
+
 for i = 1:(cfg_sim.templ_num - 1)
   
     %%%
@@ -124,6 +130,16 @@ for i = 1:(cfg_sim.templ_num - 1)
         
         templ_tar  = templ_tar  + ir_signal;
         templ_ref  = templ_ref + ir_reference;
+        
+        if isfield(cfg_sim,'templ_num_partial')
+            if count_partial <= length(cfg_sim.templ_num_partial)
+                if mod(i,cfg_sim.templ_num_partial(count_partial))==0
+                    templ_tar_partial(:,count_partial) = templ_tar;
+                    templ_ref_partial(:,count_partial) = templ_ref;   
+                    count_partial = count_partial + 1;
+                end
+            end
+        end % end if templ_num_partial
     else
         templ_ref_here = [];
         templ_tar_here = [];
@@ -140,23 +156,33 @@ for i = 1:(cfg_sim.templ_num - 1)
         templ_ref  = templ_ref + templ_ref_here;
     end
     
-    
 end
 
-templ_tar = templ_tar / cfg_sim.templ_num;  % rescaling
-templ_ref = templ_ref / cfg_sim.templ_num; % reference is built
+[templ_tar,templ_ref] = il_normalise_the_template(templ_tar,templ_ref,subfs,cfg_sim.templ_num);
+if isfield(cfg_sim,'templ_num_partial')
+    for i = 1:length(cfg_sim.templ_num_partial)
+        [templ_tar_partial(:,i),templ_ref_partial(:,i)] = il_normalise_the_template(templ_tar_partial(:,i),templ_ref_partial(:,i),subfs,cfg_sim.templ_num_partial(i));
+    end
+end
 
-% templ_target  = templ_target - reference; % template is built
+% restore work.expvaract to experiment_cfg startvar:
+data_passation.expvar(i_current) = store_expvar;
+
+if isfield(cfg_sim,'templ_num_partial')
+    cfg_sim.templ_tar_partial = templ_tar_partial;
+    cfg_sim.templ_ref_partial = templ_ref_partial;
+end
+
+% disp('template calculation finished');
+fprintf('%s: template calculation finished\n',upper(mfilename));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [templ_tar,templ_ref] = il_normalise_the_template(templ_tar,templ_ref,subfs,templ_num)
+
+templ_tar = templ_tar / templ_num; 
+templ_ref = templ_ref / templ_num; 
 
 % The following is a method to simulateously scale both templates to unit energy
 [~,c] = Normalise_signal(1/sqrt(2)*[templ_tar; templ_ref],subfs);
 templ_tar = c*templ_tar;
 templ_ref = c*templ_ref;
-
-disp('')
-
-% restore work.expvaract to experiment_cfg startvar:
-data_passation.expvar(i_current) = store_expvar;
-
-% disp('template calculation finished');
-fprintf('%s: template calculation finished\n',upper(mfilename));
