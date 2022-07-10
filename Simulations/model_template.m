@@ -106,57 +106,111 @@ if isfield(cfg_sim,'templ_num_partial')
     count_partial = 1; % starts from the first specified template
 end
 %%%
+bParallel = 0;
 
-for i = 1:(cfg_sim.templ_num - 1)
-  
-    %%%
-    str_stim = [];
-    cfg_local = cfg_game;
-    cfg_local.n_targets_sorted(n_stim) = 2; % target
-    eval(['str_stim = ' cfg_game.experiment '_user(cfg_local,data_passation);']); % calls user-function of the experiment
-    signal1 = str_stim.tuser;
+tic
+if bParallel == 0
+    for i = 1:(cfg_sim.templ_num - 1)
 
-    cfg_local.n_targets_sorted(n_stim) = 1; % reference
-    eval(['str_stim = ' cfg_game.experiment '_user(cfg_local,data_passation);']); % calls user-function of the experiment
-    signal2 = str_stim.tuser;
-    %%%
+        %%%
+        str_stim = [];
+        cfg_local = cfg_game;
+        cfg_local.n_targets_sorted(n_stim) = 2; % target
+        eval(['str_stim = ' cfg_game.experiment '_user(cfg_local,data_passation);']); % calls user-function of the experiment
+        signal1 = str_stim.tuser;
 
-    if N_Ch == 1
-        ir_signal    = model_representation(signal1,modelname,modelpars);
-        ir_reference = model_representation(signal2,modelname,modelpars);
-        
-        ir_reference = Ensure_intrep_is_numeric(ir_reference);
-        ir_signal    = Ensure_intrep_is_numeric(ir_signal);
-        
-        templ_tar  = templ_tar  + ir_signal;
-        templ_ref  = templ_ref + ir_reference;
-        
-        if isfield(cfg_sim,'templ_num_partial')
-            if count_partial <= length(cfg_sim.templ_num_partial)
-                if mod(i,cfg_sim.templ_num_partial(count_partial))==0
-                    templ_tar_partial(:,count_partial) = templ_tar;
-                    templ_ref_partial(:,count_partial) = templ_ref;   
-                    count_partial = count_partial + 1;
+        cfg_local.n_targets_sorted(n_stim) = 1; % reference
+        eval(['str_stim = ' cfg_game.experiment '_user(cfg_local,data_passation);']); % calls user-function of the experiment
+        signal2 = str_stim.tuser;
+        %%%
+
+        if N_Ch == 1
+            ir_signal    = model_representation(signal1,modelname,modelpars);
+            ir_reference = model_representation(signal2,modelname,modelpars);
+
+            ir_reference = Ensure_intrep_is_numeric(ir_reference);
+            ir_signal    = Ensure_intrep_is_numeric(ir_signal);
+
+            templ_tar  = templ_tar  + ir_signal;
+            templ_ref  = templ_ref + ir_reference;
+
+            if isfield(cfg_sim,'templ_num_partial')
+                if count_partial <= length(cfg_sim.templ_num_partial)
+                    if mod(i,cfg_sim.templ_num_partial(count_partial))==0
+                        templ_tar_partial(:,count_partial) = templ_tar;
+                        templ_ref_partial(:,count_partial) = templ_ref;   
+                        count_partial = count_partial + 1;
+                    end
                 end
-            end
-        end % end if templ_num_partial
-    else
-        templ_ref_here = [];
-        templ_tar_here = [];
-        for n = 1:N_Ch
-            [ir_signal,params] = model_representation(signal1(:,n),modelname,modelpars);
-            ir_reference       = model_representation(signal2(:,n),modelname,modelpars);
+            end % end if templ_num_partial
+        else
+            templ_ref_here = [];
+            templ_tar_here = [];
+            for n = 1:N_Ch
+                [ir_signal,params] = model_representation(signal1(:,n),modelname,modelpars);
+                ir_reference       = model_representation(signal2(:,n),modelname,modelpars);
 
-            [ir_reference,sizeIR] = Ensure_intrep_is_numeric(ir_reference);
-            templ_ref_here = [templ_ref_here; ir_reference];
-            templ_tar_here = [templ_tar_here; Ensure_intrep_is_numeric(ir_signal)];
+                [ir_reference,sizeIR] = Ensure_intrep_is_numeric(ir_reference);
+                templ_ref_here = [templ_ref_here; ir_reference];
+                templ_tar_here = [templ_tar_here; Ensure_intrep_is_numeric(ir_signal)];
+            end
+
+            templ_tar  = templ_tar + templ_tar_here;
+            templ_ref  = templ_ref + templ_ref_here;
         end
-        
-        templ_tar  = templ_tar + templ_tar_here;
-        templ_ref  = templ_ref + templ_ref_here;
+
+    end
+else
+    
+    ir_signal_all = zeros(size(templ_tar,1)   ,cfg_sim.templ_num);
+    ir_ref_all    = zeros(size(templ_ref,1),cfg_sim.templ_num);
+    ir_signal_all(:,1) = Ensure_intrep_is_numeric( ir_signal );
+    ir_ref_all(:,1)    = Ensure_intrep_is_numeric( ir_reference );
+    
+    for i = 1:(cfg_sim.templ_num - 1)
+        %%%
+        str_stim = [];
+        cfg_local = cfg_game;
+        cfg_local.n_targets_sorted(n_stim) = 2; % target
+        eval(['str_stim = ' cfg_game.experiment '_user(cfg_local,data_passation);']); % calls user-function of the experiment
+        signal1(:,i) = str_stim.tuser;
+
+        cfg_local.n_targets_sorted(n_stim) = 1; % reference
+        eval(['str_stim = ' cfg_game.experiment '_user(cfg_local,data_passation);']); % calls user-function of the experiment
+        signal2(:,i) = str_stim.tuser;
+        %%%
     end
     
+    parfor i = 1:(cfg_sim.templ_num - 1)
+  
+        if N_Ch == 1
+            ir_signal = model_representation(signal1(:,i),modelname,modelpars);
+            ir_reference = model_representation(signal2(:,i),modelname,modelpars);
+
+            ir_ref_all(:,i)    = Ensure_intrep_is_numeric(ir_reference);
+            ir_signal_all(:,i) = Ensure_intrep_is_numeric(ir_signal);
+
+            % templ_tar  = templ_tar  + ir_signal;
+            % templ_ref  = templ_ref + ir_reference;
+
+            % if isfield(cfg_sim,'templ_num_partial')
+            %     if count_partial <= length(cfg_sim.templ_num_partial)
+            %         if mod(i,cfg_sim.templ_num_partial(count_partial))==0
+            %             templ_tar_partial(:,count_partial) = templ_tar;
+            %             templ_ref_partial(:,count_partial) = templ_ref;   
+            %             count_partial = count_partial + 1;
+            %         end
+            %     end
+            % end % end if templ_num_partial
+        else
+            error('Not validated...')
+        end
+    
+    end
+    templ_tar = sum(ir_signal_all,2);
+    templ_ref = sum(ir_ref_all,2);
 end
+toc
 
 [templ_tar,templ_ref] = il_normalise_the_template(templ_tar,templ_ref,subfs,cfg_sim.templ_num);
 if isfield(cfg_sim,'templ_num_partial')

@@ -96,6 +96,9 @@ function [h_image,h_colourbar] = my_image_plot(indata, opts)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Get name-value pair arguments:
+if nargin < 2
+    opts = [];
+end
 
 indata_orig = indata;
 if isfield(opts,'cmin') && isfield(opts,'cmax')
@@ -107,7 +110,7 @@ else
 end
 
 if ~isfield(opts,'bText')
-    opts.bText = 0;
+    opts.bText = 1;
 end
 bText = opts.bText;
 
