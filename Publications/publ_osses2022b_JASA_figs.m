@@ -48,10 +48,10 @@ if flags.do_fig4
     cfg_ACI.t = t;
 
     %%% Creating a B matrix, with arbitrary bumps located at indexes 'idxs':
-    B = zeros(length(f),length(t));
-    B = B(:);
+    w = zeros(length(f),length(t));
+    w = w(:);
     idxs = [10,150,560,1000,1300,2100,2193,2300,2599]; % Arbitrary indexes
-    B(idxs) = 1;
+    w(idxs) = 1;
 
     cfg_ACI.lasso_Nlevelmin = 2;
     cfg_ACI.lasso_Nlevelmax = 5;
@@ -63,7 +63,7 @@ if flags.do_fig4
     %%% Convertion 'back' into the time-frequency domain:
     idxlambda = 1; % idle value
     keyvals.pyramid_script = 'imresize'; % old default value
-    [~, cfg_ACI, sumReWeight] = Convert_lasso_B2ACI(B, cfg_ACI, idxlambda, keyvals);
+    [~, cfg_ACI, sumReWeight] = Convert_lasso_B2ACI(w, cfg_ACI, idxlambda, keyvals);
 
     [~,~,sizeZ] = size(sumReWeight);
     switch sizeZ

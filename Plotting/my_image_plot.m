@@ -105,7 +105,7 @@ if isfield(opts,'cmin') && isfield(opts,'cmax')
     cmin = opts.cmin;
     cmax = opts.cmax;
 else
-    cmin = min(min(indata));
+    cmin = min( min(min(indata)), 0);
     cmax = max(max(indata));
 end
 
