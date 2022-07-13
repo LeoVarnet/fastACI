@@ -1,9 +1,17 @@
-function [crosspred, fname, bComplete] = Check_if_crosspred(fnameACI,file_crosspred)
-% function crosspred = Check_if_crosspred(fnameACI,file_crosspred)
+function [crosspred, fname, bComplete] = Check_if_crosspred(fnameACI,file_crosspred,suffix)
+% function crosspred = Check_if_crosspred(fnameACI,file_crosspred,suffix)
 %
 % Used in l20211217_crossprediction_version_Alejandro_v2.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 crosspred = [];
+
+if nargin < 3
+    suffix = '';
+else
+    if ~strcmp(suffix(1),'-')
+        suffix = ['-' suffix];
+    end
+end
 
 % info_toolbox = Get_toolbox_info(script_str);
 if ischar(file_crosspred)
@@ -22,7 +30,7 @@ if exist(dir_where,'dir')
         var = load(cfg_file);
         idxlambda = var.results.idxlambda;
     end
-    fname = [dir_where 'Crosspred.mat'];
+    fname = [dir_where 'Crosspred' suffix '.mat'];
     if exist(fname,'file')
         var = load(fname);
         N_existing = length(var.crosspred); % Number of fields in the stored cross prediction

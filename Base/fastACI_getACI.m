@@ -157,7 +157,7 @@ if ~isempty(cfg_ACI.keyvals.ACI_crosspred)
     end
     N_crosspred = length(ACI_crosspred);
     
-    fname_cross = Save_crosspred(fnameACI,[],mfilename);
+    fname_cross = Save_crosspred(fnameACI,[],mfilename,keyvals.suffix_crosspred);
     fname_cross = [fname_cross '.mat'];
     if ~exist(fname_cross,'file')
         bCrossPred = 1;
@@ -452,7 +452,16 @@ if bCrossPred
             %%%%TODO%%%%
             switch glmfct
                 case 'l1glm'
-                    CV=results.FitInfo.CV;
+                    bFolds_from_ref_ACI = 1; 
+                    if bFolds_from_ref_ACI
+                        % This is the default
+                        CV=results.FitInfo.CV;
+                    else
+                        %  Tested on 12/07/2022
+                        error('Using the folds from %s',ACI_crosspred{i});
+                        CV=var.results.FitInfo.CV; % reads the folds from the ACI to be adopted
+                    end
+                        
                     % To do: change CV.training into CV.train
 
                     %[~, idx_lambda_optim] = min(mean(results_crosspred.FitInfo.Devtest,2));
@@ -493,7 +502,7 @@ if bCrossPred
             end
         end
     end
-    Save_crosspred(fnameACI,crosspred,mfilename);
+    Save_crosspred(fnameACI,crosspred,mfilename,keyvals.suffix_crosspred);
     
     results.crosspred = crosspred;
 end
