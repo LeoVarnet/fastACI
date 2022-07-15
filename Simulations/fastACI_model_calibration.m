@@ -147,7 +147,7 @@ pars.thres_for_bias_each_session = thres_for_bias_each_session;
 pars.in_std = in_std;
 pars.description = ['Calibration using ' mfilename];
 try
-    Save_model_calibration(fname,pars);
+    Save_model_calibration(fname,pars,cfg_game.dir_results);
 end
 
 %%%
