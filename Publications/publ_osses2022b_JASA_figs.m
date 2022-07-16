@@ -3,6 +3,12 @@ function data = publ_osses2022b_JASA_figs(varargin)
 %
 % Generates the figures
 %
+% % To display Fig. 1 of Osses and Varnet, (2022, JASA) use :::
+%     publ_osses2022b_JASA_figs('fig1');
+%
+% % To display Fig. 2 of Osses and Varnet, (2022, JASA) use :::
+%     publ_osses2022b_JASA_figs('fig2');
+%
 % % To display Fig. 4 of Osses and Varnet, (2022, JASA) use :::
 %     publ_osses2022b_JASA_figs('fig4');
 %
@@ -18,7 +24,7 @@ end
 h = [];
 hname = [];
 
-definput.flags.type={'missingflag','fig4'};
+definput.flags.type={'missingflag','fig1','fig2','fig4'};
 % definput.keyvals.models=[];
 definput.keyvals.dir_out=[];
 
@@ -28,7 +34,179 @@ definput.keyvals.dir_out=[];
 % 
 % experiment = 'speechACI_varnet2013';
 % dir_exp = [dir_fastACI_results experiment filesep];
-  
+
+if flags.do_fig1 || flags.do_fig2
+    dir_data = fastACI_paths('dir_data');
+    dir_subj = [dir_data 'speechACI_Logatome-abda-S43M' filesep 'S01' filesep];
+    
+    dir_noise = [dir_subj 'NoiseStim-white' filesep];
+    
+    basef = 8000;
+    flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',0.5, ...
+        'dboffset',100,'no_adt','binwidth',0.01,'no_outerear','no_middleear'};
+    
+    CLim = [-8 -4.5];
+    
+% if mod(i_experiment,2) == 1
+%         
+%     else
+%         flags_extra = {'colorbar','yes'};
+%     end
+%     set(gca,'YTickLabel',[]);
+%     switch experiments{i_experiment}{1}
+%         case 'modulationACI'
+%             ACI_to_plot = ACI; %-squeeze(results.ACI);
+%             warning('Temporal')
+%         otherwise
+%             ACI_to_plot = ACI; % squeeze(results.ACI);
+%     end
+%     outs = affichage_tf(ACI_to_plot,'CI', 'cfg', cfg_ACI, 'NfrequencyTicks', 8, flags_extra{:}); h    
+end
+
+if flags.do_fig1 % Speech-in-noise representation
+    
+    flags_extra = {'NfrequencyTicks',8,'colorbar','no'};
+    
+    % Taken from: l20220602_Figures_ModulationGroup.m (by Leo)
+    [aba, fs] = audioread([dir_subj 'speech-samples' filesep 'S43M_ab_ba.wav']);
+    
+    [G_aba, fc, t, outs] = Gammatone_proc(aba, fs, flags_gamma{:});
+    
+    N_noises = 1000; % arbitrary number
+    % SNR = -14; % dB, arbitrary value
+    % gain_SNR = 10^(SNR/20);
+    % aba_at_SNR = gain_SNR * aba;
+        
+    fname_noises = Get_filenames(dir_noise);
+    fname_noises = fname_noises(1:N_noises); % names of the first N_noises
+    
+    G_Naba = nan([size(G_aba) N_noises]); % memory allocation
+    G_N    = nan(size(G_Naba));
+    
+    for i_noise = 1:N_noises
+        [noise, fs] = audioread([dir_noise fname_noises{i_noise}]);
+
+        noisy_aba = noise+aba;
+        [G_Naba(:,:,i_noise), fc, t, outs] = Gammatone_proc(noisy_aba, fs, flags_gamma{:});
+        [G_N(:,:,i_noise), fc, t, outs]    = Gammatone_proc(noise    , fs, flags_gamma{:});
+    end
+    
+    %%%
+    G_Naba_avg = mean(G_Naba,3);
+    G_N_avg    = mean(G_N,3);
+    G_N_avg_std = G_N_avg + 2.2*std(G_N,[],3);
+
+    % G_Naba_avg_thres = G_Naba_avg;
+    %G_Naba_avg_thres(G_Naba_mean_thres<G_N_meanstd) = nan;
+
+    idx_realisation = round(.733*N_noises);
+    if N_noises ~= 1000
+        warning('Less noise representations being used to derive the masking effects...');
+    end
+    G_Naba_thres = G_Naba(:,:,idx_realisation);
+    %G_Naba_thres(G_Naba_thres<G_N_meanstd) = nan;
+
+    figure('Position',[100 100 1000 250]); 
+    il_tiledlayout(1,5,'TileSpacing','Compact'); % 'tight'); % none'); % 'Compact');
+    
+    x1 = -0.05; y1 = 1.05;
+    x2 =  0.55; y2 = 0.92;
+    x3 =  0.95; y3 = 0.85;
+    
+    il_nexttile(1); 
+    affichage_tf(log(G_aba)', 'pow', t, fc, flags_extra{:}); 
+    caxis(CLim); 
+    title('Clean /aba/');
+    text(x1,y1,'A','Units','Normalized','FontSize',12,'FontWeight','Bold')
+    colorbar off;
+    
+    %nexttile; affichage_tf(log(G_ada)', 'pow', t, fc); caxis([-8 -4.5]); title('/ada/ target');colorbar off;ylabel('');set(gca,'YTickLabels',[]);xlabel('');set(gca,'XTickLabels',[]);%
+    il_nexttile(2); 
+    affichage_tf(log(G_Naba(:,:,1))', 'pow', t, fc, flags_extra{:}); 
+    caxis(CLim); 
+    title('Noisy /aba/','FontSize',8);
+    text(x1,y1,'B','Units','Normalized','FontSize',12,'FontWeight','Bold');
+    text(x2,y2,'N=1','Units','Normalized','FontSize',10,'FontWeight','Bold','Color','white');
+    % colorbar off;
+    ylabel('');
+    set(gca,'YTickLabels',[]);
+
+    il_nexttile(3); 
+    affichage_tf(log(G_Naba_avg)', 'pow', t, fc, flags_extra{:}); 
+    caxis(CLim); 
+    title('/aba/ and EM','FontSize',8);
+    text(x1,y1,'C','Units','Normalized','FontSize',12,'FontWeight','Bold');
+    text(x2,y2,sprintf('N=%.0f',N_noises),'Units','Normalized','FontSize',10,'FontWeight','Bold','Color','white');
+    text(x3,y3,'(floor)','Units','Normalized','FontSize',7,'FontWeight','Bold','Color','white','HorizontalAlignment','right');
+    colorbar off;
+    ylabel('');
+    set(gca,'YTickLabels',[]);%
+    
+    il_nexttile(4); 
+    affichage_tf(log(G_Naba_avg)', 'pow', t, fc, flags_extra{:}); 
+    caxis(CLim); 
+    title('/aba/ and EM+MM','FontSize',8);
+    text(x1,y1,'D','Units','Normalized','FontSize',12,'FontWeight','Bold');
+    text(x2,y2,sprintf('N=%.0f',N_noises),'Units','Normalized','FontSize',10,'FontWeight','Bold','Color','white');
+    text(x3,y3,'(floor+mod.floor)','Units','Normalized','FontSize',7,'FontWeight','Bold','Color','white','HorizontalAlignment','right');
+    
+    colorbar off;
+    ylabel('');
+    set(gca,'YTickLabels',[]);%
+    
+    il_nexttile(5); 
+    affichage_tf(log(G_Naba_thres)', 'pow', t, fc, flags_extra{:}); 
+    caxis(CLim); 
+    title('    /aba/ and EM+MM+IM','FontSize',8);
+    text(x1,y1,'E','Units','Normalized','FontSize',12,'FontWeight','Bold');
+    text(x2,y2,'N=1','Units','Normalized','FontSize',10,'FontWeight','Bold','Color','white');
+    text(x3,y3,'(floor+mod.floor)','Units','Normalized','FontSize',7,'FontWeight','Bold','Color','white','HorizontalAlignment','right');
+    
+    ylabel('');
+    set(gca,'YTickLabels',[]);%
+
+    listImage = findobj('Type','Image');
+    set(listImage(2),'AlphaData',1-0.5*(G_Naba_avg<G_N_avg_std)');   % before last panel
+    set(listImage(1),'AlphaData',1-0.5*(G_Naba_thres<G_N_avg_std)'); % last panel 
+    
+    h(end+1) = gcf;
+    hname{end+1} = 'fig1-schematic-masking';
+end
+
+if flags.do_fig2
+    % Taken from: l20220602_Figures_ModulationGroup.m (by Leo)
+    [aba, fs] = audioread([dir_subj 'speech-samples' filesep 'S43M_ab_ba.wav']);
+    [ada, fs] = audioread([dir_subj 'speech-samples' filesep 'S43M_ad_da.wav']);
+    
+    %%% Plot targets + 1 example of noise
+    [G_aba, fc, t, outs] = Gammatone_proc(aba, fs, flags_gamma{:});
+    [G_ada, fc, t, outs] = Gammatone_proc(ada, fs, flags_gamma{:});
+
+    warning('Conceptually wrong: The spectrograms are subjected to a natural logarithm...')
+    disp('Pausing for 5 s')
+    pause(5)
+    
+    figure('Position',[100 100 500 250]); 
+    il_tiledlayout(1,2,'TileSpacing','Compact');
+    il_nexttile(1); 
+    affichage_tf(log(G_aba)', 'pow', t, fc); 
+    caxis(CLim); 
+    title('/aba/ target');
+    colorbar off;
+    
+    il_nexttile(2); 
+    affichage_tf(log(G_ada)', 'pow', t, fc); 
+    caxis(CLim); 
+    title('/ada/ target');
+    ylabel('');
+    set(gca,'YTickLabels',[]); %xlabel('')
+
+    h(end+1) = gcf;
+    hname{end+1} = 'fig2-spec-targets';
+    
+    disp('')    
+end
+
 if flags.do_fig4
     %%% Creating the frequency matrix:
     N_freq = 64;
@@ -114,44 +292,6 @@ end
 data.h = h;
 data.hname = hname;
 
-% if flags.do_fig1b
-%     bProceed = publ_osses2021c_DAGA_0_checkdata; % Checking if the experimental data is on disk
-%     % S02:
-%     model = 'osses2021c_S02'; folders = {'Results'}; noise_types = {'SSN'};
-% end
-% 
-% if flags.do_fig2 || flags.do_fig3a
-%     %%% Only run 3:
-%     model = 'osses2021'; noise_types = {'SSN'}; folders = {'Results-run-3-m1p55','Results-run-1', 'Results-run-3-p0p39','Results-run-3-p0p78'};
-% end
-% 
-% if flags.do_fig3b
-%     %%% Only the final fits:
-%     model = 'osses2021'; 
-%     noise_types = {'SSN'}; 
-%     folders = {'Results-run-4'};
-% end
-% 
-% if flags.do_fig4
-%     bProceed = publ_osses2021c_DAGA_0_checkdata; % Checking if the experimental data is on disk
-%     
-%     model{1} = 'osses2021c_S01';  folders1 = {'Results'}; 
-%     model{2} = 'osses2021c_S02';  folders2 = {'Results'}; 
-%     model{3} = 'osses2021';       folders3 = {'Results-run-3-m1p55','Results-run-1', ...
-%         'Results-run-3-p0p39','Results-run-3-p0p78','Results-run-4'}; 
-%     
-%     N_plots = (length(folders1)+length(folders2)+length(folders3));
-%     thres = nan(15,N_plots);
-% end
-% 
-% if flags.do_fig1a || flags.do_fig1b || flags.do_fig4
-%     if bProceed == 0
-%         error('Please follow the instructions to download the experimental data before you can successfully run this script again...')
-%     end
-% end
-% 
-% count = 1;
-% 
 % if flags.do_fig1a || flags.do_fig1b || flags.do_fig2 || flags.do_fig3a || flags.do_fig3b
 %     
 %     N_plots = length(folders)*length(noise_types);
@@ -576,3 +716,31 @@ data.hname = hname;
 % Pos = get(fig_handle,'Position');
 % Pos(3) = 400;
 % set(fig_handle,'Position',Pos);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function il_tiledlayout(N,M,TileSpacing,TileSpacing_option)
+
+if nargin < 4
+    TileSpacing_option = 'Compact';
+end
+bExist = exist('tiledlayout','file'); % tiledlayout.p
+if bExist
+    tiledlayout(N,M,TileSpacing,TileSpacing_option);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function il_nexttile(N)
+
+bExist = exist('nexttile','file'); % nexttile
+if bExist
+    if nargin == 0
+        nexttile;
+    else
+        nexttile(N);
+    end
+else
+    if N == 1
+        close;
+    end
+    figure;
+end

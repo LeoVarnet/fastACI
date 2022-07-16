@@ -3,7 +3,9 @@ function cfg_inout = Update_dir_main(dir_new,cfg_inout)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-dir_main_old = cfg_inout.dir_main;
+if isfield(cfg_inout,'dir_main')
+    cfg_inout.dir_main_old = cfg_inout.dir_main;
+end
 cfg_inout.dir_main = dir_new;
 
 %%%
@@ -29,7 +31,7 @@ if isfield(cfg_inout,'dir_noise')
     else
         %%% Nothing to do, but an error will raise
     end
-    if strcmp(dir_check,dir_main_old)
+    if ~isfield(cfg_inout,'dir_main_old') || strcmp(dir_check,cfg_inout.dir_main_old)
         L = length(dir_check);
         cfg_inout.dir_noise = [dir_new cfg_inout.dir_noise(L+1:end-1) filesep];
         disp('dir_noise updated...')
