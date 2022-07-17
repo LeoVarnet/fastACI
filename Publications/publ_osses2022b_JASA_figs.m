@@ -24,7 +24,7 @@ end
 h = [];
 hname = [];
 
-definput.flags.type={'missingflag','fig1','fig2','fig4'};
+definput.flags.type={'missingflag','fig1','fig2','fig4','fig1_suppl'};
 % definput.keyvals.models=[];
 definput.keyvals.dir_out=[];
 
@@ -69,8 +69,10 @@ if flags.do_fig1 % Speech-in-noise representation
     
     % Taken from: l20220602_Figures_ModulationGroup.m (by Leo)
     [aba, fs] = audioread([dir_subj 'speech-samples' filesep 'S43M_ab_ba.wav']);
+    [ada, fs] = audioread([dir_subj 'speech-samples' filesep 'S43M_ad_da.wav']);
     
     [G_aba, fc, t, outs] = Gammatone_proc(aba, fs, flags_gamma{:});
+    G_ada                = Gammatone_proc(ada, fs, flags_gamma{:});
     
     N_noises = 1000; % arbitrary number
     % SNR = -14; % dB, arbitrary value
@@ -81,21 +83,25 @@ if flags.do_fig1 % Speech-in-noise representation
     fname_noises = fname_noises(1:N_noises); % names of the first N_noises
     
     G_Naba = nan([size(G_aba) N_noises]); % memory allocation
+    G_Nada = nan(size(G_Naba));
     G_N    = nan(size(G_Naba));
     
     for i_noise = 1:N_noises
         [noise, fs] = audioread([dir_noise fname_noises{i_noise}]);
 
         noisy_aba = noise+aba;
+        noisy_ada = noise+ada;
         [G_Naba(:,:,i_noise), fc, t, outs] = Gammatone_proc(noisy_aba, fs, flags_gamma{:});
-        [G_N(:,:,i_noise), fc, t, outs]    = Gammatone_proc(noise    , fs, flags_gamma{:});
+        G_Nada(:,:,i_noise)                = Gammatone_proc(noisy_ada, fs, flags_gamma{:});
+        G_N(:,:,i_noise)                   = Gammatone_proc(noise    , fs, flags_gamma{:});
     end
     
     %%%
     G_Naba_avg = mean(G_Naba,3);
+    G_Nada_avg = mean(G_Nada,3);
     G_N_avg    = mean(G_N,3);
     G_N_avg_std = G_N_avg + 2.2*std(G_N,[],3);
-
+    
     % G_Naba_avg_thres = G_Naba_avg;
     %G_Naba_avg_thres(G_Naba_mean_thres<G_N_meanstd) = nan;
 
@@ -104,70 +110,128 @@ if flags.do_fig1 % Speech-in-noise representation
         warning('Less noise representations being used to derive the masking effects...');
     end
     G_Naba_thres = G_Naba(:,:,idx_realisation);
+    G_Nada_thres = G_Nada(:,:,idx_realisation);
     %G_Naba_thres(G_Naba_thres<G_N_meanstd) = nan;
 
-    figure('Position',[100 100 1000 250]); 
-    il_tiledlayout(1,5,'TileSpacing','Compact'); % 'tight'); % none'); % 'Compact');
+    N_targets = 2; % default is 1
+    if N_targets ~= 1
+        correction = .9; % slightly smaller
+    else
+        correction = 1;
+    end
+    figure('Position',[100 100 1000 250*N_targets*correction]); 
+    il_tiledlayout(N_targets,5,'TileSpacing','Compact'); % 'tight'); % none'); % 'Compact');
     
     x1 = -0.05; y1 = 1.05;
     x2 =  0.55; y2 = 0.92;
     x3 =  0.95; y3 = 0.85;
     
-    il_nexttile(1); 
-    affichage_tf(log(G_aba)', 'pow', t, fc, flags_extra{:}); 
-    caxis(CLim); 
-    title('Clean /aba/');
-    text(x1,y1,'A','Units','Normalized','FontSize',12,'FontWeight','Bold')
-    colorbar off;
-    
-    %nexttile; affichage_tf(log(G_ada)', 'pow', t, fc); caxis([-8 -4.5]); title('/ada/ target');colorbar off;ylabel('');set(gca,'YTickLabels',[]);xlabel('');set(gca,'XTickLabels',[]);%
-    il_nexttile(2); 
-    affichage_tf(log(G_Naba(:,:,1))', 'pow', t, fc, flags_extra{:}); 
-    caxis(CLim); 
-    title('Noisy /aba/','FontSize',8);
-    text(x1,y1,'B','Units','Normalized','FontSize',12,'FontWeight','Bold');
-    text(x2,y2,'N=1','Units','Normalized','FontSize',10,'FontWeight','Bold','Color','white');
-    % colorbar off;
-    ylabel('');
-    set(gca,'YTickLabels',[]);
+    txt_targets = {'/aba/','/ada/'};
+    for i = 1:N_targets
+        
+        txt_target = txt_targets{i};
+        
+        switch i 
+            case 1
+                G = G_aba;
+            case 2
+                G = G_ada;
+        end
+            
+        il_nexttile(1+(i-1)*5); 
+        affichage_tf(log(G)', 'pow', t, fc, flags_extra{:}); 
+        caxis(CLim); 
+        title(['Clean ' txt_target]);
+        if i == 1
+            text(x1,y1,'A','Units','Normalized','FontSize',12,'FontWeight','Bold');
+            set(gca,'XTickLabels',[]);
+            set(gca,'XLabel',[]);
+        end
+        % colorbar off;
 
-    il_nexttile(3); 
-    affichage_tf(log(G_Naba_avg)', 'pow', t, fc, flags_extra{:}); 
-    caxis(CLim); 
-    title('/aba/ and EM','FontSize',8);
-    text(x1,y1,'C','Units','Normalized','FontSize',12,'FontWeight','Bold');
-    text(x2,y2,sprintf('N=%.0f',N_noises),'Units','Normalized','FontSize',10,'FontWeight','Bold','Color','white');
-    text(x3,y3,'(floor)','Units','Normalized','FontSize',7,'FontWeight','Bold','Color','white','HorizontalAlignment','right');
-    colorbar off;
-    ylabel('');
-    set(gca,'YTickLabels',[]);%
-    
-    il_nexttile(4); 
-    affichage_tf(log(G_Naba_avg)', 'pow', t, fc, flags_extra{:}); 
-    caxis(CLim); 
-    title('/aba/ and EM+MM','FontSize',8);
-    text(x1,y1,'D','Units','Normalized','FontSize',12,'FontWeight','Bold');
-    text(x2,y2,sprintf('N=%.0f',N_noises),'Units','Normalized','FontSize',10,'FontWeight','Bold','Color','white');
-    text(x3,y3,'(floor+mod.floor)','Units','Normalized','FontSize',7,'FontWeight','Bold','Color','white','HorizontalAlignment','right');
-    
-    colorbar off;
-    ylabel('');
-    set(gca,'YTickLabels',[]);%
-    
-    il_nexttile(5); 
-    affichage_tf(log(G_Naba_thres)', 'pow', t, fc, flags_extra{:}); 
-    caxis(CLim); 
-    title('    /aba/ and EM+MM+IM','FontSize',8);
-    text(x1,y1,'E','Units','Normalized','FontSize',12,'FontWeight','Bold');
-    text(x2,y2,'N=1','Units','Normalized','FontSize',10,'FontWeight','Bold','Color','white');
-    text(x3,y3,'(floor+mod.floor)','Units','Normalized','FontSize',7,'FontWeight','Bold','Color','white','HorizontalAlignment','right');
-    
-    ylabel('');
-    set(gca,'YTickLabels',[]);%
+        switch i 
+            case 1
+                G = G_Naba;
+            case 2
+                G = G_Nada;
+        end
+        %nexttile; affichage_tf(log(G_ada)', 'pow', t, fc); caxis([-8 -4.5]); title('/ada/ target');colorbar off;ylabel('');set(gca,'YTickLabels',[]);xlabel('');set(gca,'XTickLabels',[]);%
+        il_nexttile(2+(i-1)*5); 
+        affichage_tf(log(G(:,:,1))', 'pow', t, fc, flags_extra{:}); 
+        caxis(CLim); 
+        title(['Noisy ' txt_target],'FontSize',8);
+        if i == 1
+            text(x1,y1,'B','Units','Normalized','FontSize',12,'FontWeight','Bold');
+            set(gca,'XTickLabels',[]);
+            set(gca,'XLabel',[]);
+        end
+        text(x2,y2,'N=1','Units','Normalized','FontSize',10,'FontWeight','Bold','Color','white');
+        % colorbar off;
+        ylabel('');
+        set(gca,'YTickLabels',[]);
 
-    listImage = findobj('Type','Image');
-    set(listImage(2),'AlphaData',1-0.5*(G_Naba_avg<G_N_avg_std)');   % before last panel
-    set(listImage(1),'AlphaData',1-0.5*(G_Naba_thres<G_N_avg_std)'); % last panel 
+        switch i 
+            case 1
+                G_avg = G_Naba_avg;
+            case 2
+                G_avg = G_Nada_avg;
+        end
+        il_nexttile(3+(i-1)*5); 
+        affichage_tf(log(G_avg)', 'pow', t, fc, flags_extra{:}); 
+        caxis(CLim); 
+        title([txt_target ' and EM'],'FontSize',8);
+        if i == 1
+            text(x1,y1,'C','Units','Normalized','FontSize',12,'FontWeight','Bold');
+            set(gca,'XTickLabels',[]);
+            set(gca,'XLabel',[]);
+        end
+        text(x2,y2,sprintf('N=%.0f',N_noises),'Units','Normalized','FontSize',10,'FontWeight','Bold','Color','white');
+        text(x3,y3,'(floor)','Units','Normalized','FontSize',7,'FontWeight','Bold','Color','white','HorizontalAlignment','right');
+        % colorbar off;
+        ylabel('');
+        set(gca,'YTickLabels',[]);%
+
+        il_nexttile(4+(i-1)*5); 
+        affichage_tf(log(G_avg)', 'pow', t, fc, flags_extra{:}); 
+        caxis(CLim); 
+        title([txt_target ' and EM+MM'],'FontSize',8);
+        if i == 1
+            text(x1,y1,'D','Units','Normalized','FontSize',12,'FontWeight','Bold');
+            set(gca,'XTickLabels',[]);
+            set(gca,'XLabel',[]);
+        end
+        text(x2,y2,sprintf('N=%.0f',N_noises),'Units','Normalized','FontSize',10,'FontWeight','Bold','Color','white');
+        text(x3,y3,'(floor+mod.floor)','Units','Normalized','FontSize',7,'FontWeight','Bold','Color','white','HorizontalAlignment','right');
+
+        % colorbar off;
+        ylabel('');
+        set(gca,'YTickLabels',[]);%
+
+        switch i 
+            case 1
+                G = G_Naba_thres;
+            case 2
+                G = G_Nada_thres;
+        end
+        il_nexttile(5+(i-1)*5); 
+        affichage_tf(log(G)', 'pow', t, fc, flags_extra{:}); 
+        caxis(CLim); 
+        title(['    ' txt_target ' and EM+MM+IM'],'FontSize',8);
+        if i == 1
+            text(x1,y1,'E','Units','Normalized','FontSize',12,'FontWeight','Bold');
+            set(gca,'XTickLabels',[]);
+            set(gca,'XLabel',[]);
+        end
+        text(x2,y2,'N=1','Units','Normalized','FontSize',10,'FontWeight','Bold','Color','white');
+        text(x3,y3,'(floor+mod.floor)','Units','Normalized','FontSize',7,'FontWeight','Bold','Color','white','HorizontalAlignment','right');
+
+        ylabel('');
+        set(gca,'YTickLabels',[]);%
+
+        listImage = findobj('Type','Image');
+        set(listImage(2),'AlphaData',1-0.5*(G_avg<G_N_avg_std)');   % before last panel
+        set(listImage(1),'AlphaData',1-0.5*(G    <G_N_avg_std)'); % last panel 
+    end
     
     h(end+1) = gcf;
     hname{end+1} = 'fig1-schematic-masking';
@@ -287,6 +351,165 @@ if flags.do_fig4
     
     h(end+1) = gcf;
     hname{end+1} = 'fig4-Gaussbasis';    
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Supplementary materials
+
+% Inspired by edit ../Publications/Osses2022_JARO/ge20220401_Osses2022_JARO.m
+
+if flags.do_fig1_suppl 
+    
+    FontSize = 12;
+    row4nan = [];
+    
+    f = [];
+    Subjects_ID = {'S01','S02','S03','S04','S05','S06','S07','S08','S09','S10','S11','S12'};
+    Colours = {rgb('Brown'),rgb('Bisque'),rgb('NavajoWhite'),rgb('BurlyWood'),rgb('Peru'),rgb('Goldenrod'), ...
+               rgb('RosyBrown'),rgb('Chocolate'),rgb('Sienna'),rgb('DarkGoldenrod'),rgb('Pink'),rgb('LightCoral')};
+    
+    for i_subj = 1:length(Subjects_ID)
+        dir_res = [fastACI_basepath 'Publications' filesep 'publ_osses2022b' filesep 'data_' ...
+            Subjects_ID{i_subj} filesep '1-experimental_results' filesep 'audiometry' filesep]; 
+        
+        file = Get_filenames(dir_res,'absthreshold_*.dat');
+        if ~isempty(file)
+            data_now = datread([dir_res file{1}]); % left ear: 'absthreshold_'  '_l.dat
+            if isempty(f)
+                f = transpose(data_now(:,1));
+            end
+            aud_l(i_subj,:) = transpose(data_now(:,2));
+            
+            data_now = datread([dir_res file{2}]); % right ear
+            aud_r(i_subj,:) = transpose(data_now(:,2));
+            
+            disp('')
+        else
+            row4nan(end+1) = i_subj;
+        end
+    end
+
+    % Average thresholds from freqs: 250, 500, 1000, 2000 and 4000 (BSA_RP_PTA_Final-2018-August.pdf)
+    %   i.e., all frequencies tested, but excluding 8 kHz.
+    f_idxs = 1:length(f);
+    aud_avg(:,1) = mean(aud_l(:,f_idxs),2);
+    aud_avg(:,2) = mean(aud_r(:,f_idxs),2);
+    
+    [~,aud_best_ear] = min(aud_avg,[],2);
+    idxs = find(aud_best_ear==1);
+    aud_all(idxs,:) = aud_l(idxs,:);
+    
+    idxs = find(aud_best_ear==2);
+    aud_all(idxs,:) = aud_r(idxs,:);
+    
+    aud_Me_l = mean(aud_l);
+    aud_Me_r = mean(aud_r);
+    
+    for i = 1:length(Subjects_ID)
+        aud_Me_across_f(i,1) = aud_avg(i,aud_best_ear(i));
+    end
+    % aud_Me_across_f_L = aud_avg(:,1);
+    % aud_Me_across_f_R = aud_avg(:,2);
+    [mi,mi_idx] = min(aud_Me_across_f);
+    [ma,ma_idx] = max(aud_Me_across_f);
+    fprintf('\tThe participants had average thresholds between %.1f (S%.0f) and %.1f dB~HL (S%.0f) or their best ear\n',mi,mi_idx,ma,ma_idx);
+    
+    %%% figure format:
+    prefix = 'suppl-fig1-';
+    Xlab = 'Frequency (Hz)';
+    Ylab = 'Audiometric thresholds (dB HL)';
+    YL = [-75 15]; % dB HL (inverted scale)
+    XT = [125 250 500 1000 2000 4000 8000 16000];
+    for i = 1:length(XT)
+        if XT(i) ~= XT(end)
+            XTL{i} = num2str(XT(i));
+        else
+            XTL{i} = 'avg';
+        end
+        
+    end
+    %%% End figure format
+
+    figure; % ('Position',[100 100 1000 250*N_targets*correction]); 
+    il_tiledlayout(2,1,'TileSpacing','tight'); % 'tight'); % none'); % 'Compact');
+    
+    %--- Fig. 1A ----------------------------------------------------------
+    il_nexttile(1)
+    idx2label = [];
+    for i = 1:length(Subjects_ID)
+        if aud_best_ear(i)==1
+            LW = 3;
+            FaceColour = Colours{i};
+            idx2label(end+1) = i;
+            Style = '-';
+        else
+            LW = 1.5;
+            FaceColour = 'w';
+            Style = '--';
+        end
+        hpl(i) = semilogx(f,-aud_l(i,:),'-','Color',Colours{i},'LineStyle',Style,'LineWidth',LW); grid on, hold on;
+        plot(XT(end),-aud_avg(i,1),'o','Color',Colours{i},'MarkerFaceColor',FaceColour,'LineWidth',LW,'MarkerSize',7);
+    end
+    plot(f,-aud_Me_l,'ko-','MarkerFaceColor','k','LineWidth',2);
+    set(gca,'XTick',XT);
+    set(gca,'XTickLabel',[]);
+    text(0.03,0.9,'A. Left ear','Units','Normalized','FontWeight','bold','FontSize',14);
+    % set(gca,'XTickLabel',XTL);
+    Ylabel(Ylab,FontSize);
+    % Xlabel(Xlab,FontSize);
+
+    ylim([-42 12]);
+    xlim([200 24000])
+    
+    YT = -40:5:10;
+    YT_label = -YT;
+    set(gca,'YTick',YT);
+    set(gca,'YTickLabel',YT_label);
+ 
+    legend(hpl(idx2label),Subjects_ID(idx2label),'Location','SouthEast');
+    
+    il_nexttile(2)
+    
+    idx2label = [];
+    for i = 1:length(Subjects_ID)
+        if aud_best_ear(i)==2
+            LW = 3;
+            FaceColour = Colours{i};
+            idx2label(end+1) = i;
+            Style = '-';
+        else
+            LW = 1.5;
+            FaceColour = 'w';
+            Style = '--';
+        end
+        hpl(i) = semilogx(f,-aud_r(i,:),'-','Color',Colours{i},'LineStyle',Style,'LineWidth',LW); grid on; hold on;
+        plot(XT(end),-aud_avg(i,2),'o','Color',Colours{i},'MarkerFaceColor',FaceColour,'LineWidth',LW,'MarkerSize',7);
+    end
+    plot(f,-aud_Me_r,'ko-','MarkerFaceColor','k','LineWidth',2);
+    set(gca,'XTick',XT);
+    set(gca,'XTickLabel',[]);
+    text(0.03,0.9,'B. Right ear','Units','Normalized','FontWeight','bold','FontSize',14);
+    set(gca,'XTickLabel',XTL);
+    Ylabel(Ylab,FontSize);
+    Xlabel(Xlab,FontSize);
+
+    ylim([-42 12]);
+    xlim([200 24000])
+    
+    YT = -40:5:10;
+    YT_label = -YT;
+    set(gca,'YTick',YT);
+    set(gca,'YTickLabel',YT_label);
+    
+    legend(hpl(idx2label),Subjects_ID(idx2label),'Location','SouthEast');
+    
+    % ha_here(end+1) = gca;
+    h(end+1) = gcf; % current handle
+	hname{end+1} = [prefix 'PTA'];  
+    
+    Pos = get(gcf,'Position');
+    Pos(4) = 600;
+    set(gcf,'Position',Pos); % '570         754
+    
 end
 
 data.h = h;
