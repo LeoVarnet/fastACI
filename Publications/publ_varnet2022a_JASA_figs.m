@@ -782,5 +782,9 @@ end
 % %%% Info about the rejected participant:
 % dir_local = [dir_data 'Srej' filesep];
 % load([dir_local 'Behavior'],'m_windowed','bias_windowed');
-data.m_reject = m_windowed;
-data.bias_reject = bias_windowed;
+if exist('m_windowed','var')
+    data.m_reject = m_windowed;
+end
+if exist('bias_windowed','var')
+    data.bias_reject = bias_windowed;
+end

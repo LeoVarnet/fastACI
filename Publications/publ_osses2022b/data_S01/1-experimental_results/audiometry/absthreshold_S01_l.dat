@@ -1,0 +1,7 @@
+%   exppar1[Hz]   expvar[dB] (test conducted on 22/02/2022, raw data: ../fastACI_sim/Publications/publ_osses2022b/02-Audiograms/S01-Audiogram.pdf, 250 and 8000 Hz measured later)
+   250   -5   
+   500   0   
+   1000   0
+   2000   10
+   4000   15
+   8000   30
