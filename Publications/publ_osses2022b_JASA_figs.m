@@ -24,7 +24,7 @@ end
 h = [];
 hname = [];
 
-definput.flags.type={'missingflag','fig1','fig2','fig4','fig1_suppl'};
+definput.flags.type={'missingflag','fig1','fig2','fig4','fig8','fig9','fig1_suppl'};
 % definput.keyvals.models=[];
 definput.keyvals.dir_out=[];
 
@@ -512,192 +512,150 @@ if flags.do_fig1_suppl
     
 end
 
+if flags.do_fig8 || flags.do_fig9
+    % All simulation results were stored in one output folder
+    dir_results = '/home/alejandro/Documents/Databases/data/fastACI_data_z_tmp/20220715_sim_Q1_osses2022a/';
+    Subjects_ID = {'Results-S01-v1','Results-S02-v1','Results-S03-v1','Results-S04-v1', ...
+                   'Results-S05-v1','Results-S06-v1','Results-S07-v1','Results-S08-v1', ...
+                   'Results-S09-v1','Results-S10-v1','Results-S11-v1','Results-S12-v1'};
+    noise_str         = {'white','bumpv1p2_10dB','sMPSv1p3'};
+    noise_types_label = {'WN','BP','MPS'};
+    model_str = 'osses2022a';
+end
+
+if flags.do_fig8
+    
+    N_noises = length(noise_str);
+    
+    for i_repeat = 1:2
+        
+        N_subj2plot = 6;
+        figure('Position',[100 100 600 800]);
+        il_tiledlayout(N_subj2plot,N_noises,'TileSpacing','tight');
+        for i_subj = 1:N_subj2plot    
+            dir_subj = [dir_results Subjects_ID{i_subj} filesep];
+            for i_noise = 1:N_noises
+                ACI_fname = [dir_subj 'ACI-' model_str '-speechACI_Logatome-' noise_str{i_noise} '-nob-gt-l1glm+pyrga-rev4.mat'];
+
+                ACI = [];
+                cfg_ACI = [];
+                results = [];
+                info_toolbox = [];
+                load(ACI_fname);
+
+                if i_noise == 3
+                    bColourbar = 'yes';
+                else
+                    bColourbar = 'no';
+                end
+                flags_opts = {'NfrequencyTicks',5,'colorbar',bColourbar}; 
+
+                il_nexttile(N_noises*(i_subj-1)+i_noise);
+                affichage_tf(ACI,'CInorm', cfg_ACI.t, cfg_ACI.f,flags_opts{:});
+                if i_subj ~= N_subj2plot
+                    xlabel('')
+                    set(gca,'XTickLabel','');
+                end
+                if i_noise ~= 1
+                    ylabel('');
+                    set(gca,'YTickLabel','');
+                end
+                if i_subj == 1
+                    title(noise_types_label{i_noise});
+                    switch i_noise
+                        case 1
+                            text2show = 'A.';
+                        case 2
+                            text2show = 'B.';
+                        case 3
+                            text2show = 'C.';
+                    end
+                    text(0,1.15,text2show,'FontWeight','Bold','Units','Normalized','FontSize',14);
+                end
+                if i_noise == 3
+                    Subj_ID = strsplit(Subjects_ID{i_subj},'-');
+                    text2show = Subj_ID{2};
+                    text(.7,.90,text2show,'FontWeight','Bold','Units','Normalized','FontSize',12);
+                end
+                
+                disp('')
+            end
+        end
+        Subjects_ID(1:6) = []; % remove the first six labels, so that it's easier to repeat this code
+        
+        h(end+1) = gcf;
+        hname{end+1} = ['fig8-ACI-sim-set' num2str(i_repeat)];
+    end
+    disp('')
+   
+end
+
+if flags.do_fig9
+    N_noises = length(noise_str);
+    N_subjects = length(Subjects_ID);
+    
+    % N_subj2plot = 6;
+    figure('Position',[100 100 600 1200]);
+    il_tiledlayout(N_noises,1,'TileSpacing','tight');
+    for i_noise = 1:N_noises
+        PA_mean_chance = []; % emptied after having plotted every noise
+        for i_subj = 1:N_subjects
+            if i_noise == 1
+                Subj_ID = strsplit(Subjects_ID{i_subj},'-');
+                labels2use{i_subj} = Subj_ID{2};
+            end
+        
+            dir_subj = [dir_results Subjects_ID{i_subj} filesep];
+        
+            ACI_fname_folder = [dir_subj 'ACI-' model_str '-speechACI_Logatome-' noise_str{i_noise} '-nob-gt-l1glm+pyrga-rev4' filesep];
+            Crossfile = [ACI_fname_folder 'Crosspred.mat'];
+            
+            [cross,outs_cross] = Read_crosspred(Crossfile);
+            PA_mean_chance(i_subj,:) = outs_cross.PA_mean_re_chance;
+            
+        end
+        il_nexttile(i_noise)
+        opts = [];
+        opts.bColourbar = 1;
+        opts.cmin = 0;
+        opts.cmax = 25;
+        opts.Labels = labels2use;
+        my_image_plot(PA_mean_chance,opts);
+        
+        if i_noise == 3
+            xlabel('ACI_s_i_m from')
+        else
+            set(gca,'XTickLabel',[]);
+        end
+        ylabel('Waveforms from')
+        % Pos = get(gcf,'Position');
+        % Pos(3:4) = [700 550];
+        % set(gcf,'Position',Pos);
+        
+        switch i_noise
+            case 1
+                data.PA_mean_chance_white = PA_mean_chance;
+                text2use = 'A. white';
+            case 2
+                data.PA_mean_chance_bump = PA_mean_chance;
+                text2use = 'B. bump';
+            case 3
+                data.PA_mean_chance_MPS = PA_mean_chance;
+                text2use = 'C. MPS';
+        end
+        title(text2use);
+    end
+    
+    h(end+1) = gcf;
+    hname{end+1} = 'fig9-crosspred';
+    disp('')
+   
+end
+
 data.h = h;
 data.hname = hname;
 
-% if flags.do_fig1a || flags.do_fig1b || flags.do_fig2 || flags.do_fig3a || flags.do_fig3b
-%     
-%     N_plots = length(folders)*length(noise_types);
-%     thres = nan(13,N_plots);
-% 
-%     bPlot_ACI_norm = 1;
-%     
-%     for k = 1:length(noise_types)
-%         noise_type = noise_types{k};
-% 
-%         filt = ['savegame*' noise_type '*.mat'];
-% 
-%         for i = 1:length(folders)
-% 
-%             data_folder_full = [dir_exp model filesep];
-%             dir_where = [data_folder_full folders{i} filesep];
-% 
-%             files = Get_filenames(dir_where,filt);
-% 
-%             fname_results = [dir_where files{1}];
-%             [cfg_game, data_passation] = Convert_ACI_data_type(fname_results);
-%             
-%             N_sessions = length(data_passation.resume_trial);
-%             for j = 1:N_sessions
-% 
-%                 idxi = data_passation.resume_trial(j);
-%                 if idxi == 0
-%                     idxi = 1;
-%                 end
-%                 if j < N_sessions
-%                     idxf = data_passation.resume_trial(j+1)-1;
-%                 else
-%                     idxf = cfg_game.N;
-%                 end
-% 
-%                 thres(j,count) = prctile(data_passation.expvar(idxi:idxf),50);
-%                 correct_score(j,count) = 100*sum(data_passation.is_correct(idxi:idxf))/(idxf-idxi+1);
-%                 idx = find(data_passation.n_responses(idxi:idxf)==1);
-%                 response_is_one(j,count) = 100*length(idx)/(idxf-idxi+1);
-%                 idx = find(data_passation.n_responses(idxi:idxf)==2);
-%                 response_is_two(j,count) = 100*length(idx)/(idxf-idxi+1);
-%                 fprintf('\thres=%.2f dB, tidxi=%.0f, idxf=%.0f\n',thres(j,count),idxi,idxf);
-% 
-%             end
-% 
-%             Me(count) = prctile(thres(:,count),50);
-%             errL(count) = Me(count) - prctile(thres(:,count),25);
-%             errU(count) = prctile(thres(:,count),75) - Me(count);
-% 
-%             is_correct_all(count,:) = data_passation.is_correct;
-% 
-%             %%% Plotting the thresholds per session and global:
-%             x_var = count;
-%             if count == 1
-%                 h(1) = figure; 
-%             end
-%             set(0, 'CurrentFigure', h(1));
-% 
-%             errorbar(x_var, Me(count),errL(count),errU(count)); hold on;
-% 
-%             plot(x_var*ones(size(thres(:,count))),thres(:,count),'bo');
-% 
-%             hname{1} = 'thres';
-%             xlim([0.5 N_plots+.5]);
-%             XT = 1:N_plots;
-%             set(gca,'XTick',XT);
-% 
-%             count = count+1;
-% 
-%             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%             glmfct = 'lasso';
-%             DimCI = 'gammatone';
-%             add_signal = 0; % '1' to add signal in the ACI assessment, '0' to use noise alone trials
-% 
-%             if isempty(keyvals.dir_out)
-%                 dir_out_ACI = [dir_where 'Results_ACI' filesep];
-%             else
-%                 if cfg_game.is_simulation
-%                     % Creating a new subfolder for each model run. This is 
-%                     %   important because all model runs will produce the same
-%                     %   ACI name.
-%                     dir_out_ACI = [keyvals.dir_out model '-' folders{i} filesep];
-%                     if ~exist(dir_out_ACI,'dir')
-%                         mkdir(dir_out_ACI);
-%                     end
-%                 else
-%                     dir_out_ACI = keyvals.dir_out;
-%                 end
-%             end
-%             if ~exist(dir_out_ACI,'dir')
-%                 mkdir(dir_out_ACI);
-%             end
-%             dir_noise  = cfg_game.dir_noise;
-%             dirname4waveforms = Get_subjectname_from_dirname(dir_noise);
-%             
-%             if ~exist(dir_noise,'dir')
-%                 switch dirname4waveforms
-%                     case {'SLeo','SLeoVarnet2013'} % this folder does not exist anymore:
-%                         dir_new = 'osses2021c_S01';
-%                     case 'SAO-5000-trials'
-%                         dir_new = 'osses2021c_S02';
-%                 end
-%                 idx = strfind(dir_noise,dirname4waveforms);
-%                 idx = idx + length(dirname4waveforms);
-%                 dir_noise = [fastACI_paths('dir_data') experiment filesep dir_new filesep dir_noise(idx+1:end-1) filesep];
-%             end
-%             
-%             if isfield(cfg_game,'dir_speech')
-%                 cfg_game.dir_target = cfg_game.dir_speech;
-%             end
-%             dir_target = cfg_game.dir_target; 
-% 
-%             
-%             if ~exist(dir_noise,'dir')
-%                 idx = strfind(dir_noise,filesep);
-%                 dir_noise = [data_folder_full dir_noise(idx(end-1)+1:end-1) filesep];
-%                 cfg_game.dir_noise = dir_noise;
-%             end
-%             
-%             if ~exist(dir_target,'dir')
-%                 idx = strfind(dir_target,filesep);
-%                 dir_target = [data_folder_full dir_target(idx(end-1)+1:end-1) filesep];
-%                 cfg_game.dir_target = dir_target;
-%             end
-% 
-%             %%% bCalculate:
-%             f_limits = [1 10000];
-%             t_limits = [0 1]; 
-%             %%% end reading folders
-% 
-%             Data_matrix = [];
-%             fname_ACI = [];
-% 
-%             trial_select = 5000; 
-%             ACI_all    = [];
-%             ACI_incorr = [];
-% 
-%             for ii = 1:length(trial_select)
-%                 switch trial_select(ii)
-%                     case 5000
-%                         idx_trialselect = [];
-%                     otherwise
-%                         idx_trialselect = 1:trial_select(ii);
-%                 end
-%                 fg_ACI = {'dir_noise', dir_noise, 'dir_target', dir_target, ...
-%                   'dir_out', dir_out_ACI, 'no_plot', ...
-%                   'idx_trialselect', idx_trialselect, ...
-%                   'f_limits',f_limits, ...
-%                   't_limits',t_limits, ... % 'spect_NFFT',512,'spect_Nwindow',512,'spect_overlap',.75 ... %'spect_NFFT',1024,'spect_Nwindow',1024,'spect_overlap',.5...
-%                   'skip_if_on_disk',1, ...
-%                   'add_signal',add_signal, ...
-%                   'N_perm',20, ...
-%                   'pyramid_script','imresize' ...
-%                 };
-% 
-%                 if isempty(Data_matrix)
-%                     flags_to_use = fg_ACI;
-%                     [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(fname_results,DimCI,glmfct,flags_to_use{:});
-%                     flags_Data_matrix = {'Data_matrix',Data_matrix};
-%                 else
-%                     flags_to_use = [fg_ACI flags_Data_matrix];
-%                     [ACI,cfg_ACI,results] = fastACI_getACI(fname_results,DimCI,glmfct,flags_to_use{:});
-%                 end
-%                 correct_text = '';
-%                 if bPlot_ACI_norm == 1
-%                     ACI = ACI / max(max(abs(ACI)));
-%                 end
-%                 ACI_all(:,:,ii) = ACI;
-%                 htmp = figure;
-%                 figure(htmp); set(0, 'CurrentFigure', htmp)
-%                 [h(end+1),hname{end+1}] = il_plot_the_ACI(ACI, cfg_ACI, cfg_game);
-%                 hname{end} = [hname{end} '-' folders{i}];
-%                 
-%                 xlim([0.05 0.55]); % warning('Temporal here')
-%             end
-% 
-%         end
-%     end
-% 
-%     disp('The response ''1'' was preferred in the following percentage of the times:')
-%     bias = [prctile(response_is_one,75); median(response_is_one); prctile(response_is_one,25)];
-% end
-% 
+ 
 % if flags.do_fig4
 %     Pos34 = [700 250];
 %     

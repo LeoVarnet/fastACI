@@ -8,8 +8,10 @@ crosspred = [];
 if nargin < 3
     suffix = '';
 else
-    if ~strcmp(suffix(1),'-')
-        suffix = ['-' suffix];
+    if ~isempty(suffix)
+        if ~strcmp(suffix(1),'-')
+            suffix = ['-' suffix];
+        end
     end
 end
 
