@@ -27,13 +27,13 @@ switch keyvals.pyramid_script
         sigma = i_level-1;                        
         switch direction
             case 'reduce'
-                Ablur = imgaussfilt(A,sigma,'Padding',pyramid_padding); % blur
-                % if pyramid_shape == -1
+                if exist('imgaussfilt','file')
+                    Ablur = imgaussfilt(A,sigma,'Padding',pyramid_padding); % blur
+                else
+                    fprintf('%s: Using a local version of the script imgaussfilt\n',upper(mfilename));
+                    Ablur = imgaussfilt_local(A,sigma,'Padding',pyramid_padding); % blur
+                end
                 idx_step = sigma+1+pyramid_shape;%2^(i_level-1+pyramid_shape);
-                % else
-                %     warning('Need further validation (AO on 29/04/2022)');
-                %     idx_step = 2^(i_level-1+pyramid_shape);
-                % end
                 B = Ablur(1:idx_step:end,1:idx_step:end,:); % downsample, old name for B was Ablursub
             case 'expand'
                 
@@ -49,8 +49,14 @@ switch keyvals.pyramid_script
                 idx_step = round(size(Azeroed,1)/size(A,1)); % idx_step = 2^(i_level-1+pyramid_shape);
                 Azeroed(1:idx_step:end,1:idx_step:end,:) = A;
                 % blur
-                UR = imgaussfilt(1,sigma,'Padding',keyvals.pyramid_padding);
-                Ablur = (1/UR)*imgaussfilt(Azeroed,sigma,'Padding',keyvals.pyramid_padding);
+                if exist('imgaussfilt','file')
+                    UR = imgaussfilt(1,sigma,'Padding',keyvals.pyramid_padding);
+                    Ablur = (1/UR)*imgaussfilt(Azeroed,sigma,'Padding',keyvals.pyramid_padding);
+                else
+                    fprintf('%s: Using a local version of the script imgaussfilt\n',upper(mfilename));
+                    UR = imgaussfilt_local(1,sigma,'Padding',keyvals.pyramid_padding);
+                    Ablur = (1/UR)*imgaussfilt_local(Azeroed,sigma,'Padding',keyvals.pyramid_padding);
+                end
                 
                 B = Ablur;
         end
