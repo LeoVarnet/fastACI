@@ -252,7 +252,7 @@ switch response
             data_passation.n_response_correct_target(i_current) = resp_num;
             data_passation.is_correct(i_current) = iscorrect;
         end
-        if is_warmup || cfg_game.displayN || cfg_game.feedback
+        if is_warmup || cfg_game.feedback % || cfg_game.displayN
             % ListStim(n_stim).response 
             switch iscorrect
                 case 1
