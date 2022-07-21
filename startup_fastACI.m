@@ -116,6 +116,7 @@ if bFastACI_exp == 1
     paths.speechACI_Logatome   = [paths.Experiments 'speechACI_Logatome'   filesep];
     paths.speechACI_varnet2013 = [paths.Experiments 'speechACI_varnet2013' filesep];
     paths.speechACI_varnet2015 = [paths.Experiments 'speechACI_varnet2015' filesep];
+    paths.segmentation         = [paths.Experiments 'segmentation'         filesep];
     paths.Scripts              = [dir_fastACI       'Scripts'              filesep];
     paths.Simulations          = [dir_fastACI       'Simulations'          filesep];
     paths.Model                = [paths.Simulations 'Model'                filesep];
