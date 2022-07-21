@@ -59,6 +59,8 @@ if cfg_game.displayN == 1 || cfg_game.is_simulation
 
 end
 
+tic
+
 str_stim = [];
 str2eval = sprintf('[str_stim,data_passation]=%s_user(cfg_game,data_passation);',cfg_game.experiment);
 eval(str2eval);
@@ -74,9 +76,9 @@ end
 if cfg_game.is_simulation
     sil4playing = [];
 end
+N_samples_stim = size(stim_normal,1) + size(sil4playing,1);
 
 % Display message, play sound and ask for response
-tic
 
 if is_warmup
     switch cfg_game.Language
@@ -93,6 +95,8 @@ end
 if cfg_game.is_experiment
 
     play(player)
+    pause(N_samples_stim/cfg_game.fs);
+    time_before_response = toc;
     if is_warmup
 
         switch cfg_game.Language
@@ -113,7 +117,10 @@ if cfg_game.is_experiment
         response = Response_keyboard([cfg_game.response_names text2show], cfg_game, 3.14);
     end
     stop(player)
+    
 elseif cfg_game.is_simulation
+    
+    time_before_response = toc;
     
     switch def_sim.decision_script
         case 'aci_detect' 
@@ -155,7 +162,9 @@ elseif cfg_game.is_simulation
     % % [ response ] = auditorymodel_PEMO( Stim_IR, cfg_game.IR{2}, cfg_game.model );
     % [ response ] = auditorymodel_TMdetect( Stim_IR, cfg_game.IR{2}, cfg_game.model );
 end
-data_passation.response_time(i_current) = toc;
+trial_end_time = toc;
+data_passation.response_time(i_current) = trial_end_time-time_before_response;
+data_passation.trial_time(i_current) = trial_end_time;
 
 switch response
     case 3.14 % Pause: Moved out of fastACI_trial_current

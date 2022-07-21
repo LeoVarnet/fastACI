@@ -62,13 +62,13 @@ bAdd_traces = zeros([1 Nsounds]);
 
 for kk = 1:Nsounds
     
-    if isfield(cfg_ACI,'target_names')
-        try
-           if strfind(outs_from_Praat.filesF{kk},fname)
-                bAdd_traces(kk) = 1;
-           end
-        end
+    % if isfield(cfg_ACI,'target_names')
+    try
+       if strfind(outs_from_Praat.filesF{kk},fname)
+            bAdd_traces(kk) = 1;
+       end
     end
+    % end
 
     if bAdd_traces(kk)
         f2plot = affichage_get_freq_resolution(outs_from_Praat.f0{kk},cfg_ACI); % figure; plot(outs.t_f0{1},outs.f0{1},'k--');

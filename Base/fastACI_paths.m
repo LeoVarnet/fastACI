@@ -46,8 +46,7 @@ if ispc
             paths.dir_output = [];
             warning('Path not set up.\n')
         otherwise
-            warning('Leo: define and update the following folders...')
-            error('unrecognised PC.\n')
+            paths.dir_output = [pwd filesep];
     end
     
 elseif ismac

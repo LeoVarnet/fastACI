@@ -72,41 +72,9 @@ end
 
 expvar_trialselect = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_analysis(2));
 
-select_after_reversal = ones(size(idx_trialselect));
-label_expvar_after_reversal = [];
 if isfield(kv,'expvar_after_reversal')
     if kv.expvar_after_reversal > 0
-        N_reversals_i = kv.expvar_after_reversal;
-        idx_sessions = find(data_passation.resume_trial < length(idx_trialselect));
-        if isfield(cfg_ACI,'L_session')
-            L_session = cfg_ACI.L_session;
-        else
-            L_session = length(data_passation.expvar)-1;
-        end
-        % L_session = median(diff(data_passation.resume_trial));
-        for i = 1:length(idx_sessions)
-            idxi = max(data_passation.resume_trial(i),1);
-            if i~= length(idx_sessions)
-                % L_session_here: It will be different than L_session if the
-                %     participant paused the measurements during the sessions:
-                L_session_here = data_passation.resume_trial(i+1) - data_passation.resume_trial(i);
-                idxf = data_passation.resume_trial(i) + L_session_here-1;
-            else
-                idxf = data_passation.resume_trial(i) + L_session;
-            end
-            idxf = min(idxf, length(idx_trialselect)); % limited by the selected number of trials
-            [~,idx2check] = Get_mAFC_reversals(expvar(idxi:idxf));
-            if ~isempty(idx2check)
-                idxs4null = (1:idx2check(N_reversals_i)-1) + idxi-1;
-            else
-                fprintf('%s: Less than %.0f reversals were found, %.0f trials (trials between %.0f and %.0f) will be excluded anyway\n',upper(mfilename),N_reversals_i,idxf-idxi+1,idxi,idxf);
-                idxs4null = idxi:idxf;
-            end
-                        
-            select_after_reversal(idxs4null) = 0;
-        end
-        label_expvar_after_reversal = sprintf('\t\t\t(expvar_after_reversal=%.0f: %.0f extra trials are being excluded)\n', ...
-            N_reversals_i, sum(select_after_reversal==0));
+        [select_after_reversal,label_expvar_after_reversal] = expvar_after_reversal(data_passation,kv.expvar_after_reversal,idx_trialselect);
     else
         % Nothing to do
     end
@@ -116,26 +84,9 @@ end
 idx_analysis = find(select_n_trials & expvar_trialselect & select_trialtype & ...
     select_after_reversal); % & select_n_signal);
 
-%%% do_no_bias=TRIAL EQUALISATION: if equal to 1, this processing discards 
-%     trials so that the number of responses (1 or 2) are equal, starting 
-%     with the more extreme expvar values.
-%     Author: Leo Varnet
 if do_no_bias
-    % This is a balancing of the number of trials
-    N_r1 = sum(n_responses(idx_analysis)==1);
-    N_r2 = sum(n_responses(idx_analysis)==2);
-    [~,sorted_idx] = sort(abs(expvar(idx_analysis)-median(expvar(idx_analysis)))); % sorting the trials according to the distance to the median expvar
-    sorted_response = n_responses(idx_analysis(sorted_idx));
-    sorted_idx_r1 = sorted_idx(sorted_response==1);
-    sorted_idx_r2 = sorted_idx(sorted_response==2);
-    if N_r1>N_r2
-        trials2exclude = idx_analysis(sorted_idx_r1(end-(N_r1-N_r2):end));
-    elseif N_r2>N_r1
-        trials2exclude = idx_analysis(sorted_idx_r2(end-(N_r2-N_r1):end));
-    else
-        trials2exclude = []; % already without a bias
-    end
-    idx_analysis = setdiff(idx_analysis,trials2exclude);
+    %%% do_no_bias=TRIAL EQUALISATION
+    [idx_analysis,label_expvar_no_bias] = expvar_no_bias(data_passation,idx_analysis);
 end
 %%% END do_no_bias
 
@@ -145,8 +96,12 @@ if length(idx_analysis) ~= size(Data_matrix,1)
         min(expvar(idx_analysis)),max(expvar(idx_analysis)));
     
     fprintf('\t%s: Selecting a subset of the experimental trials:\n',upper(mfilename));
-    fprintf('\t\t %.0f trials out of %.0f are being processed:\n%s%s%s\n', ...
-        length(idx_analysis),size(Data_matrix,1),label_expvar_limits,label_expvar_after_reversal,label_actual_expvar);
+    fprintf('\t\t %.0f trials out of %.0f are being processed:\n%s%s%s%s\n', ...
+        length(idx_analysis),size(Data_matrix,1), ...
+        label_expvar_limits, ...
+        label_expvar_after_reversal, ...
+        label_expvar_no_bias, ...
+        label_actual_expvar);
     
     N_trialselect = length(idx_analysis);
     cfg_ACI.N_trialselect = N_trialselect;

@@ -4,7 +4,7 @@ function [fhat] = MPSnoisegen(Ns, fs, cutoff_t, cutoff_f)
 % rate fs which is low-pas in the MPS domain with cutoffs cutoff_t (in Hz)
 % in the rate domain and cutoff_f (in cyc/Hz) in the scale domain. 
 % This function uses the LTFAT+phaseret instead of stft-istft because the
-% latter does not produces reliable results on filtered spectrograms
+% latter does not produce reliable results on filtered spectrograms
 %
 % Author: Leo Varnet - 2021
 % Original name (fastACI_sim): MPSnoisegen_debug
