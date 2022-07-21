@@ -10,11 +10,14 @@ switch cfg_game.Language
     case 'FR'
         
 end
+clc
 switch cfg_game.Language
     case 'EN'
         fprintf('\n\t*** MAIN EXPERIMENT ***\n\n');
         fprintf('\tPlaying stimulus # %.0f of %.0f (Next session stop in %.0f trials)\n',i_current,cfg_game.N,N_for_next_stop);
-        fprintf('\tDependent variable: expvar = %.2f%s \n',expvar,expvar_description);
+        if cfg_game.feedback == 1
+            fprintf('\tDependent variable: expvar = %.2f%s \n',expvar,expvar_description);
+        end
         fprintf('\n');
         
         if cfg_game.adapt
@@ -47,8 +50,9 @@ switch cfg_game.Language
     case 'FR'
         fprintf('\n\t*** EXP\311RIENCE PRINCIPALE ***\n\n');
         fprintf('\t\311coute num\351ro %.0f sur %.0f -- Prochaine pause dans %.0f \351coutes\n',i_current,cfg_game.N,N_for_next_stop);
-        fprintf('\tVolume relatif de la voix : %.2f dB\n',expvar);
-        
+        if cfg_game.feedback == 1
+            fprintf('\tVolume relatif de la voix : %.2f dB\n',expvar);
+        end
         if cfg_game.adapt
             if i_current>100
                 bias_r1 = 100*sum(data_passation.n_responses(end-100+1:end)==1)/100;
