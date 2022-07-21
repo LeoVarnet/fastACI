@@ -52,7 +52,7 @@ if bGenerate_stimuli
             files = {'l_apesanteur.wav', 'la_pesanteur.wav'};
             meanf0 = mean([212.4, 208]);
         case 'latension'
-            files = {'l_attension.wav', 'la_tension.wav'};
+            files = {'l_attention.wav', 'la_tension.wav'};
             meanf0 = mean([220, 206.5]);
         case 'lacroch'
             files = {'l_accroche.wav', 'la_croche.wav'};
