@@ -44,18 +44,33 @@ if bGenerate_stimuli
     switch lower(cfg_inout.Condition)
         case {'lami', 'lami_shifted'}
             files = {'l_amie.wav', 'la_mie.wav'};
-        case 'lapel'
+            meanf0 = mean([216.1, 205.6]);
+        case {'lapel', 'lapel_shifted'}
             files = {'l_appel.wav', 'la_pelle.wav'};
+            meanf0 = mean([215.2, 217.7]);
         case 'lapesanteur'
             files = {'l_apesanteur.wav', 'la_pesanteur.wav'};
+            meanf0 = mean([212.4, 208]);
+        case 'latension'
+            files = {'l_attention.wav', 'la_tension.wav'};
+            meanf0 = mean([220, 206.5]);
+        case 'lacroch'
+            files = {'l_accroche.wav', 'la_croche.wav'};
+            meanf0 = mean([210.8, 204.3]);
+        case 'lalarm'
+            files = {'l_alarme.wav', 'la_larme.wav'};
+            meanf0 = mean([215.6, 200.1]);
         case 'alapel1'
             files = {'v1_l_appel.wav', 'v1_la_pelle.wav'};
+            meanf0 = mean([194.9, 183.3]);
         case 'alapel2'
             files = {'v2_l_appel.wav', 'v2_la_pelle.wav'};
+            meanf0 = mean([191, 180]);
         case 'alapel3'
             files = {'v3_l_appel.wav', 'v3_la_pelle.wav'};
+            meanf0 = mean([192.1, 177.5]);
         otherwise
-            error('Stimuli condition not recognized. The third argument of fastACI_experiment ''segmentation'' should be ''LAMI'' or ''LAMI_shifted'' or ''LAPEL'' or ''LAPESANTEUR''\n')
+            error('Stimuli condition not recognized. The third argument of fastACI_experiment ''segmentation'' should be one of the following: ''LAMI'', ''LAMI_shifted'', ''LAPEL'',  ''LAPEL_shifted'', ''LAPESANTEUR'', ''LATENSION'', ''LACROCH'', ''LALARM'', ''ALAPEL1'', ''ALAPEL2'', ''ALAPEL3''\n')
     end
     for i = 1:length(files)
         [insig,fs]  = audioread([dir_speech_orig files{i}]);
@@ -168,7 +183,7 @@ for i = 1:cfg_inout.N
 
         % Calling WORLD. The fourth parameter is the spectrum modification. 
         % We (at ENS) will not play with this dimension
-        outsig = il_WorldSynthesiser(insig, fs, f0vec, 1, timevec, do_shift);
+        outsig = il_WorldSynthesiser(insig, fs, f0vec, 1, timevec, do_shift, meanf0);
         cfg_inout.timevec(:,i) = timevec;
         cfg_inout.f0vec(:,i)   = f0vec;
         
@@ -253,10 +268,10 @@ function y = il_WorldSynthesiser(x, fs, f0_param, spec_param, time_param, do_shi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin<6
-    do_shift = 0; % Mean f0 for "l'amie" and "la mie"
+    do_shift = 0; % if do_shift = 1, then the first segment edge is not zero
 end
 if nargin<7
-    meanf0 = 210; % Mean f0 for "l'amie" and "la mie"
+    meanf0 = 210; % Desired mean f0
 end
 
 f0_parameter = Harvest(x, fs);
@@ -286,9 +301,14 @@ else
         time_vect(shift_in_samp+(i_segment-1)*Nsamp_in_seg:shift_in_samp+i_segment*Nsamp_in_seg) = linspace(source_parameter.temporal_positions(shift_in_samp+(i_segment-1)*Nsamp_in_seg)+time_param(i_segment),source_parameter.temporal_positions(shift_in_samp+i_segment*Nsamp_in_seg)+time_param(i_segment+1),Nsamp_in_seg+1);
     end
 end
+
 % f0 kept
+%source_parameter.f0 = source_parameter.f0 .* 2.^(f0_vect/1200);
+% f0 trajectory kept but mean f0 neutralized
+origf0 = source_parameter.f0; origf0(origf0==0) = nan; origf0 = mean(origf0,'omitnan');
+source_parameter.f0 = source_parameter.f0 - origf0 + meanf0; % neutralize mean
 source_parameter.f0 = source_parameter.f0 .* 2.^(f0_vect/1200);
-% f0 neutralized
+% f0 flattened and mean f0 neutralized
 %source_parameter.f0(source_parameter.f0==0) = nan;
 %source_parameter.f0 = meanf0 .* 2.^(f0_vect/1200);
 
@@ -298,7 +318,7 @@ w2 = (0 : fft_size / 2) * fs / fft_size / spec_param;
 for i = 1 : size(spectrum_parameter.spectrogram, 2)
   tmp = [spectrum_parameter.spectrogram(:, i); spectrum_parameter.spectrogram(end - 1 : -1 : 2, i)];
   spectrum_parameter.spectrogram(:, i) = interp1(w, tmp, w2, 'linear', 'extrap');
-end;
+end
 
 source_parameter.temporal_positions = time_vect;%source_parameter.temporal_positions .* time_vect
 
