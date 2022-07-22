@@ -65,8 +65,8 @@ if flags.do_bias_global || flags.do_no_bias_each_session
         end
     end
 end
-idx_session = length(data_passation.resume_trial);
 if flags.do_no_bias_global || flags.do_bias_each_session
+    idx_session = length(data_passation.resume_trial);
     if isfield(cfg_sim,'thres_for_bias_each_session')
         thres_for_bias = cfg_sim.thres_for_bias_each_session(idx_session);
         if (data_passation.i_current - data_passation.resume_trial(end) == 0) || data_passation.i_current == 1
@@ -94,11 +94,7 @@ if (isempty(sim_work.templ_tar) == 1 || cfg_sim.template_every_trial == 1 )
             [templ_tar,templ_ref,cfg_sim] = model_template(cfg_game_here,data_passation,cfg_sim,keyvals); 
             
         case 'model_template_update'
-            if cfg_sim.template_every_trial == 1
-                [templ_tar,templ_ref,cfg_sim] = model_template_update(cfg_game_here,data_passation,cfg_sim,keyvals); 
-            else
-                error('%s: The template script ''model_template_update.m'' is only compatible with the option template_every_trial set to 1',upper(mfilename));
-            end
+            error('%s: The template script ''model_template_update.m'' is only available in the private fastACI_sim repository',upper(mfilename));
     end
     sim_work.templ_tar = templ_tar;
     sim_work.templ_ref = templ_ref;

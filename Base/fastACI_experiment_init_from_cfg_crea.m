@@ -24,8 +24,10 @@ end
 
 N_created = 0;
 if bReproducible
-    cfg_crea = Check_cfg_crea_dirs(cfg_crea, fastACI_dir_data);
-    
+    cfg_crea = Check_cfg_crea_dirs(cfg_crea, fastACI_dir_data, bReproducible);
+    if ~exist(cfg_crea.dir_data_experiment,'dir')
+        mkdir(cfg_crea.dir_data_experiment);
+    end
     bGenerate_noises = Check_if_dir_is_empty(cfg_crea.dir_noise,'*.wav');
     
     if bGenerate_noises

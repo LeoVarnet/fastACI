@@ -72,6 +72,7 @@ end
 
 expvar_trialselect = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_analysis(2));
 
+select_after_reversal = ones(size(idx_trialselect)); % It will be overwritten if kv.expvar_after_reversal
 if isfield(kv,'expvar_after_reversal')
     if kv.expvar_after_reversal > 0
         [select_after_reversal,label_expvar_after_reversal] = expvar_after_reversal(data_passation,kv.expvar_after_reversal,idx_trialselect);

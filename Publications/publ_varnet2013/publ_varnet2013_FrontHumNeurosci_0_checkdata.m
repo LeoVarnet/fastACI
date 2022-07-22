@@ -33,7 +33,7 @@ if sum(bAre_stored_locally) == 0
     fprintf('%s: directory %s not found on disk\n',upper(mfilename),dir2check);
     fprintf('\t Next steps to perform: \n');
     % fprintf('\t 1. Go to https://doi.org/10.5281/zenodo.5483835 (reference osses2021c_data) and download the two zip files\n');
-    fprintf('\t 1. Contact the fastACI team to request the folder ''Sujet_Leo_S1'' and copy the zip file to your disk.')
+    fprintf('\t 1. Contact the fastACI team to request the folder ''Sujet_Leo_S1'' and copy the zip file to your disk.\n')
     fprintf('\t 2. Uncompress the zip file and locate it into %s\n',dir_where);
     fprintf('\t 3. Re-run the current script until you don''t get errors \n');
 

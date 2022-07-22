@@ -124,12 +124,19 @@ elseif cfg_game.is_simulation
     
     switch def_sim.decision_script
         case 'aci_detect' 
-            % Default for 'dau1997' and 'osses2021'
+            % Default for 'dau1997', 'osses2021', 'osses2022a'
             [response,sim_work,def_sim] = aci_detect(cfg_game,data_passation,def_sim,sim_work, ...
                 'argimport',flags,keyvals); 
             data_passation.decision_var_mue2choose(i_current,:) = sim_work.decision_var_mue2choose(i_current,:);
 
             disp('')
+        case 'aci_detect_debug' 
+            % This script is not in the fastACI repository but in the 
+            %   private fastACI_sim
+            [response,sim_work,def_sim] = aci_detect_debug(cfg_game,data_passation,def_sim,sim_work, ...
+                'argimport',flags,keyvals); 
+            data_passation.decision_var_mue2choose(i_current,:) = sim_work.decision_var_mue2choose(i_current,:);
+
         case 'king2019_detect'
             % Default for 'king2019'
             [response,sim_work,def_sim] = king2019_detect(cfg_game,data_passation,def_sim,sim_work);

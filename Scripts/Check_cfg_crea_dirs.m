@@ -1,5 +1,5 @@
-function cfg_crea = Check_cfg_crea_dirs(cfg_crea, dir_data_new)
-% function cfg_crea = Check_cfg_crea_dirs(cfg_crea, dir_new)
+function cfg_crea = Check_cfg_crea_dirs(cfg_crea, dir_data_new, bReproducible)
+% function cfg_crea = Check_cfg_crea_dirs(cfg_crea, dir_new, bReproducible)
 %
 % Description:
 %     This script checks whether all the folders specified in cfg_crea exist
@@ -11,6 +11,9 @@ function cfg_crea = Check_cfg_crea_dirs(cfg_crea, dir_data_new)
 %     
 % Tested for the first time from g20211129_getting_waveforms_SLV.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if nargin < 3
+    bReproducible = 1; % Then no need to create any folder, we will only read it
+end
 
 bUpdate = 0;
 if ~isfield(cfg_crea,'dir_data_experiment')
@@ -51,9 +54,6 @@ if bUpdate
         for i = idxi:idxf
             dir_target = [dir_target str_dir{i} filesep];
         end
-        % if exist(dir_data_experiment,'dir')
-        %     mkdir(dir_target);
-        % end
     end
     
     str_dir = strsplit(cfg_crea.dir_noise(1:end-1),filesep_orig);
@@ -69,24 +69,25 @@ if bUpdate
         for i = idxi:idxf
             dir_noise = [dir_noise str_dir{i} filesep];
         end
-        % if exist(dir_data_experiment,'dir')
-        %     mkdir(dir_noise);
-        % end
     end
     
     if ~exist(dir_data_experiment,'dir')
         % This means that all our efforts so far have not succeeded
-        msg_here = ['Please indicate where the noise folder (' str_dir{end} ') is...'];
-        fprintf('%s\n',msg_here);
-        dir_noise = uigetdir(dir_data_experiment,msg_here);
-        dir_noise = [dir_noise filesep];
+        if bReproducible == 0
+            msg_here = ['Please indicate where the noise folder (' str_dir{end} ') is...'];
+            fprintf('%s\n',msg_here);
+            dir_noise = uigetdir(dir_data_experiment,msg_here);
+            dir_noise = [dir_noise filesep];
+        end
     end
     if ~exist(dir_data_experiment,'dir')
-        % This means that all our efforts so far have not succeeded
-        msg_here = 'Please indicate where the speech (target) folder is...';
-        fprintf('%s\n',msg_here);
-        dir_target = uigetdir(dir_data_experiment,msg_here);
-        dir_target = [dir_target filesep];
+        if bReproducible == 0
+            % This means that all our efforts so far have not succeeded
+            msg_here = 'Please indicate where the speech (target) folder is...';
+            fprintf('%s\n',msg_here);
+            dir_target = uigetdir(dir_data_experiment,msg_here);
+            dir_target = [dir_target filesep];
+        end
     end
     
     cfg_crea.dir_data_experiment_orig = cfg_crea.dir_data_experiment;

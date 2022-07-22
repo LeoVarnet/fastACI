@@ -82,14 +82,14 @@ switch glmfct
         Nlevelmin = 2; % minimum level considered in the analysis 
         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'lasso_Nlevel',Nlevel);
         if bAssigned == 0
-            if ~strcmp(cfg_inout.lasso_Nlevel,Nlevel)
+            if cfg_inout.lasso_Nlevel~=Nlevel
                 fprintf('\t%s: non-default value for field ''lasso_Nlevel'' is being used\n',glmfct);
             end
         end
                     
         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'lasso_Nlevelmin',Nlevelmin);
         if bAssigned == 0
-            if ~strcmp(cfg_inout.lasso_Nlevelmin,Nlevelmin)
+            if cfg_inout.lasso_Nlevelmin~=Nlevelmin
                 fprintf('\t%s: non-default value for field ''lasso_Nlevelmin'' is being used\n',glmfct);
             end
         end
