@@ -40,22 +40,23 @@ if bUpdate
     filesep_orig = cfg_crea.dir_noise(end); % but it reads the file separator
                                             % from a previously existing directory
     str_dir_data = strsplit(cfg_crea.dir_data_experiment(1:end-1),cfg_crea.dir_data_experiment(end));
-    str_dir = strsplit(cfg_crea.dir_target(1:end-1),filesep_orig);
-    
-    if isfield(cfg_crea,'Subject_ID')
-        dir_target = [dir_data_experiment cfg_crea.Subject_ID filesep str_dir{end} filesep];
-    end
-    if ~exist(dir_target,'dir')
-        % If no Subject_ID, then this savegame_file is either very old, or
-        %   the subject uses the waveforms of another participant
-        dir_target = dir_data_experiment;
-        idxi = length(str_dir_data)+1;
-        idxf = length(str_dir);
-        for i = idxi:idxf
-            dir_target = [dir_target str_dir{i} filesep];
+    if isfield(cfg_crea,'dir_target')
+        str_dir = strsplit(cfg_crea.dir_target(1:end-1),filesep_orig);
+        
+        if isfield(cfg_crea,'Subject_ID')
+            dir_target = [dir_data_experiment cfg_crea.Subject_ID filesep str_dir{end} filesep];
+        end
+        if ~exist(dir_target,'dir')
+            % If no Subject_ID, then this savegame_file is either very old, or
+            %   the subject uses the waveforms of another participant
+            dir_target = dir_data_experiment;
+            idxi = length(str_dir_data)+1;
+            idxf = length(str_dir);
+            for i = idxi:idxf
+                dir_target = [dir_target str_dir{i} filesep];
+            end
         end
     end
-    
     str_dir = strsplit(cfg_crea.dir_noise(1:end-1),filesep_orig);
     
     dir_noise = dir_data_experiment;
@@ -93,8 +94,10 @@ if bUpdate
     cfg_crea.dir_data_experiment_orig = cfg_crea.dir_data_experiment;
     cfg_crea.dir_data_experiment      = dir_data_experiment;
     
-    cfg_crea.dir_target_orig          = cfg_crea.dir_target;
-    cfg_crea.dir_target               = dir_target;
+    if isfield(cfg_crea,'dir_target')
+        cfg_crea.dir_target_orig          = cfg_crea.dir_target;
+        cfg_crea.dir_target               = dir_target;
+    end
     
     cfg_crea.dir_noise_orig           = cfg_crea.dir_noise;
     cfg_crea.dir_noise                = dir_noise;

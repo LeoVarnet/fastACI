@@ -94,9 +94,12 @@ if bCalculation == 0
 end
 
 %%% 2.2 Creating structure cfg_ACI: ---------------------------------------
-cfg_ACI = import_cfg(cfg_game, 'dir_noise', 'dir_target', 'N', 'N_target', ... % 'dir_target', 'N_response'
+cfg_ACI = import_cfg(cfg_game, 'dir_noise', 'N', 'N_target', ... % 'dir_target', 'N_response'
     'stim_order', 'target_names', 'response_correct_target','response_names');
 
+if isfield(cfg_game,'dir_target')
+    cfg_ACI.dir_target = cfg_game.dir_target;
+end
 if isfield(cfg_game,'sessionsN')
     cfg_ACI.L_session = cfg_game.sessionsN; % used in fastACI_getACI_preprocess.m
 end
@@ -222,7 +225,7 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
         end
     end
     
-    if ~strcmp(fileparts(fileparts(cfg_ACI.dir_noise)), fileparts(fileparts(cfg_ACI.dir_target))) 
+    if isfield(cfg_ACI,'dir_target') & ~strcmp(fileparts(fileparts(cfg_ACI.dir_noise)), fileparts(fileparts(cfg_ACI.dir_target))) 
         % Extra check: if someone enters this part of the code, maybe he/she
         % does not have compatible dir_noise and dir_target directories, and 
         % therefore we throw a warning that appears for 10 s.
