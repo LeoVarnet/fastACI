@@ -13,7 +13,7 @@ switch type_action
         experiment = 'speechACI_Logatome-abda-S43M';
         bGenerate_stimuli = 0;
         
-        dir_res = [fastACI_dir_data filesep experiment filesep Subject_ID filesep 'Results' filesep];
+        dir_res = [fastACI_dir_data experiment filesep Subject_ID filesep 'Results' filesep];
         if ~exist(dir_res,'dir')
             bGenerate_stimuli = 1;    
         else
@@ -45,6 +45,37 @@ switch type_action
 
             outs.dir_target = dir_target;
             outs.dir_noise  = dir_noise;
+        else
+            % I'll try to see whether the files are already on disk:
+            try
+                file = Get_filenames(dir_res,['cfgcrea*' noise_type '.mat']);
+                if length(file) ~= 1
+                    error('More than one creafile was found on disk');
+                end
+                if ~isempty(file)
+                    load([dir_res file{1}],'cfg_crea');
+
+                    cfg_crea = Check_cfg_crea_dirs(cfg_crea);
+
+                    dir_target = cfg_crea.dir_target;
+                    dir_noise  = cfg_crea.dir_noise;
+
+                    if ~exist(dir_target,'dir')
+                        error('Directory %s not found on disk',dir_target);
+                    end
+                    if ~exist(dir_noise,'dir')
+                        bGenerate_stimuli = 1;
+                        warning('Directory %s not found on disk',dir_noise);
+                    else
+                        bGenerate_stimuli = 0;
+                    end
+
+                    outs.dir_target = dir_target;
+                    outs.dir_noise  = dir_noise;
+                end
+            catch
+                warning('No cfg_file found...')
+            end
         end
         outs.bGenerate_stimuli = bGenerate_stimuli;
         % outs.fname_results = fname_results;

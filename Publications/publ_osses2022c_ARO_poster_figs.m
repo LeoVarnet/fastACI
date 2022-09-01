@@ -65,16 +65,43 @@ end
 for i = 1:length(Subjects)
     for j = length(noise_types):-1:1 % reversed order (in case we need to remove one noise condition)
         outs = publ_osses2022c_ARO_poster_utils(Subjects{i},noise_types{j},'Get_filenames');
+        
+        % if outs.bGenerate_stimuli == 0
+        %     % 
+        % 
+        %     disp('')
+        % end
         if outs.bGenerate_stimuli == 1
-            warning('Re-generate waveforms first...');
             
+            warning('Re-generate waveforms first...');
+            % if exist(outs.dir_noise,'dir')
             Subject_id_here = ['S' num2str(Subjects_id(i))];
             dir_crea = [fastACI_basepath 'Publications' filesep 'publ_osses2022c' filesep 'data_' Subject_id_here filesep '0-init' filesep];
             file_crea = Get_filenames(dir_crea,['cfgcrea*' noise_types{j} '.mat']);
+            
             if length(file_crea) == 1
-                [~,bReproducible] = fastACI_experiment_init_from_cfg_crea([dir_crea file_crea{1}]);
+                [~,bReproducible] = fastACI_experiment_init_from_cfg_crea([dir_crea file_crea{1}]);    
                 
                 if bReproducible == 0
+                    noise = noise_types{j};
+                    dir_subj = [fastACI_dir_data  experiment filesep Subjects{i} filesep];
+                    dir_crea_dst = [dir_subj 'Results' filesep];
+                    if exist(dir_crea_dst,'dir')
+                        bContinue = input(['Do you have the sounds for participant ' Subjects{i} ', condition ' noise '? (1=yes, 0=no): ']);
+                        if bContinue
+                            disp(['Please place the sounds under ' dir_subj 'NoiseStim-' noise filesep ' and press any button to continue (press ctrl+c to abort)']);
+                            disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+                            pause;
+                            
+                            copyfile([dir_crea file_crea{1}],dir_crea_dst);
+                            dir_save = [fileparts(dir_crea(1:end-1)) filesep '1-experimental_results' filesep];
+                            file_save = Get_filenames(dir_save,['savegame*' noise_types{j} '.mat']);
+
+                            % This file is from the repository: it is always there
+                            copyfile([dir_save file_save{1}],dir_crea_dst);
+                        end
+                    end
+                    
                     warning('The sounds for Subject %s, cond=%s, don''t seem reproducible. Skippping this condition.',Subjects{i},noise_types{j});
                     noise_types(j) = [];
                     noise_types_label(j) = [];
