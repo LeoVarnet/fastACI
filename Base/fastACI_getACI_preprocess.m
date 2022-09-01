@@ -77,7 +77,7 @@ if isfield(kv,'expvar_after_reversal')
     if kv.expvar_after_reversal > 0
         [select_after_reversal,label_expvar_after_reversal] = expvar_after_reversal(data_passation,kv.expvar_after_reversal,idx_trialselect);
     else
-        % Nothing to do
+        label_expvar_after_reversal = ''; % empty label
     end
 end
 
@@ -88,6 +88,8 @@ idx_analysis = find(select_n_trials & expvar_trialselect & select_trialtype & ..
 if do_no_bias
     %%% do_no_bias=TRIAL EQUALISATION
     [idx_analysis,label_expvar_no_bias] = expvar_no_bias(data_passation,idx_analysis);
+else
+    label_expvar_no_bias = ''; % empty label
 end
 %%% END do_no_bias
 
@@ -97,16 +99,12 @@ if length(idx_analysis) ~= size(Data_matrix,1)
         min(expvar(idx_analysis)),max(expvar(idx_analysis)));
     
     fprintf('\t%s: Selecting a subset of the experimental trials:\n',upper(mfilename));
-    fprintf('\t\t %.0f trials out of %.0f are being processed:\n', ...
-        length(idx_analysis),size(Data_matrix,1));
-    % LEO: I commented the following line because label_expvar_after_reversal 
-    % (and maybe others) are not always defined
-%     fprintf('\t\t %.0f trials out of %.0f are being processed:\n%s%s%s%s\n', ...
-%         length(idx_analysis),size(Data_matrix,1), ...
-%         label_expvar_limits, ...
-%         label_expvar_after_reversal, ...
-%         label_expvar_no_bias, ...
-%         label_actual_expvar);
+    fprintf('\t\t %.0f trials out of %.0f are being processed:\n%s%s%s%s\n', ...
+        length(idx_analysis),size(Data_matrix,1), ...
+        label_expvar_limits, ...
+        label_expvar_after_reversal, ...
+        label_expvar_no_bias, ...
+        label_actual_expvar);
     
     N_trialselect = length(idx_analysis);
     cfg_ACI.N_trialselect = N_trialselect;
