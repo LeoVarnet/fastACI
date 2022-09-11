@@ -174,84 +174,87 @@ switch lower(fct)
         % Memory allocation:
         N_windows = length(n_responses)/n_window;
 
-        m_windowed       = nan(1,N_windows);
-        bias_windowed    = nan(1,N_windows);
-        PC_targetpresent = nan(1,N_windows);
-        PC_targetabsent  = nan(1,N_windows);
-        RT_windowed      = nan(1,N_windows);
+        bWindow_analysis = mod(N_windows,1) == 0;
         
-        for i = 1:N_windows
-            idxs_here = (i-1)*n_window+1:i*n_window; % indexes of the trials within each window
-            response_windowed  = n_responses(idxs_here);
-            signal_windowed    = n_targets(idxs_here);
+        if bWindow_analysis
+            m_windowed       = nan(1,N_windows);
+            bias_windowed    = nan(1,N_windows);
+            PC_targetpresent = nan(1,N_windows);
+            PC_targetabsent  = nan(1,N_windows);
+            RT_windowed      = nan(1,N_windows);
 
-            m_windowed(i)      = mean(expvar(idxs_here));
-            bias_windowed(i)   = mean(response_windowed);
-            PC_targetpresent(i)= mean(response_windowed(signal_windowed==2))-1;
-            PC_targetabsent(i) = 2-mean(response_windowed(signal_windowed==1));
-            RT_windowed(i)     = mean(RT(idxs_here));
-        end
-        
-        N_trials = length(expvar);
-        % ---
-        m_presentation_nr     = 1:N_trials;
-        m_presentation_nr_win = 1:n_window:N_trials;
+            for i = 1:N_windows
+                idxs_here = (i-1)*n_window+1:i*n_window; % indexes of the trials within each window
+                response_windowed  = n_responses(idxs_here);
+                signal_windowed    = n_targets(idxs_here);
 
-        if bPlot
-            figure('Position', [100 100 800 500]); 
-            subplot(2,2,1); 
-            plot(m_presentation_nr    , expvar         ,'g'); hold on; 
-            plot(m_presentation_nr_win, m_windowed,'k'); 
-            ylim([bin_edges(1) bin_edges(end)]); 
-            xlabel(' trial #'); ylabel(unit); 
-            xlim([1 length(expvar)]); ylimits=ylim;
-
-            N_sessions = length(data_passation.resume_trial);
-            for i = 1:N_sessions
-                plot(data_passation.resume_trial(i)*[1 1],ylimits,'k:');
+                m_windowed(i)      = mean(expvar(idxs_here));
+                bias_windowed(i)   = mean(response_windowed);
+                PC_targetpresent(i)= mean(response_windowed(signal_windowed==2))-1;
+                PC_targetabsent(i) = 2-mean(response_windowed(signal_windowed==1));
+                RT_windowed(i)     = mean(RT(idxs_here));
             end
-            title(sprintf('expvar per trial (of %.0f trials)',length(expvar)))
-
+        
+            N_trials = length(expvar);
             % ---
-            subplot(2,2,3); 
-            plot(m_presentation_nr_win,PC_targetpresent); hold on; 
-            plot(m_presentation_nr_win,PC_targetabsent);  
-            xlim([1 length(expvar)]); xlabel(' trial #'); 
-            ylabel('correct response rate'); ylim([0 1]); hold on; 
-            plot([1 length(expvar)],[0.5 0.5],'k--'); 
-            ylimits=ylim;
-            title(sprintf('CR rate (bins of %.0f trials)',n_window))
+            m_presentation_nr     = 1:N_trials;
+            m_presentation_nr_win = 1:n_window:N_trials;
 
-            for i = 1:length(data_passation.resume_trial)
-                % Vertical dotted lines at the points where a new session was started:
-                plot(data_passation.resume_trial(i)*[1 1],ylimits,'k:','LineWidth',2);
+            if bPlot
+                figure('Position', [100 100 800 500]); 
+                subplot(2,2,1); 
+                plot(m_presentation_nr    , expvar         ,'g'); hold on; 
+                plot(m_presentation_nr_win, m_windowed,'k'); 
+                ylim([bin_edges(1) bin_edges(end)]); 
+                xlabel(' trial #'); ylabel(unit); 
+                xlim([1 length(expvar)]); ylimits=ylim;
+
+                N_sessions = length(data_passation.resume_trial);
+                for i = 1:N_sessions
+                    plot(data_passation.resume_trial(i)*[1 1],ylimits,'k:');
+                end
+                title(sprintf('expvar per trial (of %.0f trials)',length(expvar)))
+
+                % ---
+                subplot(2,2,3); 
+                plot(m_presentation_nr_win,PC_targetpresent); hold on; 
+                plot(m_presentation_nr_win,PC_targetabsent);  
+                xlim([1 length(expvar)]); xlabel(' trial #'); 
+                ylabel('correct response rate'); ylim([0 1]); hold on; 
+                plot([1 length(expvar)],[0.5 0.5],'k--'); 
+                ylimits=ylim;
+                title(sprintf('CR rate (bins of %.0f trials)',n_window))
+
+                for i = 1:length(data_passation.resume_trial)
+                    % Vertical dotted lines at the points where a new session was started:
+                    plot(data_passation.resume_trial(i)*[1 1],ylimits,'k:','LineWidth',2);
+                end
+
+                subplot(2,2,2); 
+                var2plot = [H', M', CR', FA'];
+                bar(bin_centres, var2plot); 
+                xlim([bin_edges(1) bin_edges(end)]); 
+                xlabel(unit); 
+                ylabel('Number of trials'); hold on; 
+                plot([bin_edges(1) bin_edges(end)],[minNformean minNformean]/2,'k:');
+                legend({'H', 'M', 'CR', 'FA', 'Nmin'},'Location','best');
+                title(sprintf('Histogram (of %.0f trials)',sum(sum(var2plot))))
+
+                subplot(2,2,4); 
+                bar(bin_centres, [H'./(M'+H'), CR'./(CR'+FA')].*[M'+H'>minNformean,CR'+FA'>minNformean]);
+                xlim([bin_edges(1) bin_edges(end)]); 
+                xlabel(unit); 
+                ylabel('correct response rate'); 
+                hold on; 
+                plot([bin_edges(1) bin_edges(end)],[0.5 0.5],'k--'); 
+                hl = legend({sprintf('target %.0f present',resp_if_2), sprintf('target %.0f absent',resp_if_2),'chance level'},'Location','southeast');
+                set(hl,'FontSize',8);
+                title(sprintf('CRs (of %.0f trials)',tot_classified))
+
+                h(end+1) = gcf;
+                hname{end+1} = [Subject_ID '-Behaviour'];
             end
-
-            subplot(2,2,2); 
-            var2plot = [H', M', CR', FA'];
-            bar(bin_centres, var2plot); 
-            xlim([bin_edges(1) bin_edges(end)]); 
-            xlabel(unit); 
-            ylabel('Number of trials'); hold on; 
-            plot([bin_edges(1) bin_edges(end)],[minNformean minNformean]/2,'k:');
-            legend({'H', 'M', 'CR', 'FA', 'Nmin'},'Location','best');
-            title(sprintf('Histogram (of %.0f trials)',sum(sum(var2plot))))
-
-            subplot(2,2,4); 
-            bar(bin_centres, [H'./(M'+H'), CR'./(CR'+FA')].*[M'+H'>minNformean,CR'+FA'>minNformean]);
-            xlim([bin_edges(1) bin_edges(end)]); 
-            xlabel(unit); 
-            ylabel('correct response rate'); 
-            hold on; 
-            plot([bin_edges(1) bin_edges(end)],[0.5 0.5],'k--'); 
-            hl = legend({sprintf('target %.0f present',resp_if_2), sprintf('target %.0f absent',resp_if_2),'chance level'},'Location','southeast');
-            set(hl,'FontSize',8);
-            title(sprintf('CRs (of %.0f trials)',tot_classified))
-
-            h(end+1) = gcf;
-            hname{end+1} = [Subject_ID '-Behaviour'];
         end
-        
         %%%
         H_rate  = 100*H./N_if_2; % /N_tot_signal;
         CR_rate = 100*CR./N_if_1; % /N_tot_absent;
@@ -274,12 +277,14 @@ switch lower(fct)
             hname{end+1} = [Subject_ID '-Hit-and-CR-rates-per-bin'];        
         end
         
-        data.trialnum = m_presentation_nr_win;
-        data.m_windowed = m_windowed;
-        data.PCtargetabsent_windowed = PC_targetabsent;
-        data.PCtargetpresent_windowed = PC_targetpresent;
-        
-        data.bias_windowed = bias_windowed;
+        if bWindow_analysis
+            data.trialnum = m_presentation_nr_win;
+            data.m_windowed = m_windowed;
+            data.PCtargetabsent_windowed = PC_targetabsent;
+            data.PCtargetpresent_windowed = PC_targetpresent;
+
+            data.bias_windowed = bias_windowed;
+        end
         data.bin_centres = bin_centres;
         data.bin_edges   = bin_edges;
         data.H = H;

@@ -32,9 +32,14 @@ if cfg_game.adapt
     n_correctinarow = ins_trial.n_correctinarow;
 end
 if cfg_game.is_simulation
+    bSimulation = 1;
+    
     def_sim  = ins_trial.def_sim;
     sim_work = ins_trial.sim_work;
+else
+    bSimulation = 0;
 end
+bExperiment = ~bSimulation;
 
 %%%% Trial start     
 n_stim = cfg_game.stim_order(i_current);
@@ -69,11 +74,11 @@ stim_normal = str_stim.tuser;
 % stim_normal = il_user(str_inout,cfg_game);
 %%% Create signal: end
 
-if cfg_game.is_experiment
+if bExperiment
     sil4playing = zeros(0.1*cfg_game.fs,size(stim_normal,2));
     player = audioplayer(cfg_game.gain_play*[sil4playing; stim_normal],cfg_game.fs);
 end
-if cfg_game.is_simulation
+if bSimulation
     sil4playing = [];
 end
 N_samples_stim = size(stim_normal,1) + size(sil4playing,1);
@@ -92,7 +97,7 @@ else
     msg_currenttrial
 end
 
-if cfg_game.is_experiment
+if bExperiment
 
     play(player)
     pause(N_samples_stim/cfg_game.fs);
@@ -118,7 +123,7 @@ if cfg_game.is_experiment
     end
     stop(player)
     
-elseif cfg_game.is_simulation
+elseif bSimulation
     
     time_before_response = toc;
     
