@@ -305,10 +305,10 @@ switch response
                 case 'FR'
                     fprintf('\n ** %s => La bonne reponse etait : %.0f (%s) **\n\n',txt_extra,resp_num,resp_name);
             end
-            pause(.5); 
+            pause(1); 
             if ~cfg_game.is_simulation
                 % Refreshing only for real participants...
-                clc; % .5 s pause before refreshing
+                clc; % pause before refreshing
             end
         end
 
