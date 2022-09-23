@@ -117,6 +117,11 @@ bText = opts.bText;
 opts = Ensure_field(opts,'bColourbar',1);
 bColourbar = opts.bColourbar;
 
+if ~isfield(opts,'FontSize')
+    opts.FontSize = get(0,'defaultAxesFontSize');
+end
+FS = opts.FontSize;
+
 alpha_data = ones(size(indata));
 
 idx = find(isnan(indata));
@@ -139,7 +144,7 @@ if bText
     for i = 1:size(indata,1)
         for j = 1:size(indata,2)
             if ~isnan(indata_orig(i,j))
-                text(j,i,sprintf('%.1f',indata_orig(i,j)),'HorizontalAlignment','center');
+                text(j,i,sprintf('%.1f',indata_orig(i,j)),'HorizontalAlignment','center','FontSize',FS);
             end
         end
     end
