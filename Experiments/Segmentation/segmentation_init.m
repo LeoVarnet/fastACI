@@ -305,12 +305,11 @@ end
 % f0 kept
 %source_parameter.f0 = source_parameter.f0 .* 2.^(f0_vect/1200);
 % f0 trajectory kept but mean f0 neutralized
-origf0 = source_parameter.f0; origf0(origf0==0) = nan; origf0 = mean(origf0,'omitnan');
-source_parameter.f0 = source_parameter.f0 - origf0 + meanf0; % neutralize mean
-source_parameter.f0 = source_parameter.f0 .* 2.^(f0_vect/1200);
+% origf0 = source_parameter.f0; origf0(origf0==0) = nan; origf0 = mean(origf0,'omitnan');
+% source_parameter.f0 = source_parameter.f0 - origf0 + meanf0; % neutralize mean
+% source_parameter.f0 = source_parameter.f0 .* 2.^(f0_vect/1200);
 % f0 flattened and mean f0 neutralized
-%source_parameter.f0(source_parameter.f0==0) = nan;
-%source_parameter.f0 = meanf0 .* 2.^(f0_vect/1200);
+source_parameter.f0 = meanf0 .* 2.^(f0_vect/1200);
 
 fft_size = (size(spectrum_parameter.spectrogram, 1) - 1) * 2;
 w = (0 : fft_size - 1) * fs / fft_size;
