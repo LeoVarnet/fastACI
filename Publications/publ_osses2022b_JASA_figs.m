@@ -34,13 +34,19 @@ definput.flags.type={'missingflag', ...
     'fig4', ...
     'fig5_simu', ... % old name: fig4_simu
     'fig5', 'fig5_stats', ... % dprime and statistics
+    'fig6', ... % ACIs participants, L1109
     'fig7', ...
-    'fig8', ... % Cross predictions
+    'fig8', ... % Cross predictions, L1608
+    'fig8b_old', ... % Discarded significance test
     'fig9', ... % Cross predictions between noise
     'fig10', ...
-    'fig11_old', 'fig11', ... % Cross predictions 'between participant' for simulations
+    'fig8b','fig11_old', ... % Cross predictions 'between participant' for simulations
     'fig12', ... % Cross predictions between noise for simulations
-    'fig1_suppl','fig3_suppl'};
+    'fig1_suppl', ... % Audiograms
+    'fig2_suppl', ... % Intellitest, L3209 (on 29/09/2022)
+    'fig3_suppl', ...
+    'fig3b_suppl', ...
+    'fig5_suppl'}; % different lambdas
 % definput.keyvals.models=[];
 definput.keyvals.dir_out=[];
 
@@ -646,8 +652,9 @@ if flags.do_fig3
     hname{end+1} = 'fig3-Gaussbasis';    
 end
 
-if flags.do_fig4 || flags.do_fig5 || flags.do_fig5_stats || flags.do_fig7 || ...
-        flags.do_fig8 || flags.do_fig9 || flags.do_fig10 
+if flags.do_fig4 || flags.do_fig5 || flags.do_fig5_stats || flags.do_fig6 || ...
+   flags.do_fig7 || flags.do_fig8 || flags.do_fig9       || flags.do_fig10 || ...
+   flags.do_fig1_suppl || flags.do_fig2_suppl || flags.do_fig3_suppl || flags.do_fig3b_suppl || flags.do_fig8b_old
 
     %  g20220720_behavstats_from_l20220325
     %%% Analysis for 12 participants:
@@ -1087,7 +1094,8 @@ if flags.do_fig5_stats % Originally by Leo
     fprintf(['\n*Results of Mixed ANOVA on dprime with factors Masker and SNR (and random factor subject)*\n'])
     fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{2,1}, tbl{2,3}, tbl{5,3}, tbl{2,6}, tbl{2,7})
     fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{3,1}, tbl{3,3}, tbl{5,3}, tbl{3,6}, tbl{3,7})
-    %multcompare(stats,'display','off')
+    % multcompare(stats,'display','off')
+    
     [p,tbl,stats] = anovan(criterion2analyse(:),{F_maskers(:),F_SNR(:),F_subjects(:)},'varnames',{'maskers','SNR','subjects'},'random',3,'continuous',2,'display','off');
     fprintf(['\n*Results of Mixed ANOVA on criterion with factors Masker and SNR (and random factor subject)*\n'])
     fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{2,1}, tbl{2,3}, tbl{5,3}, tbl{2,6}, tbl{2,7})
@@ -1104,14 +1112,36 @@ if flags.do_fig5_stats % Originally by Leo
     % maskers: F(2,165) = 1.75, p = 0.178
     % SNR: F(1,165) = 9.77, p = 0.002    
 end
-disp('')
- 
-if flags.do_fig7 || flags.do_fig8 || flags.do_fig9
-    % Loading cross predictions
-    glmfct = 'l1glm';
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Fig 6
+% if flags.do_fig10 || flags.do_fig8b || flags.do_fig11_old || flags.do_fig12
+%     % All simulation results were stored in one output folder
+%     if isunix
+%         dir_results = '/home/alejandro/Documents/Databases/data/fastACI_data_z_tmp/20220715_sim_Q1_osses2022a/';
+%     else
+%         error('Leo put your folder here...')
+%         dir_results = [];
+%     end
+%     Subjects_ID = {'Results-S01-v1','Results-S02-v1','Results-S03-v1','Results-S04-v1', ...
+%                    'Results-S05-v1','Results-S06-v1','Results-S07-v1','Results-S08-v1', ...
+%                    'Results-S09-v1','Results-S10-v1','Results-S11-v1','Results-S12-v1'};
+%     model_str = 'osses2022a';
+% end
+
+if flags.do_fig6 || flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || ...
+   flags.do_fig3_suppl || flags.do_fig8b_old
+    glmfct = 'l1glm';
     bIs_Alejandro = isunix;
     bIs_Leo = ~bIs_Alejandro;
+    
+    flags_base = {'gammatone', ... % gt
+                  glmfct, ... % l1glm
+                  'no_bias', ... % nob
+                  'expvar_after_reversal',4, ... %'idx_trialselect', 1:4000 ... % tr4000
+                  'pyramid_script','imgaussfilt', ...
+                  'pyramid_shape',-1 ...
+                  }; % the extra fields
 
     if bIs_Alejandro
         % dir_where = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc/';
@@ -1126,18 +1156,129 @@ if flags.do_fig7 || flags.do_fig8 || flags.do_fig9
         % dir_res = {'/home/alejandro/Documents/MATLAB/MATLAB_ENS/fastACI/Publications/publ_osses2022b/',['1-experimental_results' filesep]};
         % dir_wav = '/home/alejandro/Documents/Databases/data/fastACI_data/speechACI_Logatome-abda-S43M/';
     end
+    % for ii = 1:N_subjects
+    %     fname_crosspred{ii} = [dir_where 'ACI-' subject '-speechACI_Logatome-' masker '-nob-gt-' glmfct '+pyrga-rev4.mat'];
+    %     if exist(fname_crosspred{ii},'file')
+    %         bInclude(ii) = 1;
+    %     end
+    % end
+end
+
+if flags.do_fig6
+     
+    N_noises = length(noise_str);
+     
+    Pos4 = [800 800];
+    N_subjs2plot = [6 6];
+     
+    for i_repeat = 1:2
+        N_subj2plot = N_subjs2plot(i_repeat);
+        figure('Position',[100 100 600 Pos4(i_repeat)]); % set(gcf,'Position',[100 100 600 Pos4(i_repeat)])
+        il_tiledlayout(N_subj2plot,N_noises,'TileSpacing','tight');
+        for i_subj = 1:N_subj2plot    
+            dir_subj = dir_where;
+            for i_noise = 1:N_noises
+                ACI_fname = [dir_subj 'ACI-' Subjects{i_subj} '-speechACI_Logatome-' noise_str{i_noise} '-nob-gt-l1glm+pyrga-rev4.mat'];
+ 
+                ACI = [];
+                cfg_ACI = [];
+                results = [];
+                info_toolbox = [];
+                load(ACI_fname);
+ 
+                bBox = 0;
+                switch Subjects{i_subj}
+                    case 'S10'
+                        if i_noise == 1
+                            bBox = 1;
+                        end
+                    case 'S11'
+                        if i_noise == 1
+                            bBox = 1;
+                        end
+                    otherwise
+                        % Nothing to do
+                end
+                
+                if i_noise == 3
+                    bColourbar = 'yes';
+                else
+                    bColourbar = 'no';
+                end
+                flags_opts = {'NfrequencyTicks',5,'colorbar',bColourbar}; 
+ 
+                il_nexttile(N_noises*(i_subj-1)+i_noise);
+                affichage_tf(ACI,'CInorm', cfg_ACI.t, cfg_ACI.f,flags_opts{:}); hold on
+                if i_subj ~= N_subj2plot
+                    xlabel('')
+                    set(gca,'XTickLabel','');
+                end
+                if i_noise ~= 1
+                    ylabel('');
+                    set(gca,'YTickLabel','');
+                end
+                
+                %%% Adding a box to the null ACIs
+                if bBox
+                    YL_box = get(gca,'YLim');
+                    XL_box = get(gca,'XLim');
+                    xcoor = mean(XL_box);
+                    ycoor = mean(YL_box);
+                    offx = 0.98*abs(diff(XL_box)/2);
+                    offy = 0.98*abs(diff(YL_box)/2);
+                    il_plot_square_XY(xcoor,ycoor,'m',offx,offy,'--',2);
+                end
+                
+                if i_subj == 1
+                    title(noise_types_label{i_noise});
+                    switch i_noise
+                        case 1
+                            if i_repeat == 1
+                                text2show = 'A.';
+                            else
+                                text2show = 'D.';
+                            end
+                        case 2
+                            if i_repeat == 1
+                                text2show = 'B.';
+                            else
+                                text2show = 'E.';
+                            end
+                        case 3
+                            if i_repeat == 1
+                                text2show = 'C.';
+                            else
+                                text2show = 'F.';
+                            end
+                    end
+                    text(0,1.15,text2show,'FontWeight','Bold','Units','Normalized','FontSize',14);
+                end
+                if i_noise == 3
+                    text2show = Subjects{i_subj};
+                    text(.7,.90,text2show,'FontWeight','Bold','Units','Normalized','FontSize',12);
+                end
+                
+                disp('')
+            end
+        end
+        Subjects(1:N_subj2plot) = []; % remove the first six labels, so that it's easier to repeat this code
+         
+        h(end+1) = gcf;
+        hname{end+1} = ['fig06-ACI-set' num2str(i_repeat)];
+    end
+    disp('')
+   
+end % end do_fig6
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || flags.do_fig3_suppl || ...
+   flags.do_fig8b_old
+    % Loading cross predictions
+    
     dir_res = {[fastACI_paths('dir_fastACI') 'Publications' filesep 'publ_osses2022b' filesep],['1-experimental_results' filesep]};
            
     trialtype_analysis = 'total';
 
-    flags_base = {'gammatone', ... % gt
-                  glmfct, ... % l1glm
-                  'no_bias', ... % nob
-                  'expvar_after_reversal',4, ... %'idx_trialselect', 1:4000 ... % tr4000
-                  'pyramid_script','imgaussfilt', ...
-                  'pyramid_shape',-1 ...
-                  }; % the extra fields
-
+    
     for i_masker = 1:N_maskers
         masker  = noise_str{i_masker};
 
@@ -1161,15 +1302,10 @@ if flags.do_fig7 || flags.do_fig8 || flags.do_fig9
                 end
             end
             %%%
-            if flags.do_fig8 || flags.do_fig9
-                if flags.do_fig8
-                    between_noise = 0;
-                end
-                if flags.do_fig9
-                    between_noise = 1;
-                end
+            if flags.do_fig8 || flags.do_fig9 || flags.do_fig3_suppl || ...
+                    flags.do_fig3b_suppl || flags.do_fig8b_old
                 % 2.1. Checking whether you previously stored already the cross-prediction data:
-                if between_noise == 0
+                if flags.do_fig8 || flags.do_fig3_suppl || flags.do_fig8b_old
                     if i_subject == 1 
                         bInclude = zeros(1,N_subjects);
                         cross_suffix = '';
@@ -1197,10 +1333,6 @@ if flags.do_fig7 || flags.do_fig8 || flags.do_fig9
                 end
             end
             
-            if bInclude(i_subject) == 0
-                disp('')
-            end
-                
             if bInclude(i_subject)
                 % loading data
                 dir_results = [dir_res{1} 'data_' subject filesep dir_res{2}];
@@ -1253,17 +1385,18 @@ if flags.do_fig7 || flags.do_fig8 || flags.do_fig9
                 results{i_subject,i_masker} = res;
                 % idxlambda(i_subject) = res.idxlambda;
 
+                [cross,outs_cross] = Read_crosspred(fname_cross,res.idxlambda);
+                PC_matrix(i_subject,:,i_masker)  = outs_cross.PA_mean_re_chance;
+                Dev_matrix(i_subject,:,i_masker) = outs_cross.Dev_mean;
+                Dev_matrix_plus_SEM(i_subject,:,i_masker) = outs_cross.Dev_mean+outs_cross.Dev_SEM;
+                Dev_matrix_min_SEM(i_subject,:,i_masker)  = outs_cross.Dev_mean-outs_cross.Dev_SEM;
+                
                 if flags.do_fig7
                     res_here = results{i_subject,i_masker};
                     % PC and DEV for incorrect trial
-                    % [PC_tbt, Dev_tbt, PC2,Dev2] = il_tbtpred(cfg_ACI_here,res_here);
-                    % idxs_inc = data_passation.is_correct(cfg_ACI_here.idx_analysis)==0;
-                    % PA_inc  = mean(PC_tbt( :,idxs_inc),2);
-                    % Dev_inc = mean(Dev_tbt(:,idxs_inc),2);
                     [PC_per_fold_inc,Dev_per_fold_inc] = il_tbtpred_inc(cfg_ACI_here,res_here,data_passation);
 
                     %%% Save some data for group-level analysis
-
                     idxlambda = res_here.idxlambda;
 
                     num1 = res_here.FitInfo.Dev_test./res_here.FitInfo.CV.TestSize;
@@ -1472,616 +1605,604 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if flags.do_fig8 || flags.do_fig9
+if flags.do_fig8 || flags.do_fig3_suppl || flags.do_fig8b_old
     % Code by Leo, taken from l20220325_crossprediction_newversion.m
  
-    %%% 4. Plotting the results:
-    % 3 matrices of cross-prediction accuracy
-    xvar = results{1,1}.crosspred(1).lambdas;
-
-    if between_noise == 0
-        for j = 1:N_subjects
-            for k = 1:N_subjects
-                for i = 1:N_maskers %length(results{1}.crosspred)
-                    idxlambda = results{j,i}.idxlambda;
-                    
-                    PC_test  = results{j,i}.crosspred(k).PC_test;
-                    yvar = PC_test(idxlambda,:)-PC_test(end,:);
-                    PC_matrix(j,k,i) = 100*mean(yvar); % mean converted to a percentage
-                    
-                    Dev_test = results{j,i}.crosspred(k).Dev_test; 
-                    yvar = Dev_test(idxlambda,:)-Dev_test(end,:);
-                    Dev_matrix(j,k,i) = mean(yvar); % mean 
-                end
-            end
+    XTL = [];
+    XT = 1:N_subjects;
+    for ii = 1:N_subjects
+        txt2use = 'S';
+        if ii < 10 
+            txt2use = [txt2use '0'];
         end
-    else
-        
-        for j = 1:N_subjects
-            for k = 1:N_maskers
-                for i = 1:N_maskers 
-                    idxlambda = results{j,i}.idxlambda;
-                    
-                    PC_test  = results{j,i}.crosspred(k).PC_test;
-                    yvar = PC_test(idxlambda,:)-PC_test(end,:);
-                    PC_matrix(j,k,i) = 100*mean(yvar); % mean converted to a percentage
-                    
-                    Dev_test = results{j,i}.crosspred(k).Dev_test; 
-                    yvar = Dev_test(idxlambda,:)-Dev_test(end,:);
-                    Dev_matrix(j,k,i) = mean(yvar); % mean 
-                end
-            end
+        txt2use = [txt2use num2str(ii)];
+        YTL{ii} = txt2use;
+        if mod(ii,2)==0
+            XTL{ii} = txt2use;
+        else
+            XTL{ii} = '';
         end
-        
-        % Build the exact matrix to plot
-        for j = 1:N_subjects
-            for k = 1:N_maskers
-                PC_pool_here{j}(k,:) = transpose(squeeze(PC_matrix(j,k,:)));
-                Dev_pool_here{j}(k,:) = transpose(squeeze(Dev_matrix(j,k,:)));
-            end
-        end
-        PC= [];
-        PC_rem_tmp = [];
-        Dev = [];
-        for j = 1:4
-            PC = [PC PC_pool_here{j}];
-            PC_rem_tmp = [PC_rem_tmp PC_pool_here{j}-repmat(diag(PC_pool_here{j})',3,1)];
-            Dev = [Dev Dev_pool_here{j}];
-        end
-        PC_pool = PC;
-        PC_pool_diag_removed = PC_rem_tmp;
-        Dev_pool = Dev;
-        
-        PC= [];
-        PC_rem_tmp = [];
-        Dev = [];
-        for j = 5:8
-            PC = [PC PC_pool_here{j}];
-            PC_rem_tmp = [PC_rem_tmp PC_pool_here{j}-repmat(diag(PC_pool_here{j})',3,1)];
-            Dev = [Dev Dev_pool_here{j}];
-        end
-        PC_pool  = [PC_pool; PC];
-        PC_pool_diag_removed = [PC_pool_diag_removed; PC_rem_tmp];
-        Dev_pool = [Dev_pool; Dev];
-        
-        PC= [];
-        PC_rem_tmp = [];
-        Dev = [];
-        for j = 9:12
-            PC = [PC PC_pool_here{j}];
-            PC_rem_tmp = [PC_rem_tmp PC_pool_here{j}-repmat(diag(PC_pool_here{j})',3,1)];
-            Dev = [Dev Dev_pool_here{j}];
-        end
-        PC_pool = [PC_pool; PC];
-        PC_pool_diag_removed = [PC_pool_diag_removed; PC_rem_tmp];
-        Dev_pool = [Dev_pool; Dev];
     end
-     
-    disp('')
+    
+    % figure('Position',[100 100 800 350]);
+    figure('Position',[100 100 720 415]);
+    il_tiledlayout(1,3,'TileSpacing','tight'); % 'tight');
 
-    if between_noise == 0
-        XTL = [];
-        XT = 1:N_subjects;
-        for ii = 1:N_subjects
-            txt2use = 'S';
-            if ii < 10 
-                txt2use = [txt2use '0'];
-            end
-            txt2use = [txt2use num2str(ii)];
-            YTL{ii} = txt2use;
-            if mod(ii,2)==0
-                XTL{ii} = txt2use;
-            else
-                XTL{ii} = '';
-            end
+    idx_sig = [0 0 0]; % idx of significant ACIs
+    for i_column = 1:3
+        switch mod(i_column,3)
+            case 1 % white
+                Colour_here = masker_colours{1};
+            case 2 % bump
+                Colour_here = masker_colours{2};
+            case 0 % MPS
+                Colour_here = masker_colours{3};
         end
-        
-        % hmatrices = 
-        figure('Position',[100 100 800 600]);
-        il_tiledlayout(2,3,'TileSpacing','tight'); % 'tight');
-         
-        for i_column = 1:3
-            switch mod(i_column,3)
-                case 1 % white
-                    Colour_here = masker_colours{1};
-                case 2 % bump
-                    Colour_here = masker_colours{2};
-                case 0 % MPS
-                    Colour_here = masker_colours{3};
-            end
-            Dev_matrix_here = Dev_matrix(:,:,i_column);
-            Dev_diag(:,i_column) = diag(Dev_matrix_here);
-            Dev_matrix_nodiag = Dev_matrix_here-repmat(Dev_diag(:,i_column)',N_subjects,1); % matrix with no diagonal
-            
+        Dev_matrix_here = Dev_matrix(:,:,i_column);
+        Dev_matrix_plus = Dev_matrix_plus_SEM(:,:,i_column);
+        % Dev_matrix_min  = Dev_matrix_min_SEM(:,:,i_column);
+        % Dev_diag(:,i_column) = diag(Dev_matrix_here);
+        Dev_diag(:,i_column) = diag(Dev_matrix_plus);
+        Dev_matrix_nodiag = Dev_matrix_here-repmat(Dev_diag(:,i_column)',N_subjects,1); % matrix with no diagonal
+
+        if flags.do_fig3_suppl
             il_nexttile(i_column)
-            imagesc(1:N_subjects,1:N_subjects,Dev_matrix(:,:,i_column)); hold on
-            caxis([-10 0])
+            % imagesc(1:N_subjects,1:N_subjects,Dev_matrix(:,:,i_column)); hold on
+            imagesc(1:N_subjects,1:N_subjects,Dev_matrix_plus); hold on
+            % caxis([-10 0])
             colormap('gray')
             set(gca,'XTick',XT);
             set(gca,'YTick',XT);
+            if i_column ~= 1
+                set(gca,'YTickLabel',[]);
+            end
+            if i_column == 3
+                c = colorbar;
+            end
+            %%% Plotting significant (or non-significant)
             for ii = 1:N_subjects
-                
                 offxy = 0.5;
                 offxy = offxy*.9;
-                il_plot_square(ii,ii,Colour_here,offxy);
-                % % Plots a box:
-                % plot([ii-offxy ii+offxy],(ii-offxy)*[1 1],'Color',Colour_here); % bottom side
-                % plot((ii-offxy)*[1 1],[ii-offxy ii+offxy],'Color',Colour_here); % left side
-                % plot((ii+offxy)*[1 1],[ii-offxy ii+offxy],'Color',Colour_here); % right side
-                % plot([ii-offxy ii+offxy],(ii+offxy)*[1 1],'Color',Colour_here); % top side
-                if Dev_diag(ii,i_column) ~= 0
-                    idx = find(Dev_matrix_nodiag(:,ii)<0);
+                if Dev_diag(ii,i_column) < 0
+                    % idx = find(Dev_matrix_nodiag(:,ii)<0); % criterion based on the diagonal
+                    idx = find(Dev_matrix_plus(:,ii)<0); % criterion based on Dev + 1.64 SEM < 0
                     if ~isempty(idx)
                         for jj = 1:length(idx)
                             il_plot_square(ii,idx(jj),'m',offxy,'--'); % Magenta colour
+                            if ii ~= jj % only counting cross predictions
+                                idx_sig(i_column) = idx_sig(i_column)+1;
+                            end
                         end
                     end
+                else
+                    %%% Add arrow:
+                    Y_start = 2;
+                    [xaf,yaf] = ds2nfu(ii*[1 1],[Y_start Y_start-1]); % Convert to normalized figure units
+                    annotation('arrow',xaf,yaf,'color','r');
+                    %%%
                 end
+                il_plot_square(ii,ii,Colour_here,offxy); % square of the diagonal
             end
-            
-            PC_matrix_here = PC_matrix(:,:,i_column);
-            PC_diag(:,i_column) = diag(PC_matrix_here);
-            PC_matrix_nodiag = PC_matrix_here-repmat(PC_diag(:,i_column)',N_subjects,1); % matrix with no diagonal
-            
-            il_nexttile(i_column+3)
+            %%%
+        end
+        PC_matrix_here = PC_matrix(:,:,i_column);
+        PC_diag(:,i_column) = diag(PC_matrix_here);
+        PC_matrix_nodiag = PC_matrix_here-repmat(PC_diag(:,i_column)',N_subjects,1); % matrix with no diagonal
+
+        [Me_diag(i_column),Me_nodiag(i_column), opts] = il_avg_diag_nodiag(PC_matrix_here);
+        
+        if flags.do_fig8
+            il_nexttile(i_column)
             imagesc(1:N_subjects,1:N_subjects,PC_matrix_here); hold on
             colormap('gray')
             caxis([0 10])
             set(gca,'XTick',XT);
             set(gca,'YTick',XT);
+            if i_column ~= 1
+                set(gca,'YTickLabel',[]);
+            end
+            if i_column == 3
+                c = colorbar;
+            end
             for ii = 1:N_subjects
-                % Plots a box:
-                il_plot_square(ii,ii,Colour_here,offxy);
-                
-                if PC_diag(ii,i_column) > 0
-                    idx = find(PC_matrix_nodiag(:,ii)>0);
+                offxy = 0.5;
+                offxy = offxy*.9;
+                if Dev_diag(ii,i_column) < 0 % significance using 'Dev'
+                    % idx = find(PC_matrix_nodiag(:,ii)>0); % Criterion using PA
+                    idx = find(Dev_matrix_plus(:,ii)<0);
                     if ~isempty(idx)
                         for jj = 1:length(idx)
                             il_plot_square(ii,idx(jj),'m',offxy,'--'); % Magenta colour
+                            if ii ~= jj % only counting cross predictions
+                                idx_sig(i_column) = idx_sig(i_column)+1;
+                            end
                         end
                     end
+                else
+                    %%% Add arrow:
+                    Y_start = 2;
+                    [xaf,yaf] = ds2nfu(ii*[1 1],[Y_start Y_start-1]); % Convert to normalized figure units
+                    annotation('arrow',xaf,yaf,'color','r');
+                    %%%
                 end
+                % Plots a box:
+                il_plot_square(ii,ii,Colour_here,offxy);
             end
         end
-        fprintf('Delta PAexp values ranged between %.1f and %.1f\n', ...
-            min(min(min(PC_matrix))),max(max(max(PC_matrix))));
-        
-        FS_here = 10;
-        
-        il_nexttile(1);
-        set(gca,'XTickLabel',[]);
-        ylabel('Data from');
-        set(gca,'YTickLabel',YTL);
-        opts_txt = {'Units','Normalized','FontWeight','bold','FontSize',14};
-        text(0,1.05,'A.',opts_txt{:});
-        set(gca,'FontSize',FS_here);
-        
-        il_nexttile(2);
-        set(gca,'XTickLabel',[]);
-        set(gca,'YTickLabel',[]);
-        text(0,1.05,'B.',opts_txt{:});
-        set(gca,'FontSize',FS_here);
-        
-        il_nexttile(3);
-        text(0,1.05,'C.',opts_txt{:});
-        c = colorbar;
-        c.Label.String = 'Deviance / trial benefit (adim)';
-        set(gca,'XTickLabel',[]);
-        set(gca,'YTickLabel',[]);
-        set(c,'Limits',[-10.5 0])
-        set(gca,'FontSize',FS_here);
-        
-        nexttile(4);
-        ylabel('Data from');
-        set(gca,'YTickLabel',YTL);
-        set(gca,'XTickLabel',XTL);
-        set(gca,'FontSize',FS_here);
-        
-        il_nexttile(5);
-        set(gca,'YTickLabel',[]);
-        set(gca,'XTickLabel',XTL);
-        set(gca,'FontSize',FS_here);
-        
-        il_nexttile(6);
-        c = colorbar;
-        c.Label.String = 'Percentage accuracy benefit (%)';
-        set(c,'Limits',[0 10.5])
-        
-        set(gca,'YTickLabel',[]);
-        set(gca,'XTickLabel',XTL);
-        set(gca,'FontSize',FS_here);
-        
-        for i_masker = 1:N_maskers
-            nexttile(i_masker);
-            ht = title(noise_types_label{i_masker});
-            set(ht,'FontSize',FS_here);
-            
-            nexttile(i_masker+3);
-            xlabel('ACI from');
-        end
-        h(end+1) = gcf;
-        hname{end+1} = 'fig8a-crosspred_participant';
-        
-        %%%
-        PC_rem = [];
-        for idx_noise = 1:3
-            PC_rem{idx_noise} = PC_matrix(:,:,idx_noise)-repmat(diag(PC_matrix(:,:,idx_noise))',N_subjects,1);
-            idx = find(PC_rem{idx_noise}>0); 
-            length(idx)
-        end
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %% Replicating the figure, but showing averages of cross predictions (between subjects)
-        figure('Position',[100 100 700*2-200 550]);
-        il_tiledlayout(2,2,'TileSpacing','tight');
-
-        XL = [0.5 3.5]; 
-
-        il_nexttile(1);
-        plot(XL,0*[1 1],'k--'); hold on; grid on
-
-        il_nexttile(2);
-        plot(XL,0*[1 1],'k--'); hold on; grid on
-
-        il_nexttile(3);
-        plot(XL,0*[1 1],'k--'); hold on; grid on
-
-        il_nexttile(4);
-        plot(XL,0*[1 1],'k--'); hold on; grid on
-
-        for i_masker = 1:N_maskers
-            for i_subject = 1:N_subjects
-
-                if i_subject == 9 || i_subject == 10
-                    disp('')
-                end
-                offx = 0.05*(i_subject - ((N_subjects+2)/2-.5)); %  0.05*i_subject;
-
-                idx_here = 1:N_subjects;
-                idx_here(i_subject) = []; % removing the diagonal
-                y2plot  = nan([N_subjects 1]); 
-                y2plot2 = PC_rem{i_masker}(idx_here,i_subject);
-
-                MCol = 'w';
-                il_nexttile(1);
-                Me = nan; % y2plot;
-                % EB = 1.64*sem(y2plot);
-                % MCol = 'w';
-                % Me_SEM = [Me+EB Me-EB];
-                plot(i_masker+offx, Me, 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on
-
-                il_nexttile(3);
-                Me = median(y2plot2);
-                % EB = 1.64*sem(y2plot2);
-                errU = max(y2plot2)-Me;
-                errL = Me-min(y2plot2);
-                % MCol = 'w';
-                % Me_SEM = [Me+EB Me-EB];
-                errorbar(i_masker+offx, Me, errL, errU, 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on
-
-                %%% Incorrect trials:
-                y2plot  = nan([N_subjects 1]); 
-                y2plot2 = nan([N_subjects 1]); 
-
-                il_nexttile(2);
-                Me = mean(y2plot);
-                % EB = 1.64*sem(y2plot);
-                % MCol = 'w';
-                % Me_SEM = [Me+EB Me-EB];
-                plot(i_masker+offx, Me, 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on
-
-                il_nexttile(4);
-                Me = mean(y2plot2);
-                % EB = 1.64*sem(y2plot2);
-                % MCol = 'w';
-                % Me_SEM = [Me+EB Me-EB];
-                plot(i_masker+offx,Me, 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on            
-            end
-
-            % y2plot  = G_OptDEV(:,i_masker);
-            % % subplot(2,1,1)
-            % il_nexttile(1);
-            % offx = 0.05*(N_subjects+2 - (N_subjects+2)/2);
-            % errorbar(i_masker+offx, mean(y2plot) , 1.64*sem(y2plot) , 'o', 'Color', masker_colours{i_masker},'LineWidth',2,'MarkerFaceColor',masker_colours{i_masker}); hold on
-            % 
-            % y2plot  = 100*G_OptPA(:,i_masker);
-            % % subplot(2,1,2)
-            % il_nexttile(3);
-            % offx = 0.05*(N_subjects+2 - (N_subjects+2)/2);
-            % errorbar(i_masker+offx, mean(y2plot) , 1.64*sem(y2plot) , 'o', 'Color', masker_colours{i_masker},'LineWidth',2,'MarkerFaceColor',masker_colours{i_masker}); hold on
-            % 
-            % %%% Incorrect:
-            % y2plot  = nan([N_subjects 1]); 
-            % il_nexttile(2);
-            % offx = 0.05*(N_subjects+2 - (N_subjects+2)/2);
-            % errorbar(i_masker+offx, mean(y2plot) , 1.64*sem(y2plot) , 'o', 'Color', masker_colours{i_masker},'LineWidth',2,'MarkerFaceColor',masker_colours{i_masker}); hold on
-            % 
-            % y2plot  = nan([N_subjects 1]); 
-            % il_nexttile(4);
-            % offx = 0.05*(N_subjects+2 - (N_subjects+2)/2);
-            % errorbar(i_masker+offx, mean(y2plot) , 1.64*sem(y2plot) , 'o', 'Color', masker_colours{i_masker},'LineWidth',2,'MarkerFaceColor',masker_colours{i_masker}); hold on
-        end
-
-        XLabel = 'Masker';
-        % subplot(2,1,1)
-        il_nexttile(1);
-        title('All trials')
-        grid on
-        xlim(XL);
-        % xlabel(XLabel); 
-        set(gca, 'XTick', 1:N_maskers); 
-        set(gca, 'XTickLabels', []); 
-        ylabel('Deviance / trial benefit (adim)')
-        xcoor = 0.01;
-        ycoor = 0.94;
-        txt_opts = {'Units','Normalized','FontWeight','Bold','FontSize',14};
-        text(xcoor,ycoor,'NaN',txt_opts{:});
-        set(gca,'FontSize',FS_here);
-        
-        il_nexttile(2);
-        title('Incorrect trials only')
-        grid on
-        xlim(XL);
-        set(gca, 'XTick', 1:N_maskers); 
-        set(gca, 'XTickLabels', []); 
-        set(gca, 'YTickLabels',[]);
-        text(xcoor,ycoor,'NaN',txt_opts{:});
-        set(gca,'FontSize',FS_here);
-
-        il_nexttile(3);
-        grid on
-        xlim(XL)
-        % ylim([-1 6])
-        xlabel(XLabel); 
-        set(gca, 'XTick', 1:N_maskers); 
-        set(gca, 'XTickLabels', noise_types_label); 
-        ylabel('Percent accuracy benefit (%)')
-        text(xcoor,ycoor,'D',txt_opts{:});
-        set(gca,'FontSize',FS_here);
-        
-        il_nexttile(4);
-
-        xlim(XL)
-        % ylim([-1 6])
-        xlabel(XLabel); 
-        set(gca, 'XTick', 1:N_maskers); 
-        set(gca, 'XTickLabels', noise_types_label); 
-        set(gca, 'YTickLabels',[]);
-        % ylabel('Percent accuracy benefit (%)')
-        text(xcoor,ycoor,'NaN',txt_opts{:});
-        set(gca,'FontSize',FS_here);
-        
-        h(end+1) = gcf;
-        hname{end+1} = ['fig8b-metrics-benefit-cross'];        
-        % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % figure('Position',[100 100 800 600]);
-        % il_tiledlayout(1,3,'TileSpacing','tight'); % 'tight');
-    else
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % figure;
-        figure('Position',[100 100 1000 420]); % 560 420]);
-        il_tiledlayout(1,2,'TileSpacing','compact'); % 'tight');
-        
-        il_nexttile(1);
-        x_var = 1:size(Dev_pool,2);
-        y_var = 1:size(Dev_pool,1);
-        imagesc(x_var,y_var,Dev_pool); hold on
-    	colormap('gray')
-        caxis([-10 0])
-         
-        c = colorbar;
-        c.Label.String = 'Deviance / trial benefit (adim)';
-        
-        for ii = 1:4
-            text((ii-1)*3+.7,0.7,Subjects{ii},'FontSize',10,'Color','b');
-        end
-        for ii = 5:8
-            text(mod((ii-1),4)*3+.7,4-.3,Subjects{ii},'FontSize',10,'Color','b');
-        end
-        for ii = 9:12
-            text(mod((ii-1),4)*3+.7,7-.3,Subjects{ii},'FontSize',10,'Color','b');
-        end
-        %%% Drawing a separator between participants:
-        plot(3.5*[1 1],[0 9.5],'Color','b');
-        plot(3.5*[1 1],[0 9.5],'Color','b');
-        
-        plot(6.5*[1 1],[0 9.5],'Color','b');
-        plot(6.5*[1 1],[0 9.5],'Color','b');
-        
-        plot(9.5*[1 1],[0 9.5],'Color','b');
-        plot(9.5*[1 1],[0 9.5],'Color','b');
-        
-        plot([0 12.5],3.5*[1 1],'Color','b');
-        plot([0 12.5],6.5*[1 1],'Color','b');
-        plot([0 12.5],9.5*[1 1],'Color','b');
-        set(gca,'FontSize',10);
-        %%%
-        
-        disp('')
-        set(gca,'XTick',x_var)
-        set(gca,'YTick',y_var)
-        
-        XTL = repmat({'W','BP','MPS'},1,4);
-        YTL = repmat({'W','BP','MPS'},1,3);
-        set(gca,'XTickLabel',XTL);
-        set(gca,'YTickLabel',YTL);
-        
-        xlabel('ACI from condition');
-        ylabel('Data from condition');
-        
-        text(0,1.05,'D.','Units','Normalized','FontSize',14,'FontWeight','Bold');
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        % figure;
-        il_nexttile(2);
-        x_var = 1:size(PC_pool,2);
-        y_var = 1:size(PC_pool,1);
-        imagesc(x_var,y_var,PC_pool); hold on;
-    	colormap('gray')
-        caxis([0 10])
-        
-        %%% Drawing a separator between participants:
-        plot(3.5*[1 1],[0 9.5],'Color','b');
-        plot(3.5*[1 1],[0 9.5],'Color','b');
-        
-        plot(6.5*[1 1],[0 9.5],'Color','b');
-        plot(6.5*[1 1],[0 9.5],'Color','b');
-        
-        plot(9.5*[1 1],[0 9.5],'Color','b');
-        plot(9.5*[1 1],[0 9.5],'Color','b');
-        
-        plot([0 12.5],3.5*[1 1],'Color','b');
-        plot([0 12.5],6.5*[1 1],'Color','b');
-        plot([0 12.5],9.5*[1 1],'Color','b');
-        set(gca,'FontSize',10);
-        %%%
-        
-        PC_pool_diag_removed = transpose(PC_pool_diag_removed);
-        offxy = 0.5;
-        offxy = offxy*.9;
-        for jj = 1:size(PC_pool_diag_removed,1)
-            idx_here = find(PC_pool_diag_removed(jj,:)>0);
-            for ii = 1:length(idx_here)
-                il_plot_square(jj,idx_here(ii),'m',offxy,'--');
-            end
-        end
-        
-        c = colorbar;
-        c.Label.String = 'Percentage accuracy benefit (%)';
-        
-        for ii = 1:4
-            text((ii-1)*3+.7,0.7,Subjects{ii},'FontSize',10,'Color','b');
-        end
-        for ii = 5:8
-            text(mod((ii-1),4)*3+.7,4-.3,Subjects{ii},'FontSize',10,'Color','b');
-        end
-        for ii = 9:12
-            text(mod((ii-1),4)*3+.7,7-.3,Subjects{ii},'FontSize',10,'Color','b');
-        end
-        
-        disp('')
-        set(gca,'XTick',x_var)
-        set(gca,'YTick',y_var)
-        
-        XTL = repmat({'W','BP','MPS'},1,4);
-        YTL = repmat({'W','BP','MPS'},1,3);
-        set(gca,'XTickLabel',XTL);
-        set(gca,'YTickLabel',YTL);
-        
-        xlabel('ACI from condition');
-        ylabel('Data from condition');
-        
-        text(0,1.05,'A.','Units','Normalized','FontSize',14,'FontWeight','Bold');
-        
-        h(end+1) = gcf;
-        hname{end+1} = 'fig9a-crosspred_masker';
-        
-        % c.Label.String = 'Deviance / trial benefit (adim)';
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % figure;
-        figure('Position',[100 100 560 250]); % 560 420]);
-        % il_tiledlayout(1,2,'TileSpacing','compact'); % 'tight');
-        
-        PC_all = (PC_pool(1:3,:)+PC_pool(4:6,:)+PC_pool(7:9,:))/3;
-        PC_all = (PC_all(:,1:3)+PC_all(:,4:6)+PC_all(:,7:9)+PC_all(:,10:12))/4;
-        
-        x_var = 1:size(PC_all,2);
-        y_var = 1:size(PC_all,1);
-        imagesc(x_var,y_var,PC_all); hold on
-        colormap('gray')
-        caxis([0 10])
-        set(gca,'FontSize',10);
-        
-        c = colorbar;
-        c.Label.String = 'Percentage accuracy benefit (%)';
-         
-        for ii = 1:3
-            for jj = 1:3
-                text(ii-0.1,jj,sprintf('%.1f',PC_all(ii,jj)),'FontSize',10,'Color','b');
-            end
-        end
-        % for ii = 5:8
-        %     text(mod((ii-1),4)*3+.7,4-.3,Subjects{ii},'FontSize',10,'Color','b');
-        % end
-        % for ii = 9:12
-        %     text(mod((ii-1),4)*3+.7,7-.3,Subjects{ii},'FontSize',10,'Color','b');
-        % end
-        % %%% Drawing a separator between participants:
-        % plot(3.5*[1 1],[0 9.5],'Color','b');
-        % plot(3.5*[1 1],[0 9.5],'Color','b');
-        % 
-        % plot(6.5*[1 1],[0 9.5],'Color','b');
-        % plot(6.5*[1 1],[0 9.5],'Color','b');
-        % 
-        % plot(9.5*[1 1],[0 9.5],'Color','b');
-        % plot(9.5*[1 1],[0 9.5],'Color','b');
-        % 
-        % plot([0 12.5],3.5*[1 1],'Color','b');
-        % plot([0 12.5],6.5*[1 1],'Color','b');
-        % plot([0 12.5],9.5*[1 1],'Color','b');
-        % %%%
-        set(gca,'XTick',x_var)
-        set(gca,'YTick',y_var)
-         
-        XTL = repmat({'W','BP','MPS'},1,4);
-        YTL = repmat({'W','BP','MPS'},1,3);
-        set(gca,'XTickLabel',XTL);
-        set(gca,'YTickLabel',YTL);
-        
-        xlabel('ACI from condition');
-        ylabel('Data from condition');
-         
-        text(0,1.05,'B.','Units','Normalized','FontSize',14,'FontWeight','Bold');
-        % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        xlabel('ACI from condition');
-        ylabel('Data from condition');
-         
-        % text(0,1.05,'A.','Units','Normalized','FontSize',14,'FontWeight','Bold');
-
-        h(end+1) = gcf;
-        hname{end+1} = 'fig9b-crosspred_masker';
-        
     end
- 
-    % hcrossPC = figure; hcrossDev = figure;
-    % for i = 1:N_maskers%length(results{1}.crosspred)
-    %     for k = 1:N_subjects
-    %         %plot cross PC
-    %         xvar = results{k}.crosspred(i).lambdas;
-    %         PC_test = results{k}.crosspred(i).PC_test;
-    %         Dev_test = results{k}.crosspred(i).Dev_test;
-    %         figure(hcrossPC)
-    %         yvar = mean(PC_test-PC_test(end,:),2); % avoiding to write down 'results{1}.crosspred.PC_test' twice
-    %         evar = std(PC_test-PC_test(end,:),[],2);%/size(PC_test,2);%SEM
-    %         subplot(1,N_subjects,k);
-    %         errorbar(xvar,yvar,evar,'-','Color',Colour{i}); hold on;
-    %         set(gca,'XScale','log');
-    %         title([cfg_ACI{k}.Condition ', subject ' Subjects{k}]);
-    %         ylabel(['(cross)prediction percent accuracy benefit ' name_crosspred]);
-    %         xlabel('\lambda');
-    %         ylim([0 0.1])
-    %         %plot cross Dev
-    %         figure(hcrossDev)
-    %         yvar = mean(Dev_test-Dev_test(end,:),2); % avoiding to write down 'results{1}.crosspred.PC_test' twice
-    %         evar = std(Dev_test-Dev_test(end,:),[],2);%/size(PC_test,2);%SEM
-    %         subplot(1,N_subjects,k);
-    %         errorbar(xvar,yvar,evar,'-','Color',Colour{i}); hold on;
-    %         set(gca,'XScale','log');
-    %         title([cfg_ACI{k}.Condition ', subject ' Subjects{k}]);
-    %         ylabel(['(cross)prediction deviance benefit ' name_crosspred]);
-    %         xlabel('\lambda');
-    %     end
-    %     legend(Masker_crosspred,'interpreter','none');
-    %     
-    %     
-    % end
+    fprintf('Delta PAexp values ranged between %.1f and %.1f\n', ...
+        min(min(min(PC_matrix))),max(max(max(PC_matrix))));
+    fprintf('ACIs leading to significant predictions using the CVD criterion: %.1f, %.1f, %.1f (white, bump, MPS)\n', ...
+        idx_sig);
+    FS_here = 10;
+
+    nexttile(1);
+    ylabel('Data from');
+    set(gca,'YTickLabel',YTL);
+    set(gca,'XTickLabel',XTL);
+    set(gca,'FontSize',FS_here);
+    opts_txt = {'Units','Normalized','FontWeight','bold','FontSize',14};
+    text(0,1.05,'A.',opts_txt{:});
+    set(gca,'FontSize',FS_here);
+
+    il_nexttile(2);
+    set(gca,'YTickLabel',[]);
+    set(gca,'XTickLabel',XTL);
+    set(gca,'FontSize',FS_here);
+    text(0,1.05,'B.',opts_txt{:});
+    set(gca,'FontSize',FS_here);
+
+    il_nexttile(3);
+    text(0,1.05,'C.',opts_txt{:});
+    set(gca,'XTickLabel',[]);
+    set(gca,'YTickLabel',[]);
+    if flags.do_fig8
+        % c.Label.String = 'Percentage accuracy benefit (%)';
+        set(c,'Limits',[0 10.5]);
+        fig_name = 'fig8a-crosspred_participant';
+    end
+    if flags.do_fig3_suppl
+        % c.Label.String = 'Deviance / trial benefit (adim)';
+        % Lc = get(c,'Limits');
+        % set(c,'Limits',[Lc(1) 0])
+        fig_name = 'suppl-fig3a-crosspred_participant';
+    end
+    set(gca,'FontSize',FS_here);
+
+    set(gca,'YTickLabel',[]);
+    set(gca,'XTickLabel',XTL);
+    set(gca,'FontSize',FS_here);
+
+    for i_masker = 1:N_maskers
+        nexttile(i_masker);
+        ht = title(noise_types_label{i_masker});
+        set(ht,'FontSize',FS_here);
+        xlabel('ACI from');
+    end
+    h(end+1) = gcf;
+    hname{end+1} = fig_name;
+
+    %%%
+    if flags.do_fig8b_old
+        error('Uncomment below, removed on 27/09/2022')
+        % PC_rem = [];
+        % for idx_noise = 1:3
+        %     PC_rem{idx_noise} = PC_matrix(:,:,idx_noise)-repmat(diag(PC_matrix(:,:,idx_noise))',N_subjects,1);
+        %     idx = find(PC_rem{idx_noise}>0); 
+        %     length(idx)
+        % end
+        % 
+        % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % %% Replicating the figure, but showing averages of cross predictions (between subjects)
+        % figure('Position',[100 100 700*2-200 550]);
+        % il_tiledlayout(2,2,'TileSpacing','tight');
+        % 
+        % XL = [0.5 3.5]; 
+        % 
+        % il_nexttile(1);
+        % plot(XL,0*[1 1],'k--'); hold on; grid on
+        % 
+        % il_nexttile(2);
+        % plot(XL,0*[1 1],'k--'); hold on; grid on
+        % 
+        % il_nexttile(3);
+        % plot(XL,0*[1 1],'k--'); hold on; grid on
+        % 
+        % il_nexttile(4);
+        % plot(XL,0*[1 1],'k--'); hold on; grid on
+        % 
+        % for i_masker = 1:N_maskers
+        %     for i_subject = 1:N_subjects
+        % 
+        %         if i_subject == 9 || i_subject == 10
+        %             disp('')
+        %         end
+        %         offx = 0.05*(i_subject - ((N_subjects+2)/2-.5)); %  0.05*i_subject;
+        % 
+        %         idx_here = 1:N_subjects;
+        %         idx_here(i_subject) = []; % removing the diagonal
+        %         y2plot  = nan([N_subjects 1]); 
+        %         y2plot2 = PC_rem{i_masker}(idx_here,i_subject);
+        % 
+        %         MCol = 'w';
+        %         il_nexttile(1);
+        %         Me = nan; % y2plot;
+        %         % EB = 1.64*sem(y2plot);
+        %         % MCol = 'w';
+        %         % Me_SEM = [Me+EB Me-EB];
+        %         plot(i_masker+offx, Me, 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on
+        % 
+        %         il_nexttile(3);
+        %         Me = median(y2plot2);
+        %         % EB = 1.64*sem(y2plot2);
+        %         errU = max(y2plot2)-Me;
+        %         errL = Me-min(y2plot2);
+        %         % MCol = 'w';
+        %         % Me_SEM = [Me+EB Me-EB];
+        %         errorbar(i_masker+offx, Me, errL, errU, 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on
+        % 
+        %         %%% Incorrect trials:
+        %         y2plot  = nan([N_subjects 1]); 
+        %         y2plot2 = nan([N_subjects 1]); 
+        % 
+        %         il_nexttile(2);
+        %         Me = mean(y2plot);
+        %         % EB = 1.64*sem(y2plot);
+        %         % MCol = 'w';
+        %         % Me_SEM = [Me+EB Me-EB];
+        %         plot(i_masker+offx, Me, 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on
+        % 
+        %         il_nexttile(4);
+        %         Me = mean(y2plot2);
+        %         % EB = 1.64*sem(y2plot2);
+        %         % MCol = 'w';
+        %         % Me_SEM = [Me+EB Me-EB];
+        %         plot(i_masker+offx,Me, 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on            
+        %     end
+        % end
+        % 
+        % XLabel = 'Masker';
+        % % subplot(2,1,1)
+        % il_nexttile(1);
+        % title('All trials')
+        % grid on
+        % xlim(XL);
+        % % xlabel(XLabel); 
+        % set(gca, 'XTick', 1:N_maskers); 
+        % set(gca, 'XTickLabels', []); 
+        % ylabel('Deviance / trial benefit (adim)')
+        % xcoor = 0.01;
+        % ycoor = 0.94;
+        % txt_opts = {'Units','Normalized','FontWeight','Bold','FontSize',14};
+        % text(xcoor,ycoor,'NaN',txt_opts{:});
+        % set(gca,'FontSize',FS_here);
+        % 
+        % il_nexttile(2);
+        % title('Incorrect trials only')
+        % grid on
+        % xlim(XL);
+        % set(gca, 'XTick', 1:N_maskers); 
+        % set(gca, 'XTickLabels', []); 
+        % set(gca, 'YTickLabels',[]);
+        % text(xcoor,ycoor,'NaN',txt_opts{:});
+        % set(gca,'FontSize',FS_here);
+        % 
+        % il_nexttile(3);
+        % grid on
+        % xlim(XL)
+        % % ylim([-1 6])
+        % xlabel(XLabel); 
+        % set(gca, 'XTick', 1:N_maskers); 
+        % set(gca, 'XTickLabels', noise_types_label); 
+        % ylabel('Percent accuracy benefit (%)')
+        % text(xcoor,ycoor,'D',txt_opts{:});
+        % set(gca,'FontSize',FS_here);
+        % 
+        % il_nexttile(4);
+        % 
+        % xlim(XL)
+        % % ylim([-1 6])
+        % xlabel(XLabel); 
+        % set(gca, 'XTick', 1:N_maskers); 
+        % set(gca, 'XTickLabels', noise_types_label); 
+        % set(gca, 'YTickLabels',[]);
+        % % ylabel('Percent accuracy benefit (%)')
+        % text(xcoor,ycoor,'NaN',txt_opts{:});
+        % set(gca,'FontSize',FS_here);
+        % 
+        % h(end+1) = gcf;
+        % hname{end+1} = ['fig8b-metrics-benefit-cross'];
+    end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if flags.do_fig9
+    for j = 1:N_subjects
+        for k = 1:N_maskers
+            for i = 1:N_maskers 
+                idxlambda = results{j,i}.idxlambda;
+
+                PC_test  = results{j,i}.crosspred(k).PC_test;
+                yvar = PC_test(idxlambda,:)-PC_test(end,:);
+                PC_matrix(j,k,i) = 100*mean(yvar); % mean converted to a percentage
+
+                Dev_test = results{j,i}.crosspred(k).Dev_test; 
+                yvar = Dev_test(idxlambda,:)-Dev_test(end,:);
+                Dev_matrix(j,k,i) = mean(yvar); % mean 
+                Dev_matrix_plus_SEM(j,k,i) = mean(yvar)+1.64*sem(yvar);
+                Dev_matrix_min_SEM(j,k,i)  = mean(yvar)-1.64*sem(yvar);
+            end
+        end
+    end
+        
+    % Build the exact matrix to plot
+    for j = 1:N_subjects
+        for k = 1:N_maskers
+            PC_pool_here{j}(k,:) = transpose(squeeze(PC_matrix(j,k,:)));
+            Dev_pool_here{j}(k,:) = transpose(squeeze(Dev_matrix(j,k,:)));
+        end
+    end
+    PC= [];
+    PC_rem_tmp = [];
+    Dev = [];
+    for j = 1:4
+        PC = [PC PC_pool_here{j}];
+        PC_rem_tmp = [PC_rem_tmp PC_pool_here{j}-repmat(diag(PC_pool_here{j})',3,1)];
+        Dev = [Dev Dev_pool_here{j}];
+    end
+    PC_pool = PC;
+    PC_pool_diag_removed = PC_rem_tmp;
+    Dev_pool = Dev;
+
+    PC= [];
+    PC_rem_tmp = [];
+    Dev = [];
+    for j = 5:8
+        PC = [PC PC_pool_here{j}];
+        PC_rem_tmp = [PC_rem_tmp PC_pool_here{j}-repmat(diag(PC_pool_here{j})',3,1)];
+        Dev = [Dev Dev_pool_here{j}];
+    end
+    PC_pool  = [PC_pool; PC];
+    PC_pool_diag_removed = [PC_pool_diag_removed; PC_rem_tmp];
+    Dev_pool = [Dev_pool; Dev];
+
+    PC= [];
+    PC_rem_tmp = [];
+    Dev = [];
+    for j = 9:12
+        PC = [PC PC_pool_here{j}];
+        PC_rem_tmp = [PC_rem_tmp PC_pool_here{j}-repmat(diag(PC_pool_here{j})',3,1)];
+        Dev = [Dev Dev_pool_here{j}];
+    end
+    PC_pool = [PC_pool; PC];
+    PC_pool_diag_removed = [PC_pool_diag_removed; PC_rem_tmp];
+    Dev_pool = [Dev_pool; Dev];
+    
+    % figure;
+    figure('Position',[100 100 1000 420]); % 560 420]);
+    il_tiledlayout(1,2,'TileSpacing','compact'); % 'tight');
+
+    il_nexttile(1);
+    x_var = 1:size(Dev_pool,2);
+    y_var = 1:size(Dev_pool,1);
+    imagesc(x_var,y_var,Dev_pool); hold on
+    colormap('gray')
+    caxis([-10 0])
+
+    c = colorbar;
+    c.Label.String = 'Deviance / trial benefit (adim)';
+
+    for ii = 1:4
+        text((ii-1)*3+.7,0.7,Subjects{ii},'FontSize',10,'Color','b');
+    end
+    for ii = 5:8
+        text(mod((ii-1),4)*3+.7,4-.3,Subjects{ii},'FontSize',10,'Color','b');
+    end
+    for ii = 9:12
+        text(mod((ii-1),4)*3+.7,7-.3,Subjects{ii},'FontSize',10,'Color','b');
+    end
+    %%% Drawing a separator between participants:
+    plot(3.5*[1 1],[0 9.5],'Color','b');
+    plot(3.5*[1 1],[0 9.5],'Color','b');
+
+    plot(6.5*[1 1],[0 9.5],'Color','b');
+    plot(6.5*[1 1],[0 9.5],'Color','b');
+
+    plot(9.5*[1 1],[0 9.5],'Color','b');
+    plot(9.5*[1 1],[0 9.5],'Color','b');
+
+    plot([0 12.5],3.5*[1 1],'Color','b');
+    plot([0 12.5],6.5*[1 1],'Color','b');
+    plot([0 12.5],9.5*[1 1],'Color','b');
+    set(gca,'FontSize',10);
+    %%%
+
+    disp('')
+    set(gca,'XTick',x_var)
+    set(gca,'YTick',y_var)
+
+    XTL = repmat({'W','BP','MPS'},1,4);
+    YTL = repmat({'W','BP','MPS'},1,3);
+    set(gca,'XTickLabel',XTL);
+    set(gca,'YTickLabel',YTL);
+
+    xlabel('ACI from condition');
+    ylabel('Data from condition');
+
+    text(0,1.05,'D.','Units','Normalized','FontSize',14,'FontWeight','Bold');
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    % figure;
+    il_nexttile(2);
+    x_var = 1:size(PC_pool,2);
+    y_var = 1:size(PC_pool,1);
+    imagesc(x_var,y_var,PC_pool); hold on;
+    colormap('gray')
+    caxis([0 10])
+
+    %%% Drawing a separator between participants:
+    plot(3.5*[1 1],[0 9.5],'Color','b');
+    plot(3.5*[1 1],[0 9.5],'Color','b');
+
+    plot(6.5*[1 1],[0 9.5],'Color','b');
+    plot(6.5*[1 1],[0 9.5],'Color','b');
+
+    plot(9.5*[1 1],[0 9.5],'Color','b');
+    plot(9.5*[1 1],[0 9.5],'Color','b');
+
+    plot([0 12.5],3.5*[1 1],'Color','b');
+    plot([0 12.5],6.5*[1 1],'Color','b');
+    plot([0 12.5],9.5*[1 1],'Color','b');
+    set(gca,'FontSize',10);
+    %%%
+
+    PC_pool_diag_removed = transpose(PC_pool_diag_removed);
+    offxy = 0.5;
+    offxy = offxy*.9;
+    for jj = 1:size(PC_pool_diag_removed,1)
+        idx_here = find(PC_pool_diag_removed(jj,:)>0);
+        for ii = 1:length(idx_here)
+            il_plot_square(jj,idx_here(ii),'m',offxy,'--');
+        end
+    end
+
+    c = colorbar;
+    c.Label.String = 'Percentage accuracy benefit (%)';
+
+    for ii = 1:4
+        text((ii-1)*3+.7,0.7,Subjects{ii},'FontSize',10,'Color','b');
+    end
+    for ii = 5:8
+        text(mod((ii-1),4)*3+.7,4-.3,Subjects{ii},'FontSize',10,'Color','b');
+    end
+    for ii = 9:12
+        text(mod((ii-1),4)*3+.7,7-.3,Subjects{ii},'FontSize',10,'Color','b');
+    end
+
+    disp('')
+    set(gca,'XTick',x_var)
+    set(gca,'YTick',y_var)
+
+    XTL = repmat({'W','BP','MPS'},1,4);
+    YTL = repmat({'W','BP','MPS'},1,3);
+    set(gca,'XTickLabel',XTL);
+    set(gca,'YTickLabel',YTL);
+
+    xlabel('ACI from condition');
+    ylabel('Data from condition');
+
+    text(0,1.05,'A.','Units','Normalized','FontSize',14,'FontWeight','Bold');
+
+    h(end+1) = gcf;
+    hname{end+1} = 'fig9a-crosspred_masker';
+
+    % c.Label.String = 'Deviance / trial benefit (adim)';
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % figure;
+    figure('Position',[100 100 560 250]); % 560 420]);
+    % il_tiledlayout(1,2,'TileSpacing','compact'); % 'tight');
+
+    PC_all = (PC_pool(1:3,:)+PC_pool(4:6,:)+PC_pool(7:9,:))/3;
+    PC_all = (PC_all(:,1:3)+PC_all(:,4:6)+PC_all(:,7:9)+PC_all(:,10:12))/4;
+
+    x_var = 1:size(PC_all,2);
+    y_var = 1:size(PC_all,1);
+    imagesc(x_var,y_var,PC_all); hold on
+    colormap('gray')
+    caxis([0 10])
+    set(gca,'FontSize',10);
+
+    c = colorbar;
+    c.Label.String = 'Percentage accuracy benefit (%)';
+
+    for ii = 1:3
+        for jj = 1:3
+            text(ii-0.1,jj,sprintf('%.1f',PC_all(ii,jj)),'FontSize',10,'Color','b');
+        end
+    end
+    % for ii = 5:8
+    %     text(mod((ii-1),4)*3+.7,4-.3,Subjects{ii},'FontSize',10,'Color','b');
+    % end
+    % for ii = 9:12
+    %     text(mod((ii-1),4)*3+.7,7-.3,Subjects{ii},'FontSize',10,'Color','b');
+    % end
+    % %%% Drawing a separator between participants:
+    % plot(3.5*[1 1],[0 9.5],'Color','b');
+    % plot(3.5*[1 1],[0 9.5],'Color','b');
+    % 
+    % plot(6.5*[1 1],[0 9.5],'Color','b');
+    % plot(6.5*[1 1],[0 9.5],'Color','b');
+    % 
+    % plot(9.5*[1 1],[0 9.5],'Color','b');
+    % plot(9.5*[1 1],[0 9.5],'Color','b');
+    % 
+    % plot([0 12.5],3.5*[1 1],'Color','b');
+    % plot([0 12.5],6.5*[1 1],'Color','b');
+    % plot([0 12.5],9.5*[1 1],'Color','b');
+    % %%%
+    set(gca,'XTick',x_var)
+    set(gca,'YTick',y_var)
+
+    XTL = repmat({'W','BP','MPS'},1,4);
+    YTL = repmat({'W','BP','MPS'},1,3);
+    set(gca,'XTickLabel',XTL);
+    set(gca,'YTickLabel',YTL);
+
+    xlabel('ACI from condition');
+    ylabel('Data from condition');
+
+    text(0,1.05,'B.','Units','Normalized','FontSize',14,'FontWeight','Bold');
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    xlabel('ACI from condition');
+    ylabel('Data from condition');
+
+    % text(0,1.05,'A.','Units','Normalized','FontSize',14,'FontWeight','Bold');
+
+    h(end+1) = gcf;
+    hname{end+1} = 'fig9b-crosspred_masker';
+
+end
+     
+% hcrossPC = figure; hcrossDev = figure;
+% for i = 1:N_maskers%length(results{1}.crosspred)
+%     for k = 1:N_subjects
+%         %plot cross PC
+%         xvar = results{k}.crosspred(i).lambdas;
+%         PC_test = results{k}.crosspred(i).PC_test;
+%         Dev_test = results{k}.crosspred(i).Dev_test;
+%         figure(hcrossPC)
+%         yvar = mean(PC_test-PC_test(end,:),2); % avoiding to write down 'results{1}.crosspred.PC_test' twice
+%         evar = std(PC_test-PC_test(end,:),[],2);%/size(PC_test,2);%SEM
+%         subplot(1,N_subjects,k);
+%         errorbar(xvar,yvar,evar,'-','Color',Colour{i}); hold on;
+%         set(gca,'XScale','log');
+%         title([cfg_ACI{k}.Condition ', subject ' Subjects{k}]);
+%         ylabel(['(cross)prediction percent accuracy benefit ' name_crosspred]);
+%         xlabel('\lambda');
+%         ylim([0 0.1])
+%         %plot cross Dev
+%         figure(hcrossDev)
+%         yvar = mean(Dev_test-Dev_test(end,:),2); % avoiding to write down 'results{1}.crosspred.PC_test' twice
+%         evar = std(Dev_test-Dev_test(end,:),[],2);%/size(PC_test,2);%SEM
+%         subplot(1,N_subjects,k);
+%         errorbar(xvar,yvar,evar,'-','Color',Colour{i}); hold on;
+%         set(gca,'XScale','log');
+%         title([cfg_ACI{k}.Condition ', subject ' Subjects{k}]);
+%         ylabel(['(cross)prediction deviance benefit ' name_crosspred]);
+%         xlabel('\lambda');
+%     end
+%     legend(Masker_crosspred,'interpreter','none');
+%     
+%     
+% end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Figs 10 and 11
-if flags.do_fig10 || flags.do_fig11 || flags.do_fig11_old || flags.do_fig12
+if flags.do_fig10      || flags.do_fig8b      || flags.do_fig11_old || flags.do_fig12 || ...
+   flags.do_fig3_suppl || flags.do_fig3b_suppl
+    
     % All simulation results were stored in one output folder
     if isunix
         dir_results = '/home/alejandro/Documents/Databases/data/fastACI_data_z_tmp/20220715_sim_Q1_osses2022a/';
@@ -2099,10 +2220,13 @@ if flags.do_fig10
     
     N_noises = length(noise_str);
     
+    Pos4 = [400 1200];
+    N_subjs2plot = [3 9];
+    
     for i_repeat = 1:2
         
-        N_subj2plot = 6;
-        figure('Position',[100 100 600 800]);
+        N_subj2plot = N_subjs2plot(i_repeat);
+        figure('Position',[100 100 600 Pos4(i_repeat)]); % set(gcf,'Position',[100 100 600 Pos4(i_repeat)])
         il_tiledlayout(N_subj2plot,N_noises,'TileSpacing','tight');
         for i_subj = 1:N_subj2plot    
             dir_subj = [dir_results Subjects_ID{i_subj} filesep];
@@ -2153,7 +2277,7 @@ if flags.do_fig10
                 disp('')
             end
         end
-        Subjects_ID(1:6) = []; % remove the first six labels, so that it's easier to repeat this code
+        Subjects_ID(1:N_subj2plot) = []; % remove the first six labels, so that it's easier to repeat this code
         
         h(end+1) = gcf;
         hname{end+1} = ['fig10-ACI-sim-set' num2str(i_repeat)];
@@ -2161,8 +2285,9 @@ if flags.do_fig10
     disp('')
    
 end
-
-if flags.do_fig11_old || flags.do_fig11 || flags.do_fig12
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if flags.do_fig11_old || flags.do_fig8b || flags.do_fig12 || flags.do_fig3_suppl || ...
+   flags.do_fig3b_suppl
     N_noises = length(noise_str);
     N_subjects = length(Subjects_ID);
     
@@ -2184,14 +2309,19 @@ if flags.do_fig11_old || flags.do_fig11 || flags.do_fig12
             ACI_fname_folder = [dir_subj 'ACI-' model_str '-speechACI_Logatome-' noise_str{i_noise} '-nob-gt-l1glm+pyrga-rev4' filesep];
             Crossfile = [ACI_fname_folder 'Crosspred.mat'];
             
-            [cross,outs_cross] = Read_crosspred(Crossfile);
-            PA_mean_chance(i_subj,:) = outs_cross.PA_mean_re_chance;
-            
             cfg_ACI_here = load([ACI_fname_folder(1:end-1) '.mat']);
             res_here = cfg_ACI_here.results;
             %%% Save some data for group-level analysis
             idxlambda = res_here.idxlambda;
-             
+            
+            % [cross,outs_cross] = Read_crosspred(Crossfile, idxlambda);
+            % PA_mean_chance(i_subj,:) = outs_cross.PA_mean_re_chance;
+            [cross,outs_cross] = Read_crosspred(Crossfile, idxlambda);
+            PC_matrix(i_subj,:,i_noise)  = outs_cross.PA_mean_re_chance;
+            Dev_matrix(i_subj,:,i_noise) = outs_cross.Dev_mean;
+            Dev_matrix_plus_SEM(i_subj,:,i_noise) = outs_cross.Dev_mean+outs_cross.Dev_SEM;
+            Dev_matrix_min_SEM(i_subj,:,i_noise)  = outs_cross.Dev_mean-outs_cross.Dev_SEM;
+                
             % num1 = res_here.FitInfo.Dev_test./res_here.FitInfo.CV.TestSize;
             % num2 = num1(end,:); % referential null ACI 
             % G_Devtrial_opt(:,i_subject,i_masker) = num1(idxlambda,:) - num2;
@@ -2199,17 +2329,23 @@ if flags.do_fig11_old || flags.do_fig11 || flags.do_fig12
             num1 = res_here.FitInfo.PC_test;
             num2 = num1(end,:); % referential null ACI 
             G_PA_sim(:,i_subj,i_noise) = 100*(num1(idxlambda,:) - num2);
-                
+            
+            %%%
+            res = [];
+            res.idxlambda = idxlambda;
+            res.crosspred = cross;
+            results{i_subj,i_noise} = res;
+            %%%
+            
             if flags.do_fig12
+                % i_subj: ACI from
+                % k: Data from
                 for k = 1:N_subjects
                     PC_test  = cross(k).PC_test;
                     yvar = PC_test(idxlambda,:)-PC_test(end,:);
                     PC_matrix(i_subj,k,i_noise) = 100*mean(yvar);
                 end
             end
-        end
-        if flags.do_fig11
-            PC_matrix(:,:,i_noise) = PA_mean_chance;
         end
         
         if flags.do_fig11_old
@@ -2219,7 +2355,7 @@ if flags.do_fig11_old || flags.do_fig11 || flags.do_fig12
             opts.cmin = 0;
             opts.cmax = 25;
             opts.Labels = labels2use;
-            my_image_plot(PA_mean_chance,opts);
+            my_image_plot(PC_matrix(:,:,i_noise),opts);
 
             if i_noise == 3
                 xlabel('ACI_s_i_m from')
@@ -2233,13 +2369,13 @@ if flags.do_fig11_old || flags.do_fig11 || flags.do_fig12
 
             switch i_noise
                 case 1
-                    data.PA_mean_chance_white = PA_mean_chance;
+                    data.PA_mean_chance_white = PC_matrix(:,:,i_noise);
                     text2use = 'A. white';
                 case 2
-                    data.PA_mean_chance_bump = PA_mean_chance;
+                    data.PA_mean_chance_bump = PC_matrix(:,:,i_noise);
                     text2use = 'B. bump';
                 case 3
-                    data.PA_mean_chance_MPS = PA_mean_chance;
+                    data.PA_mean_chance_MPS = PC_matrix(:,:,i_noise);
                     text2use = 'C. MPS';
             end
             title(text2use);
@@ -2254,33 +2390,159 @@ if flags.do_fig11_old || flags.do_fig11 || flags.do_fig12
    
 end
 
-if flags.do_fig11 || flags.do_fig12
-    if flags.do_fig11
-        between_noise = 0;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if flags.do_fig8b || flags.do_fig3b_suppl
+    %%% 4. Plotting the results:
+	% 3 matrices of cross-prediction accuracy
+    % xvar = results{1,1}.crosspred(1).lambdas;
+    XTL = [];
+    XT = 1:N_subjects;
+    for ii = 1:N_subjects
+        txt2use = 'S';
+        if ii < 10 
+            txt2use = [txt2use '0'];
+        end
+        txt2use = [txt2use num2str(ii)];
+        YTL{ii} = txt2use;
+        if mod(ii,2)==0
+            XTL{ii} = txt2use;
+        else
+            XTL{ii} = '';
+        end
     end
-    if flags.do_fig12
-        between_noise = 1;
-    end
-%     %%% 4. Plotting the results:
-%     % 3 matrices of cross-prediction accuracy
-%     xvar = results{1,1}.crosspred(1).lambdas;
-    if between_noise == 0
-        for j = 1:N_subjects
-            for k = 1:N_subjects
-                for i = 1:N_maskers %length(results{1}.crosspred)
-                    idxlambda = results{j,i}.idxlambda;
-                    
-                    PC_test  = results{j,i}.crosspred(k).PC_test;
-%                     yvar = PC_test(idxlambda,:)-PC_test(end,:);
-                    PC_matrix(j,k,i) = 100*mean(yvar); % mean converted to a percentage
-%                     
-%                     Dev_test = results{j,i}.crosspred(k).Dev_test; 
-%                     yvar = Dev_test(idxlambda,:)-Dev_test(end,:);
-%                     Dev_matrix(j,k,i) = mean(yvar); % mean 
+
+    figure('Position',[100 100 720 415]);
+    il_tiledlayout(1,3,'TileSpacing','tight');
+
+    for i_column = 1:3
+        switch mod(i_column,3)
+            case 1 % white
+                Colour_here = masker_colours{1};
+            case 2 % bump
+                Colour_here = masker_colours{2};
+            case 0 % MPS
+                Colour_here = masker_colours{3};
+        end
+        Dev_matrix_here = Dev_matrix_plus_SEM(:,:,i_column);
+        Dev_diag(:,i_column) = diag(Dev_matrix_here);
+%             Dev_matrix_nodiag = Dev_matrix_here-repmat(Dev_diag(:,i_column)',N_subjects,1); % matrix with no diagonal
+
+        il_nexttile(i_column)
+        if flags.do_fig3b_suppl
+            imagesc(1:N_subjects,1:N_subjects,Dev_matrix_here); hold on
+%             imagesc(1:N_subjects,1:N_subjects,Dev_matrix(:,:,i_column)); hold on
+            colormap('gray')
+            set(gca,'XTick',XT);
+            set(gca,'YTick',XT);
+            idx_total = 0;
+            for ii = 1:N_subjects
+                offxy = 0.5;
+                offxy = offxy*.9;
+                if Dev_diag(ii,i_column) < 0 % significance using 'Dev'
+                    % idx = find(PC_matrix_nodiag(:,ii)>0); % Criterion using PA
+                    idx = find(Dev_matrix_plus_SEM(:,ii,i_column)<0);
+                    if ~isempty(idx)
+                        for jj = 1:length(idx)
+                            il_plot_square(ii,idx(jj),'m',offxy,'--'); % Magenta colour
+                        end
+                        idx_total = idx_total + length(idx);
+                    end
+                else
+                    %%% Add arrow:
+                    Y_start = 2;
+                    [xaf,yaf] = ds2nfu(ii*[1 1],[Y_start Y_start-1]); % Convert to normalized figure units
+                    annotation('arrow',xaf,yaf,'color','r');
+                    %%%
                 end
+                % Plots a box:
+                il_plot_square(ii,ii,Colour_here,offxy);
+            end
+            fprintf('CVD - Noise cond=%s: idx=%.0f of %.0f with significant predictions\n',noise_types_label{i_noise},idx_total,N_subjects*N_subjects);
+        end
+        
+        PC_matrix_here = PC_matrix(:,:,i_column);
+        [Me_diag(i_column),Me_nodiag(i_column), opts] = il_avg_diag_nodiag(PC_matrix_here);
+        
+        if flags.do_fig8b
+            imagesc(1:N_subjects,1:N_subjects,PC_matrix_here); hold on
+            colormap('gray')
+            caxis([14 24.5])
+            set(gca,'XTick',XT);
+            set(gca,'YTick',XT);
+            idx_total = 0;
+            for ii = 1:N_subjects
+                offxy = 0.5;
+                offxy = offxy*.9;
+                if Dev_diag(ii,i_column) < 0 % significance using 'Dev'
+                    % idx = find(PC_matrix_nodiag(:,ii)>0); % Criterion using PA
+                    idx = find(Dev_matrix_plus_SEM(:,ii,i_column)<0);
+                    if ~isempty(idx)
+                        for jj = 1:length(idx)
+                            il_plot_square(ii,idx(jj),'m',offxy,'--'); % Magenta colour
+                        end
+                        idx_total = idx_total + length(idx);
+                    end
+                else
+                    %%% Add arrow:
+                    Y_start = 2;
+                    [xaf,yaf] = ds2nfu(ii*[1 1],[Y_start Y_start-1]); % Convert to normalized figure units
+                    annotation('arrow',xaf,yaf,'color','r');
+                    %%%
+                end
+                % Plots a box:
+                il_plot_square(ii,ii,Colour_here,offxy);
             end
         end
-    else
+
+        fprintf('PA - Noise cond=%s: idx=%.0f of %.0f with significant predictions\n',noise_types_label{i_noise},idx_total,N_subjects*N_subjects);
+    end
+
+    FS_here = 10;
+
+    il_nexttile(1);
+    set(gca,'XTickLabel',XTL);
+    ylabel('Simulation data from');
+    set(gca,'YTickLabel',YTL);
+    opts_txt = {'Units','Normalized','FontWeight','bold','FontSize',14};
+    text(0,1.05,'D.',opts_txt{:});
+    set(gca,'FontSize',FS_here);
+
+    il_nexttile(2);
+    set(gca,'XTickLabel',XTL);
+    set(gca,'YTickLabel',[]);
+    text(0,1.05,'E.',opts_txt{:});
+    set(gca,'FontSize',FS_here);
+
+    il_nexttile(3);
+    text(0,1.05,'F.',opts_txt{:});
+    % c = colorbar;
+    % c.Label.String = 'Deviance / trial benefit (adim)';
+    set(gca,'XTickLabel',XTL);
+    set(gca,'YTickLabel',[]);
+    % set(c,'Limits',[-10.5 0])
+    set(gca,'FontSize',FS_here);
+
+    c = colorbar;
+
+    for i_masker = 1:N_maskers
+        nexttile(i_masker);
+        ht = title(noise_types_label{i_masker});
+        set(ht,'FontSize',FS_here);
+        xlabel('ACI_s_i_m from');
+    end
+    h(end+1) = gcf;
+    if flags.do_fig8b
+        hname{end+1} = 'fig8b-crosspred_model_participant'; 
+    end
+    if flags.do_fig3b_suppl
+        hname{end+1} = 'suppl-fig3b-crosspred_model_participant'; 
+    end
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if flags.do_fig12
+    between_noise = 1;
+    if between_noise == 1
         % Build the exact matrix to plot
         for j = 1:N_subjects
             for k = 1:N_maskers
@@ -2357,7 +2619,7 @@ if flags.do_fig11 || flags.do_fig12
 %             Dev_matrix_here = Dev_matrix(:,:,i_column);
 %             Dev_diag(:,i_column) = diag(Dev_matrix_here);
 %             Dev_matrix_nodiag = Dev_matrix_here-repmat(Dev_diag(:,i_column)',N_subjects,1); % matrix with no diagonal
-%             
+             
             il_nexttile(i_column)
 %             imagesc(1:N_subjects,1:N_subjects,Dev_matrix(:,:,i_column)); hold on
 %             caxis([-10 0])
@@ -2383,7 +2645,7 @@ if flags.do_fig11 || flags.do_fig12
 %             PC_diag(:,i_column) = diag(PC_matrix_here);
 %             PC_matrix_nodiag = PC_matrix_here-repmat(PC_diag(:,i_column)',N_subjects,1); % matrix with no diagonal
 %             
-            il_nexttile(i_column+3)
+            il_nexttile(i_column)
             imagesc(1:N_subjects,1:N_subjects,PC_matrix_here); hold on
             colormap('gray')
             caxis([14 24.5])
@@ -2786,22 +3048,27 @@ end
 
 % Inspired by ../Publications/Osses2022_JARO/ge20220401_Osses2022_JARO.m
 
+if flags.do_fig1_suppl || flags.do_fig2_suppl
+    % Subjects = {'S01','S02','S03','S04','S05','S06','S07','S08','S09','S10','S11','S12'};
+    Gender     = {'M'  ,'M'  ,'F'  , 'M'  ,'F'  ,'M'  ,'M'  ,'F'  ,'M'  ,'F'  ,'M'  ,'M'};
+    Language   = {'FR' ,'ES' ,'FR' , 'FR' ,'IT' ,'FR' ,'FR' , 'TR','FR' ,'FR' ,'ES' ,'FR'};
+end
+
 if flags.do_fig1_suppl 
     
     FontSize = 12;
     row4nan = [];
     
     f = [];
-    Subjects_ID = {'S01','S02','S03','S04','S05','S06','S07','S08','S09','S10','S11','S12'};
-    Gender =      {'M'  ,'M'  ,'F'  ,'M'  ,'F'  ,'M'  ,'M'  ,'F'  ,'M'  ,'F'  ,'M'  ,'M'};
-    Age         = [33    36     31    38    24    43    23    27   25     22    36    22]; mean(Age)
+    
+    Age        = [33    36     31    38    24    43    23    27   25     22    36    22]; mean(Age)
     
     Colours = {rgb('Brown'),rgb('Bisque'),rgb('NavajoWhite'),rgb('BurlyWood'),rgb('Peru'),rgb('Goldenrod'), ...
                rgb('RosyBrown'),rgb('Chocolate'),rgb('Sienna'),rgb('DarkGoldenrod'),rgb('Pink'),rgb('LightCoral')};
     
-    for i_subj = 1:length(Subjects_ID)
+    for i_subj = 1:length(Subjects)
         dir_res = [fastACI_basepath 'Publications' filesep 'publ_osses2022b' filesep 'data_' ...
-            Subjects_ID{i_subj} filesep '1-experimental_results' filesep 'audiometry' filesep]; 
+            Subjects{i_subj} filesep '1-experimental_results' filesep 'audiometry' filesep]; 
         
         file = Get_filenames(dir_res,'absthreshold_*.dat');
         if ~isempty(file)
@@ -2836,7 +3103,7 @@ if flags.do_fig1_suppl
     aud_Me_l = mean(aud_l);
     aud_Me_r = mean(aud_r);
     
-    for i = 1:length(Subjects_ID)
+    for i = 1:length(Subjects)
         aud_Me_across_f(i,1) = aud_avg(i,aud_best_ear(i));
     end
     % aud_Me_across_f_L = aud_avg(:,1);
@@ -2867,7 +3134,7 @@ if flags.do_fig1_suppl
     %--- Fig. 1A ----------------------------------------------------------
     il_nexttile(1)
     idx2label = [];
-    for i = 1:length(Subjects_ID)
+    for i = 1:length(Subjects)
         if aud_best_ear(i)==1
             LW = 3;
             FaceColour = Colours{i};
@@ -2897,12 +3164,12 @@ if flags.do_fig1_suppl
     set(gca,'YTick',YT);
     set(gca,'YTickLabel',YT_label);
  
-    legend(hpl(idx2label),Subjects_ID(idx2label),'Location','SouthEast');
+    legend(hpl(idx2label),Subjects(idx2label),'Location','SouthEast');
     
     il_nexttile(2)
     
     idx2label = [];
-    for i = 1:length(Subjects_ID)
+    for i = 1:length(Subjects)
         if aud_best_ear(i)==2
             LW = 3;
             FaceColour = Colours{i};
@@ -2932,7 +3199,7 @@ if flags.do_fig1_suppl
     set(gca,'YTick',YT);
     set(gca,'YTickLabel',YT_label);
     
-    legend(hpl(idx2label),Subjects_ID(idx2label),'Location','SouthEast');
+    legend(hpl(idx2label),Subjects(idx2label),'Location','SouthEast');
     
     % ha_here(end+1) = gca;
     h(end+1) = gcf; % current handle
@@ -2944,8 +3211,74 @@ if flags.do_fig1_suppl
     
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig3_suppl
-    prefix = 'suppl-fig3-';
+if flags.do_fig2_suppl
+    
+    thres_steady = nan([length(Subjects) 4]);
+    list_steady  = nan([length(Subjects) 4]);
+    thres_mod8   = nan([length(Subjects) 4]);
+    list_mod8    = nan([length(Subjects) 4]);
+    
+    for i_subj = 1:length(Subjects)
+        dir_res = [fastACI_basepath 'Publications' filesep 'publ_osses2022b' filesep 'data_' ...
+            Subjects{i_subj} filesep '1-experimental_results' filesep 'intellitest' filesep]; 
+        file1 = [dir_res 'Intellitest_' Subjects{i_subj} '_varspeech16.dat'];
+        file2 = [dir_res 'Intellitest_' Subjects{i_subj} '_varspeech16_mod8.dat'];
+        
+        var = datread(file1);
+        N = size(var,1);
+        
+        thres_steady(i_subj,1:N) = transpose(var(:,2));
+        list_steady(i_subj,1:N)  = transpose(var(:,1));
+        
+        disp('')
+        var = datread(file2);
+        
+        thres_mod8(i_subj,1:N) = transpose(var(:,2));
+        list_mod8(i_subj,1:N)  = transpose(var(:,1));
+        
+    end
+    
+    thres_all     = nanmean(thres_steady,2);
+    thres_mod_all = nanmean(thres_mod8  ,2);
+    
+    idx_FR    = find( strcmp(Language,'FR'));
+    idx_Other = find(~strcmp(Language,'FR'));
+    
+    offx = 0.1;
+    varx = 1; % ones(size(thres_all));
+    vary = [thres_all thres_mod_all];
+    figure('Position',[100 100 570 280]);
+    hpl1 = plot([varx-offx varx+offx], vary(idx_FR,:)   , 'bo-','MarkerFaceColor','w'); hold on, grid on
+    Me   = prctile(vary(idx_FR,:),50);
+    errL = Me-prctile(vary(idx_FR,:),5);
+    errU = prctile(vary(idx_FR,:),95)-Me;
+    errorbar([varx-1.2*offx varx+1.2*offx], Me,errL,errU, 'bo','MarkerFaceColor','b','LineWidth',2);
+    
+    fprintf('Me     FR for steady=%.1f dB, mod8=%.1f\n',Me);
+    
+    hpl2 = plot(.5+[varx-offx varx+offx], vary(idx_Other,:), 'rs-','MarkerFaceColor','w');
+    % plot(ones(size(thres_all))-offx, thres_all, 'rs-');
+    Me   = prctile(vary(idx_Other,:),50);
+    errL = Me-prctile(vary(idx_Other,:),5);
+    errU = prctile(vary(idx_Other,:),95)-Me;
+    errorbar([varx+.5-1.2*offx varx+.5+1.2*offx], Me,errL,errU, 'rs','MarkerFaceColor','r','LineWidth',2);
+    
+    fprintf('Me non-FR for steady=%.1f dB, mod8=%.1f\n',Me);
+    
+    xlim([0.5+.3 1.8]);
+    set(gca,'XTick',[1-offx 1+offx 1.5-offx 1.5+offx])
+    set(gca,'XTickLabel',{'steady','8-Hz','steady','8-Hz'})
+    legend([hpl1(1) hpl2(1)],'French','Non-French');
+    
+    ylabel('SRT (dB)');
+    xlabel('Condition');
+    
+    h(end+1) = gcf;
+    hname{end+1} = 'suppl-fig2-Intellitest';
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if flags.do_fig5_suppl
+    prefix = 'suppl-fig5-';
     
     experiment_full = 'speechACI_Logatome-abda-S43M';
     experiment = strsplit(experiment_full,'-'); experiment = experiment{1};
@@ -3163,3 +3496,29 @@ plot([xcoor-offxy xcoor+offxy],(ycoor-offxy)*[1 1]      ,plot_opts{:}); % bottom
 plot((xcoor-offxy)*[1 1]      ,[ycoor-offxy ycoor+offxy],plot_opts{:}); % left side
 plot((xcoor+offxy)*[1 1]      ,[ycoor-offxy ycoor+offxy],plot_opts{:}); % right side
 plot([xcoor-offxy xcoor+offxy],(ycoor+offxy)*[1 1]      ,plot_opts{:}); % top side
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function il_plot_square_XY(xcoor,ycoor,Colour_here,offx,offy,LineStyle,LW)
+
+if nargin < 5
+    LineStyle = '-';
+end
+plot_opts = {'Color',Colour_here,'LineStyle',LineStyle,'LineWidth',LW};
+% Plots a box:
+plot([xcoor-offx xcoor+offx],(ycoor-offy)*[1 1]      ,plot_opts{:}); % bottom side
+plot((xcoor-offx)*[1 1]      ,[ycoor-offy ycoor+offy],plot_opts{:}); % left side
+plot((xcoor+offx)*[1 1]      ,[ycoor-offy ycoor+offy],plot_opts{:}); % right side
+plot([xcoor-offx xcoor+offx],(ycoor+offy)*[1 1]      ,plot_opts{:}); % top side
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [Me_diag,Me_nodiag,opts] = il_avg_diag_nodiag(insig)
+
+Me_diag = mean(diag(insig));
+opts.Me_diag_sem = 1.64*sem(diag(insig));
+
+for i = 1:size(insig,1)
+    insig(i,i) = NaN;
+end
+Me_nodiag = nanmean(insig(:));
+insig = insig( find(~isnan(insig)) );
+opts.Me_nodiag_sem = 1.64*sem(insig(:));
