@@ -3249,18 +3249,18 @@ if flags.do_fig2_suppl
     vary = [thres_all thres_mod_all];
     figure('Position',[100 100 570 280]);
     hpl1 = plot([varx-offx varx+offx], vary(idx_FR,:)   , 'bo-','MarkerFaceColor','w'); hold on, grid on
-    Me   = prctile(vary(idx_FR,:),50);
-    errL = Me-prctile(vary(idx_FR,:),5);
-    errU = prctile(vary(idx_FR,:),95)-Me;
+    Me   = mean(vary(idx_FR,:));
+    errL = sem(vary(idx_FR,:));
+    errU = sem(vary(idx_FR,:));
     errorbar([varx-1.2*offx varx+1.2*offx], Me,errL,errU, 'bo','MarkerFaceColor','b','LineWidth',2);
     
     fprintf('Me     FR for steady=%.1f dB, mod8=%.1f\n',Me);
     
     hpl2 = plot(.5+[varx-offx varx+offx], vary(idx_Other,:), 'rs-','MarkerFaceColor','w');
     % plot(ones(size(thres_all))-offx, thres_all, 'rs-');
-    Me   = prctile(vary(idx_Other,:),50);
-    errL = Me-prctile(vary(idx_Other,:),5);
-    errU = prctile(vary(idx_Other,:),95)-Me;
+    Me   = mean(vary(idx_Other,:));
+    errL = sem(vary(idx_Other,:));
+    errU = sem(vary(idx_Other,:));
     errorbar([varx+.5-1.2*offx varx+.5+1.2*offx], Me,errL,errU, 'rs','MarkerFaceColor','r','LineWidth',2);
     
     fprintf('Me non-FR for steady=%.1f dB, mod8=%.1f\n',Me);
