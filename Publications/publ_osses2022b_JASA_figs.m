@@ -64,6 +64,9 @@ masker_colours    = {[0,0,1],[1,0,0],rgb('Green')}; % Leo's colours
 
 experiment        = 'speechACI_Logatome-abda-S43M';
 N_maskers = length(noise_str);
+
+do_fig4_stats_N10 = 0; % by default no analysis of N=10 data
+do_fig5_stats_N10 = 0; % by default no analysis of N=10 data
 % End common variables
     
 if flags.do_fig1_old || flags.do_fig1 || flags.do_fig2a || flags.do_fig2b
@@ -980,6 +983,29 @@ if flags.do_fig4 || flags.do_fig5_simu
     % The sixth column contains the p-value for a hypothesis test that the corresponding mean difference is equal to zero. 
     % If All p-values are very small, indicates that the the dependent variable differs across all three factors.
 
+    do_fig4_stats_N10 = input('Show analysis for 10 participants? (1=yes; 0=no): ');
+    if do_fig4_stats_N10
+        % Run differential mixed ANOVA on medianSNR
+        idx_N = 1:N_subjects;
+        idx_N([6 12]) = [];
+    
+        [F_subjects,F_maskers,F_sessions] = ndgrid(idx_N,1:N_maskers,1:N_sessions);
+        SNR_here = medianSNR(idx_N,:,:);
+        [p,tbl,stats] = anovan(SNR_here(:),{F_maskers(:),F_sessions(:),F_subjects(:)},'varnames',{'maskers','sessions','subjects'},'random',3,'continuous',2,'display','off','model','linear');%
+        fprintf(['\n*Results of mixed ANOVA on SNR thresholds with factors Masker and session (and random factor subject)*\n'])
+        fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{2,1}, tbl{2,3}, tbl{5,3}, tbl{2,6}, tbl{2,7})
+        fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{3,1}, tbl{3,3}, tbl{5,3}, tbl{3,6}, tbl{3,7})
+        
+        % Results on 4/10/2022:
+        % *Results of mixed ANOVA on SNR thresholds with factors Masker and session (and random factor subject)*
+        % maskers: F(2,287) = 15.82, p = 0.000
+        % sessions: F(1,287) = 33.06, p = 0.000
+        
+        multcompare(stats,'display','off') % post-hoc analysis
+        % 1.0000    2.0000   -0.7812   -0.5384   -0.2956    0.0000
+        % 1.0000    3.0000   -0.3192   -0.0764    0.1664    0.7411
+        % 2.0000    3.0000    0.2192    0.4620    0.7048    0.0000
+    end
 end % end do_fig4
 
 if flags.do_fig5 
@@ -989,8 +1015,8 @@ if flags.do_fig5
     P_H_resp1 = 1-P_FA; % 'Hits' when the participant response was '1'
     resp1_label = [data_hist.CR_label '-trials (CR)'];
 
-    figure('Position',[100 100 700 700]);
-    il_tiledlayout(2,2,'TileSpacing','Compact');
+    figure('Position',[100 100 700 600]);
+    il_tiledlayout(2,2,'TileSpacing','tight');
     
     XL = [-18.5 -8.5];
     for i_masker = 1:N_maskers
@@ -1008,11 +1034,12 @@ if flags.do_fig5
         
         if i_masker == N_maskers
             % title('PC');
-            xlabel('SNR (dB)');
+            % xlabel('SNR (dB)');
             ylabel('Percentage correct');
             ylim(100*[0.35 1.05]); 
             xlim(XL)
             % legend(resp2_label,'Location','SouthEast')
+            set(gca,'XTickLabel','');
         end
         txt_options = {'Unit','Normalized','FontWeight','Bold','FontSize',14};
         text(0.05,0.92,'A. /aba/ trials (H)',txt_options{:});
@@ -1028,11 +1055,12 @@ if flags.do_fig5
         
         if i_masker == N_maskers
             % title('PC');
-            xlabel('SNR (dB)');
+            % xlabel('SNR (dB)');
             ylabel('Percentage correct');
             ylim(100*[0.35 1.05]); 
             xlim(XL)
             % legend(resp1_label,'Location','SouthEast')
+            set(gca,'XTickLabel','');
         end
         text(0.05,0.92,'B. /ada/ trials (CR)',txt_options{:});
     end
@@ -1054,6 +1082,9 @@ if flags.do_fig5
             legend(noise_types_label, 'interpreter', 'none','Location','SouthEast')
         end
         
+        ylim([-0.1 2.3]);
+        set(gca,'YTick',0:0.2:2.2);
+        
         text(0.05,0.92,'C. d''',txt_options{:});
     end
 
@@ -1073,6 +1104,9 @@ if flags.do_fig5
             xlabel('SNR (dB)');
             ylabel('c');
             
+            ylim([-0.17 0.23]);
+            set(gca,'YTick',-0.15:0.05:0.20);
+        
             text(0.05,0.92,'D. Criterion c',txt_options{:});
         end
     end
@@ -1110,9 +1144,45 @@ if flags.do_fig5_stats % Originally by Leo
     % 
     % *Results of Mixed ANOVA on criterion with factors Masker and SNR (and random factor subject)*
     % maskers: F(2,165) = 1.75, p = 0.178
-    % SNR: F(1,165) = 9.77, p = 0.002    
+    % SNR: F(1,165) = 9.77, p = 0.002   
+    
+    do_fig5_stats_N10 = input('Show analysis for 10 participants? (1=yes; 0=no): ');
 end
 
+if do_fig5_stats_N10 % requires that flags.do_fig5 = 1
+    % Repeat the mixed ANOVAs on dprime & criterion, if requested
+    
+    idx_N = 1:N_subjects;
+    idx_N([6 12]) = [];
+    
+    % First we need to select a subset of SNRs where all 3 conditions are defined
+    dprime2analyse = dprime(idx_N,:,idx_SNR2analyse);
+    criterion2analyse = criterion(idx_N,:,idx_SNR2analyse);
+   
+    fprintf('\tAnalysis using N=10\n');
+    [F_subjects,F_maskers,F_SNR] = ndgrid(idx_N,1:N_maskers,SNR2analyze);
+    [p,tbl,stats] = anovan(dprime2analyse(:),{F_maskers(:),F_SNR(:),F_subjects(:)},'varnames',{'maskers','SNR','subjects'},'random',3,'continuous',2,'display','off');
+    fprintf(['\n*Results of Mixed ANOVA on dprime with factors Masker and SNR (and random factor subject)*\n'])
+    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{2,1}, tbl{2,3}, tbl{5,3}, tbl{2,6}, tbl{2,7})
+    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{3,1}, tbl{3,3}, tbl{5,3}, tbl{3,6}, tbl{3,7})
+    % multcompare(stats,'display','off')
+    
+    [p,tbl,stats] = anovan(criterion2analyse(:),{F_maskers(:),F_SNR(:),F_subjects(:)},'varnames',{'maskers','SNR','subjects'},'random',3,'continuous',2,'display','off');
+    fprintf(['\n*Results of Mixed ANOVA on criterion with factors Masker and SNR (and random factor subject)*\n'])
+    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{2,1}, tbl{2,3}, tbl{5,3}, tbl{2,6}, tbl{2,7})
+    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{3,1}, tbl{3,3}, tbl{5,3}, tbl{3,6}, tbl{3,7})
+    %multcompare(stsats,'display','off')
+    % Fig. 3: Performance as a function of SNR
+    
+    %%% Results on 4/10/2022:
+    % *Results of Mixed ANOVA on dprime with factors Masker and SNR (and random factor subject)*
+    % maskers: F(2,137) = 10.24, p = 0.000
+    % SNR: F(1,137) = 788.09, p = 0.000
+    % 
+    % *Results of Mixed ANOVA on criterion with factors Masker and SNR (and random factor subject)*
+    % maskers: F(2,137) = 1.41, p = 0.249
+    % SNR: F(1,137) = 13.02, p = 0.000   
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Fig 6
 % if flags.do_fig10 || flags.do_fig8b || flags.do_fig11_old || flags.do_fig12
