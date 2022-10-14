@@ -3029,7 +3029,7 @@ LW = 1;
 
 %%% I still need to spot the exact values:
 par_formants.timestep = 0.01; % positive timestep 0.01
-par_formants.nformants = 4; % positive nformants 5
+par_formants.nformants = 5; % positive nformants 5
 
 %%% Unsure:
 % Formants
@@ -3039,7 +3039,8 @@ par_formants.dynamicrange = 30; % positive dynamic range 20
 
 % F0
 par_formants.minpitch = 200; % positive minimum pitch 50 (for intensity)
-par_formants.pitchfloor = 100; % positive pitch floor 100 (for f0)
+%par_formants.pitchfloor = 100; % previous parameter value (14/10/2022)
+par_formants.pitchfloor = 50; % positive pitch floor 100 (for f0)
 par_formants.pitchceiling = 500; % positive pitch ceiling 500 (for f0)
 
 % Before 4/11/2021, I_min set to 40 dB:
