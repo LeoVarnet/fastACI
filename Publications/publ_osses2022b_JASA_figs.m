@@ -47,6 +47,7 @@ definput.flags.type={'missingflag', ...
     'fig3_suppl', ...
     'fig3b_suppl', ...
     'fig5_suppl'}; % different lambdas
+definput.flags.plot={'plot','no_plot'};
 % definput.keyvals.models=[];
 definput.keyvals.dir_out=[];
 
@@ -68,7 +69,18 @@ N_maskers = length(noise_str);
 do_fig4_stats_N10 = 0; % by default no analysis of N=10 data
 do_fig5_stats_N10 = 0; % by default no analysis of N=10 data
 % End common variables
-    
+do_plot = flags.do_plot; % flags.do_plot into variable for easy debugging
+
+dir_savegame_sim = [fastACI_dir_data 'speechACI_Logatome-abda-S43M' filesep 'osses2022a_debug_0715' filesep]; % '/home/alejandro/Documents/Databases/data/fastACI_data/speechACI_Logatome-abda-S43M/osses2022a_debug_0715/';
+dir_savegame_exp = [fastACI_basepath 'Publications' filesep 'publ_osses2022b' filesep]; 
+
+dir_ACI_exp = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc_Leo/'; % My run: dir_where = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc/';
+    % Run-S01/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
+    % Run-S02/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
+    % ...
+    % Run-S12/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
+dir_ACI_sim = '/home/alejandro/Documents/Databases/data/fastACI_data_z_tmp/20220715_sim_Q1_osses2022a/';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 if flags.do_fig1_old || flags.do_fig1 || flags.do_fig2a || flags.do_fig2b
     dir_data = fastACI_paths('dir_data');
     dir_subj = [dir_data experiment filesep 'S01' filesep];
@@ -688,12 +700,11 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
         subject = Subjects{i_subject};
         
         if flags.do_fig4 || flags.do_fig5 || flags.do_fig5_stats % Human listeners:
-            dir_subject = [fastACI_basepath 'Publications' filesep 'publ_osses2022b' filesep 'data_' Subjects{i_subject} filesep '1-experimental_results' filesep];
+            dir_subject = [dir_savegame_exp 'data_' Subjects{i_subject} filesep '1-experimental_results' filesep];
         end
         if flags.do_fig5_simu
-            model = 'osses2022a_debug_0715';
-            dir_subject = [fastACI_dir_data 'speechACI_Logatome-abda-S43M' filesep ...
-                model filesep 'Results-' Subjects{i_subject} '-v1' filesep];
+            % model = 'osses2022a_debug_0715';
+            dir_subject = [dir_savegame_sim 'Results-' Subjects{i_subject} '-v1' filesep];
         end
         % dir_subject = [dir_experiment subject filesep];
 
@@ -716,9 +727,12 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
 
             cfg_game = [];
             data_passation = [];
-            load([dir_results fname_results]);
+            file_savegame = [dir_results fname_results];
+            load(file_savegame);
             %subj = Get_subjectname_from_dirname(cfg_game.dir_noise);
 
+            outs_SNR = il_get_SNR(file_savegame); % New assessment of thresholds in an inline function
+            
             n_responses = data_passation.n_responses;
             N_trials    = length(n_responses); % completed number of trials
             % n_signal    = data_passation.n_targets(1:N_trials);
@@ -751,19 +765,13 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
                 disp('')
             end
             
-            idxs2use_all = [];
             for i_session = 1:N_sessions
-
                 %%% Leo's way: Analysis only using the reversals: -------------
                 % sessions are redefined as blocks of 400 trials
                 idxi = 1+400*(i_session-1);
                 idxf = 400*(i_session);
-                try
-                    [rev, idx] = Get_mAFC_reversals(SNR(idxi:idxf));
-                catch
-                    disp('')
-                end
-
+                [rev, idx] = Get_mAFC_reversals(SNR(idxi:idxf));
+                
                 % Then uses median:
                 medianSNR_old(i_subject, i_masker, i_session) = median(rev);
                 percSNR_L_old(i_subject, i_masker, i_session) = prctile(rev,5);
@@ -778,13 +786,10 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
                 idxi_rev = idx(4); % reversal number 4 (including it) and later
                 idxi100 = idxf-100; % reversal number 4 (including it) and later
                 
-                idxs2use = idxi+idxi_rev:idxf;
+                % idxs2use = idxi+idxi_rev:idxf;
                 idxs2use_all = [idxs2use_all idxs2use]; % collating the idxs of the kept trials
-                SNR_here = SNR(idxs2use);
-                medianSNR(i_subject, i_masker, i_session) = median(SNR_here);
-                percSNR_L(i_subject, i_masker, i_session) = prctile(SNR_here,5);
-                percSNR_U(i_subject, i_masker, i_session) = prctile(SNR_here,95);
-
+                % SNR_here = SNR(idxs2use);
+                
                 iscorr = data_passation.is_correct(idxs2use);
                 perc_corr(i_subject, i_masker, i_session) = sum(iscorr)/length(iscorr);
                 
@@ -798,7 +803,11 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
                 perc_corr_100(i_subject, i_masker, i_session) = sum(iscorr)/length(iscorr);
                 disp('')
             end
-
+            medianSNR(i_subject, i_masker, :) = outs_SNR.SNR_me(:);    % median(SNR_here);
+            percSNR_L(i_subject, i_masker, :) = outs_SNR.SNR_percL(:); % prctile(SNR_here,5);
+            percSNR_U(i_subject, i_masker, :) = outs_SNR.SNR_percU(:); % prctile(SNR_here,95);
+            idxs2use_all = outs_SNR.idxs2use_all;
+            
             %%% Preparing for Fig. 1 and 2:
             data_passation_tmp = data_passation;
             data_passation_tmp.expvar = data_passation_tmp.expvar(idxs2use_all);
@@ -838,6 +847,7 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
             % iscorr = data_passation.is_correct(idx);
             % perc_corr_old(
         end
+        data.medianSNR = medianSNR;
     end
     
     if flags.do_fig4 || flags.do_fig5_simu
@@ -878,133 +888,141 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
 end
 
 if flags.do_fig4 || flags.do_fig5_simu
-    % Fig. 1: Group plot of SNR thresholds as a function of trial number
-    figure('Position',[100 100 700 420]); % (hrev)
-    % x_var = 400:400:4000;%resume_trial(2:end);
-    x_var = 1:length(resume_trial)-1;
-    x_var_label = resume_trial(1:end-1);
-
-    hplt = [];
-    for i_masker = 1:N_maskers
-        medianSNR_here = squeeze(medianSNR(:,i_masker,:));
-        Me  = mean(medianSNR_here);
-        Sem = std(medianSNR_here)/sqrt(N_subjects);
-
-        offx = 0.15*(i_masker-2);
-        hplt(end+1) = errorbar(x_var+offx,Me,Sem,'-','Marker',Markers{i_masker}, ...
-            'Color',masker_colours{i_masker},'MarkerFaceColor',masker_colours{i_masker},'LineWidth',LW(i_masker));
-        hold on; grid on
-        if i_masker == 1
-            xlim([0 max(x_var)+1])
-        end
-    end
+    
+    meanSNR_part_noise = mean(medianSNR(:,:,:),3); % average across test block
+    data.meanSNR = meanSNR_part_noise;
+    data.meanSNR_description = 'Average across test block for each participant and noise';
     for i_subject = 1:N_subjects
         meanSNR_participant(i_subject,:) = mean(squeeze(medianSNR(i_subject,:,:)));
         meanSNR_overall(i_subject) = mean(meanSNR_participant(i_subject,:),2);
     end
     [ma,ma_idx] = min(meanSNR_overall); % minimum is best performance
     [mi,mi_idx] = max(meanSNR_overall); % maximum is worst performance
-    for i_subject = 1:N_subjects
-        if i_subject == mi_idx || i_subject == ma_idx
-            LW_here = 2;
-            LS = '-'; % linestyle
-        else
-            LW_here = 1;
-            LS = '--';
+    
+    if do_plot
+        % Fig. 1: Group plot of SNR thresholds as a function of trial number
+        figure('Position',[100 100 700 420]); % (hrev)
+        % x_var = 400:400:4000;%resume_trial(2:end);
+        x_var = 1:length(resume_trial)-1;
+        x_var_label = resume_trial(1:end-1);
+
+        hplt = [];
+        for i_masker = 1:N_maskers
+            medianSNR_here = squeeze(medianSNR(:,i_masker,:));
+            Me  = mean(medianSNR_here);
+            Sem = std(medianSNR_here)/sqrt(N_subjects);
+
+            offx = 0.15*(i_masker-2);
+            hplt(end+1) = errorbar(x_var+offx,Me,Sem,'-','Marker',Markers{i_masker}, ...
+                'Color',masker_colours{i_masker},'MarkerFaceColor',masker_colours{i_masker},'LineWidth',LW(i_masker));
+            hold on; grid on
+            if i_masker == 1
+                xlim([0 max(x_var)+1])
+            end
         end
-        colour_grey = rgb('Gray');
-        plot(x_var,meanSNR_participant(i_subject,:),LS,'Color',colour_grey,'LineWidth',LW_here);
+        
+        for i_subject = 1:N_subjects
+            if i_subject == mi_idx || i_subject == ma_idx
+                LW_here = 2;
+                LS = '-'; % linestyle
+            else
+                LW_here = 1;
+                LS = '--';
+            end
+            colour_grey = rgb('Gray');
+            plot(x_var,meanSNR_participant(i_subject,:),LS,'Color',colour_grey,'LineWidth',LW_here);
 
-        if i_subject == mi_idx
-            text(0.85,0.75,Subjects{mi_idx},'Units','Normalized','FontWeight','Bold','Color',colour_grey);
+            if i_subject == mi_idx
+                text(0.85,0.75,Subjects{mi_idx},'Units','Normalized','FontWeight','Bold','Color',colour_grey);
+            end
+            if i_subject == ma_idx
+                text(0.85,0.25,Subjects{ma_idx},'Units','Normalized','FontWeight','Bold','Color',colour_grey);
+            end
         end
-        if i_subject == ma_idx
-            text(0.85,0.25,Subjects{ma_idx},'Units','Normalized','FontWeight','Bold','Color',colour_grey);
+
+        set(gca,'XTick',x_var);
+        set(gca,'XTickLabel',x_var_label);
+        text(1700,-10,'S10','Color',[0.75,0.75,0.75])
+        xlabel('Starting trial of the block #'); % xlim([0 4100])
+        ylabel('SNR threshold (dB)')
+        legend(hplt, noise_types_label)
+        if bLeo
+            title('Leo')
         end
-    end
 
-    set(gca,'XTick',x_var);
-    set(gca,'XTickLabel',x_var_label);
-    text(1700,-10,'S10','Color',[0.75,0.75,0.75])
-    xlabel('Starting trial of the block #'); % xlim([0 4100])
-    ylabel('SNR threshold (dB)')
-    legend(hplt, noise_types_label)
-    if bLeo
-        title('Leo')
-    end
-    
-    h(end+1) = gcf;
-    hname{end+1} = 'fig4-SNRs';
-    
-    %%%
-    % Run mixed ANOVA on medianSNR
-    % % repeated measure anova
-    % tdata = array2table(medianSNR(:,:));
-    % [F_maskers,F_sessions] = meshgrid(1:N_maskers,1:N_sessions);
-    % F_maskers = Maskers(F_maskers); F_maskers = F_maskers(:);
-    % F_sessions = [cellfun(@num2str,num2cell(F_sessions),'UniformOutput',false)]; F_sessions = F_sessions(:);
-    % factorNames = {'Masker','Session'};
-    % within = table(F_maskers, F_sessions, 'VariableNames', factorNames);
-    % % fit the repeated measures model
-    % rm = fitrm(tdata,'Var1-Var30~1','WithinDesign',within);
-    % [ranovatblb] = ranova(rm, 'WithinModel','Masker*Session');
+        h(end+1) = gcf;
+        hname{end+1} = 'fig4-SNRs';
 
-    % Run differential mixed ANOVA on medianSNR
-    [F_subjects,F_maskers,F_sessions] = ndgrid(1:N_subjects,1:N_maskers,1:N_sessions);
-    [p,tbl,stats] = anovan(medianSNR(:),{F_maskers(:),F_sessions(:),F_subjects(:)},'varnames',{'maskers','sessions','subjects'},'random',3,'continuous',2,'display','off','model','linear');%
-    fprintf(['\n*Results of mixed ANOVA on SNR thresholds with factors Masker and session (and random factor subject)*\n'])
-    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{2,1}, tbl{2,3}, tbl{5,3}, tbl{2,6}, tbl{2,7})
-    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{3,1}, tbl{3,3}, tbl{5,3}, tbl{3,6}, tbl{3,7})
+        %%%
+        % Run mixed ANOVA on medianSNR
+        % % repeated measure anova
+        % tdata = array2table(medianSNR(:,:));
+        % [F_maskers,F_sessions] = meshgrid(1:N_maskers,1:N_sessions);
+        % F_maskers = Maskers(F_maskers); F_maskers = F_maskers(:);
+        % F_sessions = [cellfun(@num2str,num2cell(F_sessions),'UniformOutput',false)]; F_sessions = F_sessions(:);
+        % factorNames = {'Masker','Session'};
+        % within = table(F_maskers, F_sessions, 'VariableNames', factorNames);
+        % % fit the repeated measures model
+        % rm = fitrm(tdata,'Var1-Var30~1','WithinDesign',within);
+        % [ranovatblb] = ranova(rm, 'WithinModel','Masker*Session');
 
-    %%% Leo's analysis:
-    % *Results of mixed ANOVA on SNR thresholds with factors Masker and session (and random factor subject)*
-    % maskers: F(2,345) = 17.67, p = 0.000
-    % sessions: F(1,345) = 35.50, p = 0.000
-
-    %%% Alejandro's analysis (no data exclusion yet)
-    % maskers: F(2,345) = 16.16, p = 0.000 % slightly smaller effect of masker
-    % sessions: F(1,345) = 37.44, p = 0.000 % slightly larger effect of session
-
-    %%% Latest results on 9/09/2022, after SNR exclusion:
-    % *Results of mixed ANOVA on SNR thresholds with factors Masker and session (and random factor subject)*
-    % maskers: F(2,345) = 15.87, p = 0.000
-    % sessions: F(1,345) = 36.63, p = 0.000
-    
-    multcompare(stats,'display','off') % post-hoc analysis
-    % Factors being compared (1-2; 1-3; 2-3)
-    % 1.0000    2.0000   -0.7001   -0.4834   -0.2668    0.0000
-    % 1.0000    3.0000   -0.2907   -0.0740    0.1426    0.7025
-    % 2.0000    3.0000    0.1928    0.4094    0.6260    0.0000
-    
-    %stats.varnames {'maskers' } {'sessions'} {'subjects'}
-    %
-    % The fourth column shows the difference between the estimated group means. 
-    % The third and fifth columns show the lower and upper limits for 95% CIs for the true mean difference. 
-    % The sixth column contains the p-value for a hypothesis test that the corresponding mean difference is equal to zero. 
-    % If All p-values are very small, indicates that the the dependent variable differs across all three factors.
-
-    do_fig4_stats_N10 = input('Show analysis for 10 participants? (1=yes; 0=no): ');
-    if do_fig4_stats_N10
         % Run differential mixed ANOVA on medianSNR
-        idx_N = 1:N_subjects;
-        idx_N([6 12]) = [];
-    
-        [F_subjects,F_maskers,F_sessions] = ndgrid(idx_N,1:N_maskers,1:N_sessions);
-        SNR_here = medianSNR(idx_N,:,:);
-        [p,tbl,stats] = anovan(SNR_here(:),{F_maskers(:),F_sessions(:),F_subjects(:)},'varnames',{'maskers','sessions','subjects'},'random',3,'continuous',2,'display','off','model','linear');%
+        [F_subjects,F_maskers,F_sessions] = ndgrid(1:N_subjects,1:N_maskers,1:N_sessions);
+        [p,tbl,stats] = anovan(medianSNR(:),{F_maskers(:),F_sessions(:),F_subjects(:)},'varnames',{'maskers','sessions','subjects'},'random',3,'continuous',2,'display','off','model','linear');%
         fprintf(['\n*Results of mixed ANOVA on SNR thresholds with factors Masker and session (and random factor subject)*\n'])
         fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{2,1}, tbl{2,3}, tbl{5,3}, tbl{2,6}, tbl{2,7})
         fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{3,1}, tbl{3,3}, tbl{5,3}, tbl{3,6}, tbl{3,7})
-        
-        % Results on 4/10/2022:
+
+        %%% Leo's analysis:
         % *Results of mixed ANOVA on SNR thresholds with factors Masker and session (and random factor subject)*
-        % maskers: F(2,287) = 15.82, p = 0.000
-        % sessions: F(1,287) = 33.06, p = 0.000
-        
+        % maskers: F(2,345) = 17.67, p = 0.000
+        % sessions: F(1,345) = 35.50, p = 0.000
+
+        %%% Alejandro's analysis (no data exclusion yet)
+        % maskers: F(2,345) = 16.16, p = 0.000 % slightly smaller effect of masker
+        % sessions: F(1,345) = 37.44, p = 0.000 % slightly larger effect of session
+
+        %%% Latest results on 9/09/2022, after SNR exclusion:
+        % *Results of mixed ANOVA on SNR thresholds with factors Masker and session (and random factor subject)*
+        % maskers: F(2,345) = 15.87, p = 0.000
+        % sessions: F(1,345) = 36.63, p = 0.000
+
         multcompare(stats,'display','off') % post-hoc analysis
-        % 1.0000    2.0000   -0.7812   -0.5384   -0.2956    0.0000
-        % 1.0000    3.0000   -0.3192   -0.0764    0.1664    0.7411
-        % 2.0000    3.0000    0.2192    0.4620    0.7048    0.0000
+        % Factors being compared (1-2; 1-3; 2-3)
+        % 1.0000    2.0000   -0.7001   -0.4834   -0.2668    0.0000
+        % 1.0000    3.0000   -0.2907   -0.0740    0.1426    0.7025
+        % 2.0000    3.0000    0.1928    0.4094    0.6260    0.0000
+
+        %stats.varnames {'maskers' } {'sessions'} {'subjects'}
+        %
+        % The fourth column shows the difference between the estimated group means. 
+        % The third and fifth columns show the lower and upper limits for 95% CIs for the true mean difference. 
+        % The sixth column contains the p-value for a hypothesis test that the corresponding mean difference is equal to zero. 
+        % If All p-values are very small, indicates that the the dependent variable differs across all three factors.
+
+        do_fig4_stats_N10 = input('Show analysis for 10 participants? (1=yes; 0=no): ');
+        if do_fig4_stats_N10
+            % Run differential mixed ANOVA on medianSNR
+            idx_N = 1:N_subjects;
+            idx_N([6 12]) = [];
+
+            [F_subjects,F_maskers,F_sessions] = ndgrid(idx_N,1:N_maskers,1:N_sessions);
+            SNR_here = medianSNR(idx_N,:,:);
+            [p,tbl,stats] = anovan(SNR_here(:),{F_maskers(:),F_sessions(:),F_subjects(:)},'varnames',{'maskers','sessions','subjects'},'random',3,'continuous',2,'display','off','model','linear');%
+            fprintf(['\n*Results of mixed ANOVA on SNR thresholds with factors Masker and session (and random factor subject)*\n'])
+            fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{2,1}, tbl{2,3}, tbl{5,3}, tbl{2,6}, tbl{2,7})
+            fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{3,1}, tbl{3,3}, tbl{5,3}, tbl{3,6}, tbl{3,7})
+
+            % Results on 4/10/2022:
+            % *Results of mixed ANOVA on SNR thresholds with factors Masker and session (and random factor subject)*
+            % maskers: F(2,287) = 15.82, p = 0.000
+            % sessions: F(1,287) = 33.06, p = 0.000
+
+            multcompare(stats,'display','off') % post-hoc analysis
+            % 1.0000    2.0000   -0.7812   -0.5384   -0.2956    0.0000
+            % 1.0000    3.0000   -0.3192   -0.0764    0.1664    0.7411
+            % 2.0000    3.0000    0.2192    0.4620    0.7048    0.0000
+        end
     end
 end % end do_fig4
 
@@ -1214,28 +1232,21 @@ if flags.do_fig6 || flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || ...
                   }; % the extra fields
 
     if bIs_Alejandro
-        % dir_where = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc/';
-        dir_where = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc_Leo/';
-            % Run-S01/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
-            % Run-S02/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
-            % ...
-            % Run-S12/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
-
+        dir_where = dir_ACI_exp;
         % Location of the savegames:
                    % /home/alejandro/Desktop/fastACI_today/fastACI_data/speechACI_Logatome-abda-S43M/S01/Results
         % dir_res = {'/home/alejandro/Documents/MATLAB/MATLAB_ENS/fastACI/Publications/publ_osses2022b/',['1-experimental_results' filesep]};
         % dir_wav = '/home/alejandro/Documents/Databases/data/fastACI_data/speechACI_Logatome-abda-S43M/';
     end
-    % for ii = 1:N_subjects
-    %     fname_crosspred{ii} = [dir_where 'ACI-' subject '-speechACI_Logatome-' masker '-nob-gt-' glmfct '+pyrga-rev4.mat'];
-    %     if exist(fname_crosspred{ii},'file')
-    %         bInclude(ii) = 1;
-    %     end
-    % end
 end
 
 if flags.do_fig6
      
+    bAdd_thres = 1; % Option added on 10/10/2022
+    if bAdd_thres 
+        meanSNR = publ_osses2022b_JASA_figs('fig4','no_plot');
+        meanSNR = meanSNR.meanSNR; % recycling the variable
+    end
     N_noises = length(noise_str);
      
     Pos4 = [800 800];
@@ -1246,7 +1257,7 @@ if flags.do_fig6
         figure('Position',[100 100 600 Pos4(i_repeat)]); % set(gcf,'Position',[100 100 600 Pos4(i_repeat)])
         il_tiledlayout(N_subj2plot,N_noises,'TileSpacing','tight');
         for i_subj = 1:N_subj2plot    
-            dir_subj = dir_where;
+            dir_subj = dir_ACI_exp;
             for i_noise = 1:N_noises
                 ACI_fname = [dir_subj 'ACI-' Subjects{i_subj} '-speechACI_Logatome-' noise_str{i_noise} '-nob-gt-l1glm+pyrga-rev4.mat'];
  
@@ -1327,12 +1338,15 @@ if flags.do_fig6
                     text2show = Subjects{i_subj};
                     text(.7,.90,text2show,'FontWeight','Bold','Units','Normalized','FontSize',12);
                 end
+                text2show = sprintf('%.1f',meanSNR(i_subj,i_noise));
+                text(.7,.75,text2show,'FontWeight','Bold','Units','Normalized','FontSize',10,'Color',rgb('Gray'));
                 
                 disp('')
             end
         end
         Subjects(1:N_subj2plot) = []; % remove the first six labels, so that it's easier to repeat this code
-         
+        meanSNR(1:N_subj2plot,:) = [];
+        
         h(end+1) = gcf;
         hname{end+1} = ['fig06-ACI-set' num2str(i_repeat)];
     end
@@ -1364,7 +1378,7 @@ if flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || flags.do_fig3_suppl || ...
                     cross_suffix = '';
                     fname_crosspred = [];
                     for ii = 1:N_subjects
-                        fname_crosspred{ii} = [dir_where 'ACI-' subject '-speechACI_Logatome-' masker '-nob-gt-' glmfct '+pyrga-rev4.mat'];
+                        fname_crosspred{ii} = [dir_ACI_exp 'ACI-' subject '-speechACI_Logatome-' masker '-nob-gt-' glmfct '+pyrga-rev4.mat'];
                         if exist(fname_crosspred{ii},'file')
                             bInclude(ii) = 1;
                         end
@@ -1381,7 +1395,7 @@ if flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || flags.do_fig3_suppl || ...
                         cross_suffix = '';
                         fname_crosspred = [];
                         for ii = 1:N_subjects
-                            fname_crosspred{ii} = [dir_where 'ACI-' Subjects{ii} '-speechACI_Logatome-' masker '-nob-gt-' glmfct '+pyrga-rev4.mat'];
+                            fname_crosspred{ii} = [dir_ACI_exp 'ACI-' Subjects{ii} '-speechACI_Logatome-' masker '-nob-gt-' glmfct '+pyrga-rev4.mat'];
                             if exist(fname_crosspred{ii},'file')
                                 bInclude(ii) = 1;
                             end    
@@ -1393,7 +1407,7 @@ if flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || flags.do_fig3_suppl || ...
                     cross_suffix = 'noise';
                     for ii = 1:N_maskers
                         % fname_crosspred{ii} = [dir_subject 'Results' filesep 'Results_ACI' filesep 'ACI-' subject '-speechACI_Logatome-' noise_str{ii} '-nob-gt-l1glm-rev4.mat'];
-                        fname_crosspred{ii} = [dir_where 'ACI-' subject '-speechACI_Logatome-' noise_str{ii} '-nob-gt-' glmfct '+pyrga-rev4.mat'];
+                        fname_crosspred{ii} = [dir_ACI_exp 'ACI-' subject '-speechACI_Logatome-' noise_str{ii} '-nob-gt-' glmfct '+pyrga-rev4.mat'];
                         if ii == i_masker
                             if exist(fname_crosspred{ii},'file')
                                 bInclude(i_subject) = 1;
@@ -1551,12 +1565,14 @@ if flags.do_fig7
             Me = mean(y2plot2);
             EB = 1.64*sem(y2plot2);
             MCol = 'w';
-            Me_SEM = [Me+EB Me-EB];
-            if max(Me_SEM) >= crit_sig(3) && min(Me_SEM) <= crit_sig(3) % there is a zero crossing, non significant
-                MCol = rgb('Gray');
-            elseif diff(Me_SEM) == 0
-                MCol = rgb('Gray');
-            end
+            % Me_SEM = [Me+EB Me-EB];
+            %%% Changing the colour based on the binomial law, by passed on 10/10/2022:
+            % if max(Me_SEM) >= crit_sig(3) && min(Me_SEM) <= crit_sig(3) % there is a zero crossing, non significant
+            %     MCol = rgb('Gray');
+            % elseif diff(Me_SEM) == 0
+            %     MCol = rgb('Gray');
+            % end
+            %%% End changing the colour
             errorbar(i_masker+offx, Me, EB, 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on
             
             %%% Incorrect trials:
@@ -1577,12 +1593,14 @@ if flags.do_fig7
             Me = mean(y2plot2);
             EB = 1.64*sem(y2plot2);
             MCol = 'w';
-            Me_SEM = [Me+EB Me-EB];
-            if max(Me_SEM) >= crit_sig(4) && min(Me_SEM) <= crit_sig(4) % there is a zero crossing, non significant
-                MCol = rgb('Gray');
-            elseif diff(Me_SEM) == 0
-                MCol = rgb('Gray');
-            end
+            % Me_SEM = [Me+EB Me-EB];
+            %%% Changing the colour based on the binomial law, by passed on 10/10/2022:
+            % if max(Me_SEM) >= crit_sig(4) && min(Me_SEM) <= crit_sig(4) % there is a zero crossing, non significant
+            %     MCol = rgb('Gray');
+            % elseif diff(Me_SEM) == 0
+            %     MCol = rgb('Gray');
+            % end
+            %%% End changing the colour
             errorbar(i_masker+offx,Me, EB, 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on            
         end
 
@@ -2275,7 +2293,7 @@ if flags.do_fig10      || flags.do_fig8b      || flags.do_fig11_old || flags.do_
     
     % All simulation results were stored in one output folder
     if isunix
-        dir_results = '/home/alejandro/Documents/Databases/data/fastACI_data_z_tmp/20220715_sim_Q1_osses2022a/';
+        dir_results = dir_ACI_sim;
     else
         error('Leo put your folder here...')
         dir_results = [];
@@ -2293,6 +2311,8 @@ if flags.do_fig10
     Pos4 = [400 1200];
     N_subjs2plot = [3 9];
     
+    bAdd_thres = 1; % Option added on 12/10/2022
+        
     for i_repeat = 1:2
         
         N_subj2plot = N_subjs2plot(i_repeat);
@@ -2301,6 +2321,22 @@ if flags.do_fig10
         for i_subj = 1:N_subj2plot    
             dir_subj = [dir_results Subjects_ID{i_subj} filesep];
             for i_noise = 1:N_noises
+                
+                if bAdd_thres 
+                    dir_subj_save = [dir_savegame_sim Subjects_ID{i_subj} filesep];
+                    file_savegame = Get_filenames(dir_subj_save,['savegame*' noise_str{i_noise} '*.mat']);
+                    if length(file_savegame)==1
+                        % Only one file should be retrieved
+                        outs_SNR = il_get_SNR([dir_subj_save file_savegame{1}]);
+                    else
+                        error('Only 1 file_savegame should have been found')
+                    end
+                    meanSNR_sim(i_subj,i_noise) = mean(outs_SNR.SNR_me);
+                    trial_nr(i_subj,i_noise) = length(outs_SNR.idxs2use_all);
+                    % meanSNR = publ_osses2022b_JASA_figs('fig4','no_plot');
+                    % meanSNR = meanSNR.meanSNR; % recycling the variable
+                end
+                
                 ACI_fname = [dir_subj 'ACI-' model_str '-speechACI_Logatome-' noise_str{i_noise} '-nob-gt-l1glm+pyrga-rev4.mat'];
 
                 ACI = [];
@@ -2343,11 +2379,19 @@ if flags.do_fig10
                     text2show = Subj_ID{2};
                     text(.7,.90,text2show,'FontWeight','Bold','Units','Normalized','FontSize',12);
                 end
+                text2show = sprintf('%.1f',meanSNR_sim(i_subj,i_noise));
+                text(.7,.75,text2show,'FontWeight','Bold','Units','Normalized','FontSize',10,'Color',rgb('Gray'));
                 
                 disp('')
             end
         end
+        if i_repeat == 1
+            meanSNR_sim_all = [];
+        end
+        meanSNR_sim_all = [meanSNR_sim_all; meanSNR_sim];
+        
         Subjects_ID(1:N_subj2plot) = []; % remove the first six labels, so that it's easier to repeat this code
+        meanSNR_sim(1:N_subj2plot,:) = [];
         
         h(end+1) = gcf;
         hname{end+1} = ['fig10-ACI-sim-set' num2str(i_repeat)];
@@ -3592,3 +3636,82 @@ end
 Me_nodiag = nanmean(insig(:));
 insig = insig( find(~isnan(insig)) );
 opts.Me_nodiag_sem = 1.64*sem(insig(:));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function outs = il_get_SNR(file_savegame)
+
+% data_passation = [];
+% cfg_game = [];
+load(file_savegame,'data_passation');
+
+n_responses = data_passation.n_responses;
+N_trials    = length(n_responses); % completed number of trials
+% n_signal    = data_passation.n_targets(1:N_trials);
+SNR         = data_passation.expvar;
+
+resume_trial = data_passation.resume_trial; resume_trial(1)=1;resume_trial(end+1)=data_passation.i_current;
+N_sessions  = length(resume_trial)-1;
+
+% Fig. 2: Reversal analysis ---------------------------------------
+
+if N_sessions > 10
+    % In this case, the participants might have taken one or more pauses...
+    idx_odd = find(mod(resume_trial(1:end-1)-1,400)~=0);
+    fprintf('Participant %s has %.0f shorter sessions\n',subject,length(idx_odd));
+    fprintf('\tI am going to merge that session with the previous one...\n',subject,length(idx_odd));
+    for i_odd = 1:length(idx_odd)
+        fprintf('\t(session %.0f started at trial %.0f)\n',idx_odd(i_odd),resume_trial(idx_odd));
+    end
+    resume_trial(idx_odd) = [];
+    N_sessions = length(resume_trial)-1;
+end
+            
+idxs2use_all = [];
+for i_session = 1:N_sessions
+
+    %%% Leo's way: Analysis only using the reversals: -------------
+    % sessions are redefined as blocks of 400 trials
+    idxi = 1+400*(i_session-1);
+    idxf = 400*(i_session);
+    [rev, idx] = Get_mAFC_reversals(SNR(idxi:idxf));
+                
+    % % Then uses median:
+    % medianSNR_old(i_subject, i_masker, i_session) = median(rev);
+    % percSNR_L_old(i_subject, i_masker, i_session) = prctile(rev,5);
+    % percSNR_U_old(i_subject, i_masker, i_session) = prctile(rev,95);
+    iscorr = data_passation.is_correct(idx);
+    % perc_corr_old(i_subject, i_masker, i_session) = sum(iscorr)/length(iscorr);
+
+    %%% Alejandro's way:
+    idxi = resume_trial(i_session);
+    idxf = resume_trial(i_session+1)-1;
+
+    idxi_rev = idx(4); % reversal number 4 (including it) and later
+    idxi100 = idxf-100; % reversal number 4 (including it) and later
+
+    idxs2use = idxi+idxi_rev:idxf;
+    idxs2use_all = [idxs2use_all idxs2use]; % collating the idxs of the kept trials
+    SNR_here = SNR(idxs2use);
+    SNR_me(i_session)    = median(SNR_here);
+    SNR_percL(i_session) = prctile(SNR_here,5);
+    SNR_percU(i_session) = prctile(SNR_here,95);
+
+    % iscorr = data_passation.is_correct(idxs2use);
+    % perc_corr(i_subject, i_masker, i_session) = sum(iscorr)/length(iscorr);
+    % 
+    % iscorr = data_passation.is_correct(idxi:idxf);
+    % perc_corr_all(i_subject, i_masker, i_session) = sum(iscorr)/length(iscorr);
+    % 
+    % iscorr = data_passation.is_correct(idxi_rev:idxf);
+    % perc_corr_rev(i_subject, i_masker, i_session) = sum(iscorr)/length(iscorr);
+    % 
+    % iscorr = data_passation.is_correct(idxi100:idxf);
+    % perc_corr_100(i_subject, i_masker, i_session) = sum(iscorr)/length(iscorr);
+    % disp('')
+end
+outs = [];
+outs.SNR_me = SNR_me;
+outs.SNR_percL = SNR_percL;
+outs.SNR_percU = SNR_percU;
+
+outs.idxs2use_all = idxs2use_all;

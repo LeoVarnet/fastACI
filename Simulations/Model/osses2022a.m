@@ -29,7 +29,8 @@ function [outsig, fc, mfc, params] = osses2022a(insig, fs, varargin);
 %   4) an adaptation stage modelling nerve adaptation by a cascade of 5
 %      loops using a limiter factor of 5 (Osses and Kohlrausch, 2021).
 %
-%   5) a modulation filterbank
+%   5) a modulation filterbank (update using debug version in '/fastACI_sim/ ...
+%      MATLAB/tb_AMT_AddOns/models_debug_202206/0702-osses22a-v1/osses2022a.m'
 %
 %   Any of the optional parameters for |auditoryfilterbank|,
 %   |ihcenvelope| and |adaptloop| may be optionally specified for this
@@ -62,7 +63,7 @@ if ~isnumeric(fs) || ~isscalar(fs) || fs<=0
 end;
 % load defaults from arg_auditoryfilterbank, arg_ihcenvelope, arg_adaptloop, arg_modfilterbank and arg_osses2021
 definput.import={'auditoryfilterbank_local','ihcenvelope','adaptloop','modfilterbank_local','osses2021'}; 
-definput.importdefaults={'afb_osses2021','ihc_breebaart2001', 'adt_osses2021','mfb_osses2022a'}; 
+definput.importdefaults={'afb_osses2021','ihc_breebaart2001', 'adt_osses2021','mfb_osses2021'}; 
 definput.keyvals.subfs=[];
 
 [flags,keyvals]  = ltfatarghelper({'flow','fhigh'},definput,varargin);
@@ -176,6 +177,8 @@ if flags.do_mfb
         subfs = fs;
     end
 
+    keyvals.Q_mfb = 1; % To do AO: Automate this and include it in arg_modfilterbank.m
+    
     switch keyvals.mfb_script
         case 'osses2022_modfilterbank'
             [outsig, mfc, params] = osses2022_modfilterbank(outsig,subfs,fc,'argimport',flags,keyvals);
