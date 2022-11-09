@@ -24,7 +24,7 @@ cfg.displayN       = bDebug; % 'oui'
 cfg.feedback       = 1;
 
 cfg.sessionsN      = 400; % CAUTION: Overwritten in the case of simulation
-cfg.adapt          = 2; warning('default is 1 - now we are only testing')% 
+cfg.adapt          = 1; % warning('default is 1 - now we are only testing')% 
 cfg.randorder      = 1;
  
 cfg.startvar = 0;  % old name 'm_start'
