@@ -74,6 +74,7 @@ for i_subject = 1:length(Subjects)
                 
                     % Now we look again for a savegame file, and now should be found:
                     fname_results = Get_filenames(dir_local,['savegame*' noise_type '.mat']); % [fastACI_dir_data 'speechACI_varnet2013' filesep subj filesep folders{1} filesep 'savegame_*_SSN.mat'];
+                    fname_results = [dir_local fname_results{1}];
                 end
                 
             otherwise
