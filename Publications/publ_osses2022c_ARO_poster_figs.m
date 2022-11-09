@@ -66,11 +66,6 @@ for i = 1:length(Subjects)
     for j = length(noise_types):-1:1 % reversed order (in case we need to remove one noise condition)
         outs = publ_osses2022c_ARO_poster_utils(Subjects{i},noise_types{j},'Get_filenames');
         
-        % if outs.bGenerate_stimuli == 0
-        %     % 
-        % 
-        %     disp('')
-        % end
         if outs.bGenerate_stimuli == 1
             
             warning('Re-generate waveforms first...');

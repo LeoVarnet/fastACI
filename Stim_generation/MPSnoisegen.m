@@ -100,7 +100,12 @@ end
 % Filtering in the MPS domain
 mt_idx = abs(mt)<cutoff_t;
 mf_idx = abs(mf)<cutoff_f;
-filterMPS = mf_idx'*mt_idx;
+try
+    filterMPS = mf_idx'*mt_idx;
+catch
+    % The previous operation is equivalent to (and more correctly implemented as):
+    filterMPS = repmat(mf_idx(:),1,length(mt_idx)).*repmat(mt_idx,length(mf_idx),1);
+end
 
 filtered_amp_fabs = amp_fabs;
 filtered_amp_fabs(find(~filterMPS)) = 0;
