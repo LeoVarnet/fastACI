@@ -45,21 +45,8 @@ copyfile(file_src,file_dst);
 
 %%% Getting the extra parameters that are not explicit in the cfg files:
 % p = il_get_model_config(run_str, modelname);
+in_std = 0;
 
-% if isfield(p,'thres_for_bias')
-%     thres_for_bias = p.thres_for_bias;
-% else
-%     thres_for_bias = 0;
-% end
-% if isfield(p,'in_std')
-%     in_std = p.in_std;
-% else
-    in_std = 0;
-% end
-
-% for i = 1:length(Conditions)
-%     noise_type = Conditions{i};
-    
 p = Get_date;
 fname_template_suffix = [noise_type '-' p.date4files]; % trick to always get a new template
 flags_here = {'thres_for_bias',[],'in_std',in_std,'fname_template_suffix',fname_template_suffix};

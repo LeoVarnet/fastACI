@@ -246,7 +246,7 @@ for i_subject = 1:length(Subjects)
                     switch model
                         case 'osses2022a'
                             subfs = 16000;
-                            flags_model = {'mfb','subfs',subfs};
+                            flags_model = {'mfb','subfs',subfs,'mfb_osses2022a'};
                             [outsig,fc,mfc] = osses2022a(insig,fs,flags_model{:});
 
                             idx2use = [8 17 19]; % approx at 400, 1500, and 2000 Hz.
