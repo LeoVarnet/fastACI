@@ -16,7 +16,7 @@ end
 def_sim.bStore_template = 1;
 
 def_sim.subfs = 16000; % Hz
-def_sim.modelpars = {}; % empty
+def_sim.modelpars = {'mfb_osses2022a'}; % This filter bank is not the default anymore
 
 if exist('model_cfg.m','file')
     % Config: AFC toolbox
