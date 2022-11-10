@@ -153,7 +153,7 @@ for i_subject = 1:length(Subjects)
             end
             model = 'osses2022a';
             fname_kern = sprintf('Kernels-%s-%s-model-%s%s%s.mat',Subjects_lab{i_subject},noise_type,model,suff_SNR,suff_LPF);
-            fname_kern_full = sprintf('%s%s',dir_out,fname_kern);
+            fname_kern_full = sprintf('%s%s',dir_out_figs,fname_kern);
             
             bRun = ~exist(fname_kern_full,'file');
             
