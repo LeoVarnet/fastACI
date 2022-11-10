@@ -128,7 +128,7 @@ if do_fig2
             win = hamming(L);
             [~,f_spec,t_spec,P] = spectrogram(insig,win,L_overlap,L_f,fs);
             P_dB = 10*log10(abs(P));
-            max_dB = max(P_dB);
+            max_dB = max(max(P_dB));
             P_dB = P_dB-max_dB;
             P_dB(1)   =-65; % 'min value': Trick to fix the ylimits
             P_dB(end) =  0; % 'max value': Trick to fix the ylimits
@@ -352,8 +352,8 @@ if flags.do_fig3 || flags.do_fig3a || flags.do_fig3b || flags.do_fig4 || flags.d
 
     if bDo_partialACIs
         LW = 2;
-        Markers = {'o-','s--','d:'};
-        Colours = {rgb('Gray'),rgb('Maroon'),'k'};
+        Markers = {'o-','d:','s--'};
+        Colours = {rgb('Gray'),'k',rgb('Maroon')};
     end
 
     for i_subject = 1:length(Subjects)

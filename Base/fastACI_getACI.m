@@ -52,7 +52,7 @@ Data_matrix = [];
 [fnameACI, cfg_game, data_passation, ListStim, flags, keyvals] = fastACI_getACI_fname(savegame_file,varargin{:});
 bCalculation = ~exist(fnameACI,'file');
 if isempty(keyvals.dir_noise)
-    if ~exist(cfg_game.dir_noise,'dir')
+    if ~exist(cfg_game.dir_noise,'dir') && isempty(keyvals.Data_matrix)
         % Prepare ACI analysis
         cfg_game = Check_cfg_crea_dirs(cfg_game);
         
@@ -195,7 +195,7 @@ end
 % ADD HERE: RECONSTRUCTION OF NOISE WAVEFORMS FOR SEEDS EXPERIMENTS
 if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPred
     
-    if ~exist(cfg_ACI.dir_noise,'dir') && isempty(cfg_ACI.keyvals.dir_noise)
+    if ~exist(cfg_ACI.dir_noise,'dir') && isempty(cfg_ACI.keyvals.dir_noise) && isempty(keyvals.Data_matrix)
     
         % If it does not exist
         if isfield(cfg_game,'seeds_order')
@@ -265,6 +265,14 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
     else
         Data_matrix = keyvals.Data_matrix;
         
+        if ~exist(cfg_ACI.dir_noise,'dir')
+            if keyvals.consistency_check == 1
+                warning('The consistency check will be skipped because the sounds were not found on disk...');
+                fprintf('Pausing for 5 second...')
+                pause(5);
+                keyvals.consistency_check = 0;
+            end
+        end
         switch flags.TF_type
             case {'spect','gammatone'} % Then Data_matrix is checked for consistency
                 if keyvals.consistency_check
