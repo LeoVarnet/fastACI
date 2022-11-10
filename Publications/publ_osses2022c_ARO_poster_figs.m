@@ -352,8 +352,8 @@ if flags.do_fig3 || flags.do_fig3a || flags.do_fig3b || flags.do_fig4 || flags.d
 
     if bDo_partialACIs
         LW = 2;
-        Markers = {'o-','s--','d:'};
-        Colours = {rgb('Gray'),rgb('Maroon'),'k'};
+        Markers = {'o-','d:','s--'};
+        Colours = {rgb('Gray'),'k',rgb('Maroon')};
     end
 
     for i_subject = 1:length(Subjects)
