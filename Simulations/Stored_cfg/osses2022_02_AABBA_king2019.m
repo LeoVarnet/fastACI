@@ -1,4 +1,4 @@
-function def_sim = king2019_cfg
+function def_sim = king2019_cfg(keyvals)
 
 def_sim.modelname = 'king2019';
 def_sim.decision_script = 'aci_detect';
@@ -9,7 +9,7 @@ def_sim.det_lev = -6;
 def_sim.type_decision = 'optimal_detector';
 switch def_sim.type_decision
   case 'optimal_detector'
-    optdet_params = optimal_detector_cfg(def_sim.modelname);
+    optdet_params = optimal_detector_cfg(def_sim.modelname,keyvals);
     def_sim.thres_for_bias = optdet_params.thres_for_bias;
     def_sim.in_var = optdet_params.in_var;
 end
