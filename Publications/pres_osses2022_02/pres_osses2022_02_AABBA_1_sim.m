@@ -33,7 +33,7 @@ switch modelname
         file_src = [dir_src pref 'king2019.m'];
         
     case 'relanoiborra2019'
-        file_src = [dir_src pref 'relanoiborra.m'];
+        file_src = [dir_src pref 'relanoiborra2019.m'];
         
     case 'osses2021'
         file_src = [dir_src pref 'osses2021.m'];
@@ -73,9 +73,11 @@ while data_passation.i_current < cfg_game.N
     [cfg_game,data_passation] = fastACI_experiment(experiment,modelname,noise_type,flags_here{:});
 end
 
+run_str = 'AABBA-2022-01';
 folder_src = cfg_game.dir_results;
 folder_new = [fileparts(cfg_game.dir_results(1:end-1)) filesep 'Results-' run_str filesep];
 if exist(folder_new,'dir')
+    p = Get_date;
     folder_new = [fileparts(cfg_game.dir_results(1:end-1)) filesep 'Results-' run_str '-retest-on-' p.date4files filesep];
 
     if exist(folder_new,'dir')
@@ -83,92 +85,4 @@ if exist(folder_new,'dir')
     end
 end
 movefile(folder_src,folder_new);
-
-
-
-
-
-
-
-
-
-
-p = il_get_model_config_DAGA(run_str, modelname);
-
-if isfield(p,'thres_for_bias')
-    thres_for_bias = p.thres_for_bias;
-else
-    thres_for_bias = 0;
-end
-if isfield(p,'in_std')
-    in_std = p.in_std;
-else
-    in_std = 0;
-end
-
-for i = 1:length(Conditions)
-    noise_type = Conditions{i};
-    
-    p = Get_date;
-    fname_template_suffix = [noise_type '-' p.date4files]; % trick to always get a new template
-    flags_here = {'thres_for_bias',thres_for_bias,'in_std',in_std,'fname_template_suffix',fname_template_suffix};
-    
-    data_passation.i_current = 1; % idle numbers
-    cfg_game.N = 5000; % idle numbers
-
-    while data_passation.i_current < cfg_game.N
-        [cfg_game,data_passation] = fastACI_experiment(experiment,modelname,noise_type,flags_here{:});
-    end
-    
-    folder_src = cfg_game.dir_results;
-    folder_new = [fileparts(cfg_game.dir_results(1:end-1)) filesep 'Results-' run_str filesep];
-    if exist(folder_new,'dir')
-        folder_new = [fileparts(cfg_game.dir_results(1:end-1)) filesep 'Results-' run_str '-retest-on-' p.date4files filesep];
-        
-        if exist(folder_new,'dir')
-            error('Rename manually the ''Results'' folder...')
-        end
-    end
-    movefile(folder_src,folder_new);
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function p = il_get_model_config_DAGA(run_str,modelname)
-
-switch modelname
-    case 'osses2021'
-        % Nothing to do
-    otherwise
-        error('This publication only used the model ''osses2021''')
-end
-p = [];
-p.modelname = modelname;
-p.bStore_template = 0; % New option added on 17/09/2021, not relevant for
-                       % the simulations here
-switch run_str
-    case 'run-1'
-        p.thres_for_bias = 0;
-        p.in_std = 0;
-        
-    case 'run-3-m1p55'
-        p.thres_for_bias = -1.55;
-        p.in_std = 0;
-        
-    case 'run-3-p0p39'
-        p.thres_for_bias = 0.39;
-        p.in_std = 0;
-        
-    case 'run-3-p0p78'
-        p.thres_for_bias = 0.78;
-        p.in_std = 0;
-        
-    case 'run-4'
-        p.in_std = 0;
-        
-    otherwise
-        error('Run condition not recognised')
-end
-
-if ~isfield(p,'thres_for_bias')
-    p.thres_for_bias = nan;
-end
+% cfg_game.N = 5000; % idle numbers
