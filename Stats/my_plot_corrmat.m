@@ -384,24 +384,36 @@ function il_update_plot(initialise,curr_data_type,~)
         h_colorbar = colorbar('southoutside','Position',colorbar_pos); 
         % Set Colorbar Ticks:
         try
-            set(h_colorbar,'Limits',main_colorbar_lim);
-            set(h_colorbar,'LimitsMode','manual');
+            h_colorbar.Limits = main_colorbar_lim;
+            h_colorbar.LimitsMode = 'manual';
             YTicks = get(h_colorbar,'TickLabels');
+            
+            h_colorbar.FontName = 'Arial';
+            h_colorbar.FontSize = parsed_inputs.colorbar_FontSize;
+            h_colorbar.FontWeight = 'bold';
+        
         catch
             set(h_colorbar,'CLim',main_colorbar_lim);
             set(h_colorbar,'CLimMode','manual');
             YTicks = get(h_colorbar,'YTickLabel');
+            
+            set(h_colorbar,'FontName','Arial');
+            set(h_colorbar,'FontSize',parsed_inputs.colorbar_FontSize);
+            set(h_colorbar,'FontWeight','bold');
+        end
+        if iscell(YTicks)
+            YTicks_cell = YTicks;
+            YTicks = [];
+            for i_ti = 1:length(YTicks_cell)
+                YTicks(i_ti) = str2double( YTicks_cell{i_ti} );
+            end
         end
         
-        set(h_colorbar,'FontName','Arial');
-        set(h_colorbar,'FontSize',parsed_inputs.colorbar_FontSize);
-        set(h_colorbar,'FontWeight','bold');
         colorbar_main_cvec = linspace(cmin,cmax,m);
         
         if (cmax-cmin)>(.15*m) % if colorbar ticks should be integers
             colorbar_main_cvec = round(colorbar_main_cvec);
             New_ticks = sprintf('%1g\n',colorbar_main_cvec(YTicks));
-            h_colorbar.TickLabels = cellstr(New_ticks);
         else
             New_ticks = sprintf('%4.2g\n',colorbar_main_cvec(YTicks));
         end

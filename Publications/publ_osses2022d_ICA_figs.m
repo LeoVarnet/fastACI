@@ -71,13 +71,23 @@ flags_for_input = {'trialtype_analysis','total', ...'t1',...
 dir_out = '';
 dir_out_figs = [pwd filesep];
 if iswindows
-    fullpath = 'C:\Users\LeoVarnet\ownCloud\Data\fastACI_data\';
+    fullpath = 'C:\Users\LeoVarnet\ownCloud\Data\fastACI_data\'; % Leo's local folder
 else
+    % Alejandro's local folder:
     dir_out = '/home/alejandro/Documents/Databases/data/fastACI_data_TST/publ_varnet2022b_CFA/';
     fullpath = fastACI_paths('dir_data');
+end
+
+if exist(dir_out,'dir')
     flags_for_input{end+1} = 'dir_out';
     flags_for_input{end+1} = dir_out;
-    dir_out_figs = [dir_out 'Figures-new' filesep]; mkdir(dir_out_figs);
+    
+    dir_out_figs = [dir_out 'Figures-new' filesep]; 
+    if ~exist(dir_out_figs,'dir')
+        mkdir(dir_out_figs);
+    end
+else
+    dir_out = ''; % making sure that a non-existing dir_out is set to empty (i.e., defaults will be used)
 end
 
 if flags.do_table2
@@ -177,11 +187,18 @@ if flags.do_fig2
     Pos = [50 50 750 650];
     figure('Position', Pos)
     tspacing_style = 'none'; % 'Compact'
-    tlayout = tiledlayout(4,4,'TileSpacing',tspacing_style, 'Padding',tspacing_style');
+    tlayout = il_tiledlayout(4,4,'TileSpacing',tspacing_style, 'Padding',tspacing_style');
 
+    fprintf('Pausing for 3 seconds\n')
+    pause(3)
+    % curr_tile = 0;
     for i_experiment = 1:length(experiments)
-        nexttile
-
+        % curr_tile = curr_tile + 1;
+        il_nexttile; % (curr_tile);
+        
+        fprintf('Pausing for 1 second\n')
+        pause(1)
+    
         dir_expe = [fullpath experiments{i_experiment}{1} filesep experiments{i_experiment}{3} filesep];
         switch experiments{i_experiment}{1}
             case 'modulationACI'
@@ -320,7 +337,7 @@ if flags.do_fig2
 
                     affichage_tf_add_Praat_metrics_one_sound(fname1,cfg_ACI,par_formants, '-', 'w',LW);
                 end
-                nexttile
+                il_nexttile
                 switch experiments{i_experiment}{1}
                     case 'modulationACI' 
                         affichage_tf(G1, 'pow', t, fc, opts_colourbar{:}); hold on; %, caxis([0 0.01]);
@@ -332,7 +349,7 @@ if flags.do_fig2
                 if bAdd_formants
                     affichage_tf_add_Praat_metrics_one_sound(fname2,cfg_ACI,[], '-', 'w',LW);
                 end
-                nexttile
+                il_nexttile
         end
 
         % display ACI
@@ -373,17 +390,17 @@ if flags.do_fig2
     y_cb(1) = -.05; % position for colourbar, normalised units
 
     flags_common = {'Unit','Normalized','FontWeight','bold','HorizontalAlignment', 'right'};
-    ax=nexttile(1);colormap(ax,'hot'); xlabel('');ylabel(YLab); text(posX,posY,'mod. tone'  ,'Color','white',flags_common{:});
-    ax=nexttile(2);colormap(ax,'hot'); xlabel('');ylabel('');   text(posX,posY,'unmod. tone','Color','white',flags_common{:});
+    ax=il_nexttile(1);colormap(ax,'hot'); xlabel('');ylabel(YLab); text(posX,posY,'mod. tone'  ,'Color','white',flags_common{:});
+    ax=il_nexttile(2);colormap(ax,'hot'); xlabel('');ylabel('');   text(posX,posY,'unmod. tone','Color','white',flags_common{:});
     % set(gca,'YTickLabel',[]);
-    ax=nexttile(3);
+    ax=il_nexttile(3);
     xlabel('');ylabel('');
     i_subj = 1;
     i_exp = 1;
     text(posX,posY    , S01_Lab, flags_common{:});
     text(posX,posY-0.15, sprintf('thres\n%.1f dB',thres(i_subj,i_exp)),'FontSize',FS_thres, flags_common{:});
 
-    ax=nexttile(4);
+    ax=il_nexttile(4);
     xlabel('');ylabel('');
     i_subj = 2;
     text(posX,posY    , S02_Lab, flags_common{:});
@@ -393,22 +410,22 @@ if flags.do_fig2
     text(x_cb,y_cb(1),'unmod','Color','blue','Units','Normalized');
 
     % set(gca,'YTickLabel',[]);
-    ax=nexttile(5);colormap(ax,'hot'); 
+    ax=il_nexttile(5);colormap(ax,'hot'); 
     xlabel('');ylabel(YLab); 
     text(posX,posY,'aba'        ,'Color','white',flags_common{:});
-    ax=nexttile(6);colormap(ax,'hot'); 
+    ax=il_nexttile(6);colormap(ax,'hot'); 
     xlabel('');ylabel('');   
     text(posX,posY,'ada'        ,'Color','white',flags_common{:});
 
     % set(gca,'YTickLabel',[]);
-    ax=nexttile(7);
+    ax=il_nexttile(7);
     xlabel('');ylabel('');   
     i_subj = 1;
     i_exp  = 2; 
     text(posX,posY     , S01_Lab, flags_common{:});
     text(posX,posY-0.15, sprintf('thres\n%.1f dB',thres(i_subj,i_exp)),'FontSize',FS_thres,flags_common{:});
 
-    ax=nexttile(8);
+    ax=il_nexttile(8);
     xlabel('');ylabel('');   
     i_subj = 2;
     text(posX,posY    , S02_Lab, flags_common{:});
@@ -418,10 +435,10 @@ if flags.do_fig2
     text(x_cb,y_cb(1),'ada','Color','blue','Units','Normalized');
 
     % set(gca,'YTickLabel',[]);
-    ax=nexttile(9);colormap(ax,'hot'); xlabel('');ylabel(YLab); text(posX,posY,'aba'        ,'Color','white',flags_common{:});
-    ax=nexttile(10);colormap(ax,'hot');xlabel('');ylabel('');   text(posX,posY,'ada'        ,'Color','white',flags_common{:});
+    ax=il_nexttile(9);colormap(ax,'hot'); xlabel('');ylabel(YLab); text(posX,posY,'aba'        ,'Color','white',flags_common{:});
+    ax=il_nexttile(10);colormap(ax,'hot');xlabel('');ylabel('');   text(posX,posY,'ada'        ,'Color','white',flags_common{:});
     % set(gca,'YTickLabel',[]);
-    ax=nexttile(11);                   
+    ax=il_nexttile(11);                   
     xlabel('');ylabel('');   
     text(posX,posY, S01_Lab                     ,flags_common{:});
     i_subj = 1;
@@ -429,7 +446,7 @@ if flags.do_fig2
     text(posX,posY     , S01_Lab, flags_common{:});
     text(posX,posY-0.15, sprintf('thres\n%.1f dB',thres(i_subj,i_exp)),'FontSize',FS_thres,flags_common{:});
 
-    ax=nexttile(12);
+    ax=il_nexttile(12);
     xlabel('');ylabel('');
     text(posX,posY, S02_Lab                     ,flags_common{:});
     i_subj = 2;
@@ -440,10 +457,10 @@ if flags.do_fig2
     text(x_cb,y_cb(2),'aba','Color','red' ,'Units','Normalized');
     text(x_cb,y_cb(1),'ada','Color','blue','Units','Normalized');
 
-    ax=nexttile(13);colormap(ax,'hot');           ylabel(YLab); text(posX,posY,'aba'        ,'Color','white',flags_common{:});
-    ax=nexttile(14);colormap(ax,'hot');           ylabel('');   text(posX,posY,'ada'        ,'Color','white',flags_common{:});
+    ax=il_nexttile(13);colormap(ax,'hot');           ylabel(YLab); text(posX,posY,'aba'        ,'Color','white',flags_common{:});
+    ax=il_nexttile(14);colormap(ax,'hot');           ylabel('');   text(posX,posY,'ada'        ,'Color','white',flags_common{:});
     % set(gca,'YTickLabel',[]);
-    ax=nexttile(15);
+    ax=il_nexttile(15);
     ylabel('');   
     text(posX,posY, S01_Lab                     ,flags_common{:});
     i_subj = 1;
@@ -451,7 +468,7 @@ if flags.do_fig2
     text(posX,posY     , S01_Lab, flags_common{:});
     text(posX,posY-0.15, sprintf('thres\n%.1f dB',thres(i_subj,i_exp)),'FontSize',FS_thres,flags_common{:});
 
-    ax=nexttile(16);
+    ax=il_nexttile(16);
     ylabel('');   
     text(posX,posY, S02_Lab                     ,flags_common{:});
     i_subj = 2;
@@ -471,10 +488,10 @@ if flags.do_fig2
 
     tAlignment = 'left';
     FS = 10;
-    ax=nexttile(1);  title('MOD22' ,'FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
-    ax=nexttile(5);  title('ABDA13','FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
-    ax=nexttile(9);  title('ABDA21','FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
-    ax=nexttile(13); title('ABDA22','FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
+    ax=il_nexttile(1);  title('MOD22' ,'FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
+    ax=il_nexttile(5);  title('ABDA13','FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
+    ax=il_nexttile(9);  title('ABDA21','FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
+    ax=il_nexttile(13); title('ABDA22','FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
 
     fout = [dir_out_figs 'Figure2'];
     % print(fout,'-dpdf')
@@ -485,57 +502,39 @@ if flags.do_fig2
     opts = [];
     opts.format = 'fig';
     Saveas(gcf,fout,opts);
+end
 
-    % %% Plot two examples of WN and SSN
-    % f_limits = [0 4050]; % Hz, the exact bin is at 4048 Hz (see the paper, p. 4, top)
-    % t_limits = [0 0.3425]; % s, first 0.34 s were accounted for (see the paper, p. 3)
-    % 
-    % %%% ABDA13 / ABDA21
-    % dir_target = '/home/alejandro/Documents/MATLAB/MATLAB_ENS/fastACI/Stimuli/varnet2013/';
-    % files = {'Aba.wav','Ada.wav'};
-    % %%
-    % 
-    % % %%% ABDA22
-    % % dir_target = '/home/alejandro/Documents/MATLAB/MATLAB_ENS/fastACI/Stimuli/Logatome/';
-    % % files = {'S43M_ab_ba_eq.wav','S43M_ad_da_eq.wav'};
-    % % %%%
-    % 
-    % opts = [];
-    % opts.window = 'hamming';
-    % 
-    % [T_dB,f_spec,t_spec] = Time_frequency_converter(dir_target,files,length(files),opts);
-    % %%%
-    % tf_s = t_limits(end); 
-    % ff   = f_limits(end); 
-    % 
-    % idx_t = find(round(100*t_spec)/100 <= tf_s);
-    % idx_f = find(round(f_spec) <= ff);
-    % f_spec = f_spec(idx_f);
-    % t_spec = t_spec(idx_t);
-    % T_dB   = T_dB(idx_f,idx_t,:);
-    % %%%
-    % 
-    % max_dB = max(max(max(T_dB)));
-    % 
-    % figure;
-    % subplot(1,3,1)
-    % plot_stft(t_spec,f_spec,T_dB(:,:,1)-max_dB);
-    % title('/aba/');
-    % 
-    % % figure;
-    % subplot(1,3,2)
-    % plot_stft(t_spec,f_spec,T_dB(:,:,2)-max_dB);
-    % title('/ada/');
-    % 
-    % % figure;
-    % subplot(1,3,3)
-    % plot_stft(t_spec,f_spec,T_dB(:,:,1)-T_dB(:,:,2));
-    % title('/aba/-/ada/');
-    % 
-    % Pos = get(gcf,'Position');
-    % Pos(3) = 2.5*Pos(3); % widening the figure
-    % set(gcf,'Position',Pos);
-    % 
-    % h(end+1) = gcf;
-    % hname{end+1} = 'fig1-aba-ada-diff';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function handle_tl = il_tiledlayout(N,M,TileSpacing,TileSpacing_option,varargin)
+
+handle_tl = [];
+if nargin < 4
+    TileSpacing_option = 'Compact';
+end
+bExist = exist('tiledlayout','file'); % tiledlayout.p
+if bExist
+    if isempty(varargin)
+        handle_tl = tiledlayout(N,M,TileSpacing,TileSpacing_option);
+    else
+        handle_tl = tiledlayout(N,M,TileSpacing,TileSpacing_option,varargin{:});
+    end
+else
+    warning('We programmed this script to use more recent graphic options from MATLAB. It might be that you won''t be able to visualise these results as we have foreseen...')
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function il_nexttile(N)
+
+bExist = exist('nexttile','file'); % nexttile
+if bExist
+    if nargin == 0
+        nexttile;
+    else
+        nexttile(N);
+    end
+else
+    if N == 1
+        close;
+    end
+    figure;
 end
