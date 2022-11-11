@@ -79,12 +79,17 @@ if flags.do_fig_page13_top
         
         il_nexttile(tile_current); 
         affichage_tf(outs1.ACI,'CI', 'cfg', outs1.cfg_ACI); hold on
-        outs_aff = affichage_tf_add_Praat_metrics(outs1.cfg_game.dir_target, ...
-            outs1.cfg_ACI,[], {'-','-.'},{[0.6,0,0],[0,0,0.6]},1.5);
-
-        if i_subj ~= N_subjects
-            set(outs_aff.hl,'Visible','off'); % Removes the legend
+        try
+            outs_aff = affichage_tf_add_Praat_metrics(outs1.cfg_game.dir_target, ...
+                outs1.cfg_ACI,[], {'-','-.'},{[0.6,0,0],[0,0,0.6]},1.5);
+            if i_subj ~= N_subjects
+                set(outs_aff.hl,'Visible','off'); % Removes the legend
+            end
+            
+        catch
+            warning('Adding the f0 and F trajectories from Praat did not succeed')
         end
+
         title(subj_here);
         h(end+1) = gcf; % every time obtains the current figure handle
     end
