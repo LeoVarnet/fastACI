@@ -49,33 +49,41 @@ end
 
 dir_subject = [fastACI_dir_data experiment filesep subject filesep];
 
-dir_suff = '';
+dir_suff = '-AABBA-2022-01';
 switch subject
     case 'SLV'
         fname_results = 'savegame_2021_11_19_12_37_SLV_speechACI_Logatome-abda-S43M_white.mat';
-    case 'dau1997'
-        fname_results = 'savegame_2022_01_16_17_30_dau1997_speechACI_Logatome-abda-S43M_white.mat';
-        dir_suff = 'Run-1'; % looks for Run-1
-    case 'king2019'
-        fname_results = 'savegame_2022_01_17_19_37_king2019_speechACI_Logatome-abda-S43M_white.mat';
-        dir_suff = 'Run-1';
-    case 'relanoiborra2019'
-        fname_results = 'savegame_2022_01_17_02_55_relanoiborra2019_speechACI_Logatome-abda-S43M_white.mat';
-        dir_suff = 'Run-1';
-    case 'osses2021'
-        fname_results = 'savegame_2021_12_09_00_11_osses2021_speechACI_Logatome-abda-S43M_white.mat';
-        dir_suff = 'Run-6-opt-calibrated';
-    case 'osses2022a'
-        fname_results = 'savegame_2021_12_13_17_04_osses2022a_speechACI_Logatome-abda-S43M_white.mat';
-        dir_suff = 'Run-1';
+    % case 'dau1997'
+    %     fname_results = 'savegame_2022_01_16_17_30_dau1997_speechACI_Logatome-abda-S43M_white.mat';
+    %     % dir_suff = 'Run-1'; % looks for Run-1
+    % case 'king2019'
+    %     fname_results = 'savegame_2022_01_17_19_37_king2019_speechACI_Logatome-abda-S43M_white.mat';
+    %     % dir_suff = 'Run-1';
+    % case 'relanoiborra2019'
+    %     fname_results = 'savegame_2022_01_17_02_55_relanoiborra2019_speechACI_Logatome-abda-S43M_white.mat';
+    %     % dir_suff = 'Run-1';
+    % case 'osses2021'
+    %     fname_results = 'savegame_2021_12_09_00_11_osses2021_speechACI_Logatome-abda-S43M_white.mat';
+    %     % dir_suff = 'Run-6-opt-calibrated';
+    % case 'osses2022a'
+    %     fname_results = 'savegame_2021_12_13_17_04_osses2022a_speechACI_Logatome-abda-S43M_white.mat';
+    %     % dir_suff = 'Run-1';
 end
 
 % loading data
 switch subject
     case {'osses2021','osses2022a','dau1997','king2019','maxwell2020','relanoiborra2019'}
         % Case for simulations:
-        dirs{1} = [dir_subject dir_suff filesep];
-        dir_results = [dirs{1} 'Results' filesep];
+        % dirs{1} = [dir_subject dir_suff filesep];
+        dirs{1} = [dir_subject filesep];
+        dir_results = [dirs{1} 'Results' dir_suff filesep];
+        
+        fname_results = Get_filenames(dir_results,'savegame*white*.mat');
+        if length(fname_results) == 1
+            fname_results = fname_results{1};
+        else
+            error('Check what happened')
+        end
 
     otherwise
         %%% Assuming that the participant is a real listener:
@@ -117,8 +125,6 @@ Data_matrix = [];
 flags_for_input = {TF_type, ...
     'trialtype_analysis', 'total',...
     'N_folds', 10, ...
-    'dir_noise',cfg_game.dir_noise, ...
-    'dir_target',cfg_game.dir_target, ...
     'add_signal',0, ...
     'apply_SNR',0, ...
     'skip_if_on_disk',1, ...
@@ -128,9 +134,18 @@ flags_for_input = {TF_type, ...
     'expvar_after_reversal',expvar_after_reversal, ...
     'lambda',Lambdas, ...
     'pyramid_script','imresize', ...
+    'pyramid_shape',0, ...
     'dir_out',dir_out_ACI ...
     };
-
+if exist(cfg_game.dir_noise,'dir')
+    flags_for_input{end+1} = 'dir_noise';
+    flags_for_input{end+1} = cfg_game.dir_noise;
+end
+if exist(cfg_game.dir_target,'dir')
+    flags_for_input{end+1} = 'dir_target';
+    flags_for_input{end+1} = cfg_game.dir_target;
+end
+    
 [ACI,cfg_ACI,results, Data_matrix] = fastACI_getACI(fname_results, glmfct, flags_for_input{:}, 'Data_matrix', Data_matrix);
 
 outs.ACI = ACI;

@@ -315,9 +315,17 @@ if parsed_inputs.plot
         hold(ax,'on'); view(-90,90);
 
         % Add Title:
-        h_title = title(ax,parsed_inputs.title,'Visible','on','Units',...
-            'normalized','PickableParts','all','FontName',title_FontName,...
-            'FontSize',title_FontSize,'FontWeight',title_FontWeight); 
+        flags_title = {'Visible','on','Units','Normalized','FontSize',title_FontSize, ...
+            'FontWeight',title_FontWeight,'FontName',title_FontName,'PickableParts','all'};
+        try
+            % h_title = title(ax,parsed_inputs.title,'Visible','on','Units',...
+            %     'normalized','PickableParts','all','FontName',title_FontName,...
+            %     'FontSize',title_FontSize,'FontWeight',title_FontWeight); 
+            h_title = title(ax,parsed_inputs.title,flags_title{:}); 
+        catch
+            flags_title = flags_title(1:end-2);
+            h_title = title(ax,parsed_inputs.title,flags_title{:}); 
+        end
         centre_axes = (ax_pos(3)+ax_pos(1))-.5*ax_pos(3); % axes center in norm fig units
         adjust1 = (.5-centre_axes)/ax_pos(3); % adjustment needed in axes units
         title_pos = get(h_title,'Position');
@@ -370,26 +378,52 @@ function il_update_plot(initialise,curr_data_type,~)
     % Create Image:
     h_image = image('Parent',ax,'CData',idx1(sort_ind,sort_ind),'AlphaDataMapping','none',...
         'AlphaData',alpha_data,'ButtonDownFcn',@click_corrmat);
+    
     if colorbar_on
         axes(ax); 
         h_colorbar = colorbar('southoutside','Position',colorbar_pos); 
         % Set Colorbar Ticks:
-        h_colorbar.Limits = main_colorbar_lim;
-        h_colorbar.LimitsMode = 'manual';
-        h_colorbar.FontName = 'Arial';
-        h_colorbar.FontSize = parsed_inputs.colorbar_FontSize;
-        h_colorbar.FontWeight = 'bold';
+        try
+            h_colorbar.Limits = main_colorbar_lim;
+            h_colorbar.LimitsMode = 'manual';
+            YTicks = get(h_colorbar,'TickLabels');
+            
+            h_colorbar.FontName = 'Arial';
+            h_colorbar.FontSize = parsed_inputs.colorbar_FontSize;
+            h_colorbar.FontWeight = 'bold';
+        
+        catch
+            set(h_colorbar,'CLim',main_colorbar_lim);
+            set(h_colorbar,'CLimMode','manual');
+            YTicks = get(h_colorbar,'YTickLabel');
+            
+            set(h_colorbar,'FontName','Arial');
+            set(h_colorbar,'FontSize',parsed_inputs.colorbar_FontSize);
+            set(h_colorbar,'FontWeight','bold');
+        end
+        if iscell(YTicks)
+            YTicks_cell = YTicks;
+            YTicks = [];
+            for i_ti = 1:length(YTicks_cell)
+                YTicks(i_ti) = str2double( YTicks_cell{i_ti} );
+            end
+        end
+        
         colorbar_main_cvec = linspace(cmin,cmax,m);
+        
         if (cmax-cmin)>(.15*m) % if colorbar ticks should be integers
             colorbar_main_cvec = round(colorbar_main_cvec);
-            h_colorbar.TickLabels = cellstr(sprintf('%1g\n',...
-                colorbar_main_cvec(h_colorbar.Ticks)));                    
+            New_ticks = sprintf('%1g\n',colorbar_main_cvec(YTicks));
         else
-            h_colorbar.TickLabels = cellstr(sprintf('%4.2g\n',...
-                colorbar_main_cvec(h_colorbar.Ticks)));
+            New_ticks = sprintf('%4.2g\n',colorbar_main_cvec(YTicks));
+        end
+        try
+            h_colorbar.TickLabels = cellstr(New_ticks);
+        catch
+            set(h_colorbar,'YTickLabel') = cellstr(New_ticks);
         end
     end
-    % Colormap:
+    % Colourmap:
     if initialise
         main_colormap = il_bluewhitered(str2double(N_cmap),cmin,cmax);
         colormap(ax,main_colormap);
@@ -835,17 +869,26 @@ function il_save_figure_callback(~,~,~)
     disp(['Saved figure: ', figure_title])
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function il_change_outline(hObject,~,~)
+% It draws the borders
+    
     if strcmp(hObject.Checked,'on')
-        outline_menu.Checked = 'off';
+        set(outline_menu,'Checked','off');
         for jx = 1:length(h_line); delete(h_line(jx)); end
     else
-        outline_menu.Checked = 'on';
+        set(outline_menu,'Checked','on');
         dim = size(corrmat{1},1);
-        h_line(1) = plot([1.5,dim+.5],[0+.5;0+.5],'LineWidth',.05,'Color',zeros(1,3),'AlignVertexCenters','on','Parent',ax);
+        flags_plots = {'LineWidth',.05,'Color',zeros(1,3),'Parent',ax,'AlignVertexCenters','on'};
+        try
+            h_line(1) = plot([1.5,dim+.5],[0+.5;0+.5],flags_plots{:});
+        catch
+            flags_plots = flags_plots(1:end-2);
+            h_line(1) = plot([1.5,dim+.5],[0+.5;0+.5],flags_plots{:});
+        end
         for jx = 1:dim
-            h_line(jx+1) = plot([jx+.5,dim+.5],[jx+.5;jx+.5],'LineWidth',.05,'Color',zeros(1,3),'AlignVertexCenters','on','Parent',ax);
-            h_line(dim+jx+1) = plot([jx+.5;jx+.5],[-.5,jx+.5],'LineWidth',.05,'Color',zeros(1,3),'AlignVertexCenters','on','Parent',ax);
+            h_line(jx+1)     = plot([jx+.5,dim+.5],[jx+.5;jx+.5],flags_plots{:});
+            h_line(dim+jx+1) = plot([jx+.5;jx+.5],[-.5,jx+.5],flags_plots{:});
         end    
     end
 end

@@ -1,6 +1,6 @@
-function def_sim = osses2022a_cfg(keyvals)
+function def_sim = king2019_cfg(keyvals)
 
-def_sim.modelname = 'osses2022a';
+def_sim.modelname = 'king2019';
 def_sim.decision_script = 'aci_detect';
 def_sim.template_script = 'model_template';
 def_sim.template_every_trial = 0;
@@ -14,9 +14,7 @@ switch def_sim.type_decision
     def_sim.in_var = optdet_params.in_var;
 end
 def_sim.bStore_template = 1;
-
-def_sim.subfs = 16000; % Hz
-def_sim.modelpars = {'mfb_osses2022a'}; % This filter bank is not the default anymore
+def_sim.modelpars = {}; % empty
 
 if exist('model_cfg.m','file')
     % Config: AFC toolbox

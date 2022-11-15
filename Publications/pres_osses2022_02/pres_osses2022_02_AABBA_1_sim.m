@@ -1,40 +1,45 @@
-function publ_osses2022c_ARO_talk_1_sim(noise_type)
-% function publ_osses2022c_ARO_talk_1_sim(noise_type)
+function pres_osses2022_02_AABBA_1_sim
+% function pres_osses2022_02_AABBA_1_sim
 %
-% See also: g20210730_all_simulation_sessions
-% Original name: g20210811_all_simulation_sessions
-% See also: g20220414_simulations_Alejandro (new script for simulations)
+% See also: g20211201_analysis_pipeline_simulations_Alejandro
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-modelname = 'osses2022a';
-% Conditions = {'SSN'}; warning('Temporal') % {'white','SSN'};
-experiment = 'speechACI_varnet2013'; 
+available_models = {'dau1997','king2019','relanoiborra2019','osses2021','osses2022a'};
+Show_cell(available_models);
+
+bInput = input('Choose the model by entering the number from the list above: ');
+modelname = available_models{bInput};
+
+Conditions = {'white'};
+experiment = 'speechACI_Logatome-abda-S43M';
+noise_type = Conditions{1};
 
 %%%
 dir_here = [fastACI_basepath 'Simulations' filesep];
 fname_cfg =  [dir_here modelname '_cfg.m'];
 
-runs = {'run-1-white'; 'run-1-SSN'};
-Show_cell(runs);
-
-switch noise_type
-    case 'white'
-        idx = 1;
-    case 'SSN'
-        idx = 2;
-end
-% fprintf('Enter a number from the list before, i.e., between 1 and %.0f\n',length(runs));
-% idx = input('Enter the name of the simulation to be run (you need all these runs to reproduce the figure papers).: ');
-run_str = runs{idx};
-
 %%% New way (maybe add an option to check whether the file is up to date):
 % Update_cfg_file(file_src, file_dst);
 file_dst = fname_cfg;
 dir_src = [fastACI_basepath 'Simulations' filesep 'Stored_cfg' filesep];
-switch run_str
-    case {'run-1-white','run-1-SSN'}
-        file_src = [dir_src 'osses2022a_osses2022c_ARO_talk.m'];
+
+pref = 'osses2022_02_AABBA_';
+switch modelname
+    case 'dau1997'
+        file_src = [dir_src pref 'dau1997.m'];
+        
+    case 'king2019'
+        file_src = [dir_src pref 'king2019.m'];
+        
+    case 'relanoiborra2019'
+        file_src = [dir_src pref 'relanoiborra2019.m'];
+        
+    case 'osses2021'
+        file_src = [dir_src pref 'osses2021.m'];
+        
+    case 'osses2022a'
+        file_src = [dir_src pref 'osses2022a.m'];
 end
 if exist(file_dst,'file')
     fprintf('The configuration file %s exists already, do you want to overwrite it?\n',file_dst);
@@ -44,11 +49,10 @@ end
 copyfile(file_src,file_dst);
 
 %%% Getting the extra parameters that are not explicit in the cfg files:
-% p = il_get_model_config(run_str, modelname);
 in_std = 0;
 
-p = Get_date;
-fname_template_suffix = [noise_type '-' p.date4files]; % trick to always get a new template
+% fname_template_suffix = [noise_type '-10-rep-202201'];
+fname_template_suffix = '-10-rep-202201';
 flags_here = {'thres_for_bias',[],'in_std',in_std,'fname_template_suffix',fname_template_suffix};
 
 bCalibration = 1;
@@ -69,9 +73,11 @@ while data_passation.i_current < cfg_game.N
     [cfg_game,data_passation] = fastACI_experiment(experiment,modelname,noise_type,flags_here{:});
 end
 
+run_str = 'AABBA-2022-01';
 folder_src = cfg_game.dir_results;
 folder_new = [fileparts(cfg_game.dir_results(1:end-1)) filesep 'Results-' run_str filesep];
 if exist(folder_new,'dir')
+    p = Get_date;
     folder_new = [fileparts(cfg_game.dir_results(1:end-1)) filesep 'Results-' run_str '-retest-on-' p.date4files filesep];
 
     if exist(folder_new,'dir')
@@ -79,35 +85,4 @@ if exist(folder_new,'dir')
     end
 end
 movefile(folder_src,folder_new);
-
-% end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% function p = il_get_model_config(run_str,modelname)
-% 
-% switch modelname
-%     case 'osses2022a'
-%         % Nothing to do
-%     otherwise
-%         error('This publication only used the model ''osses2022a''')
-% end
-% p = [];
-% p.modelname = modelname;
-% p.bStore_template = 0; % New option added on 17/09/2021, not relevant for
-%                        % the simulations here
-% switch run_str
-%     case 'run-1-white'
-%         p.thres_for_bias = 0.9;
-%         p.in_std = 0; % calibrated on 2/02/2022 (using old calibration method)
-%         
-%     case 'run-1-SSN'
-%         p.thres_for_bias = 1.2; % calibrated on 2/02/2022 (using old calibration method)
-%         p.in_std = 0;
-%             
-%     otherwise
-%         error('Run condition not recognised')
-% end
-% 
-% if ~isfield(p,'thres_for_bias')
-%     p.thres_for_bias = nan;
-% end
+% cfg_game.N = 5000; % idle numbers

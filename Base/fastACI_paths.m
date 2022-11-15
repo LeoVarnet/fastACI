@@ -37,10 +37,10 @@ if ispc
             paths.dir_output_fastACI2021_JASA = 'C:\Users\LeoVarnet\ownCloud\Professionnel\Publications et communications\2020-x - ANR fastACI\';
             paths.dir_output_fastACI2021_JASA_eps = 'C:\Users\LeoVarnet\ownCloud\Professionnel\Publications et communications\2020-x - ANR fastACI\';
         case '9.3.0.713579 (R2017b)' % Leo's home laptop
-            paths.praat = 'C:\Users\Varnet Léo\Desktop\Programmes\praat.exe';%'C:\Program files\Praat\praatcon.exe';
+            paths.praat = 'C:\Users\Varnet Lï¿½o\Desktop\Programmes\praat.exe';%'C:\Program files\Praat\praatcon.exe';
             paths.dir_output = [];
-            paths.dir_output_fastACI2021_JASA =  'C:\Users\Varnet Léo\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
-            paths.dir_output_fastACI2021_JASA_eps = 'C:\Users\Varnet Léo\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
+            paths.dir_output_fastACI2021_JASA =  'C:\Users\Varnet Lï¿½o\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
+            paths.dir_output_fastACI2021_JASA_eps = 'C:\Users\Varnet Lï¿½o\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
         case '9.10.0.1684407 (R2021a) Update 3' % Leo's new PC
             paths.praat = 'C:\Users\LSP005\Desktop\Programmes\praatcon5353_win64\praatcon.exe';
             paths.dir_output = [];
@@ -68,7 +68,11 @@ elseif isunix
     % Directories for Alejandro:
     paths.praat       = '/usr/bin/praat';
     paths.dir_amtoolbox = fastACI_dir_amtoolbox;
-    paths.dir_output  = [userpath filesep 'outputs' filesep]; % '/home/alejandro/Documents/MATLAB/outputs/'
+    up = userpath;
+    if strcmp(up(end),':')
+        up = up(1:end-1);
+    end
+    paths.dir_output  = [up filesep 'outputs' filesep]; % '/home/alejandro/Documents/MATLAB/outputs/'
     
     paths.dir_output_fastACI2021_JASA     = '/home/alejandro/Documents/Databases/data/Osses-Varnet-2021-JASA/';
     paths.dir_output_fastACI2021_JASA_eps = '/home/alejandro/Documents/Documenten-ENS/01-Text/05-Doc/pr2021-05-20-ideas-4-paper/Figures-new/';

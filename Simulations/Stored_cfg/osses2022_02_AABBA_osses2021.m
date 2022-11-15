@@ -1,6 +1,6 @@
-function def_sim = osses2022a_cfg(keyvals)
+function def_sim = osses2021_cfg(keyvals)
 
-def_sim.modelname = 'osses2022a';
+def_sim.modelname = 'osses2021';
 def_sim.decision_script = 'aci_detect';
 def_sim.template_script = 'model_template';
 def_sim.template_every_trial = 0;
@@ -16,7 +16,7 @@ end
 def_sim.bStore_template = 1;
 
 def_sim.subfs = 16000; % Hz
-def_sim.modelpars = {'mfb_osses2022a'}; % This filter bank is not the default anymore
+def_sim.modelpars = {'LP_150_Hz_att'}; % as in Osses2021a, Fig. 14c
 
 if exist('model_cfg.m','file')
     % Config: AFC toolbox

@@ -1,27 +1,29 @@
 # fastACI toolbox
 This is the repository of the fast Auditory Classification Images (fastACI) project. The toolbox is controlled using the command line of MATLAB. It does not have (yet) a graphical interface.
 
-With this toolbox you can run listening experiments as used in the studies **varnet2013**, **varnet2015**, **varnet2021**, and **osses2021c** (see the full citations in the section "_References_"). You can also reproduce some of the figures contained in the mentioned references.
+With this toolbox you can run listening experiments as used in the studies **varnet2013**, **varnet2015**, **varnet2021**, **osses2021c**, **osses2022b**, and **varnet2022a** (see the full citations in the section "_References_"). You can also reproduce some of the figures contained in the mentioned references.
 
 | Citation key   | fastACI experiment name     | Type of background noise     | Target sounds |
 | :------------- | :----------: | :-----------: | :-----------: |
 | **varnet2013** | `speechACI_varnet2013`   | white  | /aba/-/ada/, female speaker |
 | **varnet2015** | `speechACI_varnet2015`   | white  | /alda/-/alga/-/arda/-/arga/, male speaker |
 | **osses2021c** | `speechACI_varnet2013`   | speech shaped noise (SSN) |  /aba/-/ada/, female speaker |
-| **varnet2021** | `modulationACI`          | white  | modulated or unmodulated tones |
+| **varnet2022a**| `modulationACI`          | white  | modulated or unmodulated tones |
+| **osses2022b** | `speechACI_Logatome`     | white, bump, MPS | /aba/-/ada/, male speker from the OLLO database |
+
 
 Make sure that you follow the steps indicated in the section **Installation** (below) the first time you use the toolbox. 
 
 # How to cite this repository
-This repository can be cited as follows: The fastACI toolbox was used (Osses & Varnet, 2021).
+This repository can be cited as follows: The fastACI toolbox was used (Osses & Varnet, 2022).
 
-**If a model version is cited (in this example: release fastACI v1.0):**
+**If a model version is cited (in this example: release fastACI v1.2):**
 
-A. Osses Vecchi & L. Varnet (2021). "fastACI toolbox: the MATLAB toolbox for investigating auditory perception using reverse correlation (v1.0)" [![DOI](https://zenodo.org/badge/335310799.svg)](https://zenodo.org/badge/latestdoi/335310799)
+A. Osses & L. Varnet (2022). "fastACI toolbox: the MATLAB toolbox for investigating auditory perception using reverse correlation (v1.2)" [![DOI](https://zenodo.org/badge/335310799.svg)](https://zenodo.org/badge/latestdoi/335310799)
 
 **If a specific commit is cited (in this example: commit cc9d9cf):**
 
-A. Osses Vecchi & L. Varnet (2021). "fastACI toolbox: the MATLAB toolbox for investigating auditory perception using reverse correlation," Github commit cc9d9cf.
+A. Osses & L. Varnet (2022). "fastACI toolbox: the MATLAB toolbox for investigating auditory perception using reverse correlation," Github commit cc9d9cf.
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a>.
 
@@ -50,7 +52,7 @@ Aba/Ada discrimination using a male speaker (S43M from the Logatome corpus):
     fastACI_experiment('speechACI_Logatome-abda-S43M','S01','white');
 
 # Simulating a listening experiment
-A listening experiment can be simulated using an artificial listener or, in other words, an auditory model. So far, we have validated the use of the models `osses2021` (Osses & Kohlrausch, 2021) and `king2019` (King et al., 2019), both available within AMT 1.0.
+A listening experiment can be simulated using an artificial listener or, in other words, an auditory model. So far, we have validated the use of the models `osses2021` (Osses & Kohlrausch, 2021), `osses2022a` (to be published), and `king2019` (King et al., 2019). The models `osses2021` and `king2019` are both available within AMT 1.0 (or more recent), `osses2022a` is exclusively available in our toolbox.
 
 To run simulations you only have to use the corresponding model as the subject name. To use `osses2021` in the simulation of the experiment `speechACI_varnet2013` using SSN noises, you need to type in MATLAB:
 
@@ -60,7 +62,7 @@ or, to use `king2019`:
 
     fastACI_experiment('speechACI_varnet2013','king2019','SSN');   
     
-See also the next session, where all the simulations in **osses2021c** can be reproduced using the `osses2021` model with two different decision back ends.
+More elaborate simulations can be automatically run using the scripts `pres_osses2022_02_AABBA_1_sim.m` and `publ_osses2021c_DAGA_1_sim.m`, among other scripts. In the next section, all the simulations in **osses2021c** can be reproduced using the `osses2021` model with two different decision back ends. This is related to the script `publ_osses2021c_DAGA_1_sim.m`.
 
 # Demo: Obtaining the figures from osses2021c
 To run the simulations from Osses & Varnet (2021, DAGA) you need to run in the MATLAB command line, and follow the instructions that will appear on the screen:
@@ -84,23 +86,27 @@ To obtain Fig 1A or Fig 1B, you require to manually download (in advance) the ex
 The following are the general instructions to get the fastACI toolbox for MATLAB operative in your computer. The toolbox has been tested on Windows and Linux, using MATLAB (versions R2012b-R2020b).
 
 1. Download or clone the fastACI project to your local computer (one way: press the button 'Code'->Choose 'Download ZIP' and unzip somewhere).
-2. This toolbox requires the Auditory Modelling Toolbox v.1.0 (AMT 1.0) that can be downloaded from [here](http://amtoolbox.org/download.php). After the download you are not expected to do anything else, as the AMT toolbox will automatically be initialised in our next step:
+2. This toolbox requires the Auditory Modelling Toolbox v.1.0 (AMT 1.0 or higher) that can be downloaded from [here](http://amtoolbox.org/download.php). After the download you are not expected to do anything else, as the AMT toolbox will automatically be initialised in our next step:
 3. Open and run the script **startup_fastACI.m**. This script will add all the paths under the fastACI toolbox to your local MATLAB path and it will run the script **amt_start.m** to initilise the AMT toolbox. If the AMT toolbox is not found you will be able to indicate your alternative location using a pop-up window.
 
 # References for the fastACI toolbox
 |    |  |
 | :------------- | :---------- | 
 | **king2019**   | A. King, L. Varnet, & C. Lorenzi (2019). **Accounting for masking of frequency modulation by amplitude modulation with the modulation filter-bank concept**. J. Acoust. Soc. Am. 145, p. 2277-2293 (Doi: [10.1121/1.5094344](http://dx.doi.org/10.1121/1.5094344), [Download paper](https://hal.archives-ouvertes.fr/hal-02993025))|
-| **osses2021c** | A. Osses Vecchi & L. Varnet (2021). **Consonant-in-noise discrimination using an auditory model with different speech-based decision devices**. DAGA conference. Vienna, Austria. ([Download paper](https://github.com/aosses-tue/fastACI/blob/main/Publications/Manuscripts/Osses-Varnet-2021-DAGA-000623.pdf))|
-| **osses2021c_data** | A. Osses Vecchi & L. Varnet (2021). **Noise data for the study of consonant-in-noise discrimination using an auditory model with different speech-based decision devices**. Experimental data for **osses2021c** (Doi: [10.5281/zenodo.5483835](https://doi.org/10.5281/zenodo.5483835)) |
-| **osses2021a** | A. Osses Vecchi & A. Kohlrausch (2021). **Perceptual similarity between piano notes: Simulations with a template-based perception model**. J. Acoust. Soc. Am. 149, p. 3534-3552 (Doi: [10.1121/10.0004818](https://asa.scitation.org/doi/abs/10.1121/10.0004818))|
-| **varnet2021** | L. Varnet & C. Lorenzi (2021). **Probing temporal modulation detection in white noise using intrinsic envelope fluctuations: A reverse correlation study**. Submitted to J. Acoust. Soc. Am. |
-| **varnet2021_data** | L. Varnet (2021). **AM revcorr data**. Experimental data for **varnet2021** (Doi: [10.5281/zenodo.5571719](https://doi.org/10.5281/zenodo.5571719)) |
+| **osses2021c** | A. Osses & L. Varnet (2021). **Consonant-in-noise discrimination using an auditory model with different speech-based decision devices**. DAGA conference. Vienna, Austria. ([Download paper](https://github.com/aosses-tue/fastACI/blob/main/Publications/Manuscripts/Osses-Varnet-2021-DAGA-000623.pdf))|
+| **osses2021c_data** | A. Osses & L. Varnet (2021). **Noise data for the study of consonant-in-noise discrimination using an auditory model with different speech-based decision devices**. Experimental data for **osses2021c** (Doi: [10.5281/zenodo.5483835](https://doi.org/10.5281/zenodo.5483835)) |
+| **osses2021a** | A. Osses & A. Kohlrausch (2021). **Perceptual similarity between piano notes: Simulations with a template-based perception model**. J. Acoust. Soc. Am. 149, p. 3534-3552 (Doi: [10.1121/10.0004818](https://asa.scitation.org/doi/abs/10.1121/10.0004818))|
+| **osses2022d** | A. Osses & C. Lorenzi, & L. Varnet (2022). **Assessment of individual listening strategies in amplitude-modulation detection and phoneme categorisation tasks**. International Congress on Acoustics, 24-28 October, Gyeongju, Korea ([Download presentation](https://github.com/aosses-tue/fastACI/blob/main/Publications/Manuscripts/Osses2022d-Lorenzi-Varnet-ICA_presentation.pdf), [Download proceedings](https://ica2022korea.org/data/Proceedings_A11.pdf)) |
+| **varnet2022a** | L. Varnet & C. Lorenzi (2022). **Probing temporal modulation detection in white noise using intrinsic envelope fluctuations: A reverse correlation study**. J. Acoust. Soc. Am. 151, p. 1356-1366 (Doi: [10.1121/10.0009629](https://doi.org/10.1121/10.0009629))|
+| **varnet2022a_data** | L. Varnet (2021). **AM revcorr data**. Experimental data for **varnet2021** (Doi: [10.5281/zenodo.5571719](https://doi.org/10.5281/zenodo.5571719)) |
+| **varnet2022b**| L. Varnet, C. Lorenzi, & A. Osses (2022). **Probing amplitude-modulation detection and phoneme categorization with auditory reverse correlation**. Congrès Français d'Acoustique, 11-15 April, Marseille, France ([Download presentation](https://github.com/aosses-tue/fastACI/blob/main/Publications/Manuscripts/Varnet2022b-CFA.pdf))|
 | **varnet2015** | L. Varnet, K. Knoblauch, W. Serniclaes, F. Meunier, & M. Hoen (2015). **A psychophysical imaging method evidencing auditory cue extraction during speech perception: A group analysis of auditory classification images**. PLoS one 3, p. 1-23 ([Download paper](https://hal.archives-ouvertes.fr/hal-01132995))|
 | **varnet2013** | L. Varnet, K. Knoblauch, F. Meunier, & M. Hoen (2013). **Using auditory classification images for the identification of fine acoustic cues used in speech perception**. Front. Hum. Neurosci. 7, p. 1-12 ([Download paper](https://hal.archives-ouvertes.fr/hal-00931465))|
 
 # Other references
-P. Majdak, C. Hollomey, & R. Baumgartner (2021). **AMT 1.0: The toolbox for reproducible research in auditory modeling**, submitted to Acta Acustica.
+P. Majdak, C. Hollomey, & R. Baumgartner (2022). **AMT 1.x: A toolbox for reproducible research in auditory modeling**, Acta Acustica, 6, 19. (Doi: [10.1051/aacus/2022011](https://doi.org/10.1051/aacus/2022011))
+
+A. Osses, L. Varnet, L. Carney, T. Dau, I. Bruce, S. Verhulst, & P. Majdak (2022). **A comparative study of eight human auditory models of monaural processing**, Acta Acustica, 6, 17 (Doi: [10.1051/aacus/2022008](https://doi.org/10.1051/aacus/2022008))
 
 # Acknowledgements
 The development of the fastACI toolbox was funded by the ANR grant ["fastACI"](https://anr.fr/Project-ANR-20-CE28-0004) attributed to Léo Varnet (ANR-20-CE28-0004) and was further supported by the ["FrontCog"](https://anr.fr/ProjetIA-17-EURE-0017) grant (ANR-17-EURE-0017).

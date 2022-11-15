@@ -74,6 +74,7 @@ for i_subject = 1:length(Subjects)
                 
                     % Now we look again for a savegame file, and now should be found:
                     fname_results = Get_filenames(dir_local,['savegame*' noise_type '.mat']); % [fastACI_dir_data 'speechACI_varnet2013' filesep subj filesep folders{1} filesep 'savegame_*_SSN.mat'];
+                    fname_results = [dir_local fname_results{1}];
                 end
                 
             otherwise
@@ -152,7 +153,7 @@ for i_subject = 1:length(Subjects)
             end
             model = 'osses2022a';
             fname_kern = sprintf('Kernels-%s-%s-model-%s%s%s.mat',Subjects_lab{i_subject},noise_type,model,suff_SNR,suff_LPF);
-            fname_kern_full = sprintf('%s%s',dir_out,fname_kern);
+            fname_kern_full = sprintf('%s%s',dir_out_figs,fname_kern);
             
             bRun = ~exist(fname_kern_full,'file');
             
@@ -246,7 +247,7 @@ for i_subject = 1:length(Subjects)
                     switch model
                         case 'osses2022a'
                             subfs = 16000;
-                            flags_model = {'mfb','subfs',subfs};
+                            flags_model = {'mfb','subfs',subfs,'mfb_osses2022a'};
                             [outsig,fc,mfc] = osses2022a(insig,fs,flags_model{:});
 
                             idx2use = [8 17 19]; % approx at 400, 1500, and 2000 Hz.

@@ -68,29 +68,50 @@ N_subjects = length(subjects);
 if flags.do_fig_page13_top
     % g20220113_analysis_pipeline_versie_Alejandro
     figure; 
-    tiledlayout(1,N_subjects);
+    il_tiledlayout(1,N_subjects);
     
+    tile_current = 0;
     for i_subj = 1:N_subjects
+        tile_current = tile_current + 1;
+        
         subj_here = subjects{i_subj};
         [h1,hname1,outs1] = pres_osses2022_02_AABBA_utils(experiment_full, subj_here, noise_type,flags_here{:});
         
-        nexttile;
+        il_nexttile(tile_current); 
         affichage_tf(outs1.ACI,'CI', 'cfg', outs1.cfg_ACI); hold on
-        outs_aff = affichage_tf_add_Praat_metrics(outs1.cfg_game.dir_target, ...
-            outs1.cfg_ACI,[], {'-','-.'},{[0.6,0,0],[0,0,0.6]},1.5);
-
-        if i_subj ~= N_subjects
-            set(outs_aff.hl,'Visible','off'); % Removes the legend
+        try
+            outs_aff = affichage_tf_add_Praat_metrics(outs1.cfg_game.dir_target, ...
+                outs1.cfg_ACI,[], {'-','-.'},{[0.6,0,0],[0,0,0.6]},1.5);
+            if i_subj ~= N_subjects
+                set(outs_aff.hl,'Visible','off'); % Removes the legend
+            end
+            
+        catch
+            warning('Adding the f0 and F trajectories from Praat did not succeed')
         end
+
         title(subj_here);
+        h(end+1) = gcf; % every time obtains the current figure handle
     end
     
+    h = unique(h);
+    
     Pos = get(gcf,'Position');
-    Pos(3:4) = [1500 420];
-    set(gcf,'Position',Pos);
-
-    h(end+1) = gcf;
-    hname{end+1} = 'fig13-top';
+    if length(h) == 1 
+        % then all figures are tiled
+        Pos(3:4) = [1500 420];
+    else
+        Pos(3:4) = [250 420];
+    end
+    for i_h = 1:length(h)
+        set(h(i_h),'Position',Pos);
+        if i_h ~= 1
+            suff = num2str(i_h);
+        else
+            suff = '';
+        end
+        hname{end+1} = ['fig13-top' suff];
+    end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -171,4 +192,32 @@ if bSave == 1
         opts.format = 'fig';
         Saveas(h(i),fname,opts);
     end
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function il_tiledlayout(N,M,TileSpacing,TileSpacing_option)
+
+if nargin < 4
+    TileSpacing_option = 'Compact';
+end
+bExist = exist('tiledlayout','file'); % tiledlayout.p
+if bExist
+    tiledlayout(N,M,TileSpacing,TileSpacing_option);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function il_nexttile(N)
+
+bExist = exist('nexttile','file'); % nexttile
+if bExist
+    if nargin == 0
+        nexttile;
+    else
+        nexttile(N);
+    end
+else
+    if N == 1
+        close;
+    end
+    figure;
 end
