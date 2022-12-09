@@ -26,7 +26,7 @@ if bDo_the_check
     list_other_subjects = Get_filenames(cfg_inout.dir_data_experiment,'*');
     for i = length(list_other_subjects):-1:1
         crea_extern = [cfg_inout.dir_data_experiment list_other_subjects{i} filesep 'Results' filesep];
-        files = Get_filenames(crea_extern,['cfgcrea*' cfg_inout.Condition '.mat']);
+        files = Get_filenames(crea_extern,['cfgcrea*' cfg_inout.Condition '*.mat']);
 
         if isempty(files)
             list_other_subjects(i) = [];
@@ -77,7 +77,7 @@ if bDo_the_check
     else
 
         crea_extern = [cfg_inout.dir_data_experiment list_other_subjects{bInput} filesep 'Results' filesep];
-        files = Get_filenames(crea_extern,['cfgcrea*' cfg_inout.Condition '.mat']);
+        files = Get_filenames(crea_extern,['cfgcrea*' cfg_inout.Condition '*.mat']);
 
         if length(files) ~= 1
             error('Multiple create files found for the subject from which the data are being copied from...')

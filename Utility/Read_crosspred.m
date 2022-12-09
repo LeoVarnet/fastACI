@@ -32,8 +32,11 @@ for i = 1:N_subjects
         Dev_test = crosspred(i).Dev_test;
         Dev_test_t = crosspred(i).Dev_test_t;
         
-        yvar = mean(PC_test-PC_test(end,:),2); % avoiding to write down 'results{1}.crosspred.PC_test' twice
-        evar = std(PC_test-PC_test(end,:),[],2);%/size(PC_test,2);%SEM
+        N_lamdas = size(PC_test,1);
+        
+        factor = repmat(1./(1-PC_test(end,:)),N_lamdas,1); % correction for guessing, added on 9/10/2022
+        yvar = mean(factor.*(PC_test-PC_test(end,:)),2); % avoiding to write down 'results{1}.crosspred.PC_test' twice
+        % evar = std(PC_test-PC_test(end,:),[],2);%/size(PC_test,2);%SEM
 
         PA_mean_re_chance(i) = 100*yvar(idxlambda(i));
         

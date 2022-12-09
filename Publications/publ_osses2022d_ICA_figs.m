@@ -488,10 +488,10 @@ if flags.do_fig2
 
     tAlignment = 'left';
     FS = 10;
-    ax=il_nexttile(1);  title('MOD22' ,'FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
-    ax=il_nexttile(5);  title('ABDA13','FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
-    ax=il_nexttile(9);  title('ABDA21','FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
-    ax=il_nexttile(13); title('ABDA22','FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
+    ax=nexttile(1);  title('MOD22' ,'FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
+    ax=nexttile(5);  title('ABDA13','FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
+    ax=nexttile(9);  title('ABDA21','FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
+    ax=nexttile(13); title('ABDA22','FontSize',FS,'FontWeight','bold'); set(ax,'TitleHorizontalAlignment',tAlignment);
 
     fout = [dir_out_figs 'Figure2'];
     % print(fout,'-dpdf')
@@ -523,7 +523,7 @@ else
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function il_nexttile(N)
+function ax = il_nexttile(N)
 
 bExist = exist('nexttile','file'); % nexttile
 if bExist
@@ -537,4 +537,8 @@ else
         close;
     end
     figure;
+end
+
+if nargout ~= 0
+    ax = gcf;
 end

@@ -84,118 +84,122 @@ NlinesSubplot = [];
 NfrequencyTicks = 9;
 NtimeTicks = [];
 NcolorTicks = [];
-displaycolorbar = 'yes';
+displaycolourbar = 'yes';
 FormantWidth = 2;
 displayaxes = 'on';
 
+colourbar_map = 'default';
 while ~isempty(varargin)
     if ~isstr(varargin{1})
         t=varargin{1};
         f=varargin{2};
     else
-        if strcmp(varargin{1}, 'cfg')
-            cfg = varargin{2};
-            if isfield(cfg,'time_analysis')
-                time_affiche = cfg.time_analysis;
-            end
-            if isfield(cfg,'freq_analysis')
-                freq_affiche = cfg.freq_analysis;
-            end
-            if isfield(cfg,'time_affiche')
-                time_affiche = cfg.time_affiche;
-            end
-            if isfield(cfg,'freq_affiche')
-                freq_affiche = cfg.freq_affiche;
-            end
-            if isfield(cfg,'NameCond')
-                title_CI = ['CI for condition ' cfg.NameCond];
-            end
-            if isfield(cfg,'NameResponse')
-                NameResponse = cfg.NameResponse;
-            end
-            if isfield(cfg,'ROI')
-                if ~isempty(cfg.ROI) && isnumeric(cfg.ROI)
-                    ROI={cfg.ROI};
-                else
-                    ROI = cfg.ROI;
+        switch varargin{1}
+            case 'cfg'
+                cfg = varargin{2};
+                if isfield(cfg,'time_analysis')
+                    time_affiche = cfg.time_analysis;
                 end
-            end
-            if isfield(cfg,'t')
-                t = cfg.t;
-            end
-            if isfield(cfg,'f')
-                f = cfg.f;
-            end
-            grid_on = 1;
-        elseif strcmp(varargin{1}, 'time_affiche')
-            time_affiche = varargin{2};
-        elseif strcmp(varargin{1}, 'freq_affiche')
-            freq_affiche = varargin{2};
-        elseif strcmp(varargin{1}, 'title')
-            title_CI = varargin{2};
-        elseif strcmp(varargin{1}, 'suptitle')
-            suptitle_CI = varargin{2};        
-        elseif strcmp(varargin{1}, 'colorbar')
-            displaycolorbar = varargin{2};
-        elseif strcmp(varargin{1}, 'caxis')
-            c_axis = varargin{2};
-        elseif strcmp(varargin{1}, 'NameResponse')
-            NameResponse = varargin{2};
-        elseif strcmp(varargin{1}, 'alphamap')
-            alphamap = varargin{2};
-        elseif strcmp(varargin{1}, 'binaryalphamap')
-            binaryalphamap = varargin{2};
-        elseif strcmp(varargin{1}, 'NfrequencyTicks')
-            NfrequencyTicks = varargin{2};        
-        elseif strcmp(varargin{1}, 'NtimeTicks')
-            NtimeTicks = varargin{2};        
-        elseif strcmp(varargin{1}, 'NcolorTicks')
-            NcolorTicks = varargin{2};
-        elseif strcmp(varargin{1}, 'alphalevel')
-            alphalevel = varargin{2};
-        elseif strcmp(varargin{1}, 'ROI')
-            ROI = varargin{2};
-            if ~isempty(ROI) && isnumeric(ROI)
-                ROI={ROI};
-            end
-        elseif strcmp(varargin{1}, 'numROI')
-            numROI = isyes(varargin{2});
-        elseif strcmp(varargin{1}, 'grid')
-            grid_on = isyes(varargin{2});
-        elseif strcmp(varargin{1}, 'formant')
-            var = varargin{2};
-            if length(var)<=2
-                var{3}={};
-            end
-            if isempty(F)
-                F = {var{2}};
-                t_F = {var{1}};
-                style_F ={var{3}};
-            else
-                F = {F{:} var{2}};
-                t_F = {t_F{:} var{1}};
-                style_F = {style_F{:} var{3}};
-            end
-        elseif strcmp(varargin{1}, 'order')
-            order = varargin{2};
-        elseif strcmp(varargin{1}, 'convertform')
-            convertform = varargin{2};
-        elseif strcmp(varargin{1}, 'formantload')
-            if exist(varargin{2})
-                load(varargin{2});
-            end
-        elseif strcmp(varargin{1}, 'meant')
-            meant = varargin{2};
-        elseif strcmp(varargin{1}, 'meanf')
-            meanf = varargin{2};
-        elseif strcmp(varargin{1}, 'NlinesSubplot')
-            NlinesSubplot = varargin{2};
-        elseif strcmp(varargin{1}, 'FormantWidth')
-            FormantWidth = varargin{2};
-        elseif strcmp(varargin{1}, 'displayaxes')
-            displayaxes = varargin{2};
-        else
-            error(['error : unknown argument ' varargin{1}]);
+                if isfield(cfg,'freq_analysis')
+                    freq_affiche = cfg.freq_analysis;
+                end
+                if isfield(cfg,'time_affiche')
+                    time_affiche = cfg.time_affiche;
+                end
+                if isfield(cfg,'freq_affiche')
+                    freq_affiche = cfg.freq_affiche;
+                end
+                if isfield(cfg,'NameCond')
+                    title_CI = ['CI for condition ' cfg.NameCond];
+                end
+                if isfield(cfg,'NameResponse')
+                    NameResponse = cfg.NameResponse;
+                end
+                if isfield(cfg,'ROI')
+                    if ~isempty(cfg.ROI) && isnumeric(cfg.ROI)
+                        ROI={cfg.ROI};
+                    else
+                        ROI = cfg.ROI;
+                    end
+                end
+                if isfield(cfg,'t')
+                    t = cfg.t;
+                end
+                if isfield(cfg,'f')
+                    f = cfg.f;
+                end
+                grid_on = 1;
+            case 'time_affiche'
+                time_affiche = varargin{2};
+            case 'freq_affiche'
+                freq_affiche = varargin{2};
+            case 'title'
+                title_CI = varargin{2};
+            case 'suptitle'
+                suptitle_CI = varargin{2};
+            case {'colorbar','colourbar'}
+                displaycolourbar = varargin{2};
+            case {'colorbar_map','colourbar_map'} % new on 14/11/2022
+                colourbar_map = varargin{2};
+            case 'caxis'
+                c_axis = varargin{2};
+            case 'NameResponse'
+                NameResponse = varargin{2};
+            case 'alphamap'
+                alphamap = varargin{2};
+            case 'binaryalphamap'
+                binaryalphamap = varargin{2};
+            case 'NfrequencyTicks'
+                NfrequencyTicks = varargin{2};        
+            case 'NtimeTicks'
+                NtimeTicks = varargin{2};        
+            case 'NcolorTicks'
+                NcolorTicks = varargin{2};
+            case 'alphalevel'
+                alphalevel = varargin{2};
+            case 'ROI'
+                ROI = varargin{2};
+                if ~isempty(ROI) && isnumeric(ROI)
+                    ROI={ROI};
+                end
+            case 'numROI'
+                numROI = isyes(varargin{2});
+            case 'grid'
+                grid_on = isyes(varargin{2});
+            case 'formant'
+                var = varargin{2};
+                if length(var)<=2
+                    var{3}={};
+                end
+                if isempty(F)
+                    F = {var{2}};
+                    t_F = {var{1}};
+                    style_F ={var{3}};
+                else
+                    F = {F{:} var{2}};
+                    t_F = {t_F{:} var{1}};
+                    style_F = {style_F{:} var{3}};
+                end
+            case 'order'
+                order = varargin{2};
+            case 'convertform'
+                convertform = varargin{2};
+            case 'formantload'
+                if exist(varargin{2})
+                    load(varargin{2});
+                end
+            case 'meant'
+                meant = varargin{2};
+            case 'meanf'
+                meanf = varargin{2};
+            case 'NlinesSubplot'
+                NlinesSubplot = varargin{2};
+            case 'FormantWidth'
+                FormantWidth = varargin{2};
+            case 'displayaxes'
+                displayaxes = varargin{2};
+            otherwise
+                error(['error : unknown argument ' varargin{1}]);
         end
     end
     varargin=varargin(3:end);
@@ -246,11 +250,7 @@ for num_CI = 1:N_CI
     else
         subplot(msubplot,nsubplot,num_CI)
     end
-%     try
-%         maxabsdata = max(max(max(abs(data(freq_affiche_Index,time_affiche_Index,:)))));
-%     catch
-%         disp('')
-%     end
+
     datatoplot=data(freq_affiche_Index,time_affiche_Index,i_CI);
     maxabsdata = max(abs(datatoplot(:)));
 
@@ -274,20 +274,56 @@ for num_CI = 1:N_CI
     f2plot = f(freq_affiche_Index);
     if strcmp(type, 'CInorm')
         if maxabsdata > 0
-            imagesc(t2plot, f2plot, datatoplot/maxabsdata);
+            h_image = imagesc(t2plot, f2plot, datatoplot/maxabsdata);
         else
-            imagesc(t2plot, f2plot, datatoplot);
+            h_image = imagesc(t2plot, f2plot, datatoplot);
         end
     elseif length(type)>5 && strcmp(type(1:6), 'zscore')
-        imagesc(t2plot, f2plot, (datatoplot-mean(datatoplot(:)))/std(datatoplot(:)));
+        h_image = imagesc(t2plot, f2plot, (datatoplot-mean(datatoplot(:)))/std(datatoplot(:)));
     else
-        imagesc(t2plot, f2plot, datatoplot);
+        h_image = imagesc(t2plot, f2plot, datatoplot);
     end
+    % Datatips:
+    %   d = datatip(h_image); c = h_image.DataTipTemplate();
+    
     if strcmp(type, 'pow')
-        mymap = Get_colourmap_rgb('Audition');
+        switch colourbar_map
+            case 'default'
+                mymap = Get_colourmap_rgb('Audition');
+            otherwise
+                mymap = Get_colourmap_rgb(colourbar_map);
+        end
         colormap(mymap);
     elseif strcmp(type(1:2), 'CI') || strcmp(type,'tvalue')
-        colormap(jet);
+        switch colourbar_map
+            case 'default'
+                colormap(jet);
+            case {'jet_grey','jet_gray'} % 40 percent
+                
+                CM1 = colormap('gray');
+                CM2 = colormap('jet');
+                CM = CM1;
+                idxi = 50;
+                idxs = [1:idxi length(CM)-idxi+1:length(CM)];
+                CM(idxs,:) = CM2(idxs,:);
+                colormap(CM);
+            case {'jet_grey_80','jet_gray_80'} % 80 percent
+                
+                CM1 = colormap('gray');
+                CM2 = colormap('jet');
+                CM = CM1;
+                idxi = 50*2;
+                idxs = [1:idxi length(CM)-idxi+1:length(CM)];
+                CM(idxs,:) = CM2(idxs,:);
+                colormap(CM);
+            otherwise
+                try
+                    colormap(Get_colourmap_rgb(colourbar_map));
+                catch
+                    % just the default
+                    colormap(jet);
+                end
+        end
         if maxabsdata > 0
             caxis([-maxabsdata maxabsdata]);
         else
@@ -297,7 +333,16 @@ for num_CI = 1:N_CI
     elseif strcmp(type, 'ACI')
         % % New by Alejandro
         % mymap = Get_colourmap_rgb('RdGy'); % This colour is nicer (0 is white) but still not colour blind
-        mymap = Get_colourmap_rgb('Audition');
+        switch colourbar_map
+            case 'default'
+                mymap = Get_colourmap_rgb('Audition');
+            otherwise
+                mymap = Get_colourmap_rgb(colourbar_map);
+                 
+% CM = [ [ linspace(0,1,100)' ; ones(100,1)] ,...
+%     [ linspace(0,1,100)' ; linspace(1,0,100)' ] ,...
+%     [ ones(100,1) ; linspace(1,0,100)' ] ];                
+        end
         cmap = colormap(mymap);
         caxis([-maxabsdata maxabsdata]) 
     elseif strcmp(type, 'formants')
@@ -330,27 +375,28 @@ for num_CI = 1:N_CI
     c_axis=caxis;
     
     % colorbar
-    if isyes(displaycolorbar)
-        if N_CI==1
-            tcolorbar=colorbar;
-            if ~isempty(NameResponse)
-                title(tcolorbar,NameResponse{1});
-                xlabel(tcolorbar,NameResponse{2});
+    switch displaycolourbar
+        case {'yes','oui','on',1}
+            if N_CI==1
+                tcolorbar=colorbar;
+                if ~isempty(NameResponse)
+                    title(tcolorbar,NameResponse{1});
+                    xlabel(tcolorbar,NameResponse{2});
+                end
+                if ~isempty(NcolorTicks)
+                    set(tcolorbar,'YTick',linspace(c_axis(1),c_axis(2),NcolorTicks))
+                end
             end
-            if ~isempty(NcolorTicks)
-                set(tcolorbar,'YTick',linspace(c_axis(1),c_axis(2),NcolorTicks))
+            if N_CI==1 && length(type)>5 && strcmp(type(1:6), 'zscore')
+                ylabel(tcolorbar, 'Z-score')
+            elseif N_CI==1 && length(type)>5 && strcmp(type(1:6), 'tvalue')
+                ylabel(tcolorbar, 't-value')
+            elseif strcmp(type, 'prob')
+                ylabel(tcolorbar, 'p-value')
+                set(tcolorbar,'YTick',[alphalevel 1])
             end
-        end
-        if N_CI==1 && length(type)>5 && strcmp(type(1:6), 'zscore')
-            ylabel(tcolorbar, 'Z-score')
-        elseif N_CI==1 && length(type)>5 && strcmp(type(1:6), 'tvalue')
-            ylabel(tcolorbar, 't-value')
-        elseif strcmp(type, 'prob')
-            ylabel(tcolorbar, 'p-value')
-            set(tcolorbar,'YTick',[alphalevel 1])
-        end
-        outs.tcolorbar = tcolorbar;
-        outs.tcolorbar_description = 'Colour bar handle';
+            outs.tcolorbar = tcolorbar;
+            outs.tcolorbar_description = 'Colour bar handle';
     end
    
     axis xy;
@@ -430,7 +476,6 @@ for num_CI = 1:N_CI
     if grid_on
         grid on
     end
-    
     
     % afficher les trac�s des formants (if requested)
     Ftemp=F;

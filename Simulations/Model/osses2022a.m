@@ -235,7 +235,7 @@ fc = erbspacebw(flow, fhigh, keyvals.bwmul, keyvals.basef);
 
 if ~isempty(keyvals.betamul)
     if keyvals.bwmul ~= keyvals.betamul
-        fprintf('%s: \tBetamul and bwmul are different, this mught mean that you are\n\t\tunconsciously filters that do not cross at their -3 dB points\n',upper(mfilename))
+        fprintf('%s: \tBetamul and bwmul are different, this might mean that you are\n\t\tunconsciously using filters that do not cross at their -3 dB points\n',upper(mfilename))
         fprintf('\t\t(betamul=%.4f; bwmul=%.4f)\n',keyvals.betamul, keyvals.bwmul);
     end
 end

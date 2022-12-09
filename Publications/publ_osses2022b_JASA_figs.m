@@ -47,7 +47,8 @@ definput.flags.type={'missingflag', ...
     'fig2_suppl', ... % Intellitest, L3209 (on 29/09/2022)
     'fig3_suppl', ...
     'fig3b_suppl', ...
-    'fig5_suppl'}; % different lambdas
+    'fig5_suppl', ...
+    'fig6_suppl'}; % different lambdas
 definput.flags.plot={'plot','no_plot'};
 % definput.keyvals.models=[];
 definput.keyvals.dir_out=[];
@@ -72,17 +73,37 @@ do_fig5_stats_N10 = 0; % by default no analysis of N=10 data
 % End common variables
 do_plot = flags.do_plot; % flags.do_plot into variable for easy debugging
 
-dir_savegame_sim = [fastACI_dir_data 'speechACI_Logatome-abda-S43M' filesep 'osses2022a_debug_0715' filesep]; % '/home/alejandro/Documents/Databases/data/fastACI_data/speechACI_Logatome-abda-S43M/osses2022a_debug_0715/';
-dir_savegame_exp = [fastACI_basepath 'Publications' filesep 'publ_osses2022b' filesep]; 
+bZenodo = 1;
+warning('bZenodo set manually here, it will be automated later...');
 
-dir_ACI_exp = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc_Leo/'; % My run: dir_where = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc/';
-    % Run-S01/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
-    % Run-S02/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
-    % ...
-    % Run-S12/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
-dir_ACI_sim = '/home/alejandro/Documents/Databases/data/fastACI_data_z_tmp/20220715_sim_Q1_osses2022a/';
+dir_savegame_sim = [fastACI_dir_data 'speechACI_Logatome-abda-S43M' filesep 'osses2022a_debug_0715' filesep]; % '/home/alejandro/Documents/Databases/data/fastACI_data/speechACI_Logatome-abda-S43M/osses2022a_debug_0715/';
+
+% colourbar_map = 'default';
+
+colourbar_map = 'DG_jet';
+% colourbar_map = 'DG_red_blue'; % Double gradient
+% colourbar_map = 'SQ_red'; % Sequential red
+flags_tf = {'colourbar_map',colourbar_map};
+
+if bZenodo == 1
+    dir_zenodo = '/home/alejandro/Desktop/fastACI_today/Zenodo/';
+    dir_ACI_exp = [dir_zenodo '03-Post-proc-data' filesep 'ACI_exp' filesep];
+    dir_ACI_sim = [dir_zenodo '03-Post-proc-data' filesep 'ACI_sim' filesep]; % Copied from /20220715_sim_Q1_osses2022a/';
+    
+    dir_data = [dir_zenodo '01-Stimuli' filesep 'fastACI_data' filesep];
+    dir_fastACI = [dir_zenodo '02-Raw-data' filesep 'fastACI' filesep];
+else
+    dir_ACI_exp = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc_Leo/'; % My run: dir_where = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc/';
+        % Run-S01/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
+        % Run-S02/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
+        % ...
+        % Run-S12/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
+    dir_ACI_sim = '/home/alejandro/Documents/Databases/data/fastACI_data_z_tmp/20220715_sim_Q1_osses2022a/';
+    dir_data = fastACI_paths('dir_data');
+    dir_fastACI = fastACI_paths('dir_fastACI'); % fastACI_basepath
+end
+dir_savegame_exp = [dir_fastACI 'Publications' filesep 'publ_osses2022b' filesep]; 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-dir_data = fastACI_paths('dir_data');
 dir_subj_exp = [dir_data experiment filesep 'S01' filesep];
 
 if flags.do_fig1_old || flags.do_fig1 || flags.do_fig2a || flags.do_fig2b    
@@ -643,9 +664,9 @@ if flags.do_fig3
     %% 5. Plot
     figure;
     if dim_lambda == 1
-        affichage_tf( squeeze(sumReWeight(2,:,:)), 'CI', cfg_ACI.t, cfg_ACI.f);
+        affichage_tf( squeeze(sumReWeight(2,:,:)), 'CI', cfg_ACI.t, cfg_ACI.f, flags_tf{:});
     else
-        affichage_tf( sumReWeight, 'CI', cfg_ACI.t, cfg_ACI.f);
+        affichage_tf( sumReWeight, 'CI', cfg_ACI.t, cfg_ACI.f, flags_tf{:});
     end
     ylabel('Frequency (Hz)');
     xlabel('Time (s)');
@@ -679,7 +700,8 @@ end
 if flags.do_fig4 || flags.do_fig5 || flags.do_fig5_stats || flags.do_fig5_simu || ...
    flags.do_fig6 || flags.do_fig7 || flags.do_fig8       || flags.do_fig9      || flags.do_fig9b || ...
    flags.do_fig10|| flags.do_fig12 || ...
-   flags.do_fig1_suppl || flags.do_fig2_suppl || flags.do_fig3_suppl || flags.do_fig3b_suppl || flags.do_fig8b_old
+   flags.do_fig1_suppl || flags.do_fig2_suppl || flags.do_fig3_suppl || flags.do_fig3b_suppl || ...
+   flags.do_fig8b_old  || flags.do_fig5_suppl
 
     %  g20220720_behavstats_from_l20220325
     %%% Analysis for 12 participants:
@@ -696,10 +718,6 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
 
     Markers = {'o','s','^'};
     LW = [1 1 2];
-
-    bLeo = 0;
-    bAlejandro = ~bLeo;
-    bExclude = 1;
 
     for i_subject = 1:N_subjects
         subject = Subjects{i_subject};
@@ -845,52 +863,27 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
             end
         end
 
-        if bLeo 
-            medianSNR = medianSNR_old;
-            % percSNR_L_old(i_subject, i_masker, i_session) = prctile(rev,5);
-            % percSNR_U_old(i_subject, i_masker, i_session) = prctile(rev,95);
-            % iscorr = data_passation.is_correct(idx);
-            % perc_corr_old(
-        end
         data.medianSNR = medianSNR;
         data.file_savegame = file_savegame;
     end
     
     if flags.do_fig4 || flags.do_fig5_simu
-        if bAlejandro
-            % Summary for the text:
-            for i_subject = 1:N_subjects
-                perc_here = squeeze(perc_corr_all(i_subject, :, :));
-                Me_all(i_subject) = median(perc_here(:));
-                Mi_all(i_subject) = min(perc_here(:));
-                Ma_all(i_subject) = max(perc_here(:));
-            end
-            [Mi,idx_mi] = min(Me_all);
-            [Ma,idx_ma] = max(Me_all);
-
-            fprintf('...percentage correct varied between %.1f (S%.0f) and %.1f (S%.0f)\n', ...
-                100*Mi,idx_mi,100*Ma,idx_ma);
-            fprintf('...session by session scores between %.1f and %.1f\n', ...
-                100*min(Mi_all),100*max(Ma_all));
-            disp('')
+        % Summary for the text:
+        for i_subject = 1:N_subjects
+            perc_here = squeeze(perc_corr_all(i_subject, :, :));
+            Me_all(i_subject) = median(perc_here(:));
+            Mi_all(i_subject) = min(perc_here(:));
+            Ma_all(i_subject) = max(perc_here(:));
         end
-    end
+        [Mi,idx_mi] = min(Me_all);
+        [Ma,idx_ma] = max(Me_all);
 
-    % % Fig. 0: percentage correct as a function of condition
-    % figure
-    % global_percentcorrect = mean(percentcorrect,3);
-    % for i_masker = 1:N_maskers
-    %     Me = squeeze(mean(global_percentcorrect(:,i_masker)));
-    %     Sem = squeeze(std(global_percentcorrect(:,i_masker)))/sqrt(size(medianSNR,1));
-    %     errorbar(i_masker,Me,Sem,'o','Color',maskercolors{i_masker},'MarkerFaceColor',maskercolors{i_masker});
-    %     hold on
-    %     for i_subject = 1:N_subjects
-    %         plot(i_masker-0.1,squeeze(global_percentcorrect(i_subject,i_masker,:)),'.','Color',[maskercolors{i_masker},0.1]);
-    %     end
-    % end
-    % xlabel('Masker condition')
-    % ylabel('Correct response rate (%)')
-    % title('group analysis of Correct response rate')
+        fprintf('...percentage correct varied between %.1f (S%.0f) and %.1f (S%.0f)\n', ...
+            100*Mi,idx_mi,100*Ma,idx_ma);
+        fprintf('...session by session scores between %.1f and %.1f\n', ...
+            100*min(Mi_all),100*max(Ma_all));
+        disp('')
+    end
 end
 
 if flags.do_fig4 || flags.do_fig5_simu
@@ -1040,12 +1033,12 @@ if flags.do_fig5
     resp1_label = [data_hist.CR_label '-trials (CR)'];
 
     figure('Position',[100 100 700 600]);
-    il_tiledlayout(2,2,'TileSpacing','tight');
+    tiledlayout(2,2,'TileSpacing','tight');
     
     XL = [-18.5 -8.5];
     for i_masker = 1:N_maskers
         
-        il_nexttile(1)
+        nexttile(1)
         
         x_var = bin_centres;
         Score = 100*squeeze(P_H_resp1(:,i_masker,:));
@@ -1068,7 +1061,7 @@ if flags.do_fig5
         txt_options = {'Unit','Normalized','FontWeight','Bold','FontSize',14};
         text(0.05,0.92,'A. /aba/ trials (H)',txt_options{:});
         
-        il_nexttile(2)
+        nexttile(2)
         
         Score = 100*squeeze(P_H_resp2(:,i_masker,:));
         Me = mean(Score);
@@ -1089,7 +1082,7 @@ if flags.do_fig5
         text(0.05,0.92,'B. /ada/ trials (CR)',txt_options{:});
     end
     
-    il_nexttile(3)
+    nexttile(3)
         
     for i_masker = 1:N_maskers
         x_var = bin_centres;
@@ -1112,7 +1105,7 @@ if flags.do_fig5
         text(0.05,0.92,'C. d''',txt_options{:});
     end
 
-    il_nexttile(4)
+    nexttile(4)
         
     for i_masker = 1:N_maskers
         x_var = bin_centres;
@@ -1212,8 +1205,6 @@ end
 if flags.do_fig6 || flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || ...
    flags.do_fig3_suppl || flags.do_fig8b_old
     glmfct = 'l1glm';
-    bIs_Alejandro = isunix;
-    bIs_Leo = ~bIs_Alejandro;
     
     flags_base = {'gammatone', ... % gt
                   glmfct, ... % l1glm
@@ -1223,13 +1214,12 @@ if flags.do_fig6 || flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || ...
                   'pyramid_shape',-1 ...
                   }; % the extra fields
 
-    if bIs_Alejandro
-        dir_where = dir_ACI_exp;
-        % Location of the savegames:
-                   % /home/alejandro/Desktop/fastACI_today/fastACI_data/speechACI_Logatome-abda-S43M/S01/Results
-        % dir_res = {'/home/alejandro/Documents/MATLAB/MATLAB_ENS/fastACI/Publications/publ_osses2022b/',['1-experimental_results' filesep]};
-        % dir_wav = '/home/alejandro/Documents/Databases/data/fastACI_data/speechACI_Logatome-abda-S43M/';
-    end
+    dir_where = dir_ACI_exp;
+    % Location of the savegames:
+               % /home/alejandro/Desktop/fastACI_today/fastACI_data/speechACI_Logatome-abda-S43M/S01/Results
+    % dir_res = {'/home/alejandro/Documents/MATLAB/MATLAB_ENS/fastACI/Publications/publ_osses2022b/',['1-experimental_results' filesep]};
+    % dir_wav = '/home/alejandro/Documents/Databases/data/fastACI_data/speechACI_Logatome-abda-S43M/';
+
 end
 
 if flags.do_fig6
@@ -1245,6 +1235,8 @@ if flags.do_fig6
     Pos4 = [800 800];
     N_subjs2plot = [6 6];
      
+    flags_text = {'FontWeight','Bold','Units','Normalized'};
+    
     Group_ACIs = [];
     count_curr_subject = 1;
     for i_repeat = 1:2
@@ -1256,11 +1248,10 @@ if flags.do_fig6
         end
         N_subj2plot = N_subjs2plot(i_repeat);
         figure('Position',[100 100 600 Pos4(i_repeat)]); % set(gcf,'Position',[100 100 600 Pos4(i_repeat)])
-        il_tiledlayout(N_subj2plot,N_noises,'TileSpacing','tight');
+        tiledlayout(N_subj2plot,N_noises,'TileSpacing','tight');
         for i_subj = 1:N_subj2plot    
-            dir_subj = dir_ACI_exp;
             for i_noise = 1:N_noises
-                ACI_fname = [dir_subj 'ACI-' Subjects{i_subj} '-speechACI_Logatome-' noise_str{i_noise} '-nob-gt-l1glm+pyrga-rev4.mat'];
+                ACI_fname = [dir_ACI_exp 'ACI-' Subjects{i_subj} '-speechACI_Logatome-' noise_str{i_noise} '-nob-gt-l1glm+pyrga-rev4.mat'];
  
                 ACI = [];
                 cfg_ACI = [];
@@ -1283,14 +1274,15 @@ if flags.do_fig6
                 end
                 
                 if i_noise == 3
-                    bColourbar = 'yes';
+                    bColourbar = 1;
                 else
-                    bColourbar = 'no';
+                    bColourbar = 0;
                 end
                 flags_opts = {'NfrequencyTicks',5,'colorbar',bColourbar}; 
- 
-                il_nexttile(N_noises*(i_subj-1)+i_noise);
-                affichage_tf(ACI,'CInorm', cfg_ACI.t, cfg_ACI.f,flags_opts{:}); hold on
+                flags_opts = [flags_opts flags_tf];
+                
+                nexttile(N_noises*(i_subj-1)+i_noise);
+                plot_outs = affichage_tf(ACI,'CInorm', cfg_ACI.t, cfg_ACI.f,flags_opts{:}); hold on
                 
                 % Copying the ACI to the group values:
                 Group_ACIs{count_curr_subject,i_noise} = ACI;
@@ -1311,7 +1303,7 @@ if flags.do_fig6
                     ycoor = mean(YL_box);
                     offx = 0.98*abs(diff(XL_box)/2);
                     offy = 0.98*abs(diff(YL_box)/2);
-                    il_plot_square_XY(xcoor,ycoor,'m',offx,offy,'--',2);
+                    il_plot_square_XY(xcoor,ycoor,'m',offx,offy,'--',4);
                 end
                 
                 if i_subj == 1
@@ -1336,15 +1328,32 @@ if flags.do_fig6
                                 text2show = 'F.';
                             end
                     end
-                    text(0,1.15,text2show,'FontWeight','Bold','Units','Normalized','FontSize',14);
+                    text(0,1.15,text2show,flags_text{:},'FontSize',14);
                 end
                 if i_noise == 3
                     text2show = Subjects{i_subj};
-                    text(.7,.90,text2show,'FontWeight','Bold','Units','Normalized','FontSize',12);
+                    text(.7,.90,text2show,flags_text{:},'FontSize',12);
                 end
                 text2show = sprintf('%.1f',meanSNR(i_subj,i_noise));
-                text(.7,.75,text2show,'FontWeight','Bold','Units','Normalized','FontSize',10,'Color',rgb('Gray'));
+                text(.7,.75,text2show,flags_text{:},'FontSize',10,'Color',rgb('Gray'));
                 
+                if bColourbar
+                    hcl = plot_outs.tcolorbar;
+                    set(hcl,'Ticks',[]);
+                end
+                if i_subj == 1
+                    % Put 'aba'
+                    if bColourbar
+                        text(1.1,1.15,'aba','FontSize',12,flags_text{:},'Color','red');
+                    end
+                end
+                 
+                if i_subj == N_subj2plot
+                    if bColourbar
+                        text(1.1,-.15,'ada','FontSize',12,flags_text{:},'Color','blue');
+                    end
+                end
+
                 disp('')
             end
             count_curr_subject = count_curr_subject + 1; % incrementing the counter for the corresponding participant
@@ -1389,6 +1398,9 @@ if flags.do_fig6
             case 2
                 text2show = 'H.';
             case 3
+                text(1.2,1,'aba','FontSize',12,flags_text{:},'Color','red');
+                text(1.2,0,'ada','FontSize',12,flags_text{:},'Color','blue');
+
                 text2show = 'I.';
         end
         text(0,1.08,text2show,'FontWeight','Bold','Units','Normalized','FontSize',14); 
@@ -1404,7 +1416,7 @@ if flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || flags.do_fig3_suppl || ...
    flags.do_fig8b_old
     % Loading cross predictions
     
-    dir_res = {[fastACI_paths('dir_fastACI') 'Publications' filesep 'publ_osses2022b' filesep],['1-experimental_results' filesep]};
+    dir_res = {[dir_fastACI 'Publications' filesep 'publ_osses2022b' filesep],['1-experimental_results' filesep]};
            
     trialtype_analysis = 'total';
 
@@ -1524,33 +1536,24 @@ if flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || flags.do_fig3_suppl || ...
                 if flags.do_fig7
                     res_here = results{i_subject,i_masker};
                     % PC and DEV for incorrect trial
+                    outs_perf     = Read_ACI_performance_metrics(res_here,'test');
+                    outs_perf_inc = Read_ACI_performance_metrics_inc(res_here,data_passation,cfg_ACI_here);
+                    
                     [PC_per_fold_inc,Dev_per_fold_inc] = il_tbtpred_inc(cfg_ACI_here,res_here,data_passation);
 
                     %%% Save some data for group-level analysis
                     idxlambda = res_here.idxlambda;
-
-                    num1 = res_here.FitInfo.Dev_test./res_here.FitInfo.CV.TestSize;
-                    num2 = num1(end,:); % referential null ACI 
-                    G_Devtrial_opt(:,i_subject,i_masker) = num1(idxlambda,:) - num2;
-
-                    num1 = res_here.FitInfo.PC_test;
-                    num2 = num1(end,:); % referential null ACI 
-                    G_PAtrial_opt(:,i_subject,i_masker) = num1(idxlambda,:) - num2;
-
-                    G_OptDEV(i_subject,i_masker) = mean(G_Devtrial_opt(:,i_subject,i_masker));
-                    G_OptPA(i_subject,i_masker)  = mean(G_PAtrial_opt( :,i_subject,i_masker));
+                    G_Devtrial_opt(:,i_subject,i_masker) = outs_perf.Dev;
+                    G_PAtrial_opt(:,i_subject,i_masker)  = outs_perf.PA_re_chance;
+                    G_OptDEV(i_subject,i_masker) = outs_perf.Dev_mean;
+                    G_OptPA(i_subject,i_masker)  = outs_perf.PA_mean_re_chance;
                     
                     %%% Incorrect:
-                    num1 = Dev_per_fold_inc;
-                    num2 = num1(end,:); % referential null ACI 
-                    G_Devtrial_opt_inc(:,i_subject,i_masker) = num1(idxlambda,:) - num2;
+                    G_Devtrial_opt_inc(:,i_subject,i_masker) = outs_perf_inc.Dev;
+                    G_PAtrial_opt_inc(:,i_subject,i_masker)  = outs_perf_inc.PA_re_chance;
 
-                    num1 = PC_per_fold_inc;
-                    num2 = num1(end,:); % referential null ACI 
-                    G_PAtrial_opt_inc(:,i_subject,i_masker) = num1(idxlambda,:) - num2;
-
-                    G_OptDEV_inc(i_subject,i_masker) = mean(G_Devtrial_opt_inc(:,i_subject,i_masker));
-                    G_OptPA_inc(i_subject,i_masker)  = mean(G_PAtrial_opt_inc(:,i_subject,i_masker));
+                    G_OptDEV_inc(i_subject,i_masker) = outs_perf_inc.Dev_mean;
+                    G_OptPA_inc(i_subject,i_masker)  = outs_perf_inc.PA_mean_re_chance;
                 end % if flags.do_fig7
                 
             end % end if bInclude
@@ -1564,22 +1567,23 @@ if flags.do_fig7
     %   g20220203_crossprediction.m
     
     %% function l20220502_analysis_pipeline_ACIstats
-    figure('Position',[100 100 700*2-200 550]);
-    il_tiledlayout(2,2,'TileSpacing','tight');
+    figure('Position',[100 100 700*2-200 530]);
+    tiledlayout(2,2,'TileSpacing','tight');
     
-    crit_sig = [0 0 1.3 2.39]; % significance criterion
+    factor_guess = 1/(1-.5);
+    crit_sig = factor_guess*[0 0 1.3 2.39]; % significance criterion
     
     XL = [0.5 3.5]; 
-    il_nexttile(1);
+    nexttile(1);
     plot(XL,crit_sig(1)*[1 1],'k--'); hold on; grid on
     
-    il_nexttile(2);
+    nexttile(2);
     plot(XL,crit_sig(2)*[1 1],'k--'); hold on; grid on
     
-    il_nexttile(3);
+    nexttile(3);
     plot(XL,crit_sig(3)*[1 1],'k--'); hold on; grid on
     
-    il_nexttile(4);
+    nexttile(4);
     plot(XL,crit_sig(4)*[1 1],'k--'); hold on; grid on
     
     for i_masker = 1:N_maskers
@@ -1595,9 +1599,9 @@ if flags.do_fig7
             % y2plot  = G_Devtrial_opt(lambda_opt,:,i_subject,i_masker);
             % y2plot2 = 100*G_PA_opt(lambda_opt,:,i_subject,i_masker);
             y2plot  = G_Devtrial_opt(:,i_subject,i_masker);
-            y2plot2 = 100*G_PAtrial_opt(:,i_subject,i_masker);
+            y2plot2 = G_PAtrial_opt(:,i_subject,i_masker);
             
-            il_nexttile(1);
+            nexttile(1);
             Me = mean(y2plot);
             EB = 1.64*sem(y2plot);
             MCol = 'w';
@@ -1607,7 +1611,7 @@ if flags.do_fig7
             end
             errorbar(i_masker+offx, Me, EB, 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on
             
-            il_nexttile(3);
+            nexttile(3);
             Me = mean(y2plot2);
             EB = 1.64*sem(y2plot2);
             MCol = 'w';
@@ -1623,9 +1627,9 @@ if flags.do_fig7
             
             %%% Incorrect trials:
             y2plot  = G_Devtrial_opt_inc(:,i_subject,i_masker);
-            y2plot2 = 100*G_PAtrial_opt_inc(:,i_subject,i_masker);
+            y2plot2 = G_PAtrial_opt_inc(:,i_subject,i_masker);
 
-            il_nexttile(2);
+            nexttile(2);
             Me = mean(y2plot);
             EB = 1.64*sem(y2plot);
             MCol = 'w';
@@ -1635,7 +1639,7 @@ if flags.do_fig7
             end
             errorbar(i_masker+offx, Me , EB , 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on
 
-            il_nexttile(4);
+            nexttile(4);
             Me = mean(y2plot2);
             EB = 1.64*sem(y2plot2);
             MCol = 'w';
@@ -1652,31 +1656,31 @@ if flags.do_fig7
 
         y2plot  = G_OptDEV(:,i_masker);
         % subplot(2,1,1)
-        il_nexttile(1);
+        nexttile(1);
         offx = 0.05*(N_subjects+2 - (N_subjects+2)/2);
         errorbar(i_masker+offx, mean(y2plot) , 1.64*sem(y2plot) , 'o', 'Color', masker_colours{i_masker},'LineWidth',2,'MarkerFaceColor',masker_colours{i_masker}); hold on
         
-        y2plot  = 100*G_OptPA(:,i_masker);
+        y2plot  = G_OptPA(:,i_masker);
         % subplot(2,1,2)
-        il_nexttile(3);
+        nexttile(3);
         offx = 0.05*(N_subjects+2 - (N_subjects+2)/2);
         errorbar(i_masker+offx, mean(y2plot) , 1.64*sem(y2plot) , 'o', 'Color', masker_colours{i_masker},'LineWidth',2,'MarkerFaceColor',masker_colours{i_masker}); hold on
         
         %%% Incorrect:
         y2plot  = G_OptDEV_inc(:,i_masker);
-        il_nexttile(2);
+        nexttile(2);
         offx = 0.05*(N_subjects+2 - (N_subjects+2)/2);
         errorbar(i_masker+offx, mean(y2plot) , 1.64*sem(y2plot) , 'o', 'Color', masker_colours{i_masker},'LineWidth',2,'MarkerFaceColor',masker_colours{i_masker}); hold on
         
-        y2plot  = 100*G_OptPA_inc(:,i_masker);
-        il_nexttile(4);
+        y2plot  = G_OptPA_inc(:,i_masker);
+        nexttile(4);
         offx = 0.05*(N_subjects+2 - (N_subjects+2)/2);
         errorbar(i_masker+offx, mean(y2plot) , 1.64*sem(y2plot) , 'o', 'Color', masker_colours{i_masker},'LineWidth',2,'MarkerFaceColor',masker_colours{i_masker}); hold on
     end
 
     XLabel = 'Masker';
     % subplot(2,1,1)
-    il_nexttile(1);
+    nexttile(1);
     title('All trials')
     grid on
     xlim(XL);
@@ -1689,7 +1693,7 @@ if flags.do_fig7
     txt_opts = {'Units','Normalized','FontWeight','Bold','FontSize',14};
     text(xcoor,ycoor,'A',txt_opts{:});
     
-    il_nexttile(2);
+    nexttile(2);
     title('Incorrect trials only')
     grid on
     xlim(XL);
@@ -1698,20 +1702,20 @@ if flags.do_fig7
     set(gca, 'YTickLabels',[]);
     text(xcoor,ycoor,'B',txt_opts{:});
     
-    il_nexttile(3);
+    nexttile(3);
     grid on
     xlim(XL)
-    ylim([-1 23])
+    ylim([-1 46])
     xlabel(XLabel); 
     set(gca, 'XTick', 1:N_maskers); 
     set(gca, 'XTickLabels', noise_types_label); 
     ylabel('Percent accuracy benefit (%)')
     text(xcoor,ycoor,'C',txt_opts{:});
     
-    il_nexttile(4);
+    nexttile(4);
     
     xlim(XL)
-    ylim([-1 23])
+    ylim([-1 46])
     xlabel(XLabel); 
     set(gca, 'XTick', 1:N_maskers); 
     set(gca, 'XTickLabels', noise_types_label); 
@@ -1720,10 +1724,11 @@ if flags.do_fig7
     text(xcoor,ycoor,'D',txt_opts{:});
     
     h(end+1) = gcf;
-	hname{end+1} = ['fig7-metrics-benefit'];
-        
-    disp('')
+	hname{end+1} = 'fig07-metrics-benefit';
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    disp('')
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Test on Optimal DEV
     [F_subjects,F_maskers] = ndgrid(1:N_subjects,1:N_maskers);
     [p,tbl,stats] = anovan(G_OptDEV(:),{F_maskers(:),F_subjects(:)},'varnames',{'maskers','subjects'},'random',2,'display','off');
@@ -1770,7 +1775,7 @@ if flags.do_fig8 || flags.do_fig3_suppl || flags.do_fig8b_old
         suff = '8';
     end
     figure('Position',[100 100 720 Pos4_here]);
-    il_tiledlayout(N_rows,3,'TileSpacing','tight'); % 'tight');
+    tiledlayout(N_rows,3,'TileSpacing','tight'); % 'tight');
 
     idx_sig = [0 0 0]; % idx of significant ACIs
     for i_column = 1:3
@@ -1840,7 +1845,7 @@ if flags.do_fig8 || flags.do_fig3_suppl || flags.do_fig8b_old
         [Me_diag(i_column),Me_nodiag(i_column), opts] = il_avg_diag_nodiag(PC_matrix_here);
         
         if flags.do_fig8
-            il_nexttile(i_column)
+            nexttile(i_column)
             imagesc(1:N_subjects,1:N_subjects,PC_matrix_here); hold on
             colormap('gray')
             caxis([0 10])
@@ -1898,14 +1903,14 @@ if flags.do_fig8 || flags.do_fig3_suppl || flags.do_fig8b_old
     text(0,1.05,'A.',opts_txt{:});
     set(gca,'FontSize',FS_here);
 
-    il_nexttile(2);
+    nexttile(2);
     set(gca,'YTickLabel',[]);
     set(gca,'XTickLabel',XTL);
     set(gca,'FontSize',FS_here);
     text(0,1.05,'B.',opts_txt{:});
     set(gca,'FontSize',FS_here);
 
-    il_nexttile(3);
+    nexttile(3);
     text(0,1.05,'C.',opts_txt{:});
     set(gca,'XTickLabel',[]);
     set(gca,'YTickLabel',[]);
@@ -2319,7 +2324,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Figs 10 and 11
 if flags.do_fig10      || flags.do_fig8b || flags.do_fig9b || ...
-   flags.do_fig11_old  || flags.do_fig12 || flags.do_fig3_suppl || flags.do_fig3b_suppl
+   flags.do_fig11_old  || flags.do_fig12 || flags.do_fig3_suppl || ...
+   flags.do_fig3b_suppl|| flags.do_fig5_suppl
     
     % All simulation results were stored in one output folder
     if isunix
@@ -2334,8 +2340,9 @@ if flags.do_fig10      || flags.do_fig8b || flags.do_fig9b || ...
     model_str = 'osses2022a';
 end
 
-if flags.do_fig10
+if flags.do_fig10 || flags.do_fig5_suppl
     
+    flags_text = {'FontWeight','Bold','Units','Normalized'};
     N_noises = length(noise_str);
     
     Pos4 = [400 1200];
@@ -2343,11 +2350,26 @@ if flags.do_fig10
     
     bAdd_thres = 1; % Option added on 12/10/2022
         
-    for i_repeat = 1:2
-        
+    if flags.do_fig10
+        pref = 'fig10';
+        idxs_repeat = 1;
+    end
+    if flags.do_fig5_suppl
+        pref = 'suppl-fig5';
+        idxs_repeat = [1 2]; % does all, but only plots '2'
+    end
+    
+    for i_repeat = idxs_repeat
         N_subj2plot = N_subjs2plot(i_repeat);
-        figure('Position',[100 100 600 Pos4(i_repeat)]); % set(gcf,'Position',[100 100 600 Pos4(i_repeat)])
-        il_tiledlayout(N_subj2plot,N_noises,'TileSpacing','tight');
+        
+        if (i_repeat == 1 && flags.do_fig10) || (i_repeat == 2 && flags.do_fig5_suppl)
+            figure('Position',[100 100 600 Pos4(i_repeat)]); % set(gcf,'Position',[100 100 600 Pos4(i_repeat)])
+            tiledlayout(N_subj2plot,N_noises,'TileSpacing','tight');
+            bPlot = 1;
+        else
+            bPlot = 0;
+        end
+        
         for i_subj = 1:N_subj2plot    
             dir_subj = [dir_results Subjects_ID{i_subj} filesep];
             for i_noise = 1:N_noises
@@ -2375,43 +2397,65 @@ if flags.do_fig10
                 info_toolbox = [];
                 load(ACI_fname);
 
-                if i_noise == 3
-                    bColourbar = 'yes';
-                else
-                    bColourbar = 'no';
-                end
-                flags_opts = {'NfrequencyTicks',5,'colorbar',bColourbar}; 
-
-                il_nexttile(N_noises*(i_subj-1)+i_noise);
-                affichage_tf(ACI,'CInorm', cfg_ACI.t, cfg_ACI.f,flags_opts{:});
-                if i_subj ~= N_subj2plot
-                    xlabel('')
-                    set(gca,'XTickLabel','');
-                end
-                if i_noise ~= 1
-                    ylabel('');
-                    set(gca,'YTickLabel','');
-                end
-                if i_subj == 1
-                    title(noise_types_label{i_noise});
-                    switch i_noise
-                        case 1
-                            text2show = 'A.';
-                        case 2
-                            text2show = 'B.';
-                        case 3
-                            text2show = 'C.';
+                if bPlot
+                    if i_noise == 3
+                        bColourbar = 'yes';
+                    else
+                        bColourbar = 'no';
                     end
-                    text(0,1.15,text2show,'FontWeight','Bold','Units','Normalized','FontSize',14);
-                end
-                if i_noise == 3
-                    Subj_ID = strsplit(Subjects_ID{i_subj},'-');
-                    text2show = Subj_ID{2};
-                    text(.7,.90,text2show,'FontWeight','Bold','Units','Normalized','FontSize',12);
-                end
-                text2show = sprintf('%.1f',meanSNR_sim(i_subj,i_noise));
-                text(.7,.75,text2show,'FontWeight','Bold','Units','Normalized','FontSize',10,'Color',rgb('Gray'));
-                
+                    flags_opts = {'NfrequencyTicks',5,'colorbar',bColourbar}; 
+                    flags_opts = [flags_opts flags_tf];
+
+                    nexttile(N_noises*(i_subj-1)+i_noise);
+                    plot_outs = affichage_tf(ACI,'CInorm', cfg_ACI.t, cfg_ACI.f,flags_opts{:});
+                    if i_subj ~= N_subj2plot
+                        xlabel('')
+                        set(gca,'XTickLabel','');
+                    end
+                    if i_noise ~= 1
+                        ylabel('');
+                        set(gca,'YTickLabel','');
+                    end
+                    if i_subj == 1
+                        title(noise_types_label{i_noise});
+                        switch i_noise
+                            case 1
+                                text2show = 'A.';
+                            case 2
+                                text2show = 'B.';
+                            case 3
+                                text2show = 'C.';
+                        end
+                        text(0,1.15,text2show,'FontSize',14, flags_text{:});
+                    end
+                    if i_noise == 3
+                        Subj_ID = strsplit(Subjects_ID{i_subj},'-');
+                        text2show = Subj_ID{2};
+                        text(.7,.90,text2show,'FontSize',12, flags_text{:});
+                        
+                        if bColourbar
+                            hcl = plot_outs.tcolorbar;
+                            set(hcl,'Ticks',[]);
+                        end
+                        
+                        if i_subj == 1
+                            % Put 'aba'
+                            if bColourbar
+                                text(1,1.15,'aba','FontSize',12,flags_text{:},'Color','red');
+                            end
+                        end
+                        
+                        if i_subj == N_subj2plot
+                            disp('')
+                            if bColourbar
+                                text(1,-.15,'ada','FontSize',12,flags_text{:},'Color','blue');
+                            end
+                        end
+                        
+                    end
+                    text2show = sprintf('%.1f',meanSNR_sim(i_subj,i_noise));
+                    text(.7,.75,text2show,flags_text{:},'FontSize',10,'Color',rgb('Gray'));
+                end % end bPlot
                 disp('')
             end
         end
@@ -2423,8 +2467,10 @@ if flags.do_fig10
         Subjects_ID(1:N_subj2plot) = []; % remove the first six labels, so that it's easier to repeat this code
         meanSNR_sim(1:N_subj2plot,:) = [];
         
-        h(end+1) = gcf;
-        hname{end+1} = ['fig10-ACI-sim-set' num2str(i_repeat)];
+        if bPlot
+            h(end+1) = gcf;
+            hname{end+1} = [pref '-ACI-sim'];
+        end
     end
     disp('')
    
@@ -3371,24 +3417,24 @@ if flags.do_fig2_suppl
     hname{end+1} = 'suppl-fig2-Intellitest';
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig5_suppl
-    prefix = 'suppl-fig5-';
+if flags.do_fig6_suppl
+    prefix = 'suppl-fig6-';
     
     experiment_full = 'speechACI_Logatome-abda-S43M';
     experiment = strsplit(experiment_full,'-'); experiment = experiment{1};
     noise_here = noise_str{3}; % MPS noise
     subj_ID = 'S01';
-    dir_ACI = [fastACI_paths('dir_data') experiment_full filesep subj_ID 'Results' filesep 'Results_ACI' filesep];
+    % dir_ACI = [fastACI_paths('dir_data') experiment_full filesep subj_ID filesep 'Results' filesep 'Results_ACI' filesep];
     
-    if ~exist(dir_ACI,'dir')
+    if ~exist(dir_ACI_exp,'dir')
         % Alejandro's local computer, all subjects are there:
-        dir_ACI = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc_Leo/';
+        dir_ACI_exp = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc_Leo/';
     end
-    if ~exist(dir_ACI,'dir')
+    if ~exist(dir_ACI_exp,'dir')
         error('None of the two ACI folder locations seem to contain the ACI of the participant...');
     end
     fname = ['ACI-' subj_ID '-' experiment '-' noise_here '-nob-gt-l1glm+pyrga-rev4.mat'];
-    var = load([dir_ACI fname]);
+    var = load([dir_ACI_exp fname]);
     ACIs = var.results.ACIs;
     idxs = [1 8 14 20];
     
@@ -3397,7 +3443,7 @@ if flags.do_fig5_suppl
     
     NfrequencyTicks = 8;
     flags_extra = {'NfrequencyTicks',NfrequencyTicks,'colorbar','no'};
-    
+    flags_extra = [flags_extra flags_tf];
     t_idx = 10:70;
     for i = 1:length(idxs)
         il_nexttile(i);
