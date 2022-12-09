@@ -111,6 +111,18 @@ switch glmfct
             results.ACI_perm_CI_low   = ACI_perm_CI_low;
             results.ACI_perm_CI_high  = ACI_perm_CI_high;
         end
+    case {'glm'}
+        tic
+        [B,Dev,Stat] = glmfit(X,y,'binomial','link','logit');
+        ACI = reshape(B(2:end),[length(cfg_ACI.f),length(cfg_ACI.t)]);
+        results.B = B;
+        results.Dev = Dev;
+        results.dfe = Stat.dfe;
+        results.covb = Stat.covb;
+        results.se = Stat.se;
+        results.coeffcorr = Stat.coeffcorr;
+        results.t = Stat.t;
+        results.p = Stat.p;
 
     case {'lassoglm','lasso','l1lm','l1glm'}
         N_folds = cfg_ACI.N_folds; % k_folds validation

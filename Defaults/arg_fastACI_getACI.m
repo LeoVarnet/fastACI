@@ -9,7 +9,7 @@ function definput = arg_fastACI_getACI(definput)
 definput.flags.TF_type = {'spect','lyon','noise_logspect','gammatone','adapt','tf', ...
     'gammatone2', ... % This is a temporal name
     'modulationACI_proc'}; % This name will be removed
-definput.flags.glmfct = {'glmfitqp'         ,'lassoglm','lasso','lassoslow','l1glm'       ,'classic_revcorr'};
+definput.flags.glmfct = {'glmfitqp','glm'         ,'lassoglm','lasso','lassoslow','l1glm', 'l1lm'   ,'classic_revcorr'};
 % Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','lasso','lassoslow','lassoglmslow','classic_revcorr'};
 definput.flags.permutation = {'no_permutation','permutation'};
 definput.flags.force_dataload = {'no_force_dataload','force_dataload'};
@@ -43,7 +43,7 @@ definput.keyvals.N_folds = 10;
 definput.keyvals.dir_noise = []; 
 definput.keyvals.idx_trialselect = []; 
 
-definput.keyvals.trialtype_analysis = 'total'; 
+definput.keyvals.trialtype_analysis = 'total';  %'total', 'incorrect', 'correct', 't1', 't2'
 
 definput.keyvals.f_limits = [1 10000]; % Hz, arbitrary frequencies to be used as limits 
 definput.keyvals.t_limits = [0 1]; 

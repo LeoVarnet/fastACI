@@ -59,9 +59,10 @@ if isempty(keyvals.dir_noise)
         if bCalculation == 1
             files = Get_filenames(cfg_game.dir_noise,'*.wav');
             if isempty(files) % then dir_noise does not exist yet...
-                str_here = sprintf('Experiment=%s, subject=%s, condition=%s',cfg_game.experiment_full,cfg_game.Subject_ID, cfg_game.Condition);
-                cfg_game.dir_noise = uigetdir([pwd filesep],str_here);
-
+                if isfield(cfg_game,'Condition')
+                    str_here = sprintf('Experiment=%s, subject=%s, condition=%s',cfg_game.experiment_full,cfg_game.Subject_ID, cfg_game.Condition);
+                    cfg_game.dir_noise = uigetdir([pwd filesep],str_here);
+                end
                 cfg_game.dir_noise = [cfg_game.dir_noise filesep];
             end
         end
@@ -256,7 +257,7 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
             fprintf('%s: dataload script found for this experiment (%s.m)\n',upper(mfilename),script4dataload);
             fprintf('\t If you want to use the default fastACI_getACI_dataload.m file instead, abort this\n');
             fprintf('\t processing now (press ctrl+c) and enter a new keyval called ''force_default_dataload'' to 1 \n');
-            pause(10)
+            pause(1)
             exp2eval = sprintf('[Data_matrix,cfg_ACI] = %s(cfg_ACI, ListStim, cfg_game, data_passation);',script4dataload);
             eval(exp2eval);
         else
