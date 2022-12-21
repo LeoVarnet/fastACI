@@ -10,11 +10,18 @@ else
     bLook_for_lambda = 0;
     fprintf('%s: Using a fixed idxlambda value\n',mfilename);
 end
-crosspred = [];
-info_toolbox = [];
-load(file);
 
-outs.info_toolbox = info_toolbox;
+if isstruct(file)
+    crosspred = file;
+    if isfield(crosspred,'crosspred')
+        crosspred = crosspred.crosspred;
+    end
+elseif exist(file,'file')
+    crosspred = [];
+    info_toolbox = [];
+    load(file);
+    outs.info_toolbox = info_toolbox;
+end
 
 N_subjects = length(crosspred);
 for i = 1:N_subjects
@@ -35,10 +42,12 @@ for i = 1:N_subjects
         N_lamdas = size(PC_test,1);
         
         factor = repmat(1./(1-PC_test(end,:)),N_lamdas,1); % correction for guessing, added on 9/10/2022
-        yvar = mean(factor.*(PC_test-PC_test(end,:)),2); % avoiding to write down 'results{1}.crosspred.PC_test' twice
+        yvar_no_corr = PC_test-PC_test(end,:);
+        yvar = mean(factor.*yvar_no_corr,2); % avoiding to write down 'results{1}.crosspred.PC_test' twice
         % evar = std(PC_test-PC_test(end,:),[],2);%/size(PC_test,2);%SEM
 
         PA_mean_re_chance(i) = 100*yvar(idxlambda(i));
+        PA_mean_re_chance_no_corr(i) = 100*yvar_no_corr(idxlambda(i));
         
         yvar = mean(PC_test,2); % avoiding to write down 'results{1}.crosspred.PC_test' twice
         PA_mean(i) = 100*yvar(idxlambda(i));
@@ -60,6 +69,7 @@ for i = 1:N_subjects
         idxlambda(i) = nan;
         PA_mean(i) = nan;
         PA_mean_re_chance(i) = nan;
+        PA_mean_re_chance_no_corr(i) = nan;
         
         Dev_mean(i) = nan;
         Dev_SEM(i) = nan;
@@ -68,5 +78,6 @@ end
 
 outs.PA_mean           = PA_mean;
 outs.PA_mean_re_chance = PA_mean_re_chance;
+outs.PA_mean_re_chance_no_corr = PA_mean_re_chance_no_corr;
 outs.Dev_mean          = Dev_mean;
 outs.Dev_SEM           = Dev_SEM;

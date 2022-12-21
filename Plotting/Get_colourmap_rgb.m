@@ -1,4 +1,4 @@
-function cmp = Get_colourmap_rgb(nam); % ,n,keepAlpha,pyCmd)
+function [cmp,max_colour,min_colour] = Get_colourmap_rgb(nam); % ,n,keepAlpha,pyCmd)
 % cmp = Get_colourmap_rgb(nam [, n, keepAlpha, pyCmd])
 %
 %
@@ -63,63 +63,14 @@ function cmp = Get_colourmap_rgb(nam); % ,n,keepAlpha,pyCmd)
 if nargin == 0
     nam = 'RdGy';
 end
-% if strcmpi(nam,'!GetNames')
-%     % translate switch to retrieve colormap names into python-switch:
-%     nam = 'listCMapNames';
-% end
-% 
-% 
-% % defaults:
-% if ~exist('n','var') || isempty(n)
-%     n = 128;
-% end
-% if ~exist('keepAlpha','var') || isempty(keepAlpha)
-%     keepAlpha = 0;
-% end
-% if ~exist('pyCmd','var') || isempty(pyCmd)
-%     pyCmd = 'python';
-% end
-% 
-% 
-% % check if python script is present
-% pyScript = which('pyplotCMap2txt.py');
-% assert(~isempty(pyScript), 'getPyPlot_cMap:PyScriptNotFound', ...
-%     'Could not find python script (%s).','pyplotCMap2txt.py');
-% 
-% tmpf = tempname;
-% 
-% % call python script
-% comd = sprintf('%s "%s" %s -o "%s" -n %d', pyCmd, pyScript, nam, tmpf, n);
-% [s,m] = system(comd);
-% 
-% % check if system command ran w/o error
-% assert(s==0, 'getPyPlot_cMap:SystemCMDFailed', ...
-%         'There was an error executing the command\n\t%s\nSystem returned:\n\t%s', ...
-%         comd, m);
-% 
-% 
-% if strcmp(nam,'listCMapNames')
-%     % cMap names retrieved; read text file
-%     fid = fopen(tmpf,'r');
-%     cmp = textscan(fid,'%s');
-%     fclose(fid);
-%     cmp = cmp{1};
-%     
-% else
-%     % load cMap data from text file
-%     cmp = load(tmpf,'-ascii');
-% 
-%     if keepAlpha
-%     else % remove 4th column of alpha values
-%         cmp = cmp(:,1:3);
-%     end
-% end
-% 
-% 
-% % delete temp-file
-% delete(tmpf);
 
 cmp = il_get_colour(nam);
+if nargout >= 2
+    max_colour = cmp(end,:);
+end
+if nargout >= 3
+    min_colour = cmp(1,:);
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function cMap = il_get_colour(colour)
