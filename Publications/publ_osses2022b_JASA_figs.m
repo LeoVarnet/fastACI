@@ -52,7 +52,9 @@ definput.flags.type={'missingflag', ...
     'fig6_suppl', ...
     'fig7_suppl'}; % different lambdas
 definput.flags.plot={'plot','no_plot'};
-% definput.keyvals.models=[];
+definput.flags.local={'local','zenodo'};
+
+definput.keyvals.dir_zenodo=[];
 definput.keyvals.dir_out=[];
 
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
@@ -70,15 +72,34 @@ masker_colours    = {[0,0,1],[1,0,0],rgb('Green')}; % Leo's colours
 experiment        = 'speechACI_Logatome-abda-S43M';
 N_maskers = length(noise_str);
 
+type_corr = 'Pearson'; % In the end, Pearson seems to be good enough
+% type_corr = 'Spearman';
+
 do_fig4_stats_N10 = 0; % by default no analysis of N=10 data
 do_fig5_stats_N10 = 0; % by default no analysis of N=10 data
 % End common variables
 do_plot = flags.do_plot; % flags.do_plot into variable for easy debugging
 
-bZenodo = 1;
-warning('bZenodo set manually here, it will be automated later...');
-
-dir_savegame_sim = [fastACI_dir_data 'speechACI_Logatome-abda-S43M' filesep 'osses2022a_debug_0715' filesep]; % '/home/alejandro/Documents/Databases/data/fastACI_data/speechACI_Logatome-abda-S43M/osses2022a_debug_0715/';
+bZenodo = flags.do_zenodo;
+if bZenodo == 1
+    fprintf('%s: The data from Zenodo will be loaded... \n',mfilename);
+    if ~isempty(keyvals.dir_zenodo)
+        fprintf('\t The data from Zenodo will be loaded from %s \n',keyvals.dir_zenodo);
+        if exist(keyvals.dir_zenodo,'dir')
+            bIs_dir = 1;
+        else
+            bIs_dir = 0;
+        end
+    else
+        bIs_dir = 0;
+    end
+    if bIs_dir == 0
+        msg_here = sprintf('\t You indicated that you want to proccess the data obtained from Zenodo. Please indicate the directory where it is...\n');
+        fprintf(msg_here)
+        keyvals.dir_zenodo = uigetdir([pwd filesep],msg_here);
+        keyvals.dir_zenodo = [keyvals.dir_zenodo filesep];
+    end
+end
 
 % colourbar_map = 'default';
 
@@ -88,12 +109,14 @@ colourbar_map = 'DG_jet';
 flags_tf = {'colourbar_map',colourbar_map};
 
 if bZenodo == 1
-    dir_zenodo = '/home/alejandro/Desktop/fastACI_today/Zenodo/';
+    dir_zenodo = keyvals.dir_zenodo;
     dir_ACI_exp = [dir_zenodo '03-Post-proc-data' filesep 'ACI_exp' filesep];
     dir_ACI_sim = [dir_zenodo '03-Post-proc-data' filesep 'ACI_sim' filesep]; % Copied from /20220715_sim_Q1_osses2022a/';
     
     dir_data = [dir_zenodo '01-Stimuli' filesep 'fastACI_data' filesep];
-    dir_fastACI = [dir_zenodo '02-Raw-data' filesep 'fastACI' filesep];
+    dir_fastACI      = [dir_zenodo '02-Raw-data' filesep 'fastACI' filesep];
+    dir_savegame_sim = [dir_zenodo '02-Raw-data' filesep 'ACI_sim' filesep];
+
 else
     dir_ACI_exp = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc_Leo/'; % My run: dir_where = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc/';
         % Run-S01/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
@@ -103,6 +126,8 @@ else
     dir_ACI_sim = '/home/alejandro/Documents/Databases/data/fastACI_data_z_tmp/20220715_sim_Q1_osses2022a/';
     dir_data = fastACI_paths('dir_data');
     dir_fastACI = fastACI_paths('dir_fastACI'); % fastACI_basepath
+    dir_savegame_sim = [fastACI_dir_data 'speechACI_Logatome-abda-S43M' filesep 'osses2022a_debug_0715' filesep]; % '/home/alejandro/Documents/Databases/data/fastACI_data/speechACI_Logatome-abda-S43M/osses2022a_debug_0715/';
+
 end
 dir_savegame_exp = [dir_fastACI 'Publications' filesep 'publ_osses2022b' filesep]; 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
@@ -769,10 +794,7 @@ if flags.do_fig4 || flags.do_fig5_simu
         xlabel('Starting trial of the block #'); % xlim([0 4100])
         ylabel('SNR threshold (dB)')
         legend(hplt, noise_types_label)
-        if bLeo
-            title('Leo')
-        end
-
+        
         h(end+1) = gcf;
         hname{end+1} = 'fig4-SNRs';
 
@@ -1054,7 +1076,12 @@ if flags.do_fig6 || flags.do_fig5_suppl || flags.do_fig5b_suppl
     if flags.do_fig6
         bAdd_thres = 1; % Option added on 10/10/2022
         if bAdd_thres 
-            meanSNR = publ_osses2022b_JASA_figs('fig4','no_plot');
+            try
+                flags_here = varargin(2:end); % excluding the fig number
+                meanSNR = publ_osses2022b_JASA_figs('fig4','no_plot',flags_here{:});
+            catch
+                meanSNR = publ_osses2022b_JASA_figs('fig4','no_plot');
+            end
             file_savegame = meanSNR.file_savegame;
             meanSNR = meanSNR.meanSNR; % recycling the variable
         end
@@ -1253,15 +1280,7 @@ if flags.do_fig6 || flags.do_fig5_suppl || flags.do_fig5b_suppl
     end
 end % end do_fig6
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig5_suppl || flags.do_fig5b_suppl || flags.do_fig9 || flags.do_fig9b
-    bInput = input('1=Pearson; 2=Spearman: ');
-    switch bInput
-        case 1
-            type_corr = 'Pearson';
-        case 2
-            type_corr = 'Spearman';
-    end
-end
+
 if flags.do_fig5_suppl || flags.do_fig5b_suppl
     rval = zeros([N_subjects N_subjects N_noises]);
     YL_PA = [0.05 1.05]; % range for experimental PA if correction for chance
@@ -1909,7 +1928,7 @@ if flags.do_fig8 || flags.do_fig3_suppl
     end
     if flags.do_fig3_suppl
         % c.Label.String = 'Deviance / trial benefit (adim)';
-        fig_name = 'suppl-fig3a-crosspred_participant';
+        fig_name = 'suppl-fig3-crosspred_participant';
     end
     set(gca,'FontSize',FS_here);
 
@@ -2203,7 +2222,7 @@ if flags.do_fig9 || flags.do_fig4_suppl
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         h(end+1) = gcf;
-        hname{end+1} = ['fig5c-cross_masker'];
+        hname{end+1} = 'suppl-fig5b-cross_masker';
         
         if bAll_participants == 0
             hname{end} = [hname{end} '-10-participants'];
@@ -2410,7 +2429,7 @@ if flags.do_fig5b_suppl % correlation simulations
     FS_here = 10;
      
     nexttile(4);
-    ylabel('ACI_s_i_m from');
+    ylabel('ACISI from');
     set(gca,'YTickLabel',YTL);
     set(gca,'XTickLabel',XTL);
     set(gca,'FontSize',FS_here);
@@ -2443,7 +2462,7 @@ if flags.do_fig5b_suppl % correlation simulations
         nexttile(i_masker+3);
         ht = title(noise_types_label{i_masker});
         set(ht,'FontSize',FS_here);
-        xlabel('ACI_s_i_m from');
+        xlabel('ACISI from');
     end
     
     %%%
@@ -2456,13 +2475,13 @@ if flags.do_fig5b_suppl % correlation simulations
     %%%
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig8b || flags.do_fig9b || ...
-   flags.do_fig3_suppl|| flags.do_fig3b_suppl || flags.do_fig4b_suppl
+if flags.do_fig8b || flags.do_fig9b || ... flags.do_fig3_suppl|| 
+   flags.do_fig3b_suppl || flags.do_fig4b_suppl
 
     if flags.do_fig9b
         Subjects_ID = {'Results-S01-v1','Results-S02-v1','Results-S03-v1','Results-S04-v1', ...
-                   'Results-S05-v1','Results-S06-v1','Results-S07-v1','Results-S08-v1', ...
-                   'Results-S09-v1','Results-S10-v1','Results-S11-v1','Results-S12-v1'};
+                       'Results-S05-v1','Results-S06-v1','Results-S07-v1','Results-S08-v1', ...
+                       'Results-S09-v1','Results-S10-v1','Results-S11-v1','Results-S12-v1'};
         warning('Temporal')
     end
     N_noises = length(noise_str);
@@ -2496,12 +2515,14 @@ if flags.do_fig8b || flags.do_fig9b || ...
             Dev_matrix_plus_SEM(i_subj,i_noise,:) = outs_cross.Dev_mean+outs_cross.Dev_SEM;
             % Dev_matrix_min_SEM(i_subj,i_noise,:)  = outs_cross.Dev_mean-outs_cross.Dev_SEM;
             
-            for ii_x = 1:N_maskers 
-                X = All_ACI_sim{i_subj,ii_x}; 
-                X = X(:);
-                for ii_y = 1:N_maskers
-                    Y = All_ACI_sim{i_subj,ii_y}; Y = Y(:);
-                    rval(i_subj,ii_x,ii_y) = corr(X,Y,'type',type_corr);
+            if flags.do_fig9b
+                for ii_x = 1:N_maskers 
+                    X = All_ACI_sim{i_subj,ii_x}; 
+                    X = X(:);
+                    for ii_y = 1:N_maskers
+                        Y = All_ACI_sim{i_subj,ii_y}; Y = Y(:);
+                        rval(i_subj,ii_x,ii_y) = corr(X,Y,'type',type_corr);
+                    end
                 end
             end
             
@@ -2511,7 +2532,6 @@ if flags.do_fig8b || flags.do_fig9b || ...
             res.crosspred = cross;
             if flags.do_fig9b
                 %%% Nothing to do
-                warning('Temporal')
             else
                 results{i_subj,i_noise} = res;
             end
@@ -2581,7 +2601,7 @@ if flags.do_fig8b || flags.do_fig3b_suppl
                 offxy = offxy*.9;
                 if Dev_diag(ii,i_column) < 0 % significance using 'Dev'
                     % idx = find(PC_matrix_nodiag(:,ii)>0); % Criterion using PA
-                    idx = find(Dev_matrix_plus_SEM(:,ii,i_column)<0);
+                    idx = find(Dev_matrix_plus_SEM(:,i_column,ii)<0);
                     if ~isempty(idx)
                         for jj = 1:length(idx)
                             il_plot_square(ii,idx(jj),'m',offxy,'--'); % Magenta colour
@@ -2678,7 +2698,7 @@ if flags.do_fig8b || flags.do_fig3b_suppl
         nexttile(i_masker+offset_column);
         ht = title(noise_types_label{i_masker});
         set(ht,'FontSize',FS_here);
-        xlabel('ACI_s_i_m from');
+        xlabel('ACISI from');
     end
     if ~bDo_with_fig8a
         h(end+1) = gcf;
@@ -2773,7 +2793,7 @@ if flags.do_fig9b || flags.do_fig4b_suppl % between noise
         caxis(YL_PA)
         set(gca,'FontSize',10);
 
-        xlabel('ACI_s_i_m from condition');
+        xlabel('ACISI from condition');
         % ylabel(''); % ylabel('Data from condition');
         
         caxis(YL_PA)
@@ -2844,15 +2864,15 @@ if flags.do_fig9b || flags.do_fig4b_suppl % between noise
         set(gca,'XTickLabel',XTL);
         set(gca,'YTickLabel',YTL);
  
-        xlabel('ACI_s_i_m from condition');
-        ylabel('ACI_s_i_m from condition');
+        xlabel('ACISI from condition');
+        ylabel('ACISI from condition');
 
         text4label = 'H.';
         text(-0.14,0.94,text4label,'Units','Normalized','FontSize',14,'FontWeight','Bold');
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         h(end+1) = gcf;
-        hname{end+1} = ['fig5c-cross_masker'];
+        hname{end+1} = 'suppl-fig5b-cross_masker';
         
         if bAll_participants == 0
             hname{end} = [hname{end} '-10-participants'];
@@ -2923,7 +2943,7 @@ if flags.do_fig9b || flags.do_fig4b_suppl % between noise
         set(gca,'XTickLabel',XTL);
         set(gca,'YTickLabel',YTL);
 
-        xlabel('ACI_s_i_m from condition');
+        xlabel('ACISI from condition');
         ylabel('Data from condition');
 
         text(0,1.05,'B.','Units','Normalized','FontSize',14,'FontWeight','Bold');
@@ -2954,7 +2974,7 @@ if flags.do_fig1_suppl
                rgb('RosyBrown'),rgb('Chocolate'),rgb('Sienna'),rgb('DarkGoldenrod'),rgb('Pink'),rgb('LightCoral')};
     
     for i_subj = 1:length(Subjects)
-        dir_res = [fastACI_basepath 'Publications' filesep 'publ_osses2022b' filesep 'data_' ...
+        dir_res = [dir_fastACI 'Publications' filesep 'publ_osses2022b' filesep 'data_' ...
             Subjects{i_subj} filesep '1-experimental_results' filesep 'audiometry' filesep]; 
         
         file = Get_filenames(dir_res,'absthreshold_*.dat');
@@ -3106,7 +3126,7 @@ if flags.do_fig2_suppl
     list_mod8    = nan([length(Subjects) 4]);
     
     for i_subj = 1:length(Subjects)
-        dir_res = [fastACI_basepath 'Publications' filesep 'publ_osses2022b' filesep 'data_' ...
+        dir_res = [dir_fastACI 'Publications' filesep 'publ_osses2022b' filesep 'data_' ...
             Subjects{i_subj} filesep '1-experimental_results' filesep 'intellitest' filesep]; 
         file1 = [dir_res 'Intellitest_' Subjects{i_subj} '_varspeech16.dat'];
         file2 = [dir_res 'Intellitest_' Subjects{i_subj} '_varspeech16_mod8.dat'];
@@ -3441,7 +3461,7 @@ if N_sessions > 10
     end
     
     % In this case, the participants might have taken one or more pauses...
-    idx_odd = find(mod(resume_ctrial(1:end-1)-1,400)~=0);
+    idx_odd = find(mod(resume_trial(1:end-1)-1,400)~=0);
     fprintf('Participant %s has %.0f shorter sessions\n',subject,length(idx_odd));
     fprintf('\tI am going to merge that session with the previous one...\n',subject,length(idx_odd));
     for i_odd = 1:length(idx_odd)
