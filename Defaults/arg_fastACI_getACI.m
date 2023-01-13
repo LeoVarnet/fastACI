@@ -9,7 +9,7 @@ function definput = arg_fastACI_getACI(definput)
 definput.flags.TF_type = {'spect','lyon','noise_logspect','gammatone','adapt','tf', ...
     'gammatone2', ... % This is a temporal name
     'modulationACI_proc'}; % This name will be removed
-definput.flags.glmfct = {'glmfitqp','glm'         ,'lassoglm','lasso','lassoslow','l1glm', 'l1lm'   ,'classic_revcorr'};
+definput.flags.glmfct = {'glmfitqp','glm','lassoglm_original'         ,'lassoglm','lasso','lassoslow','l1glm', 'l1lm'   ,'classic_revcorr'};
 % Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','lasso','lassoslow','lassoglmslow','classic_revcorr'};
 definput.flags.permutation = {'no_permutation','permutation'};
 definput.flags.force_dataload = {'no_force_dataload','force_dataload'};
