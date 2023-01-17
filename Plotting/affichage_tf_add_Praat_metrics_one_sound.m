@@ -71,7 +71,7 @@ for kk = 1:Nsounds
     % end
 
     if bAdd_traces(kk)
-        f2plot = affichage_get_freq_resolution(outs_from_Praat.f0{kk},cfg_ACI); % figure; plot(outs.t_f0{1},outs.f0{1},'k--');
+        [f2plot,cfg_ACI] = affichage_get_freq_resolution(outs_from_Praat.f0{kk},cfg_ACI); % figure; plot(outs.t_f0{1},outs.f0{1},'k--');
         pl(kk) = plot(outs_from_Praat.t_f0{kk},f2plot,'LineStyle',Style,'Color',Colour,'LineWidth',LineWidth);
 
         for ii = 1:size(outs_from_Praat.F{kk},2)
