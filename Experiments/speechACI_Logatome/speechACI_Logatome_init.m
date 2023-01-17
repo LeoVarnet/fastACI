@@ -56,8 +56,8 @@ end
  
 if bGenerate_stimuli
     
-    Speaker_ID = cfg_inout.Cond_extra_2;
-    files = Get_filenames(dir_speech_orig,[Speaker_ID '*.wav']);
+    files = il_get_waveforms_from_Cond_extra(dir_speech_orig,cfg_inout);
+    
     for i = 1:length(files)
         [insig,fs]  = audioread([dir_speech_orig files{i}]);
                 
@@ -256,3 +256,28 @@ if bGenerate_stimuli
     rng(s_current);
 end
 %%% 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function files = il_get_waveforms_from_Cond_extra(dir_speech_orig,cfg_inout)
+
+Speaker_ID = cfg_inout.Cond_extra_2;
+Cond       = cfg_inout.Cond_extra_1;
+
+files = Get_filenames(dir_speech_orig,[Speaker_ID '_*.wav']);
+
+if length(files) < 2
+    error('%s.m: Waveforms for condition %s (speaker %s) not found on disk',mfilename,Cond,Speaker_ID);
+elseif length(files) > 2
+    if length(Cond) == 4
+        Cond1 = Cond(1:2);
+        Cond2 = Cond(3:4);
+    end
+    files = Get_filenames(dir_speech_orig,[Speaker_ID '_*' Cond1 '*.wav']);
+    
+    extra_opts = [];
+    extra_opts.bShow_header = 0;
+    files(end+1) = Get_filenames(dir_speech_orig,[Speaker_ID '_*' Cond2 '*.wav'],extra_opts);
+    
+elseif length(files) == 2
+    % Nothing to do: two files found
+end

@@ -1,7 +1,9 @@
-function Check_readme(dir2check)
+% function Check_readme(dir2check)
 % function Check_readme(dir2check)
 %
+% This script is called from Get_filenames.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+dir2check = directory;
 
 if strcmp(dir2check(end),filesep)
     dir_name = dir2check(1:end-1);

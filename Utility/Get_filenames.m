@@ -31,6 +31,10 @@ function [y,ypd] = Get_filenames(directory, exp2filter, extra)
 
 if nargin < 3
     extra.bExtension = 1;
+else
+    if ~isfield(extra,'bExtension')
+        extra.bExtension = 1;
+    end
 end
 
 if nargin < 2 
@@ -70,7 +74,11 @@ if ~isempty(id2remove)
 end
 
 try
-    Check_readme(directory);
+    if ~isfield(extra,'bShow_header')
+        extra.bShow_header = 1;
+    end
+    bShow_header = extra.bShow_header;
+    Check_readme; % (directory);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
