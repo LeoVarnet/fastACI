@@ -1,5 +1,7 @@
 function basepath = fastACI_basepath
 % function fastACI_basepath
+%
+% Used from, e.g., fastACI_set_AFCtoolbox.m
 
 f=mfilename('fullpath');
 

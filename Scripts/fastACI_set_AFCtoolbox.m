@@ -1,6 +1,12 @@
 function dir_AFC = fastACI_set_AFCtoolbox
 % function dir_phaseret = fastACI_set_AFCtoolbox
 %
+% 1. Description:
+%   Creates the file fastACI_dir_AFCtoolbox.m. This file will be located 
+%   under the folder [fastACI_basepath 'Local' filesep].
+%
+% Uses fastACI_basepath.m, Convert_to_double_filesep.m
+% 
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -19,7 +25,7 @@ end
 
 text_to_write = readfile_replace('fastACIsim_path_template.txt',p);
 
-dir_file = [fastACI_basepath 'Utility' filesep];
+dir_file = [fastACI_basepath 'Local' filesep];
 fname_file = [dir_file p.script_name '.m'];
 
 if exist(fname_file,'file')

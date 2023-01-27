@@ -8,6 +8,8 @@ function result = readfile_replace(filename,replaces)
 %    p.value='smurf';
 %    readfile_replace('file.xml', p)
 %   will replace all occurences of $$value$$ by smurf
+%
+% Used from fastACI_set_AFCtoolbox.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if (~exist(filename, 'file'))

@@ -1,0 +1,1 @@
+This folder is initially empty, but after running startup_fastACI.m for the first time it will be used to store the scripts containing the absolute paths to different relevant fastACI folders, such as: fastACI_dir_data.m, fastACI_dir_amtoolbox.m, fastACI_dir_phaseret.m, fastACI_dir_AFCtoolbox.m

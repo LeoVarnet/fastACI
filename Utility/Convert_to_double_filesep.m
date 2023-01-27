@@ -1,6 +1,7 @@
 function filepath = Convert_to_double_filesep(filepath)
 % function filepath = readfile_replace(filepath)
 %
+% Used from fastACI_set_AFCtoolbox.m, fastACI_set_phaseret.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 idxs = strfind(filepath,filesep);

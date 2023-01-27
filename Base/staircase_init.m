@@ -10,7 +10,11 @@ n_correctinarow = 0;
 expvar = cfg.startvar;
 
 i_current = debut_i;
-stepsize = cfg.start_stepsize;
+if isfield(cfg,'start_stepsize')
+    stepsize = cfg.start_stepsize;
+else
+    % This is the case when a constant stimulus procedure is being run
+end
 isbreak = 0;
 
 if ~isfield(cfg,'step_resolution')
@@ -21,7 +25,9 @@ str_inout.response = response;
 str_inout.n_correctinarow = n_correctinarow;
 str_inout.expvar = expvar;
 str_inout.i_current = i_current;
-str_inout.stepsize = stepsize;
+if isfield(cfg,'start_stepsize')
+    str_inout.stepsize = stepsize;
+end
 str_inout.isbreak = isbreak;
 
 str_inout.reversal_current = 0;

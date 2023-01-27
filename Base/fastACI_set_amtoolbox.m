@@ -19,7 +19,7 @@ end
 
 text_to_write = readfile_replace('fastACIsim_path_template.txt',p);
 
-dir_file = [fastACI_basepath 'Utility' filesep];
+dir_file = [fastACI_basepath 'Local' filesep];
 fname_file = [dir_file p.script_name '.m'];
 
 if exist(fname_file,'file')

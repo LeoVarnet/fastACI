@@ -109,6 +109,7 @@ if bFastACI_exp == 1
     paths.pres_osses2022_02    = [paths.Publications 'pres_osses2022_02'   filesep];
     paths.Interface            = [dir_fastACI       'Interface'            filesep];
     paths.legacy               = [dir_fastACI       'legacy'               filesep];
+    paths.Local                = [dir_fastACI       'Local'                filesep];
     paths.modulationACI        = [paths.Experiments 'modulationACI'        filesep];
     paths.modulationFM         = [paths.Experiments 'modulationFM'         filesep];
   % paths.modulationACI_seeds  = [paths.Experiments 'modulationACI_seeds'  filesep]; % removed on 25/03/2022
