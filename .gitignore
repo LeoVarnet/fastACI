@@ -11,6 +11,7 @@ fastACI_dir_phaseret.m
 fastACI_dir_AFCtoolbox.m
 dau1997_cfg.m
 king2019_cfg.m
+king2019a_cfg.m
 maxwell2020_cfg.m
 osses2021_cfg.m
 osses2022a_cfg.m

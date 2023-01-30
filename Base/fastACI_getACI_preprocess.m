@@ -21,6 +21,9 @@ if length(idx_trialselect) > length(data_passation.n_responses)
     
     cfg_ACI.N_trialselect = length(data_passation.n_responses);
 end
+if ~isfield(cfg_ACI,'N_trialselect')
+    cfg_ACI.N_trialselect = length(data_passation.n_responses);
+end
 n_responses = data_passation.n_responses(idx_trialselect); % responses given by the participant (trial order)
 n_targets   = data_passation.n_targets(idx_trialselect); % expected responses (trial order)
 expvar      = data_passation.expvar(idx_trialselect); % value of the experimental variable (trial order)

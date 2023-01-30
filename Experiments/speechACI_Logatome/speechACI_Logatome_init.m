@@ -1,7 +1,16 @@
 function cfg_inout = speechACI_Logatome_init(cfg_inout)
 % function cfg_inout = speechACI_Logatome_init(cfg_inout)
 %
-% This should only be run once, to create the wave files.
+% 1. Description:
+%     This is the initialisation script for the experiment speechACI_Logatome.m.
+%     This script should only be run once, to create the wave files.
+%     
+%     There are three types of validated noises (in cfg_inout.Condition) for
+%     this experiment:
+%           - Condition = 'white';
+%           - Condition = 'bumpv1p2_10dB';
+%           - Condition = 'sMPSv1p3';
+%     Other possible conditions have not been validated for this experiment.
 %
 % The following processing is introduced here:
 %     1. The speech samples are zero padded at the beginning and end by 
@@ -19,6 +28,11 @@ function cfg_inout = speechACI_Logatome_init(cfg_inout)
 %        in speech perception. The noises are, therefore, stored at an SNR=0 dB
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
+if nargin == 0
+    help speechACI_Logatome_init;
+    return;
+end
+
 dir_speech_orig = [fastACI_basepath 'Stimuli' filesep 'Logatome' filesep];
 
 noise_type = cfg_inout.Condition;

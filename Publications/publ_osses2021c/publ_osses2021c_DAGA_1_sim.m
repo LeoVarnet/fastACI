@@ -1,6 +1,9 @@
 function publ_osses2021c_DAGA_1_sim
 % function publ_osses2021c_DAGA_1_sim
 %
+% 1. Description:
+%      Script used to generate the simulations presented in publ_osses2021c
+%
 % See also: g20210730_all_simulation_sessions
 % Original name: g20210811_all_simulation_sessions
 % See also: g20220414_simulations_Alejandro (new script for simulations)
@@ -12,7 +15,7 @@ Conditions = {'SSN'};%,'white','pink'};
 experiment = 'speechACI_varnet2013'; % experiment = 'speechACI_Logatome-abda-S41F';
 
 %%%
-dir_here = [fastACI_basepath 'Simulations' filesep];
+dir_here = [fastACI_basepath 'Local' filesep];
 fname_cfg =  [dir_here modelname '_cfg.m'];
 
 runs = {'run-1'; 'run-3-m1p55'; 'run-3-p0p39'; 'run-3-p0p78'; 'run-4'};
