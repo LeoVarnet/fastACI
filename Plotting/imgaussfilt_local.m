@@ -144,7 +144,7 @@ if separableFlag
     end
     
 else
-    h = createGaussianKernel(sigma, hsize);
+    h = images.internal.createGaussianKernel(sigma, hsize);
     
     A = imfilter(A, h, padding, 'conv', 'same');
 end

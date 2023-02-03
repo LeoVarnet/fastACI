@@ -18,7 +18,8 @@ if ~iscell(intrep)
     addnoise  = randn(size(intrep))*intnoise_addstd;
 else
     % As often in AMT, with internal representations as cell arrays
-    % [N_samples,N_chann,N_mod_chann] = size(intrep{end}); % last filter should be the largest
-    
-    error('Not validated for cell arrays yet')
+    addnoise = cell(size(intrep));
+    for i = 1:length(intrep)
+        addnoise{i} = randn(size(intrep{i}))*intnoise_addstd;
+    end
 end

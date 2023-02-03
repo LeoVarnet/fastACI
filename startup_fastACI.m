@@ -47,6 +47,13 @@ catch me
     % ... and creates dir_data if it does not exist
     fastACI_set_dirdata;
 end
+try
+    % Checks if dir_data exists...
+    fastACI_dir_datapost;
+catch me
+    % ... and creates dir_datapost if it does not exist
+    fastACI_set_dirdatapost;
+end
 
 % This is an optional toolbox, to be able to run the Intellitest:
 bAFC = exist('fastACI_dir_AFCtoolbox','file');

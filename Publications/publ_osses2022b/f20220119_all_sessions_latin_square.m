@@ -1,5 +1,5 @@
-function f20220119_all_sessions_latin_square(subjectname,bOnly_init)
-% function f20220119_all_sessions_latin_square(modelname,bOnly_init)
+function f20220119_all_sessions_latin_square(subjectname,bOnly_init,bCheck_dropbox)
+% function f20220119_all_sessions_latin_square(modelname,bOnly_init,bCheck_dropbox)
 %
 % Author: Alejandro Osses
 %
@@ -7,6 +7,9 @@ function f20220119_all_sessions_latin_square(subjectname,bOnly_init)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc
 
+if nargin < 3
+    bCheck_dropbox = 1;
+end
 global global_vars
 
 if nargin < 2
@@ -27,18 +30,45 @@ global_vars.N_presentation = N_presentation;
 %%%
 
 if bOnly_init
+    bCrea_from_file = 0;
+    switch subjectname
+        case {'S01','S02','S03','S04','S05','S06','S07','S08','S09','S10','S11','S12'}
+            dir_res = [fastACI_dir_data filesep experiment filesep ... 
+                subjectname filesep 'Results' filesep];
+            
+            bCrea_from_file = ~exist(dir_res,'dir');
+    end
+    
     for i = 1:N_conditions
         noise_type = Conditions{i};
-        fastACI_experiment_init(experiment,subjectname, noise_type);
+        if bCrea_from_file
+            % Looks for the creation file:
+            filter2use = ['cfgcrea*' noise_type '.mat'];
+            creafile = Get_filenames(dir_res,filter2use);
+            if isempty(creafile)
+                % Then it checks into the fastACI toolbox:
+                dir_res = [fastACI_basepath 'Publications' filesep ...
+                    'publ_osses2022b' filesep 'data_' subjectname filesep ...
+                    '0-init' filesep];
+                creafile = Get_filenames(dir_res,filter2use);
+            end
+            fastACI_experiment_init_from_cfg_crea([dir_res creafile{1}],fastACI_dir_data);
+        else
+            fastACI_experiment_init(experiment,subjectname, noise_type);
+        end
+        
     end
+    
     return;
 else
-    % Checks whether the participant has completed any condition in another
-    % computer:
-    try
-        publ_osses2022b_utils(subjectname,[],'Copy_results_from_Dropbox');
-    catch
-        warning('Check what happened in publ_osses2022b_utils.m...');
+    if bCheck_dropbox
+        % Checks whether the participant has completed any condition in another
+        % computer:
+        try
+            publ_osses2022b_utils(subjectname,[],'Copy_results_from_Dropbox');
+        catch
+            warning('Check what happened in publ_osses2022b_utils.m...');
+        end
     end
 end
 
@@ -47,8 +77,10 @@ if ~ismac
     available_hardware{end+1} = 'Sony-MDR-Alejandro';
     available_hardware{end+1} = 'Sony-WH-Alejandro';
 end
+available_hardware{end+1} = 'Default';
+
 Show_cell(available_hardware);                    
-bInput = input('Choose your hw config: ');
+bInput = input('Choose your hw config (if you don''t know, use ''Default''): ');
 hardware_cfg = available_hardware{bInput};
 
 lvl_target   = 79; % -18 dBFS peak level => -21 dBFS rms 
@@ -66,6 +98,9 @@ switch hardware_cfg
         
     case 'Grande-Cabine'
         lvl_from_SLM = 82.1; % for  the left headphone, preamp zc 0032, Id No 23156 
+        
+    case 'Default'
+        lvl_from_SLM = lvl_target; % assumes dBFS = 100
 end
 dBFS = 100+(lvl_target-lvl_from_SLM);
 
@@ -185,10 +220,12 @@ for i = idx_count:length(Conditions_nr)
         
         save(Cond_name2store,'idx','i_current_all','idx_count','hardware_cfg_per_session'); % updates
         
-        try
-            publ_osses2022b_utils(subjectname,[],'Copy_results_to_Dropbox');
-        catch
-            warning('Check what happened in publ_osses2022b_utils.m...');
+        if bCheck_dropbox
+            try
+                publ_osses2022b_utils(subjectname,[],'Copy_results_to_Dropbox');
+            catch
+                warning('Check what happened in publ_osses2022b_utils.m...');
+            end
         end
         
         if bCompleted_this_block == 0

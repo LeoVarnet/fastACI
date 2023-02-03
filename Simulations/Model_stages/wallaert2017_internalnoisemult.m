@@ -26,31 +26,40 @@ if ~iscell(intrep)
 
     for i_chan = 1:N_chann
         for i_mod = 1:N_mod_chann
+            
             mean_multnoise = sqrt(mean(multnoise(:,i_chan,i_mod).^2,1));
             
-            multnoise_scaled = multnoise(:,i_chan,i_mod)/mean_multnoise; % rms = 1
-            multnoise_scaled = multnoise_scaled*rms_Emod(1,i_chan,i_mod);
+            if ~isnan(rms_Emod(1,i_chan,i_mod))
+                multnoise_scaled = multnoise(:,i_chan,i_mod)/mean_multnoise; % rms = 1
+                multnoise_scaled = multnoise_scaled*rms_Emod(1,i_chan,i_mod);
+            else
+                multnoise_scaled = multnoise(:,i_chan,i_mod)*0;
+            end
             multnoise(:,i_chan,i_mod) = multratio*multnoise_scaled;
         end
     end
 else
     % As often in AMT, with internal representations as cell arrays
-    [N_samples,N_chann,N_mod_chann] = size(intrep{end}); % last filter should be the largest
-    
-    error('Not validated for cell arrays yet')
-end
+    multnoise = cell(size(intrep)); % initialisation
+    for i = 1:length(intrep)
+        [N_samples,N_chann,N_mod_chann] = size(intrep{i});
+        
+        rms_Emod = sqrt(mean(intrep{i}.^2,1));
+        
+        multnoise{i} = randn(size(intrep{i}));
+        for i_chan = 1:N_chann
+            for i_mod = 1:N_mod_chann
+                mean_multnoise = sqrt(mean(multnoise{i}(:,i_chan,i_mod).^2,1));
 
-% [idx_value, ~, ~] = ndgrid(1:N_samples,1:N_chann,1:N_mod_chann);
-% decay_curve = exp(t(flip(idx_value,1))/decay_tau);
-% 
-% if ~iscell(intrep)
-%     memnoise = intnoise_std*randn(size(intrep));
-%     memnoise = memnoise.*decay_curve;
-% else
-%     memnoise = cell([length(intrep) 1]); % initialisation
-%     for i = 1:length(intrep)
-%         [N,M] = size(intrep{i});
-%         memnoise{i} = intnoise_std*randn([N M]);
-%         memnoise{i} = memnoise{i}.*decay_curve(1:N,1:M);
-%     end
-% end
+                if ~isnan(rms_Emod(1,i_chan,i_mod))
+                    multnoise_scaled = multnoise{i}(:,i_chan,i_mod)/mean_multnoise; % rms = 1
+                    multnoise_scaled = multnoise_scaled*rms_Emod(1,i_chan,i_mod);
+                else
+                    multnoise_scaled = multnoise{i}(:,i_chan,i_mod)*0;
+                end
+                multnoise{i}(:,i_chan,i_mod) = multratio*multnoise_scaled;
+            end
+        end
+        
+    end
+end

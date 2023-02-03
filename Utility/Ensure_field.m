@@ -16,10 +16,6 @@ function [p,bStatus] = Ensure_field(p, field_name, default_value, bSilent)
 %   bStatus:       1 if field was assigned, 0 if not
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%      Copyright: Cochlear Ltd
-%        $Change: 86418 $
-%      $Revision: #1 $
-%      $DateTime: 2008/03/04 14:27:13 $
 % Authors       : Brett Swanson
 % Edited by     : Alejandro Osses (ale.a.osses@gmail.com), TU/e Eindhoven
 % Last edited on: 24/03/2017

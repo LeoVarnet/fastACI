@@ -1,8 +1,12 @@
-function [cfg_crea, bReproducible, bCopied] = fastACI_experiment_init_from_cfg_crea(cfg_crea_file)
+function [cfg_crea, bReproducible, bCopied] = fastACI_experiment_init_from_cfg_crea(cfg_crea_file,dir_data)
 % function [cfg_crea, bReproducible, bCopied] = fastACI_experiment_init_from_cfg_crea(cfg_crea_file,experiment_full,Subject_ID, Condition)
 %
+% Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if nargin < 2
+    dir_data = fastACI_dir_data;
+end
 load(cfg_crea_file,'cfg_crea');
 
 bCopied = 0;
@@ -24,7 +28,7 @@ end
 
 N_created = 0;
 if bReproducible
-    cfg_crea = Check_cfg_crea_dirs(cfg_crea, fastACI_dir_data, bReproducible);
+    cfg_crea = Check_cfg_crea_dirs(cfg_crea, dir_data, bReproducible);
     if ~exist(cfg_crea.dir_data_experiment,'dir')
         mkdir(cfg_crea.dir_data_experiment);
     end

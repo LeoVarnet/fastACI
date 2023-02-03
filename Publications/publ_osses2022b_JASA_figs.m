@@ -1,16 +1,31 @@
 function data = publ_osses2022b_JASA_figs(varargin)
 % function data = publ_osses2022b_JASA_figs(varargin)
 %
-% Generates the figures
+% 1. Description: Generates the figures
 %
-% % To display Fig. 1 of Osses and Varnet, (2022, JASA) use :::
-%     publ_osses2022b_JASA_figs('fig1'); % EM, MM, and IM for /aba/, /ada/
+% % To display Fig. 1 of Osses and Varnet, (2022, BioRxiv) use :::
+%     publ_osses2022b_JASA_figs('fig1'); % T-F representations /aba/, /ada/
 %
-% % To display Fig. 2 of Osses and Varnet, (2022, JASA) use :::
-%     publ_osses2022b_JASA_figs('fig2'); % T-F representations /aba/, /ada/
+% % To display Fig. 2a of Osses and Varnet, (2022, BioRxiv) use :::
+%     publ_osses2022b_JASA_figs('fig2a'); % T-F representation of one realisation of each noise type
 %
-% % To display Fig. 4 of Osses and Varnet, (2022, JASA) use :::
-%     publ_osses2022b_JASA_figs('fig4'); % illustration of the Gaussian basis 
+% % To display Fig. 2b of Osses and Varnet, (2022, BioRxiv) use :::
+%     publ_osses2022b_JASA_figs('fig2b'); % Acoustic analysis of each noise type
+%
+% % To display Fig. 3 of Osses and Varnet, (2022, BioRxiv) use :::
+%     publ_osses2022b_JASA_figs('fig3'); % Illustration of the Gaussian basis elements
+%
+% % To display Fig. 4 of Osses and Varnet, (2022, BioRxiv) use :::
+%     publ_osses2022b_JASA_figs('fig4'); % SNR thresholds averaged across participants
+%
+% % To display Fig. 5 of Osses and Varnet, (2022, BioRxiv) use :::
+%     publ_osses2022b_JASA_figs('fig5'); % Correct responses, dprime, criterion averaged across participants
+%
+% 'fig1' requires the speech samples from 'S01'
+% 'fig2a','fig2b' require the noise samples from 'S01'
+% 'fig3' does not require any additional data
+% 'fig4','fig5' requires the savegame files from all ('S01'-'S12') participants. 
+%        these data are taken directly from the publ_osses2022b data in fastACI.
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -26,7 +41,6 @@ h = [];
 hname = [];
 
 definput.flags.type={'missingflag', ...
-    'fig1_old', ... % Schematic of EM, IM, and MM
     'fig1', ...
     'fig2a', ... % spectrogram white, bump, MPS noises
     'fig2b', ... % Other metrics to characterise white, bump, and MPS noises
@@ -133,7 +147,18 @@ dir_savegame_exp = [dir_fastACI 'Publications' filesep 'publ_osses2022b' filesep
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 dir_subj_exp = [dir_data experiment filesep 'S01' filesep];
 
-if flags.do_fig1_old || flags.do_fig1 || flags.do_fig2a || flags.do_fig2b    
+if flags.do_fig1 || flags.do_fig2a || flags.do_fig2b    
+    %%% Checking the waveforms:
+    if ~exist(dir_subj_exp,'dir')
+        fprintf('The directory %s is not found on disk\n',dir_subj_exp);
+        bRetrieve = input('    Do you want to retrieve this directory (this might take several minutes)? (1=yes; 0=no): ');
+        
+        if bRetrieve
+            publ_osses2022b_utils('S01',[],'Check_sounds_for_a_participant');
+        end
+    end
+    %%%
+    
     dir_noise = [dir_subj_exp 'NoiseStim-white' filesep];
     
     basef = 8000;
@@ -146,11 +171,12 @@ if flags.do_fig1_old || flags.do_fig1 || flags.do_fig2a || flags.do_fig2b
     flags_extra = {'NfrequencyTicks',8,'colorbar','no'};
 end
 
-if flags.do_fig1_old % Speech-in-noise representation
-    error('Removed from this script on 13/12/2022')
-    % Originally taken from: l20220602_Figures_ModulationGroup.m (by Leo)
-end
+% if flags.do_fig1_old % Speech-in-noise representation
+%     error('Removed from this script on 13/12/2022')
+%     % Originally taken from: l20220602_Figures_ModulationGroup.m (by Leo)
+% end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig1
     % Taken from: l20220602_Figures_ModulationGroup.m (by Leo)
     fname_aba = [dir_subj_exp 'speech-samples' filesep 'S43M_ab_ba.wav'];
@@ -204,7 +230,6 @@ if flags.do_fig1
     
     h(end+1) = gcf;
     hname{end+1} = 'fig1-spec-targets';
-     
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig2a
