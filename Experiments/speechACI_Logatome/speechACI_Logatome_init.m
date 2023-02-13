@@ -37,8 +37,10 @@ dir_speech_orig = [fastACI_basepath 'Stimuli' filesep 'Logatome' filesep];
 
 noise_type = cfg_inout.Condition;
 switch noise_type
-	case 'SSN' % apply the SSN
-        dir_noise_spectrum = []; warning('Temporal'); % [cfg_inout.dir_logatome_src 'Noises' filesep];
+	case {'white','bumpv1p2_10dB','sMPSv1p3'}
+        % Nothing to do...
+    otherwise
+        error('noise_type=%s not recognised. Run speechACI_LogatomeDebug to get more noise options',noise_type); % [cfg_inout.dir_logatome_src 'Noises' filesep];
 end
 
 dBFS       = cfg_inout.dBFS;
@@ -143,28 +145,6 @@ for i = 1:cfg_inout.N
     if bGenerate_stimuli
         
         if i == 1
-            % noise_type = cfg_inout.Condition;
-            switch noise_type
-                case 'SSN' % apply the SSN
-                    % See g20210401_generate_LTASS.m
-                    
-                    error('We are working for you: the option SSN will be enabled back soon...')
-                    
-                    if ~exist(dir_noise_spectrum,'dir')
-                        dir_noise_spectrum = uigetdir(pwd,'Select the directory where ''Logatome-average-power-speaker-S46M_FR.mat'' is located');
-                        dir_noise_spectrum = [dir_noise_spectrum filesep]; % file separator is the last character
-                    end
-
-                    % Make sure that S46 is the speaker used in the chosen logatomes
-                    file = [dir_noise_spectrum 'Logatome-average-power-speaker-S46M_FR.mat']; % Logatome-average-power-speaker-S46M_FR.mat
-                    var = load(file,'f','Pxx','fs');
-                    if fs ~= var.fs
-                        error('Wrong sampling frequency to generate the SSN')
-                    end
-                    
-                    [~,~,~,b_fir] = Create_LTASS_noise(var.f,var.Pxx,fs);
-            end
-            
             % Generates the cosine ramp to be applied to the sounds:
             rp = ones([N_samples 1]); 
             rp(1:N_ramp)         = rampup(N_ramp);
@@ -175,31 +155,16 @@ for i = 1:cfg_inout.N
         rng(seed_number); % insig = randn(N_samples,1); rng(seed_number)
         
         switch noise_type
-            case 'SSN' % apply the SSN
-                insig = Generate_noise(N_samples,'white');
-                insig = filter(b_fir,1,insig);
-            case 'bump'
-                % Nothing to do
             case {'bumpv1p2_10dB','sMPSv1p3'}
                 insig = Generate_noise(N_samples,noise_type,fs);
-            case {'bumpv1p1','bumpv1p1_30dB','bumpv1p2','bumpv1p2_5dB', ...
-                  'sMPSv1p1','sMPSv1p2'}
-                % These are previous versions of the noise algorithms (that 
-                %     we decided to exclude
-                insig = Generate_noise_debug(N_samples,noise_type,fs);    
             otherwise
                 insig = Generate_noise(N_samples,noise_type,fs);
         end
         
-        switch noise_type
-            case 'bump'
-                % Nothing to do: Noises will be generated during the participant's session
-            otherwise
-                lvls_before_noise(i) = rmsdb(insig)+dBFS;
-                insig = scaletodbspl(insig,lvl_target,dBFS);
-                lvls_after_noise(i) = rmsdb(insig)+dBFS;
-                insig = rp.*insig;
-        end
+        lvls_before_noise(i) = rmsdb(insig)+dBFS;
+        insig = scaletodbspl(insig,lvl_target,dBFS);
+        lvls_after_noise(i) = rmsdb(insig)+dBFS;
+        insig = rp.*insig;
         
         fname_part1 = 'Noise'; % Bruit
         number = i;
@@ -233,12 +198,7 @@ for i = 1:cfg_inout.N
     end
      
     if bGenerate_stimuli
-        switch noise_type
-            case 'bump'
-                % Nothing to do: Noises will be generated during the participant's session
-            otherwise
-                audiowrite([dir_noise fname],insig,fs);
-        end
+        audiowrite([dir_noise fname],insig,fs);
     end
 end
 if bGenerate_stimuli
@@ -257,9 +217,6 @@ if isfield(cfg_inout,'bRove_level')
     end
 
 end
-% if length(cfg_inout.Rove_level) ~= cfg_inout.N
-%     cfg_inout.Rove_level = cfg_inout.Rove_level(1:cfg_inout.N);
-% end
 
 if nargout >= 1
     cfg_inout.ListStim = ListStim;

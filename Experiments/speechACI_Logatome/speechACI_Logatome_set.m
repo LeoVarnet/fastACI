@@ -36,51 +36,14 @@ switch lower(cfg_inout.Condition) % lower case
     case 'white'
         dir_name_noise = 'NoiseStim-white';
         noise_type = 'white';
-    case 'pink'
-        dir_name_noise = 'NoiseStim-pink';
-        noise_type = 'pink';
-    case 'ssn'
-        dir_name_noise = 'NoiseStim-SSN';
-        noise_type = 'SSN';
-    case 'smps'
-        dir_name_noise = 'NoiseStim-sMPS';
-        noise_type = 'smps';
-    case 'bump'
-        dir_name_noise = 'NoiseStim-bump';
-        noise_type = 'bump';
-    case 'bumpv1p1'
-        dir_name_noise = 'NoiseStim-bumpv1p1';
-        noise_type = 'bumpv1p1';
-    case 'bumpv1p1_30db'
-        dir_name_noise = 'NoiseStim-bumpv1p1_30dB';
-        noise_type = 'bumpv1p1_30dB';
-    case 'bumpv1p2'
-        dir_name_noise = 'NoiseStim-bumpv1p2';
-        noise_type = 'bumpv1p2';
-    case 'bumpv1p2_5db'
-        dir_name_noise = 'NoiseStim-bumpv1p2_05dB';
-        noise_type = 'bumpv1p2_5dB';
     case 'bumpv1p2_10db'
         dir_name_noise = 'NoiseStim-bumpv1p2_10dB';
         noise_type = 'bumpv1p2_10dB';
-    case 'smpsv1p1'
-        dir_name_noise = 'NoiseStim-sMPSv1p1';
-        noise_type = 'sMPSv1p1';    
-    case 'smpsv1p2'
-        dir_name_noise = 'NoiseStim-sMPSv1p2';
-        noise_type = 'sMPSv1p2';
     case 'smpsv1p3'
         dir_name_noise = 'NoiseStim-sMPSv1p3';
         noise_type = 'sMPSv1p3';
     otherwise
-        str = strsplit(cfg_inout.Condition,'-');
-        if ~strcmp(str{1},'custom')
-            error('%s: Condition not recognised',upper(mfilename));
-        else
-            dir_name_noise = ['NoiseStim-' str{2}];
-            noise_type = 'sMPS';
-            warning('%s: Using a custom type of noise, make sure that the noise path to be used is correct',upper(mfilename));
-        end
+        error('Noise type not recognised for this experiment...')
 end
 dir_noise  = [dir_data_experiment cfg_inout.Subject_ID filesep dir_name_noise filesep];
 
@@ -113,6 +76,16 @@ else
         N_presentation = cfg_inout.N_presentation;
     end
 end
+
+% if isfield(global_vars,'dBFS')
+%     cfg_inout = Ensure_field(cfg_inout,'is_experiment',1);
+%     if cfg_inout.is_experiment
+%         error('AO on 9/02/2023: Validate this further')
+%         cfg_inout.dBFS = global_vars.dBFS;
+%         cfg_inout.dBFS_playback = cfg_inout.dBFS;
+%     end
+% end
+
 cfg.N_presentation = N_presentation; % number of stimuli / condition
 cfg.N_target  = 2;     % Number of conditions
 cfg.N         = cfg.N_target*cfg.N_presentation;

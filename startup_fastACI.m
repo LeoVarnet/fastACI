@@ -113,6 +113,7 @@ if bFastACI_exp == 1
     paths.publ_osses2022c      = [paths.Publications 'publ_osses2022c'     filesep];
     paths.publ_varnet2013      = [paths.Publications 'publ_varnet2013'     filesep];
     paths.publ_varnet2022a     = [paths.Publications 'publ_varnet2022a'    filesep];
+    paths.publ_carranante2023a = [paths.Publications 'publ_carranante2023a' filesep];
     paths.pres_osses2022_02    = [paths.Publications 'pres_osses2022_02'   filesep];
     paths.Interface            = [dir_fastACI       'Interface'            filesep];
     paths.legacy               = [dir_fastACI       'legacy'               filesep];
@@ -121,6 +122,7 @@ if bFastACI_exp == 1
     paths.modulationFM         = [paths.Experiments 'modulationFM'         filesep];
   % paths.modulationACI_seeds  = [paths.Experiments 'modulationACI_seeds'  filesep]; % removed on 25/03/2022
     paths.Praat                = [dir_fastACI       'Praat'                filesep];
+    % paths.exampleExperiment    = [paths.Experiments 'exampleExperiment'    filesep];
     paths.speechACI_Logatome   = [paths.Experiments 'speechACI_Logatome'   filesep];
     paths.speechACI_varnet2013 = [paths.Experiments 'speechACI_varnet2013' filesep];
     paths.speechACI_varnet2015 = [paths.Experiments 'speechACI_varnet2015' filesep];

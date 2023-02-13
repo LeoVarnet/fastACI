@@ -38,3 +38,5 @@ definput.groups.drnl_relanoiborra2019 = {'outerear','middleear','basef',8000, ..
     'hearing_profile','NH','internalnoise','bwmul',0.5};
 
 definput.groups.afb_osses2021 = {'outerear','middleear','basef',[]}; 
+definput.groups.afb_osses2017 = {'outerear','middleear','flow',168,'fhigh',1840,'basef',[]};
+definput.groups.afb_vandorpschuitman2013 = {'outerear','middleear','flow',168,'fhigh',1840,'basef',168};

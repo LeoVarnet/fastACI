@@ -107,7 +107,7 @@ if bRun
             filename = [dir_audio_cur files{j}];
 
             [insig,fs] = audioread(filename);
-            [output, info] = vandorpschuitman2013(insig,fs,flags_model{:});
+            [output, info] = vandorpschuitman2013a(insig,fs,flags_model{:});
             Prev_model(i,j) = median(output.prev_frame); % par.pRev
             Prev_model_min(i,j) = prctile(output.prev_frame,25);
             Prev_model_max(i,j) = prctile(output.prev_frame,75);

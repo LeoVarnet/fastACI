@@ -1,5 +1,5 @@
-function cfg_crea = fastACI_experiment_init(experiment_full,Subject_ID, Condition)
-% function cfg_crea = fastACI_experiment_init(experiment_full,Subject_ID, Condition)
+function cfg_crea = fastACI_experiment_init(experiment_full,Subject_ID, Condition, varargin)
+% function cfg_crea = fastACI_experiment_init(experiment_full,Subject_ID, Condition, varargin)
 %
 % Description:
 %       It creates a new participant file.
@@ -8,6 +8,11 @@ function cfg_crea = fastACI_experiment_init(experiment_full,Subject_ID, Conditio
 %
 % Changes by AO:
 %   - cfg_crea.color_noise changed by cfg_crea.noise_type
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Loading the same defaults as for fastACI_experiment.m:
+definput.import={'fastACI_experiment'}; % arg_fastACI_experiment.m
+[flags,keyvals]  = ltfatarghelper({},definput,varargin);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clc, close all
@@ -83,7 +88,10 @@ if ~isempty(files_prev)
     return
 end
 %%%
-
+cfg_crea.bCrea = 1; % Creation started (new on 10/02/2023)
+cfg_crea.flags   = flags;
+cfg_crea.keyvals = keyvals;
+cfg_crea.warmup  = 1; % before starting the experiment, it is always 'warmup' (training)
 exp2eval = sprintf('cfg_crea=%s_set(cfg_crea);',experiment);
 eval(exp2eval);
 
@@ -149,6 +157,7 @@ if ~isempty(Condition)
     filter2use = [filter2use '_' Condition];
 end
 savename = ['cfgcrea_' clock_str '_' filter2use];
+cfg_crea.bCrea = 0; % Creation finished (new on 10/02/2023)
 
 % dir_results_subj = [dir_results Subject_ID filesep];
 mkdir(dir_results); % makes sure the folder for the participant exists...

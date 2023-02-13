@@ -59,9 +59,9 @@ if ~is_warmup
     % data_passation.date(i_current,:) = clock_now; % Commented on 17/04/2022
 end
 
-if cfg_game.displayN == 1 || cfg_game.is_simulation
+% if cfg_game.displayN == 1 || cfg_game.is_simulation
+if cfg_game.is_simulation
     disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-
 end
 
 tic

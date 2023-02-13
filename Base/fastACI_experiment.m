@@ -107,6 +107,8 @@ end
 if ~isfield(cfg_game,'resume')
     cfg_game.resume = []; % 'no' -> new game, 'yes' -> load last saved game, [] -> load last saved game if exists or start a new game
 end
+cfg_game.is_simulation =  bSimulation;
+cfg_game.is_experiment = ~bSimulation;
 
 % -------------------------------------------------------------------------
 %     1.2. Loading parameters: Looks for an existing 'game' (or previous 
@@ -205,9 +207,6 @@ switch cfg_game.resume
         
         i_current = 0; % dummy variable
 end
-
-cfg_game.is_simulation =  bSimulation;
-cfg_game.is_experiment = ~bSimulation;
 
 %%%
 % Simulation parameters
@@ -453,6 +452,25 @@ if isfield(cfg_game,'dir_results')
 end
 cfg_game.dir_results = dir_results;
 cfg_game.dir_results_completed = dir_results_completed;
+
+% %% Newer lines in Feb 2023, I (AO) did not check this carefully
+% %%% Checking the calibration:
+% if cfg_game.is_experiment
+%     if isfield(cfg_game,'dBFS_playback')
+%         % Nothing to do
+%     else
+%         cfg_game.dBFS_playback = cfg_game.dBFS;
+%     end
+% else
+%     % For simulations, the waveform dBFS is always used:
+%     cfg_game.dBFS_playback = cfg_game.dBFS;
+% end
+% % cfg_game.gain_play will be 1 if dBFS == dBFS_playback
+% cfg_game.gain_play = 10^((cfg_game.dBFS_playback-cfg_game.dBFS)/20);
+% if cfg_game.dBFS_playback ~= cfg_game.dBFS
+%     fprintf('%s: Actual dBFS=%.1f dB SPL\n',upper(mfilename),cfg_game.dBFS_playback);
+% end
+% %%% End checking the calibration
 
 %%% Checking the calibration:
 global global_vars
