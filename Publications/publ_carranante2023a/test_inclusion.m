@@ -1,7 +1,7 @@
 function [SNRthres,is_included] = test_inclusion(expename, participantname)
 
 dir_data = fastACI_dir_data();
-dir_savegame = [dir_data expename '\' participantname '\Results\'];
+dir_savegame = [dir_data expename filesep participantname filesep 'Results' filesep];
 D = dir([dir_savegame 'savegame*.mat']);
 load([dir_savegame D(1).name])
 r = Get_mAFC_reversals(data_passation.expvar(1:400));
