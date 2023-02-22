@@ -113,23 +113,27 @@ switch modelname
         for i = 1:length(pars.modelpars)
             modelpars{end+1} = pars.modelpars{i};
         end
-        subfs = pars.subfs;
+        if isfield(pars,'subfs')
+            subfs = pars.subfs;
+        else
+            subfs = [];
+        end
         params_extra.in_var = pars.in_var;
 end
 
-if isempty(subfs)
-    subfs = Get_field_from_cell(modelpars,'subfs');
-    
-    eval(sprintf('var = arg_%s;',modelname)) % loading defaults from AMT
-
-    if ~isempty(var.keyvals.subfs)
-        subfs = var.keyvals.subfs;
-        fprintf('%s: Using default ''subfs'' loaded from arg_%s\n',upper(mfilename),modelname);
-    else
-        subfs = fs;
-    end
-
+% if isempty(subfs)
+%     subfs = Get_field_from_cell(modelpars,'subfs');
+%     
+%     eval(sprintf('var = arg_%s;',modelname)) % loading defaults from AMT
+% 
+%     if ~isempty(var.keyvals.subfs)
+%         subfs = var.keyvals.subfs;
+%         fprintf('%s: Using default ''subfs'' loaded from arg_%s\n',upper(mfilename),modelname);
+%     else
+%         subfs = fs;
+%     end
+% 
+%     modelpars(end+1:end+2) = {'subfs',subfs};
+% else
     modelpars(end+1:end+2) = {'subfs',subfs};
-else
-    modelpars(end+1:end+2) = {'subfs',subfs};
-end
+% end

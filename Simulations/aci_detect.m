@@ -38,6 +38,8 @@ cfg_sim = Ensure_field(cfg_sim,'template_every_trial',0);
 cfg_sim = Ensure_field(cfg_sim,'det_lev',-6); 
 cfg_sim = Ensure_field(cfg_sim,'templ_num',10);
 
+version_decision = keyvals.version_decision; % new option as of 22/02/2023
+
 if ~isfield(cfg_sim,'type_decision')
     warning('Assinging the default decision device for model %s',cfg_sim.modelname);
     switch cfg_sim.modelname
@@ -95,6 +97,10 @@ if (isempty(sim_work.templ_tar) == 1 || cfg_sim.template_every_trial == 1 )
             
         case 'model_template_update'
             error('%s: The template script ''model_template_update.m'' is only available in the private fastACI_sim repository',upper(mfilename));
+            
+        otherwise
+            exp2eval = sprintf('[templ_tar,templ_ref,cfg_sim] = %s(cfg_game_here,data_passation,cfg_sim,keyvals);',template_script);
+            eval(exp2eval);
     end
     sim_work.templ_tar = templ_tar;
     sim_work.templ_ref = templ_ref;
@@ -221,13 +227,22 @@ switch type_decision
             mue2choose = mue2choose_nonoise;
         end
                 
-        version_decision = 2; % as in previous research (osses2021)
-        
         switch version_decision
             case 1
                 [xx,response]= max(mue2choose);
             case 2
                 diff_value = mue2choose(2)-mue2choose(1);
+                
+                if diff_value >= thres_for_bias
+                    response = 2;
+                else
+                    response = 1;
+                end
+                sim_work.thres_for_bias = thres_for_bias;
+            
+            case 3
+                % Same as '2' but mirrored
+                diff_value = -(mue2choose(2)-mue2choose(1));
                 
                 if diff_value >= thres_for_bias
                     response = 2;

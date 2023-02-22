@@ -142,6 +142,7 @@ if bFastACI_exp == 1
     paths.tb_AFC_AddOns        = [dir_fastACI       'tb_AFC_AddOns'        filesep];
     paths.tb_AFC_AddOns_exp    = [paths.tb_AFC_AddOns 'experiments'        filesep];
     paths.tb_AFC_AddOns_proc   = [paths.tb_AFC_AddOns 'procedures'         filesep];
+    paths.Tutorial             = [dir_fastACI       'Tutorial'             filesep];
 else
     error('%s: bFastACI_exp must be 1)',upper(mfilename));
 end

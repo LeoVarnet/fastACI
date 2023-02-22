@@ -236,7 +236,7 @@ if cfg_game.is_simulation == 1
         % First time the model is run, then the configuration file is read 
         %   and backed-up locally:
        
-        path_where_supposed = [fastACI_basepath 'Simulations' filesep];
+        path_where_supposed = [fastACI_basepath 'Local' filesep];
         model_cfg_src = [Subject_ID '_cfg'];
         
         if exist([path_where_supposed model_cfg_src],'file')

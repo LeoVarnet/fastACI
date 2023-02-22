@@ -162,7 +162,7 @@ if bParallel == 0
     end
 else
     
-    ir_signal_all = zeros(size(templ_tar,1)   ,cfg_sim.templ_num);
+    ir_signal_all = zeros(size(templ_tar,1),cfg_sim.templ_num);
     ir_ref_all    = zeros(size(templ_ref,1),cfg_sim.templ_num);
     ir_signal_all(:,1) = Ensure_intrep_is_numeric( ir_signal );
     ir_ref_all(:,1)    = Ensure_intrep_is_numeric( ir_reference );
@@ -212,10 +212,10 @@ else
 end
 toc
 
-[templ_tar,templ_ref] = il_normalise_the_template(templ_tar,templ_ref,subfs,cfg_sim.templ_num);
+[templ_tar,templ_ref] = Normalise_two_templates(templ_tar,templ_ref,subfs,cfg_sim.templ_num);
 if isfield(cfg_sim,'templ_num_partial')
     for i = 1:length(cfg_sim.templ_num_partial)
-        [templ_tar_partial(:,i),templ_ref_partial(:,i)] = il_normalise_the_template(templ_tar_partial(:,i),templ_ref_partial(:,i),subfs,cfg_sim.templ_num_partial(i));
+        [templ_tar_partial(:,i),templ_ref_partial(:,i)] = Normalise_two_templates(templ_tar_partial(:,i),templ_ref_partial(:,i),subfs,cfg_sim.templ_num_partial(i));
     end
 end
 
@@ -229,14 +229,3 @@ end
 
 % disp('template calculation finished');
 fprintf('%s: template calculation finished\n',upper(mfilename));
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [templ_tar,templ_ref] = il_normalise_the_template(templ_tar,templ_ref,subfs,templ_num)
-
-templ_tar = templ_tar / templ_num; 
-templ_ref = templ_ref / templ_num; 
-
-% The following is a method to simulateously scale both templates to unit energy
-[~,c] = Normalise_signal(1/sqrt(2)*[templ_tar; templ_ref],subfs);
-templ_tar = c*templ_tar;
-templ_ref = c*templ_ref;
