@@ -14,7 +14,7 @@ if nargin == 0
     subjectname = input('Enter the ID of the subject to be tested (e.g., ''S09''): '); % 'SAO'; %'SAO'; % modelname = 'king2019';
 end
 
-Contrasts2test = {'abda','abga','abpa','adta','apta'};
+Contrasts2test = {'abda','adga','abpa','adta','apta'};
 if nargin < 2
     Show_cell(Contrasts2test);
     bInput = input('Choose the contrast you want to test: ');
