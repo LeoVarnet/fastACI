@@ -89,8 +89,14 @@ if is_warmup
     switch cfg_game.Language
         case 'EN'
             fprintf('\n    * WARM-UP PHASE *\n\n');
+            if cfg_game.feedback == 1
+                fprintf('\tDependent variable: %s = %.2f\n\n',cfg_game.expvar_description,expvar);
+            end
         case 'FR'
             fprintf('\n    * PHASE D''\311CHAUFFEMENT *\n\n');
+            if cfg_game.feedback == 1
+                fprintf('\tParam\ètre variable: %s = %.2f \n\n',cfg_game.expvar_description,expvar);
+            end
     end
 else
     N_for_next_stop = min(data_passation.next_session_stop,cfg_game.N+1)-i_current-1;
