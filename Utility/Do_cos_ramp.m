@@ -8,8 +8,12 @@ function [outsig,r] = Do_cos_ramp(insig,fs,attack_ms,release_ms)
 % 2. Additional info:
 %       Tested cross-platform: Yes
 %
+%
 % 3. Stand-alone example:
-%       
+%       [insig,fs] = audioread('some-file.wav');
+%       dur_ms = 10; % duration in ms
+%       [insig_ramped,ramp_only] = Do_cos_ramp(insig,fs,dur_ms,dur_ms);
+%
 % Programmed by Alejandro Osses, HTI, TU/e, the Netherlands, 2014-2018
 % Created on    : 20/08/2014
 % Last update on: 20/08/2014 
