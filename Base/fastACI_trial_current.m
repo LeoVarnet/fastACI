@@ -95,7 +95,7 @@ if is_warmup
         case 'FR'
             fprintf('\n    * PHASE D''\311CHAUFFEMENT *\n\n');
             if cfg_game.feedback == 1
-                fprintf('\tParam\ètre variable: %s = %.2f \n\n',cfg_game.expvar_description,expvar);
+                fprintf('\tNiveau %s = %.2f \n\n',cfg_game.expvar_description,expvar);
             end
     end
 else
@@ -309,7 +309,7 @@ switch response
                 case 'EN'
                     fprintf('\n ** %s => Correct answer was : %.0f (%s) ** \n\n',txt_extra,resp_num,resp_name);
                 case 'FR'
-                    fprintf('\n ** %s => La bonne reponse etait : %.0f (%s) **\n\n',txt_extra,resp_num,resp_name);
+                    fprintf('\n ** %s => La bonne reponse \351tait : %.0f (%s) **\n\n',txt_extra,resp_num,resp_name);
             end
             pause(1); 
             if ~cfg_game.is_simulation
