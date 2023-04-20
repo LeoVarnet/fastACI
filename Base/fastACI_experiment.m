@@ -16,6 +16,10 @@ function [cfg_game, data_passation, keyvals] = fastACI_experiment(experiment, Su
 % TOASK:
 %   - Add an additional variable 'dir_results' (splitting dir_main)
 %
+% If it is a simulation:
+%       if keyvals.thres_for_bias is empty:
+%           - fastACI_model_calibration is run (~L227)
+%
 % Old name: Script2_Passation_EN.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -40,15 +44,26 @@ if sum(Subject_ID=='_')
     Subject_ID = Subject_ID(1:idx-1);
 end
 
-switch Subject_ID
-    case {'dau1997','king2019','relanoiborra2019','maxwell2020','osses2021','osses2022a'} % alphabetical order
-        bSimulation = 1;
-        
-    case {'dau1997_preproc'}
-        error('Model %s is deprecated...',Subject_ID);
-    otherwise
-        bSimulation = 0;
+if exist([Subject_ID '.m'],'file')
+    bSimulation = 1;
+    switch Subject_ID
+        case 'dau1997_preproc'
+            error('Model %s is deprecated...',Subject_ID); 
+        otherwise
+            % Nothing to do
+    end
+else
+    bSimulation = 0;
 end
+% switch Subject_ID
+%     case {'dau1997','king2019','relanoiborra2019','maxwell2020','osses2021','osses2022a'} % alphabetical order
+%         bSimulation = 1;
+%         
+%     case {'dau1997_preproc'}
+%         error('Model %s is deprecated...',Subject_ID);
+%     otherwise
+%         bSimulation = 0;
+% end
 
 % From argument function:
 definput.import={'fastACI_experiment'}; % arg_fastACI_experiment.m
