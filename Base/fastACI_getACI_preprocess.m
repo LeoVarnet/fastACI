@@ -157,7 +157,7 @@ switch fg.glmfct
     case {'lassoglm','lasso', 'l1lm','l1glm'}
         
         %%% Loading defaults for 'lassoglm' or 'lasso', if not previously loaded
-        cfg_ACI   = arg_glmfct(cfg_ACI);
+        cfg_ACI   = arg_glmfct(cfg_ACI,fg,kv);
         %%%
         Nlevel    = cfg_ACI.lasso_Nlevel;
         Nlevelmin = cfg_ACI.lasso_Nlevelmin;

@@ -76,3 +76,5 @@ definput.keyvals.bwmul    = .5; % recommended either 0.5 or 1 ERB
 definput.keyvals.binwidth = 10e-3; % 10 ms, time resolution for ACI
 
 definput.keyvals.lambda = [];
+
+definput.keyvals.script_dataload = ''; % fastACI_getACI_dataload

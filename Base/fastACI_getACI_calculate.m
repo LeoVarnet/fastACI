@@ -112,9 +112,12 @@ switch glmfct
             results.ACI_perm_CI_high  = ACI_perm_CI_high;
         end
     case {'glm'}
+        % Implementation by Leo Varnet on 15/11/2023. It requires the 
+        %   statistical toolbox. This fitting was used for our 'segmentation'
+        %   experiment (segmentation_user.m, 2022-2023).
         tic
         [B,Dev,Stat] = glmfit(X,y,'binomial','link','logit');
-        ACI = reshape(B(2:end),[length(cfg_ACI.f),length(cfg_ACI.t)]);
+        ACI = reshape(B(2:end),[length(cfg_ACI.f),length(cfg_ACI.t)]); % AO: Why is B(1) excluded?
         results.B = B;
         results.Dev = Dev;
         results.dfe = Stat.dfe;
@@ -123,18 +126,21 @@ switch glmfct
         results.coeffcorr = Stat.coeffcorr;
         results.t = Stat.t;
         results.p = Stat.p;
+        
     case {'lassoglm_original'}
+        % Implementation by Leo Varnet on 13/01/2023
+        error('The GLM fitting using %s has not been validated yet using fastACI',glmfct);
         tic
         [B,Fitinfo] = lassoglm(X,y,'binomial','link','logit');
         ACI = reshape(B(2:end),[length(cfg_ACI.f),length(cfg_ACI.t)]);
-%         results.B = B;
-%         results.Dev = Dev;
-%         results.dfe = Stat.dfe;
-%         results.covb = Stat.covb;
-%         results.se = Stat.se;
-%         results.coeffcorr = Stat.coeffcorr;
-%         results.t = Stat.t;
-%         results.p = Stat.p;
+        % results.B = B;
+        % results.Dev = Dev;
+        % results.dfe = Stat.dfe;
+        % results.covb = Stat.covb;
+        % results.se = Stat.se;
+        % results.coeffcorr = Stat.coeffcorr;
+        % results.t = Stat.t;
+        % results.p = Stat.p;
 
     case {'lassoglm','lasso','l1lm','l1glm'}
         N_folds = cfg_ACI.N_folds; % k_folds validation

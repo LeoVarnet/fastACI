@@ -38,40 +38,39 @@ else
     mkdir(dir_target);
 end
   
+switch lower(cfg_inout.Condition)
+    case {'lami', 'lami_shifted'}
+        files = {'l_amie.wav', 'la_mie.wav'};
+        meanf0 = mean([216.1, 205.6]);
+    case {'lapel', 'lapel_shifted'}
+        files = {'l_appel.wav', 'la_pelle.wav'};
+        meanf0 = mean([215.2, 217.7]);
+    case 'lapesanteur'
+        files = {'l_apesanteur.wav', 'la_pesanteur.wav'};
+        meanf0 = mean([212.4, 208]);
+    case 'latension'
+        files = {'l_attention.wav', 'la_tension.wav'};
+        meanf0 = mean([220, 206.5]);
+    case 'lacroch'
+        files = {'l_accroche.wav', 'la_croche.wav'};
+        meanf0 = mean([210.8, 204.3]);
+    case 'lalarm'
+        files = {'l_alarme.wav', 'la_larme.wav'};
+        meanf0 = mean([215.6, 200.1]);
+    case 'alapel1'
+        files = {'v1_l_appel.wav', 'v1_la_pelle.wav'};
+        meanf0 = mean([194.9, 183.3]);
+    case 'alapel2'
+        files = {'v2_l_appel.wav', 'v2_la_pelle.wav'};
+        meanf0 = mean([191, 180]);
+    case 'alapel3'
+        files = {'v3_l_appel.wav', 'v3_la_pelle.wav'};
+        meanf0 = mean([192.1, 177.5]);
+    otherwise
+        error('Stimuli condition not recognized. The third argument of fastACI_experiment ''segmentation'' should be one of the following: ''LAMI'', ''LAMI_shifted'', ''LAPEL'',  ''LAPEL_shifted'', ''LAPESANTEUR'', ''LATENSION'', ''LACROCH'', ''LALARM'', ''ALAPEL1'', ''ALAPEL2'', ''ALAPEL3''\n')
+end
 if bGenerate_stimuli
-   % Speaker_ID = cfg_inout.Cond_extra_2;
-    %files = Get_filenames(dir_speech_orig,['*.wav']);%files = Get_filenames(dir_speech_orig,[Speaker_ID '*.wav']);
-    switch lower(cfg_inout.Condition)
-        case {'lami', 'lami_shifted'}
-            files = {'l_amie.wav', 'la_mie.wav'};
-            meanf0 = mean([216.1, 205.6]);
-        case {'lapel', 'lapel_shifted'}
-            files = {'l_appel.wav', 'la_pelle.wav'};
-            meanf0 = mean([215.2, 217.7]);
-        case 'lapesanteur'
-            files = {'l_apesanteur.wav', 'la_pesanteur.wav'};
-            meanf0 = mean([212.4, 208]);
-        case 'latension'
-            files = {'l_attention.wav', 'la_tension.wav'};
-            meanf0 = mean([220, 206.5]);
-        case 'lacroch'
-            files = {'l_accroche.wav', 'la_croche.wav'};
-            meanf0 = mean([210.8, 204.3]);
-        case 'lalarm'
-            files = {'l_alarme.wav', 'la_larme.wav'};
-            meanf0 = mean([215.6, 200.1]);
-        case 'alapel1'
-            files = {'v1_l_appel.wav', 'v1_la_pelle.wav'};
-            meanf0 = mean([194.9, 183.3]);
-        case 'alapel2'
-            files = {'v2_l_appel.wav', 'v2_la_pelle.wav'};
-            meanf0 = mean([191, 180]);
-        case 'alapel3'
-            files = {'v3_l_appel.wav', 'v3_la_pelle.wav'};
-            meanf0 = mean([192.1, 177.5]);
-        otherwise
-            error('Stimuli condition not recognized. The third argument of fastACI_experiment ''segmentation'' should be one of the following: ''LAMI'', ''LAMI_shifted'', ''LAPEL'',  ''LAPEL_shifted'', ''LAPESANTEUR'', ''LATENSION'', ''LACROCH'', ''LALARM'', ''ALAPEL1'', ''ALAPEL2'', ''ALAPEL3''\n')
-    end
+    
     for i = 1:length(files)
         [insig,fs]  = audioread([dir_speech_orig files{i}]);
                  
@@ -87,12 +86,6 @@ if bGenerate_stimuli
         sil = zeros(round(dur_ramp*fs),1);
         insig  = [sil; insig; sil];
         
-        % idx = strfind(files{i},'_eq');
-        % if ~isempty(idx)
-        %     fprintf('\t%s: suffix ''eq'' found and being removed from the speech sample...\n',mfilename)
-        %     files{i} = [files{i}(1:idx-1) '.wav'];
-        % end
-         
         audiowrite([dir_target files{i}],insig,fs);
     end
 else
@@ -149,14 +142,17 @@ for i = 1:cfg_inout.N
          
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%% Stimulus generation:
-        files = Get_filenames(dir_target,'*.wav');
+        if i == 1
+            files = Get_filenames(dir_target,'*.wav');
+        end
         if i < cfg_inout.N/2
             % loading L'amie
-            [insig,fs] = audioread([dir_target files{1}]);
+            idx_target = 1;
         else
             % loading La mie
-            [insig,fs] = audioread([dir_target files{2}]); 
+            idx_target = 2;
         end
+        [insig,fs] = audioread([dir_target files{idx_target}]);
         
         if fs ~= cfg_inout.fs
             error('Sounds do not have the same sampling frequency as specified in the %s_set.m file');
@@ -183,6 +179,24 @@ for i = 1:cfg_inout.N
 
         % Calling WORLD. The fourth parameter is the spectrum modification. 
         % We (at ENS) will not play with this dimension
+        switch i
+            case {1, cfg_inout.N/2}
+                % The following lines are to store the 'original signals' but
+                %   still subjected to the il_WorldSynthesiser. This is useful
+                %   for simulations, because then these signals will have 
+                %   the same length as the processed sounds. In this sense
+                %   you need to set factor to 0.
+                factor = 1; % 0.2
+                if factor == 0 || factor == 1
+                    suff_here = '';
+                elseif factor < 1
+                    suff_here = ['-0p' num2str(100*factor)];
+                end
+                outsig = il_WorldSynthesiser(insig, fs, factor*f0vec, 1, timevec, do_shift, meanf0);
+                dir_target_new = [dir_target(1:end-1) '-idle' filesep]; mkdir(dir_target_new);
+                fname_here = [dir_target_new files{idx_target}(1:end-4) '-idle' suff_here '.wav'];
+                audiowrite(fname_here,outsig,fs);
+        end
         outsig = il_WorldSynthesiser(insig, fs, f0vec, 1, timevec, do_shift, meanf0);
         cfg_inout.timevec(:,i) = timevec;
         cfg_inout.f0vec(:,i)   = f0vec;
@@ -256,8 +270,9 @@ if bGenerate_stimuli
 end
 %%% 
 
-function y = il_WorldSynthesiser(x, fs, f0_param, spec_param, time_param, do_shift, meanf0)
-% function y = il_WorldSynthesiser(x, fs, f0_param, spec_param, time_param)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function y = il_WorldSynthesiser(insig, fs, f0_param, spec_param, time_param, do_shift, meanf0)
+% function y = il_WorldSynthesiser(insig, fs, f0_param, spec_param, time_param)
 %
 % WorldSynthesizer_Leo(x, fs, 1, 1, 1);
 %
@@ -274,9 +289,21 @@ if nargin<7
     meanf0 = 210; % Desired mean f0
 end
 
-f0_parameter = Harvest(x, fs);
-spectrum_parameter = CheapTrick(x, fs, f0_parameter);
-source_parameter = D4C(x, fs, f0_parameter);
+if ~exist('Harvest.m','file')
+    script2look = 'fastACI_dir_world';
+    fprintf('%s.m: WORLD toolbox not found, trying to find the script %s.m...\n',mfilename,script2look);
+    
+    try
+        WORLD_path = []; % trick to debug
+        eval(sprintf('WORLD_path=%s;',script2look));
+        addpath(WORLD_path);
+    catch
+        error('Please install the WORLD toolbox')
+    end
+end
+f0_parameter = Harvest(insig, fs);
+spect_params = CheapTrick(insig, fs, f0_parameter);
+src_params   = D4C(insig, fs, f0_parameter);
 
 % Generate the vector of modifications
 fs_word = 1/(f0_parameter.temporal_positions(2)-f0_parameter.temporal_positions(1));
@@ -286,45 +313,66 @@ Nseg = Ninput-1;
 Nsamp_in_seg = 0.1*fs_word;%floor(Nsamples/Nseg);
 
 f0_vect = ones(1,Nsamples);
-time_vect = source_parameter.temporal_positions;
+time_vect = src_params.temporal_positions;
 if ~do_shift
     % normal
     for i_segment=1:Nseg
-        f0_vect((i_segment-1)*Nsamp_in_seg+1:i_segment*Nsamp_in_seg+1) = linspace(f0_param(i_segment),f0_param(i_segment+1),Nsamp_in_seg+1);
-        time_vect((i_segment-1)*Nsamp_in_seg+1:i_segment*Nsamp_in_seg+1) = linspace(source_parameter.temporal_positions((i_segment-1)*Nsamp_in_seg+1)+time_param(i_segment),source_parameter.temporal_positions(i_segment*Nsamp_in_seg)+time_param(i_segment+1),Nsamp_in_seg+1);
+        idx_i = (i_segment-1)*Nsamp_in_seg+1;
+        idx_f = i_segment*Nsamp_in_seg+1; 
+        num_steps_in = Nsamp_in_seg+1;
+        
+        in1 = f0_param(i_segment);
+        in2 = f0_param(i_segment+1);
+        f0_vect_segment = linspace(in1,in2,num_steps_in);
+        f0_vect(idx_i:idx_f) = f0_vect_segment; % the last element (at idx_f)
+                        % will be overwritten by the same value of the next 
+                        % segment (idx_i) except for the last segment.
+        in1 = src_params.temporal_positions((i_segment-1)*Nsamp_in_seg+1)+time_param(i_segment);
+        in2 = src_params.temporal_positions(i_segment*Nsamp_in_seg)+time_param(i_segment+1);
+        time_vect(idx_i:idx_f) = linspace(in1,in2,num_steps_in);
     end
 else
     % shifted
     shift_in_samp = Nsamples-Nseg*Nsamp_in_seg;
     for i_segment=1:Nseg
-        f0_vect(shift_in_samp+(i_segment-1)*Nsamp_in_seg:shift_in_samp+i_segment*Nsamp_in_seg) = linspace(f0_param(i_segment),f0_param(i_segment+1),Nsamp_in_seg+1);
-        time_vect(shift_in_samp+(i_segment-1)*Nsamp_in_seg:shift_in_samp+i_segment*Nsamp_in_seg) = linspace(source_parameter.temporal_positions(shift_in_samp+(i_segment-1)*Nsamp_in_seg)+time_param(i_segment),source_parameter.temporal_positions(shift_in_samp+i_segment*Nsamp_in_seg)+time_param(i_segment+1),Nsamp_in_seg+1);
+        idx_i = shift_in_samp+(i_segment-1)*Nsamp_in_seg;
+        idx_f = shift_in_samp+i_segment*Nsamp_in_seg;
+        num_steps_in = Nsamp_in_seg+1;
+        
+        in1 = f0_param(i_segment);
+        in2 = f0_param(i_segment+1);
+        f0_vect(idx_i:idx_f) = linspace(in1,in2,num_steps_in);
+        
+        in1 = src_params.temporal_positions(shift_in_samp+(i_segment-1)*Nsamp_in_seg)+time_param(i_segment);
+        in2 = src_params.temporal_positions(shift_in_samp+ i_segment   *Nsamp_in_seg)+time_param(i_segment+1);
+        time_vect(idx_i:idx_f) = linspace(in1,in2,num_steps_in);
     end
 end
 
 % f0 kept
 %source_parameter.f0 = source_parameter.f0 .* 2.^(f0_vect/1200);
-% f0 trajectory kept but mean f0 neutralized
+% f0 trajectory kept but mean f0 neutralised
 % origf0 = source_parameter.f0; origf0(origf0==0) = nan; origf0 = mean(origf0,'omitnan');
-% source_parameter.f0 = source_parameter.f0 - origf0 + meanf0; % neutralize mean
+% source_parameter.f0 = source_parameter.f0 - origf0 + meanf0; % neutralise mean
 % source_parameter.f0 = source_parameter.f0 .* 2.^(f0_vect/1200);
-% f0 flattened and mean f0 neutralized
-source_parameter.f0 = meanf0 .* 2.^(f0_vect/1200);
+% f0 flattened and mean f0 neutralised
+src_params.f0 = meanf0 .* 2.^(f0_vect/1200);
 
-fft_size = (size(spectrum_parameter.spectrogram, 1) - 1) * 2;
+fft_size = (size(spect_params.spectrogram, 1) - 1) * 2;
 w = (0 : fft_size - 1) * fs / fft_size;
 w2 = (0 : fft_size / 2) * fs / fft_size / spec_param;
-for i = 1 : size(spectrum_parameter.spectrogram, 2)
-  tmp = [spectrum_parameter.spectrogram(:, i); spectrum_parameter.spectrogram(end - 1 : -1 : 2, i)];
-  spectrum_parameter.spectrogram(:, i) = interp1(w, tmp, w2, 'linear', 'extrap');
+for i = 1 : size(spect_params.spectrogram, 2)
+  tmp = [spect_params.spectrogram(:, i); spect_params.spectrogram(end - 1 : -1 : 2, i)];
+  spect_params.spectrogram(:, i) = interp1(w, tmp, w2, 'linear', 'extrap');
 end
 
-source_parameter.temporal_positions = time_vect;%source_parameter.temporal_positions .* time_vect
+src_params.temporal_positions = time_vect; % source_parameter.temporal_positions .* time_vect
 
-y = Synthesis(source_parameter, spectrum_parameter);
+y = Synthesis(src_params, spect_params);
 
-%audiowrite(output_filename, y, fs);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function y = il_randn_clipped(N,M,threshold)
+
 y = randn(N,M);
 while any(any(abs(y)>threshold))
     y(abs(y)>threshold) = randn;

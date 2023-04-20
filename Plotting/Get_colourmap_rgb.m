@@ -153,8 +153,17 @@ cMap = [ ...
              linspace(max_colour_val,0,N_steps)' ,...
              linspace(max_colour_val,0,N_steps)' ];
 
+    case {'hot','hot_reversed'}
+        cMap = colormap('hot'); % tries to load MATLAB's defaults
+        if strcmp(colour,'hot_reversed')
+            cMap = flipud(cMap);
+        end
     otherwise
-        error('Colour not added yet...')
+        try
+            cMap = colormap(colour); % tries to load MATLAB's defaults
+        catch
+            error('Colour not added yet...')
+        end
 end
 
 disp('')

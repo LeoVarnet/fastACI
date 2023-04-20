@@ -15,10 +15,11 @@ cfg.filename_target = {'tone-500-Hz.wav'};
 %%% Parameters to create the targets:
 %     (c) = compulsory for this experiment
 cfg.N_target   = 2; % target present, target absent
-cfg.N_presentation = 400;  % (c) number of stimuli / condition
+cfg.N_presentation = 1600;  % (c) number of stimuli / condition
  
 %%% Sampling frequency should be compulsory if targets are not on disk:
-cfg.fs         = 10000; % (c) Hz, sampling frequency 
+% cfg.fs         = 16000; warning('temporal'); % (c) Hz, sampling frequency 
+cfg.fs         = 10000; % warning('temporal'); 
 cfg.f_target   = 500; % Hz
 cfg.dur_target = 100e-3; 
 cfg.dur_noise  = 500e-3;

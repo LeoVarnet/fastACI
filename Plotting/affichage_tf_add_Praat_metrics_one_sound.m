@@ -1,11 +1,12 @@
-function outs_from_Praat = affichage_tf_add_Praat_metrics_one_sound(fname_full,cfg_ACI,outs_from_Praat, Style, Colour, LineWidth)
-% function outs = affichage_tf_add_Praat_metrics_one_sound(fname_full,cfg_ACI,outs_from_Praat, Style, Colour, LineWidth)
+function outs_from_Praat = affichage_tf_add_Praat_metrics_one_sound(fname_full,cfg_ACI,outs_from_Praat, Style, Colour, LineWidth,bPlot)
+% function outs = affichage_tf_add_Praat_metrics_one_sound(fname_full,cfg_ACI,outs_from_Praat, Style, Colour, LineWidth,bPlot)
 % 
 % fname_full should be the name of a sound to be processed. As a difference
 %   to affichage_tf_add_Praat_metrics.m, only one waveform will be plotted
 %   and no legend will be added to the plot.
 %
 % See also: affichage_tf_add_Praat_metrics.m
+% Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin < 3
@@ -20,7 +21,9 @@ end
 if nargin < 6
     LineWidth = 1; % default as used in osses2021c
 end
-
+if nargin < 7
+    bPlot = 1;
+end
 [dir_where,fname,ext] = fileparts(fname_full); % fname will not have an extension
 dir_where = [dir_where filesep];
 % fname = [fname ext];
@@ -60,8 +63,9 @@ end
 % labels2add = [];
 bAdd_traces = zeros([1 Nsounds]);
 
+
 for kk = 1:Nsounds
-    
+
     % if isfield(cfg_ACI,'target_names')
     try
        if strfind(outs_from_Praat.filesF{kk},fname)
@@ -70,15 +74,42 @@ for kk = 1:Nsounds
     end
     % end
 
-    if bAdd_traces(kk)
-        [f2plot,cfg_ACI] = affichage_get_freq_resolution(outs_from_Praat.f0{kk},cfg_ACI); % figure; plot(outs.t_f0{1},outs.f0{1},'k--');
-        pl(kk) = plot(outs_from_Praat.t_f0{kk},f2plot,'LineStyle',Style,'Color',Colour,'LineWidth',LineWidth);
+    if bPlot
+        if bAdd_traces(kk)
+            [f2plot,cfg_ACI] = affichage_get_freq_resolution(outs_from_Praat.f0{kk},cfg_ACI); % figure; plot(outs.t_f0{1},outs.f0{1},'k--');
+            pl(kk) = plot(outs_from_Praat.t_f0{kk},f2plot,'LineStyle',Style,'Color',Colour,'LineWidth',LineWidth);
 
-        for ii = 1:size(outs_from_Praat.F{kk},2)
-            % Adding each formant:
-            f2plot = affichage_get_freq_resolution(outs_from_Praat.F{kk}(:,ii),cfg_ACI);
-            hold on; % figure; plot(t_F{kk},F{kk}(:,ii),Style{kk});
-            plot(outs_from_Praat.t_F{kk},f2plot,'LineStyle',Style,'Color',Colour,'LineWidth',LineWidth);
+            for ii = 1:size(outs_from_Praat.F{kk},2)
+                % Adding each formant:
+                f2plot = affichage_get_freq_resolution(outs_from_Praat.F{kk}(:,ii),cfg_ACI);
+                hold on; % figure; plot(t_F{kk},F{kk}(:,ii),Style{kk});
+                plot(outs_from_Praat.t_F{kk},f2plot,'LineStyle',Style,'Color',Colour,'LineWidth',LineWidth);
+            end
+        end
+    end
+end
+
+if nargout ~= 0
+    for kk = Nsounds:-1:1
+        if bAdd_traces(kk) == 0
+            if isfield(outs_from_Praat,'t_f0')
+                outs_from_Praat.t_f0(kk) = [];
+            end
+            if isfield(outs_from_Praat,'t_F')
+                outs_from_Praat.t_F(kk) = [];
+            end
+            if isfield(outs_from_Praat,'t_I')
+                outs_from_Praat.t_I(kk) = [];
+            end
+            if isfield(outs_from_Praat,'f0')
+                outs_from_Praat.f0(kk) = [];
+            end
+            if isfield(outs_from_Praat,'F')
+                outs_from_Praat.F(kk) = [];
+            end
+            if isfield(outs_from_Praat,'t_f0')
+                outs_from_Praat.I(kk) = [];
+            end
         end
     end
 end

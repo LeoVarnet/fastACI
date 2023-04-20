@@ -29,7 +29,7 @@ end
 if ~isfield(p, field_name)
 	p = setfield(p, field_name, default_value);
     bStatus = 1;
-    if nargout == 1 & bSilent == 0
+    if nargout == 1 && bSilent == 0
         disp([mfilename '.m: Struct field ''' field_name ''' assigned'])
     end
 else

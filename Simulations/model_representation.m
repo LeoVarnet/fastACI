@@ -2,37 +2,19 @@ function [ir_reference,params] = model_representation(referencestim,modelname,mo
 % function [ir_reference,params] = model_representation(referencestim,modelname,modelpars)
 %
 % 1. Description:
-%       CASPREPRESENTATION  Generate an internal representation to be used
-%       by the optimal detector
-%
-%  CASPTEMPLATE(target,reference,modelname,modelpars) generates the template
-%  needed for the optimal detector. CASPTEMPLATE will run the model specified 
-%  by modelname on the signals stored in target and reference and generate 
-%  the template from this.
+% MODEL_REPRESENTATION Generates an internal representation to be used by
+%       the optimal detector
 %
 %  If target or reference is a matrix, each column will be considered a
 %  signal, and averaging will be done. This is usefull for stochastic
 %  signals.
 %
-%   Url: http://amtoolbox.sourceforge.net/doc/modelstages/casptemplate.php
-%
-% 2. Stand-alone example:
-%   fs          = 44100; % sampling frequency of the waveforms insig1 and insig2supra
-%   target      = insig1;
-%   reference   = insig2supra;
-%   [template,ir_reference] = casptemplate(target,reference,'dau1996preproc',{fs});
-% 
-% Based on casprepresentation.m
-%
-% Copyright (C) 2009-2014 Peter L. Soendergaard and Piotr Majdak.
-% This file is part of AMToolbox version 0.9.5
-%
-% Last update by Alejandro Osses: 16/12/2019
+% Author: Alejandro Osses (16/12/2019), based on casprepresentation.m from AMT 0.9.5
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin<3
     modelpars={};
-end;
+end
 
 nreferences = size(referencestim,2);
 
@@ -46,11 +28,18 @@ switch modelname
         [ir_reference,fc,fcm] = feval(modelname,referencestim(:,1),modelpars{:});
         subfs = Get_field_from_cell(modelpars,'subfs');
         params.fcm = fcm;
-    case {'verhulst2018_preproc','verhulst2018debug_preproc'}
-        [ir_reference,fc,fcm,subfs] = feval(modelname,referencestim(:,1),modelpars{:});
-        params.fcm = fcm;
     otherwise
-        error('Add models to this list');
+        ir_reference = feval(modelname,referencestim(:,1),modelpars{:});
+        subfs = Get_field_from_cell(modelpars,'subfs');
+        if isempty(subfs)
+            if max( size(ir_reference) ) >= referencestim(:,1)
+                subfs = modelpars{1}; % subfs equal to sampling frequency
+            else
+                error('Validate here the automatic assessment of subfs');
+            end
+        end
+        fc = [];
+        
 end
 
 for ii=2:nreferences

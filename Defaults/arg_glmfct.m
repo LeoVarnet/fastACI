@@ -1,5 +1,5 @@
-function cfg_inout = arg_glmfct(cfg_inout,flags)
-% function cfginout = arg_glmfct(cfg_inout,flags)
+function cfg_inout = arg_glmfct(cfg_inout,flags,keyvals)
+% function cfginout = arg_glmfct(cfg_inout,flags,keyvals)
 %
 % Enabled so far:
 %   'permutation' or 'no_permutation': to perform or not the permutation test
@@ -78,7 +78,7 @@ switch glmfct
         
     case {'lasso','lassoglm','l1lm','l1glm'}
         
-        Nlevel    = 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
+        Nlevel    = keyvals.lasso_Nlevel; % 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
         Nlevelmin = 2; % minimum level considered in the analysis 
         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'lasso_Nlevel',Nlevel);
         if bAssigned == 0

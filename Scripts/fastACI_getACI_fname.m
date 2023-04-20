@@ -10,6 +10,11 @@ end
 
 % From argument function:
 definput.import={'fastACI_getACI'}; % arg_fastACI_getACI.m
+
+idx = find(strcmp(varargin,'l1glm'));
+if ~isempty(idx)
+    definput.import{end+1} = 'lasso'; % requesting to load from arg_lasso.m (if needed)
+end
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
 %% 1. Reading the experimental data (*.mat file):

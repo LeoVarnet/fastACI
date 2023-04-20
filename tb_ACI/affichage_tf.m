@@ -48,6 +48,7 @@ function outs = affichage_tf( data, type, varargin )
 % The input data can aksi be a CI-matrix (dimension 3), auquel cas la
 % fonction affiche des subplots, eventuellement ordonnes par le parametre
 % 'order' 
+% Author: Leo Varnet (ACI toolbox, approx. in 2012)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 outs = [];
@@ -296,7 +297,11 @@ for num_CI = 1:N_CI
         colormap(mymap);
     elseif strcmp(type(1:2), 'CI') || strcmp(type,'tvalue')
         switch colourbar_map
-            case 'default'
+            case {'default','DG_jet'} % new default as of March 2023
+                colourbar_map = 'DG_jet';
+                colormap(Get_colourmap_rgb(colourbar_map));
+                
+            case 'jet' % default before March 2023
                 colormap(jet);
             case {'jet_grey','jet_gray'} % 40 percent
                 

@@ -191,7 +191,7 @@ if flags.do_fig1
     figure('Position',[100 100 500 200]); 
     tiledlayout(1,2,'TileSpacing','tight');
     nexttile(1); 
-    G_dB = il_To_dB(G_aba');
+    G_dB = To_dB(G_aba');
     affichage_tf(G_dB, 'pow', t, fc, flags_extra{:}); hold on;
     XTL = 0:.2:.8;
     XT  = XTL; XT(1) = min(t)/2;
@@ -203,11 +203,32 @@ if flags.do_fig1
     cfg_in = [];
     cfg_in.f = fc;
     cfg_in.t = t;
-    il_add_formants(fname_aba,cfg_in);
+    
+    %%% Parameters for Praat:
+    par_formants = [];
+    par_formants.timestep = 0.01; % positive timestep 0.01
+    par_formants.nformants = 5; % positive nformants 5
+
+    % Formants
+    par_formants.maxformant = 5500; % positive maxformant 5500
+    par_formants.windowlength = 0.025;% 0.025 % positive windowlength 0.025
+    par_formants.dynamicrange = 30; % positive dynamic range 20
+
+    % F0
+    par_formants.minpitch = 200; % positive minimum pitch 50 (for intensity)
+    %par_formants.pitchfloor = 100; % previous parameter value (14/10/2022)
+    par_formants.pitchfloor = 50; % positive pitch floor 100 (for f0)
+    par_formants.pitchceiling = 500; % positive pitch ceiling 500 (for f0)
+
+    % Before 4/11/2021, I_min set to 40 dB:
+    par_formants.I_min = 59;%75; %, arbitrary value
+    
+    Add_formants(fname_aba,cfg_in,par_formants);
+    %%%
     
     % flags_extra{end} = 'on';
     nexttile(2); 
-    G_dB = il_To_dB(G_ada');
+    G_dB = To_dB(G_ada');
     affichage_tf(G_dB, 'pow', t, fc, flags_extra{:}); hold on;
     set(gca,'XTick',XT);
     set(gca,'XTickLabel',XTL);
@@ -220,7 +241,7 @@ if flags.do_fig1
     % fname1 = [cfg_ACI.dir_target files{1}];
 	% fname2 = [cfg_ACI.dir_target files{2}];
            
-    il_add_formants(fname_ada,cfg_in);
+    Add_formants(fname_ada,cfg_in,par_formants);
     
     text(0.52,0.08,'f_0','Color','white','Units','Normalized');
     text(0.52,0.35,'F_1','Color','white','Units','Normalized');
@@ -255,7 +276,7 @@ if flags.do_fig2a
      
         dBFS = 100;
         floor2use = 0;
-        G_dB(:,:,i) = max(20*log10(G)'+dBFS,floor2use); % il_To_dB(G');
+        G_dB(:,:,i) = max(20*log10(G)'+dBFS,floor2use); % To_dB(G');
     end
     
     dB_max = max(max(max(G_dB)));
@@ -3286,41 +3307,6 @@ data.hname = hname;
 %     end
 %     figure;
 % end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function il_add_formants(fname,cfg_ACI)
-
-LW = 1;
-
-%%% I still need to spot the exact values:
-par_formants.timestep = 0.01; % positive timestep 0.01
-par_formants.nformants = 5; % positive nformants 5
-
-%%% Unsure:
-% Formants
-par_formants.maxformant = 5500; % positive maxformant 5500
-par_formants.windowlength = 0.025;% 0.025 % positive windowlength 0.025
-par_formants.dynamicrange = 30; % positive dynamic range 20
-
-% F0
-par_formants.minpitch = 200; % positive minimum pitch 50 (for intensity)
-%par_formants.pitchfloor = 100; % previous parameter value (14/10/2022)
-par_formants.pitchfloor = 50; % positive pitch floor 100 (for f0)
-par_formants.pitchceiling = 500; % positive pitch ceiling 500 (for f0)
-
-% Before 4/11/2021, I_min set to 40 dB:
-par_formants.I_min = 59;%75; %, arbitrary value
-
-affichage_tf_add_Praat_metrics_one_sound(fname,cfg_ACI,par_formants, '-', 'w',LW);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function outsig = il_To_dB_base_e(insig)
-
-outsig = log(abs(insig));
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function outsig = il_To_dB(insig)
-
-outsig = 20*log10(abs(insig));
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % function [PC_tbt, Dev_tbt, PC_fold, Dev_fold] = il_tbtpred(cfg_ACI,results)

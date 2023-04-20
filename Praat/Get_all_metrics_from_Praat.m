@@ -2,6 +2,7 @@ function outs = Get_all_metrics_from_Praat(dir_where,params)
 % function outs = Get_all_metrics_from_Praat(dir_where,params)
 %
 % Based on l20210713_AnalyseStims
+% Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if nargin == 0
     if ~isunix

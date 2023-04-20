@@ -13,6 +13,7 @@ function [modelpars,subfs,params_extra] = model_params(modelname,fs,keyvals)
 % [modelpars,subfs] = model_getparams(modelname,def);
 %
 % Programmed by Alejandro Osses TU/e Eindhoven 2014-2018
+% Extensions: 27/02/2023 - limiting 'fhigh' to fs/2 if fs is low enough
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin == 0
@@ -53,32 +54,32 @@ switch modelname
                 
         params_extra.in_var = in_var;
         
-    case 'king2019'
-        
-        pars = king2019_cfg(keyvals);
-        for i = 1:length(pars.modelpars)
-            modelpars{end+1} = pars.modelpars{i};
-        end
-        
-        dBFS = 100;
-        basef = 1000; % Hz
-        flow = 80;
-        fhigh = 8000;
-        % modbank_Nmod = 5;
-        mflow  =   2; % Hz, modbank_fmin
-        mfhigh = 150;
-
-        modelpars{end+1} = 'no_debug'; % flag
-        modelpars{end+1} = 'phase_insens_hilbert'; % 'no_phase_insens'; % flag
-        % default values will be loaded for king2019:
-        modelpars(end+1:end+2) = {'compression_n',0.3};
-        modelpars(end+1:end+2) = {'basef', basef}; % keyval
-        modelpars(end+1:end+2) = {'flow' ,  flow}; % keyval
-        modelpars(end+1:end+2) = {'fhigh', fhigh}; % keyval
-        modelpars(end+1:end+2) = {'mflow' , mflow}; % keyval
-        modelpars(end+1:end+2) = {'mfhigh', mfhigh}; % keyval
-        % modelpars(end+1:end+2) = {'modbank_Nmod', modbank_Nmod}; % keyval
-        modelpars(end+1:end+2) = {'dboffset', dBFS};
+    case 'king2019_old'
+    % 
+    %     pars = king2019_cfg(keyvals);
+    %     for i = 1:length(pars.modelpars)
+    %         modelpars{end+1} = pars.modelpars{i};
+    %     end
+    % 
+    %     dBFS = 100;
+    %     basef = 1000; % Hz
+    %     flow = 80;
+    %     fhigh = 8000;
+    %     % modbank_Nmod = 5;
+    %     mflow  =   2; % Hz, modbank_fmin
+    %     mfhigh = 150;
+    % 
+    %     modelpars{end+1} = 'no_debug'; % flag
+    %     modelpars{end+1} = 'phase_insens_hilbert'; % 'no_phase_insens'; % flag
+    %     % default values will be loaded for king2019:
+    %     modelpars(end+1:end+2) = {'compression_n',0.3};
+    %     modelpars(end+1:end+2) = {'basef', basef}; % keyval
+    %     modelpars(end+1:end+2) = {'flow' ,  flow}; % keyval
+    %     modelpars(end+1:end+2) = {'fhigh', fhigh}; % keyval
+    %     modelpars(end+1:end+2) = {'mflow' , mflow}; % keyval
+    %     modelpars(end+1:end+2) = {'mfhigh', mfhigh}; % keyval
+    %     % modelpars(end+1:end+2) = {'modbank_Nmod', modbank_Nmod}; % keyval
+    %     modelpars(end+1:end+2) = {'dboffset', dBFS};
         
         disp('')
     case {'maxwell2020','maxwell2020_debug'}
@@ -119,21 +120,31 @@ switch modelname
             subfs = [];
         end
         params_extra.in_var = pars.in_var;
+        
+    otherwise
+        pars = []; % to be obtained in the next line...
+        exp2eval = sprintf('pars = %s_cfg(keyvals);',modelname);
+        eval(exp2eval); % evaluation of the *_cfg.m file
+        
+        if ~isfield(pars,'modelpars')
+            fprintf('%s.m: The script %s_cfg.m does not provide the variable ''modelpars''. The default model configuration will be used\b',mfilename, modelname);
+        else
+            for i = 1:length(pars.modelpars)
+                modelpars{end+1} = pars.modelpars{i};
+            end
+        end
 end
 
-% if isempty(subfs)
-%     subfs = Get_field_from_cell(modelpars,'subfs');
-%     
-%     eval(sprintf('var = arg_%s;',modelname)) % loading defaults from AMT
-% 
-%     if ~isempty(var.keyvals.subfs)
-%         subfs = var.keyvals.subfs;
-%         fprintf('%s: Using default ''subfs'' loaded from arg_%s\n',upper(mfilename),modelname);
-%     else
-%         subfs = fs;
-%     end
-% 
-%     modelpars(end+1:end+2) = {'subfs',subfs};
-% else
-    modelpars(end+1:end+2) = {'subfs',subfs};
-% end
+if subfs > fs
+    fprintf('\t%s.m: subfs is greater than fs, setting subfs to fs\n',mfilename);
+    subfs = fs;
+elseif isempty(subfs)
+    subfs = fs; % assuming that there is no resampling in the auditory model
+end
+    
+
+modelpars(end+1:end+2) = {'subfs',subfs};
+if fs < 16000
+    % Setting fhigh to fs/2, knowing that fs/2 should be by default greater than 8000 Hz
+    modelpars(end+1:end+2) = {'fhigh',round(fs/2)}; 
+end

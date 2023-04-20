@@ -60,6 +60,7 @@ if isempty(keyvals.dir_noise)
             files = Get_filenames(cfg_game.dir_noise,'*.wav');
             if isempty(files) % then dir_noise does not exist yet...
                 if isfield(cfg_game,'Condition')
+                    fprintf('Please indicate the folder where the stimuli can be found (dir_noise)\n');
                     str_here = sprintf('Experiment=%s, subject=%s, condition=%s',cfg_game.experiment_full,cfg_game.Subject_ID, cfg_game.Condition);
                     cfg_game.dir_noise = uigetdir([pwd filesep],str_here);
                 end
@@ -117,7 +118,7 @@ end
 extra_outs.bCalculation = bCalculation;
 
 cfg_ACI = arg_TF_type(cfg_ACI, flags, keyvals);
-cfg_ACI = arg_glmfct(cfg_ACI, flags);
+cfg_ACI = arg_glmfct( cfg_ACI, flags, keyvals);
 
 cfg_ACI.flags = flags;
 cfg_ACI.keyvals = keyvals;
@@ -226,7 +227,7 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
         end
     end
     
-    if isfield(cfg_ACI,'dir_target') & ~strcmp(fileparts(fileparts(cfg_ACI.dir_noise)), fileparts(fileparts(cfg_ACI.dir_target))) 
+    if isfield(cfg_ACI,'dir_target') && ~strcmp(fileparts(fileparts(cfg_ACI.dir_noise)), fileparts(fileparts(cfg_ACI.dir_target))) 
         % Extra check: if someone enters this part of the code, maybe he/she
         % does not have compatible dir_noise and dir_target directories, and 
         % therefore we throw a warning that appears for 10 s.
@@ -235,14 +236,15 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
     end
     
     if (data_passation.i_current ~= cfg_game.N && bCalculation) || (data_passation.i_current ~= cfg_game.N && bCrossPred) || flags.do_force_dataload
-        fprintf('%s: Less trials have been tested by this participant than the expected cfg_game.N=%.0f trials\n',upper(mfilename),cfg_game.N);
-        fprintf('\tPress ctrl+C to cancel the current ACI calculation, otherwise, the ACI will be obtained for less trials...\n');
-        fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-        pause(10);
+        if data_passation.i_current ~= cfg_game.N
+            fprintf('%s: Less trials have been tested by this participant than the expected cfg_game.N=%.0f trials\n',upper(mfilename),cfg_game.N);
+            fprintf('\tPress ctrl+C to cancel the current ACI calculation, otherwise, the ACI will be obtained for less trials...\n');
+            fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+            pause(10);
+            
+            fprintf('\tToo late: ACI will be assessed using %.0f trials only\n',data_passation.i_current);
+        end
         
-        fprintf('\tToo late: ACI will be assessed using %.0f trials only\n',data_passation.i_current);
-        
-        % N = 150; warning('temporal')% data_passation.i_current;
         N = data_passation.i_current;
         cfg_ACI.N = N;
         cfg_ACI.stim_order = cfg_ACI.stim_order(1:N);
@@ -252,16 +254,30 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
     
     if isempty(keyvals.Data_matrix)
         % Loading the data regularly:
-        script4dataload = [cfg_game.experiment '_dataload'];
-        if exist([script4dataload '.m'],'file')
-            fprintf('%s: dataload script found for this experiment (%s.m)\n',upper(mfilename),script4dataload);
-            fprintf('\t If you want to use the default fastACI_getACI_dataload.m file instead, abort this\n');
-            fprintf('\t processing now (press ctrl+c) and enter a new keyval called ''force_default_dataload'' to 1 \n');
-            pause(1)
+        if isempty(keyvals.script_dataload)
+            % If empty: then it looks for candidates for script to load the data
+            script4dataload = [cfg_game.experiment '_dataload'];
+            if exist([script4dataload '.m'],'file')
+                if bCalculation
+                    fprintf('%s: dataload script found for this experiment (%s.m)\n',upper(mfilename),script4dataload);
+                    fprintf('\t If you want to use the default fastACI_getACI_dataload.m file instead, abort this\n');
+                    fprintf('\t processing now (press ctrl+c) and enter a new keyval called ''force_default_dataload'' to 1 \n');
+                    pause(10); % Leo: I put this pause for a reason, don't remove or modify this please
+                end
+                exp2eval = sprintf('[Data_matrix,cfg_ACI] = %s(cfg_ACI, ListStim, cfg_game, data_passation);',script4dataload);
+                eval(exp2eval);
+            else
+                % Default:
+                [Data_matrix,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI, ListStim, cfg_game, data_passation);
+            end
+        else
+            script4dataload = keyvals.script_dataload;
+            if strcmp(script4dataload(end-1:end),'.m') % in case the extension is added
+                script4dataload = script4dataload(1:end-2); % removing the extension
+            end
+                
             exp2eval = sprintf('[Data_matrix,cfg_ACI] = %s(cfg_ACI, ListStim, cfg_game, data_passation);',script4dataload);
             eval(exp2eval);
-        else
-            [Data_matrix,cfg_ACI] = fastACI_getACI_dataload(cfg_ACI, ListStim, cfg_game, data_passation);
         end
     else
         Data_matrix = keyvals.Data_matrix;

@@ -198,7 +198,11 @@ switch TF_type
 
     case 'gammatone'
         basef = 8000;
-        flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',cfg_inout.bwmul, ...
+        [fhigh, idx_min] = min([8000 fs/2]);
+        if idx_min == 2
+            warning('fhigh is limited to fs/2=%.0f Hz',fs/2);
+        end
+        flags_gamma = {'basef',basef,'flow',40,'fhigh',fhigh,'bwmul',cfg_inout.bwmul, ...
             'dboffset',100,'no_adt','binwidth',cfg_inout.binwidth, ...
             'no_outerear','no_middleear'};
         [outsig,f,t,extras] = Gammatone_proc(bruit,fs,flags_gamma{:});

@@ -8,6 +8,30 @@ function [response,sim_work,cfg_sim] = aci_detect(cfg_game,data_passation,cfg_si
 %
 %  The function returns the presentation interval selected by the model
 %
+%       type_processing = cfg_game.experiment; % an exception can be raised for any model...
+%           - This option can be actually removed.
+%       cfg_sim.type_decision ('optimal_detector' or 'relanoiborra2019_decision')
+%       cfg_sim.template_script ('model_template' or whatever script)
+%       sim_work.bStore_template = 0 or 1
+%
+%       cfg_sim.decision_script = 'aci_detect'
+%          - (def_sim.decision_script from fastACI_trial_current.m): not 
+%            used explictly, but that led to this script
+%          - Other decision_script options: 'aci_detect_debug' - these may use other defaults
+%                                           'king2019_detect'  - these may use other defaults
+%    
+%           
+% First:  model_template.m (or the script specified by template_script)
+% Second: *_user is run - to obtain tuser, tref
+% Third:  model_params(modelname,fs,keyvals); - to obtain the model params
+%       % The internal representations can be numeric or cell arrays (Ensure_intrep_is_numeric)
+% Fourth: According to type_decision, 'response' is provided
+%
+%%% Outputs:
+%   response: number of the interval that is chosen to contain the target sound
+%   sim_work: (with new field 'decision_var_mue2choose' - that will be passed to data_passation)
+%   cfg_sim
+%
 % Options to be adjusted by the user:
 %
 %       def.templateeverytrial
@@ -29,14 +53,14 @@ response = NaN; % initialisation
 if nargin < 4
     sim_work = [];
 end
-sim_work = Ensure_field(sim_work,'templ_tar',[]);
-sim_work = Ensure_field(sim_work,'templ_ref',[]);
-template_script = cfg_sim.template_script;
+sim_work = Ensure_field(sim_work,'templ_tar',[]);        % template: templ_tar set to empty if not existing
+sim_work = Ensure_field(sim_work,'templ_ref',[]);        % template: templ_ref set to empty if not exisitng
+template_script = cfg_sim.template_script;               % template: compulsory field for template derivation
 
-cfg_sim = Ensure_field(cfg_sim,'modelname','dau1997');
-cfg_sim = Ensure_field(cfg_sim,'template_every_trial',0);
-cfg_sim = Ensure_field(cfg_sim,'det_lev',-6); 
-cfg_sim = Ensure_field(cfg_sim,'templ_num',10);
+cfg_sim = Ensure_field(cfg_sim,'modelname','dau1997');    % default model
+cfg_sim = Ensure_field(cfg_sim,'template_every_trial',0); % default for template
+cfg_sim = Ensure_field(cfg_sim,'det_lev',-6);             % default for template
+cfg_sim = Ensure_field(cfg_sim,'templ_num',10);           % default for template
 
 version_decision = keyvals.version_decision; % new option as of 22/02/2023
 
