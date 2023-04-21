@@ -1,5 +1,5 @@
-function outs_from_Praat = Add_formants(fname,cfg_ACI,par_formants)
-% function outs_from_Praat = Add_formants(fname,cfg_ACI,par_formants)
+function outs_from_Praat = Add_formants(fname,cfg_ACI,par_formants,Colour)
+% function outs_from_Praat = Add_formants(fname,cfg_ACI,par_formants,Colour)
 %
 % 1. Description:
 %   This function assesses the Praat parameters for the sound 'fname'. The
@@ -16,6 +16,9 @@ function outs_from_Praat = Add_formants(fname,cfg_ACI,par_formants)
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if nargin < 4
+    Colour = 'w';
+end
 if nargin < 3
     par_formants = [];
 end
@@ -44,4 +47,4 @@ par_formants = Ensure_field(par_formants,'pitchceiling',500); % positive pitch c
 % Before 4/11/2021, I_min set to 40 dB:
 par_formants = Ensure_field(par_formants,'I_min',59);%75; %, arbitrary value
 
-outs_from_Praat = affichage_tf_add_Praat_metrics_one_sound(fname,cfg_ACI,par_formants, '-', 'w',LW,bPlot);
+outs_from_Praat = affichage_tf_add_Praat_metrics_one_sound(fname,cfg_ACI,par_formants, '-', Colour, LW, bPlot);

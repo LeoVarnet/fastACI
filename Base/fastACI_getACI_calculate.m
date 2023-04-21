@@ -91,9 +91,24 @@ switch glmfct
         [ACI, pval_ACI] = corr(y,X);
         ACI = reshape(ACI, [N_f,N_t]);
         pval_ACI = reshape(pval_ACI, [N_f,N_t]);
+        
+        for i_folds = 1:10
+            % Added by Alejandro on 20/04/2023
+            idx90 = round(.9*size(X,1));
+            idx_random = randperm(size(X,1));
+            idx_test = idx_random(idx90+1:end);
+            idx_random = idx_random(1:idx90);
+            ACI_subset = corr(y(idx_random),X(idx_random,:));
+        
+            FitInfo_local = Get_PA_for_classic_revcorr(ACI_subset,X(idx_test,:),y(idx_test)); % FitInfo from trials that were not used to obtain ACI_subset
+            FitInfo.PC(i_folds,1) = FitInfo_local.PC;
+            FitInfo.idx_test(i_folds,:) = idx_test;
+        end
+                
         results.ACI = ACI;
         results.pval_ACI = pval_ACI;
-
+        results.FitInfo = FitInfo;
+        
         if do_permutation
             for i = 1:N_perm
                 fprintf('\t Assessing permuted ACI: %.0f of %.0f\n',i,N_perm);
