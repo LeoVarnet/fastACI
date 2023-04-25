@@ -541,10 +541,6 @@ if flags.do_fig2
             score(i_subject) = mean(data_passation.is_correct);
             bias(i_subject)  = mean(data_passation.n_responses);
 
-            % %% Revcorr ("classic_revcorr" computation)
-            % idx_session = [ones(1,800)];%[ones(1,400) zeros(1,400)];
-            % f0_kernel(:,i_subject) = mean(cfg_game.f0vec(:,data_passation.n_stim(data_passation.n_responses==1 & idx_session)),2)-mean(cfg_game.f0vec(:,data_passation.n_stim(data_passation.n_responses==2 & idx_session)),2);
-            % time_kernel(:,i_subject) = mean(cfg_game.timevec(:,data_passation.n_stim(data_passation.n_responses==1 & idx_session)),2)-mean(cfg_game.timevec(:,data_passation.n_stim(data_passation.n_responses==2 & idx_session)),2);
             flags_in = {'no_plot','dir_out',dir_res_post};
 
             if bLocal
@@ -576,17 +572,11 @@ if flags.do_fig2
             end
 
             [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(savegame_path,'glm',flags_in_here{:});
-            [ACI_t1,cfg_ACI_t1,results_t1]    = fastACI_getACI(savegame_path,'glm','trialtype_analysis','t1',flags_in{:});
-            [ACI_t2,cfg_ACI_t2,results_t2]    = fastACI_getACI(savegame_path,'glm','trialtype_analysis','t2',flags_in{:});
-
-            % Dev(i_subject) = results.Dev;
+            % [ACI_t1,cfg_ACI_t1,results_t1]    = fastACI_getACI(savegame_path,'glm','trialtype_analysis','t1',flags_in{:});
+            % [ACI_t2,cfg_ACI_t2,results_t2]    = fastACI_getACI(savegame_path,'glm','trialtype_analysis','t2',flags_in{:});
 
             f0_kernel(:,i_subject) = ACI(:,1);
             time_kernel(:,i_subject) = ACI(:,2);
-            % f0_kernel_t1(:,i_subject) = ACI_t1(:,1);
-            % time_kernel_t1(:,i_subject) = ACI_t1(:,2);
-            % f0_kernel_t2(:,i_subject) = ACI_t2(:,1);
-            % time_kernel_t2(:,i_subject) = ACI_t2(:,2);
         end
         
         % Stats at the group level
@@ -595,11 +585,6 @@ if flags.do_fig2
         mYL = .35; % ylim for the plot
         
         [h_f0_kernel,p_f0_kernel,~,t_f0_kernel] = ttest(f0_kernel',0,'alpha', alpha);
-        % [h_f0_kernel_t1,p_f0_kernel_t1,~,t_f0_kernel_t1] = ttest(f0_kernel_t1',0,'alpha', alpha);
-        % [h_f0_kernel_t2,p_f0_kernel_t2,~,t_f0_kernel_t2] = ttest(f0_kernel_t2',0,'alpha', alpha);
-        % h_f0_kernel = double(p_f0_kernel<alpha); h_f0_kernel(h_f0_kernel==0) = nan;
-        % h_f0_kernel_t1 = double(p_f0_kernel_t1<alpha); h_f0_kernel_t1(h_f0_kernel_t1==0) = nan;
-        % h_f0_kernel_t2 = double(p_f0_kernel_t2<alpha); h_f0_kernel_t2(h_f0_kernel_t2==0) = nan;
         [h_time_kernel,p_time_kernel,~,t_time_kernel] = ttest(time_kernel',0,'alpha', alpha);
         
         %%%
@@ -626,19 +611,8 @@ if flags.do_fig2
         fprintf('\n\n');
         % the weights associated to the segment edges at 0.3 and 0.6 s \hlNew{were} found to be significant (segment at 0.3~s: $t(15)=3.80, p<0.005$; segment at 0.6~s: $t(15)=-3.58, p<0.005$).
 
-        %%%
-        
-        % figure('Position',[100 100 600 500]);
-        % tiledlayout(2,1,'TileSpacing','tight');
         tile_start = 4;
         nexttile(1+tile_start+(i_cond-1)); 
-        %plot(t_edge,mean(f0_kernel,2),'k','LineWidth',2); hold on
-        %plot(t_edge,f0_kernel); hold on
-        % plot(t_edge,zeros(size(t_edge)),'k--');
-
-        % errorbar(t_edge,mean(f0_kernel_t1,2),1.96*sem(f0_kernel_t1,[],2)/2,'r','LineWidth',1); hold on
-        % errorbar(t_edge,mean(f0_kernel_t2,2),1.96*sem(f0_kernel_t2,[],2)/2,'b','LineWidth',1); hold on
-        
         % Horizontal line:
         plot([min(t_edge) max(t_edge)],[0 0],'k--'); hold on
 
@@ -707,11 +681,6 @@ if flags.do_fig2
         plot(t_edge(idxs),Me(idxs),'ko','MarkerFaceColor','r');
         %%%
         
-        % box on
-        % text(.85,.8,['N = ' num2str(i_subject)],'Units','normalized')
-        % YL = ylim; 
-        % mYL=max(abs(YL));
-        % ylim([-1.4 1.4]*mYL);
         ylim(mYL*[-1 1])
         set(gca,'YTick',YT);
         
@@ -719,45 +688,7 @@ if flags.do_fig2
             set(gca,'YTickLabel','');
             ylabel('');
         end
-
-        % h(end+1) = gcf;
-        % hname{end+1} = ['fig1b-' Cond '-kernels'];
-        % disp('')
-    % %% Percent correct results
     end
-    % figure(fh_scores)
-    % hold on
-    % switch SubjectFolders(1).name(3)
-    %     case '0'
-    %         idxplot = 1;
-    %     case '2'
-    %         idxplot = 2;
-    %     case '4'
-    %         idxplot = 3;
-    %     case '5'
-    %         idxplot = 4;
-    %     case '7'
-    %         idxplot = 5;
-    % end
-    % plot(idxplot,score,'o')
-    % ylabel('rate of correct responses')
-    % 
-    % figure(fh_bias)
-    % hold on
-    % switch SubjectFolders(1).name(3)
-    %     case '0'
-    %         idxplot = 1;
-    %     case '2'
-    %         idxplot = 2;
-    %     case '4'
-    %         idxplot = 3;
-    %     case '5'
-    %         idxplot = 4;
-    %     case '7'
-    %         idxplot = 5;
-    % end
-    % plot(idxplot,bias,'o')
-    % ylabel('bias')
     
     h(end+1) = gcf;
     hname{end+1} = 'fig2-LAMI+LAPEL';
@@ -797,8 +728,7 @@ if flags.do_fig1_suppl
                 t_for_kernels  = [0       0.1     0.2     0.3    0.4     0.5     0.6    0.7      0.8];
                 kernel_f0_orig = [0.0266 -0.0217 -0.0158 -0.0763 0.00703 0.1996 -0.1362 0.01906 -0.02153];
                 kernel_t_orig  = [0 0.0005 0.01557 0.0794 0.0807 0.0059 -0.1166 0.0076 0]; 
-        end
-        
+        end       
         file_subj = file_subj(:);
 
         N_participants = length(file_subj);
@@ -807,37 +737,85 @@ if flags.do_fig1_suppl
             pause(10);
         end
         
-        for i_subj = 1:N_participants
-            Subject_ID = file_subj{i_subj};
-            dir_subj = [dir_data experiment filesep Subject_ID filesep];
-            dir_res = [dir_subj 'Results' filesep];
-            dir_res_post = [dir_where_post Subject_ID filesep];
-            if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
-            dir_res_post = [dir_res_post 'Results' filesep];
-            if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+        for i_subject = 1:N_participants
+            Subject_ID = file_subj{i_subject};
+            if bZenodo
+                Subject_ID = strsplit(Subject_ID,'_');
+                Subject_ID = Subject_ID{end};
+            end
+            dir_subj = [dir_where_exp file_subj{i_subject} filesep]; 
+            if bZenodo == 0
+                dir_res = [dir_subj 'Results' filesep];
+            else
+                dir_res = [dir_subj '1-experimental_results' filesep];
+            end
+            %%%
+            if bLocal
+                dir_res_post = [dir_where_post file_subj{i_subject} filesep];
+                if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+                dir_res_post = [dir_res_post 'Results' filesep];
+                if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+            end
+            if bZenodo
+                dir_res_post = dir_where_post;
+            end
             %%% Load data
             file_save = Get_filenames(dir_res,'*savegame*.mat');
             if length(file_save)~=1
                 error('More than one savegame found...');
             end
+                        
+            % dir_subj = [dir_data experiment filesep Subject_ID filesep];
+            % dir_res = [dir_subj 'Results' filesep];
+            % dir_res_post = [dir_where_post Subject_ID filesep];
+            % if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+            % dir_res_post = [dir_res_post 'Results' filesep];
+            % if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+            % %%% Load data
+            % file_save = Get_filenames(dir_res,'*savegame*.mat');
+            % if length(file_save)~=1
+            %     error('More than one savegame found...');
+            % end
             savegame_path = [dir_res file_save{end}];
         
             cfg_game = [];
             data_passation = [];
-            load(savegame_path)
-            cfg_game.dir_target = [dir_where_exp filesep 'speech-samples' filesep];
+            load(savegame_path);
+            
+            if bLocal
+                dir_target = [dir_subj 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
+                dir_noise = [dir_subj 'Stim-processed' filesep];
+            end
+            if bZenodo
+                subj_id_here = strsplit(file_subj{i_subject},'_');
+                subj_id_here = subj_id_here{end};
+                dir_target = [dir_where_stim 'fastACI_data' filesep 'segmentation' filesep subj_id_here filesep 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
+                dir_noise  = [dir_where_stim 'fastACI_data' filesep 'segmentation' filesep subj_id_here filesep 'Stim-processed' filesep];
+            end
+            % cfg_game.dir_target = dir_target;
             %%% End load data
-        
-            if i_subj == 1
+
+            if i_subject == 1
                 % N_segment = XT_max/.1; % Prior knowledge
                 % t_edge = (0:N_segment)/10;
-            
-                fname1 = [dir_subj 'speech-samples' filesep wave1];
-                fname2 = [dir_subj 'speech-samples' filesep wave2];
 
+                % fname1 = [dir_subj 'speech-samples' filesep wave1];
+                % fname2 = [dir_subj 'speech-samples' filesep wave2];
+ 
+                if bLocal
+                    dir_subj = [dir_data experiment filesep Subject_ID filesep];
+                    dir_stim = [dir_subj 'speech-samples' filesep];
+                end
+                if bZenodo
+                    dir_stim = [dir_where_stim 'fastACI_data' filesep 'segmentation' filesep Subject_ID filesep 'speech-samples' filesep];
+                end
+
+                fname1 = [dir_stim wave1]; 
+                fname2 = [dir_stim wave2]; 
+ 
                 [insig1, fs] = audioread(fname1);
                 [insig2, fs] = audioread(fname2);
-
+ 
                 %%% Plot targets + 1 example of noise
                 [G1, fc, t, outs] = Gammatone_proc(insig1, fs, flags_gamma{:});
                 [G2, fc, t, outs] = Gammatone_proc(insig2, fs, flags_gamma{:});
@@ -982,20 +960,19 @@ if flags.do_fig1_suppl
             end % if i_subj == 1
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Scores
-            score{i_cond}(i_subj) = mean(data_passation.is_correct);
-            bias{i_cond}(i_subj)  = mean(data_passation.n_responses);
+            score{i_cond}(i_subject) = mean(data_passation.is_correct);
+            bias{i_cond}(i_subject)  = mean(data_passation.n_responses);
 
             flags_in = {'no_plot','dir_out',dir_res_post};
-
-            dir_noise = [dir_subj 'Stim-processed' filesep];
+ 
+            % dir_noise = [dir_subj 'Stim-processed' filesep];
             if exist(dir_noise,'dir')
                 flags_in(end+1:end+2) = {'dir_noise',dir_noise};
             end
-            dir_target = [dir_subj 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
             if exist(dir_target,'dir')
                 flags_in(end+1:end+2) = {'dir_target',dir_target};
             end
-
+ 
             % GLM-based revcorr
             flags_in_here = flags_in;
 
@@ -1008,9 +985,9 @@ if flags.do_fig1_suppl
             [ACI_t1,cfg_ACI_t1,results_t1]    = fastACI_getACI(savegame_path,'glm','trialtype_analysis','t1',flags_in{:});
             [ACI_t2,cfg_ACI_t2,results_t2]    = fastACI_getACI(savegame_path,'glm','trialtype_analysis','t2',flags_in{:});
 
-            f0_kernel{i_cond}(:,i_subj) = ACI(:,1);
-            time_kernel{i_cond}(:,i_subj) = ACI(:,2);
-        end % if i_subj
+            f0_kernel{i_cond}(:,i_subject) = ACI(:,1);
+            time_kernel{i_cond}(:,i_subject) = ACI(:,2);
+        end % if i_subject
         %%%
         f0_kernel_here = f0_kernel{i_cond};
         Me = mean(f0_kernel_here,2);
@@ -1127,14 +1104,27 @@ if flags.do_fig2_suppl
             pause(10);
         end
         for i_subject = 1:N_participants
-            dir_subj = [dir_where_exp file_subj{i_subject} filesep];
-            dir_res = [dir_subj 'Results' filesep];
+            Subject_ID = file_subj{i_subject};
+            if bZenodo
+                Subject_ID = strsplit(Subject_ID,'_');
+                Subject_ID = Subject_ID{end};
+            end
+            dir_subj = [dir_where_exp file_subj{i_subject} filesep]; 
+            if bZenodo == 0
+                dir_res = [dir_subj 'Results' filesep];
+            else
+                dir_res = [dir_subj '1-experimental_results' filesep];
+            end
             %%%
-            dir_res_post = [dir_where_post file_subj{i_subject} filesep];
-            if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
-            dir_res_post = [dir_res_post 'Results' filesep];
-            if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
-            %%%
+            if bLocal
+                dir_res_post = [dir_where_post file_subj{i_subject} filesep];
+                if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+                dir_res_post = [dir_res_post 'Results' filesep];
+                if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+            end
+            if bZenodo
+                dir_res_post = dir_where_post;
+            end
             %%% Load data
             file_save = Get_filenames(dir_res,'*savegame*.mat');
             if length(file_save)~=1
@@ -1145,30 +1135,41 @@ if flags.do_fig2_suppl
             cfg_game = [];
             data_passation = [];
             load(savegame_path)
-            cfg_game.dir_target = [dir_where_exp filesep 'speech-samples' filesep];
+            % cfg_game.dir_target = [dir_where_exp filesep 'speech-samples' filesep];
             
             % Scores
             score(i_subject) = mean(data_passation.is_correct);
             bias(i_subject)  = mean(data_passation.n_responses);
 
-            flags_in = {'no_plot','dir_out',dir_res_post,'dir_noise',dir_subj};
+            if bLocal
+                dir_target = [dir_subj 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
+                dir_noise = [dir_subj 'Stim-processed' filesep];
+            end
+            if bZenodo
+                subj_id_here = strsplit(file_subj{i_subject},'_');
+                subj_id_here = subj_id_here{end};
+                dir_target = [dir_where_stim 'fastACI_data' filesep 'segmentation' filesep subj_id_here filesep 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
+                dir_noise  = [dir_where_stim 'fastACI_data' filesep 'segmentation' filesep subj_id_here filesep 'Stim-processed' filesep];
+            end
+            
+            flags_in = {'no_plot','dir_out',dir_res_post};
 
-            dir_noise = [dir_subj 'Stim-processed' filesep];
+            % dir_noise = [dir_subj 'Stim-processed' filesep];
             if exist(dir_noise,'dir')
                 flags_in(end+1:end+2) = {'dir_noise',dir_noise};
             end
-            dir_target = [dir_subj 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
+            % dir_target = [dir_subj 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
             if exist(dir_target,'dir')
                 flags_in(end+1:end+2) = {'dir_target',dir_target};
             end
 
             % GLM-based revcorr
-            flags_in_here = flags_in;
-
-            bForce_dataload = 0;
-            if bForce_dataload
-                flags_in_here{end+1} = 'force_dataload';
-            end
+            % % flags_in_here = flags_in;
+            % % 
+            % % bForce_dataload = 0;
+            % % if bForce_dataload
+            % %     flags_in_here{end+1} = 'force_dataload';
+            % % end
 
             [ACI_t1,cfg_ACI_t1,results_t1]    = fastACI_getACI(savegame_path,'glm','trialtype_analysis','t1',flags_in{:});
             [ACI_t2,cfg_ACI_t2,results_t2]    = fastACI_getACI(savegame_path,'glm','trialtype_analysis','t2',flags_in{:});
