@@ -5,15 +5,19 @@ function data = publ_osses2023a_JASA_EL_figs(varargin)
 %
 % % To display Fig. 1 of Osses et al. (2023, kerAMI) use :::
 %     publ_osses2023a_JASA_EL_figs('fig1'); % Proportion of responses
+%     publ_osses2023a_JASA_EL_figs('fig1','zenodo','dir_zenodo',dir_zenodo);
 %
 % % To display Fig. 2 of Osses et al. (2023, kerAMI) use :::
 %     publ_osses2023a_JASA_EL_figs('fig2'); % Spectrograms and kernels for LAMI and LAPEL
+%     publ_osses2023a_JASA_EL_figs('fig2','zenodo','dir_zenodo',dir_zenodo);
 %
 % % To display suppl. Fig. 1 of Osses et al. (2023, kerAMI) use :::
 %     publ_osses2023a_JASA_EL_figs('fig1_suppl'); % Spectrograms and kernels for extra conditions
+%     publ_osses2023a_JASA_EL_figs('fig1_suppl','zenodo','dir_zenodo',dir_zenodo);
 %
 % % To display suppl. Fig. 2 of Osses et al. (2023, kerAMI) use :::
 %     publ_osses2023a_JASA_EL_figs('fig2_suppl'); % Target specific kernels
+%     publ_osses2023a_JASA_EL_figs('fig2_suppl','zenodo','dir_zenodo',dir_zenodo);
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -36,7 +40,7 @@ definput.flags.type={'missingflag', ...
     'fig1_suppl', ...
     'fig2_suppl'}; 
 definput.flags.plot={'plot','no_plot'};
-% definput.flags.local={'local','zenodo'};
+definput.flags.local={'local','zenodo'};
 
 definput.keyvals.dir_zenodo=[];
 definput.keyvals.dir_out=[];
@@ -48,7 +52,15 @@ definput.keyvals.dir_out=[];
 experiment = 'segmentation';
 % dir_exp = [dir_fastACI_results experiment filesep];
 
-dir_data = fastACI_paths('dir_data');
+bZenodo = flags.do_zenodo;
+bLocal = ~bZenodo;
+
+if flags.do_local
+    dir_data = fastACI_paths('dir_data');
+else
+    dir_zenodo = keyvals.dir_zenodo;
+    dir_data = [dir_zenodo '02-Raw-data' filesep 'fastACI' filesep 'Publications' filesep 'publ_osses2023a' filesep];
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig1 || flags.do_fig2 || flags.do_fig1_suppl || flags.do_fig2_suppl
@@ -62,8 +74,19 @@ if flags.do_fig1 || flags.do_fig2 || flags.do_fig1_suppl || flags.do_fig2_suppl
                         'LACROCH','LALARM','LAMI_SHIFTED'};
     N_participants_expected = [16 18 5 5 3];
     
-    dir_where = [dir_data experiment filesep]; % fifi = Get_filenames(dir_where,'*S00*');
-    dir_where_post = [fastACI_dir_datapost experiment filesep];
+    if bZenodo
+        dir_where_exp  = dir_data;
+        dir_where_stim = [dir_zenodo '01-Stimuli' filesep];
+        dir_where_post = [dir_zenodo '03-Post-proc-data' filesep];
+        if ~exist(dir_where_post,'dir')
+            mkdir(dir_where_post);
+        end
+    end
+    if bLocal
+        dir_where_exp  = [dir_data experiment filesep]; 
+        % dir_where_stim = dir_where_exp;
+        dir_where_post = [fastACI_dir_datapost experiment filesep];
+    end
 end
 
 if flags.do_fig2 || flags.do_fig1_suppl || flags.do_fig2_suppl
@@ -93,7 +116,7 @@ if flags.do_fig1
         Cond = Condition_list{bInput};
         N_part_expected_cond = N_participants_expected(bInput);
 
-        file_subj = il_get_filenames_cond(Cond,dir_where);
+        file_subj = il_get_filenames_cond(Cond,dir_where_exp);
 
         N_participants = length(file_subj);
         if N_participants ~= N_part_expected_cond
@@ -101,13 +124,25 @@ if flags.do_fig1
             pause(10);
         end
         for i_subject = 1:N_participants
-            dir_subj = [dir_where file_subj{i_subject} filesep];
-            dir_res = [dir_subj 'Results' filesep];
+            % dir_res = il_get_data_path('dir_res', bZenodo,file_subj{i_subject});
+            
+            dir_subj = [dir_where_exp file_subj{i_subject} filesep]; 
+            if bZenodo == 0
+                dir_res = [dir_subj 'Results' filesep];
+            else
+                dir_res = [dir_subj '1-experimental_results' filesep];
+            end
+            
             %%%
-            dir_res_post = [dir_where_post file_subj{i_subject} filesep];
-            if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
-            dir_res_post = [dir_res_post 'Results' filesep];
-            if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+            if bLocal
+                dir_res_post = [dir_where_post file_subj{i_subject} filesep];
+                if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+                dir_res_post = [dir_res_post 'Results' filesep];
+                if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+            end
+            if bZenodo
+                dir_res_post = dir_where_post;
+            end
             %%%
             %%% Load data
             file_save = Get_filenames(dir_res,'*savegame*.mat');
@@ -118,8 +153,11 @@ if flags.do_fig1
 
             cfg_game = [];
             data_passation = [];
-            load(savegame_path)
-            cfg_game.dir_target = [dir_where filesep 'speech-samples' filesep];
+            load(savegame_path);
+            if bLocal
+                dir_where_stim = dir_subj;
+            end
+            cfg_game.dir_target = [dir_where_stim 'speech-samples' filesep];
             %%%
             % Plot targets with segments (replaced by 'fig1a')
             if i_subject == 1
@@ -131,13 +169,22 @@ if flags.do_fig1
             score(i_subject) = mean(data_passation.is_correct);
             bias(i_subject)  = mean(data_passation.n_responses);
 
-            flags_in = {'no_plot','dir_out',dir_res_post,'dir_noise',dir_subj};
+            flags_in = {'no_plot','dir_out',dir_res_post}; % ,'dir_noise',dir_subj};
 
-            dir_noise = [dir_subj 'Stim-processed' filesep];
+            if bLocal
+                dir_target = [dir_subj 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
+                dir_noise = [dir_subj 'Stim-processed' filesep];
+            end
+            if bZenodo
+                subj_id_here = strsplit(file_subj{i_subject},'_');
+                subj_id_here = subj_id_here{end};
+                dir_target = [dir_where_stim 'fastACI_data' filesep 'segmentation' filesep subj_id_here filesep 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
+                dir_noise  = [dir_where_stim 'fastACI_data' filesep 'segmentation' filesep subj_id_here filesep 'Stim-processed' filesep];
+            end
             if exist(dir_noise,'dir')
                 flags_in(end+1:end+2) = {'dir_noise',dir_noise};
             end
-            dir_target = [dir_subj 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
+            
             if exist(dir_target,'dir')
                 flags_in(end+1:end+2) = {'dir_target',dir_target};
             end
@@ -271,10 +318,18 @@ if flags.do_fig2
                 t_seg2 = [.11  .264 .463 0.77];     sentence2 = {'C''est','la','pelle'}; % manually from Praat 
                 
         end
-        dir_subj = [dir_data experiment filesep Subject_ID filesep];
-
-        fname1 = [dir_subj 'speech-samples' filesep fname1]; 
-        fname2 = [dir_subj 'speech-samples' filesep fname2]; 
+        
+        if bLocal
+            dir_subj = [dir_data experiment filesep Subject_ID filesep];
+            dir_stim = [dir_subj 'speech-samples' filesep];
+        end
+        if bZenodo
+            dir_stim = [dir_where_stim 'fastACI_data' filesep 'segmentation' filesep Subject_ID filesep 'speech-samples' filesep];
+        end
+        
+        fname1 = [dir_stim fname1]; 
+        fname2 = [dir_stim fname2]; 
+            
         [insig1, fs] = audioread(fname1);
         [insig2, fs] = audioread(fname2);
 
@@ -434,7 +489,7 @@ if flags.do_fig2
         Cond = Condition_list{bInput};
         N_part_expected_cond = N_participants_expected(bInput);
 
-        file_subj = il_get_filenames_cond(Cond,dir_where);
+        file_subj = il_get_filenames_cond(Cond,dir_where_exp);
         
         N_participants = length(file_subj);
         if N_participants ~= N_part_expected_cond
@@ -442,13 +497,22 @@ if flags.do_fig2
             pause(10);
         end
         for i_subject = 1:N_participants
-            dir_subj = [dir_where file_subj{i_subject} filesep];
-            dir_res = [dir_subj 'Results' filesep];
+            dir_subj = [dir_where_exp file_subj{i_subject} filesep]; 
+            if bZenodo == 0
+                dir_res = [dir_subj 'Results' filesep];
+            else
+                dir_res = [dir_subj '1-experimental_results' filesep];
+            end
             %%%
-            dir_res_post = [dir_where_post file_subj{i_subject} filesep];
-            if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
-            dir_res_post = [dir_res_post 'Results' filesep];
-            if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+            if bLocal
+                dir_res_post = [dir_where_post file_subj{i_subject} filesep];
+                if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+                dir_res_post = [dir_res_post 'Results' filesep];
+                if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
+            end
+            if bZenodo
+                dir_res_post = dir_where_post;
+            end
             %%%
             %%% Load data
             file_save = Get_filenames(dir_res,'*savegame*.mat');
@@ -460,7 +524,12 @@ if flags.do_fig2
             cfg_game = [];
             data_passation = [];
             load(savegame_path)
-            cfg_game.dir_target = [dir_where filesep 'speech-samples' filesep];
+            
+            if bLocal
+                dir_where_stim = dir_subj;
+            end
+            cfg_game.dir_target = [dir_where_stim 'speech-samples' filesep];
+            % cfg_game.dir_target = [dir_where_exp filesep 'speech-samples' filesep];
             %%%
             % Plot targets with segments (replaced by 'fig1a')
             if i_subject == 1
@@ -476,13 +545,24 @@ if flags.do_fig2
             % idx_session = [ones(1,800)];%[ones(1,400) zeros(1,400)];
             % f0_kernel(:,i_subject) = mean(cfg_game.f0vec(:,data_passation.n_stim(data_passation.n_responses==1 & idx_session)),2)-mean(cfg_game.f0vec(:,data_passation.n_stim(data_passation.n_responses==2 & idx_session)),2);
             % time_kernel(:,i_subject) = mean(cfg_game.timevec(:,data_passation.n_stim(data_passation.n_responses==1 & idx_session)),2)-mean(cfg_game.timevec(:,data_passation.n_stim(data_passation.n_responses==2 & idx_session)),2);
-            flags_in = {'no_plot','dir_out',dir_res_post,'dir_noise',dir_subj};
+            flags_in = {'no_plot','dir_out',dir_res_post};
 
-            dir_noise = [dir_subj 'Stim-processed' filesep];
+            if bLocal
+                dir_target = [dir_subj 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
+                dir_noise = [dir_subj 'Stim-processed' filesep];
+            end
+            if bZenodo
+                subj_id_here = strsplit(file_subj{i_subject},'_');
+                subj_id_here = subj_id_here{end};
+                dir_target = [dir_where_stim 'fastACI_data' filesep 'segmentation' filesep subj_id_here filesep 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
+                dir_noise  = [dir_where_stim 'fastACI_data' filesep 'segmentation' filesep subj_id_here filesep 'Stim-processed' filesep];
+            end
+            
+            % dir_noise = [dir_subj 'Stim-processed' filesep];
             if exist(dir_noise,'dir')
                 flags_in(end+1:end+2) = {'dir_noise',dir_noise};
             end
-            dir_target = [dir_subj 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
+            % dir_target = [dir_subj 'speech-samples' filesep]; % not really used, but it removes one of the warnings...
             if exist(dir_target,'dir')
                 flags_in(end+1:end+2) = {'dir_target',dir_target};
             end
@@ -691,7 +771,7 @@ if flags.do_fig1_suppl
         bInput = idx_conds(i_cond);
         Cond = Condition_list{bInput};
         
-        file_subj = il_get_filenames_cond(Cond,dir_where);
+        file_subj = il_get_filenames_cond(Cond,dir_where_exp);
         
         offx = 0;
         switch Cond
@@ -745,7 +825,7 @@ if flags.do_fig1_suppl
             cfg_game = [];
             data_passation = [];
             load(savegame_path)
-            cfg_game.dir_target = [dir_where filesep 'speech-samples' filesep];
+            cfg_game.dir_target = [dir_where_exp filesep 'speech-samples' filesep];
             %%% End load data
         
             if i_subj == 1
@@ -1039,7 +1119,7 @@ if flags.do_fig2_suppl
         Cond = Condition_list{bInput};
         N_part_expected_cond = N_participants_expected(bInput);
 
-        file_subj = il_get_filenames_cond(Cond,dir_where);
+        file_subj = il_get_filenames_cond(Cond,dir_where_exp);
         
         N_participants = length(file_subj);
         if N_participants ~= N_part_expected_cond
@@ -1047,7 +1127,7 @@ if flags.do_fig2_suppl
             pause(10);
         end
         for i_subject = 1:N_participants
-            dir_subj = [dir_where file_subj{i_subject} filesep];
+            dir_subj = [dir_where_exp file_subj{i_subject} filesep];
             dir_res = [dir_subj 'Results' filesep];
             %%%
             dir_res_post = [dir_where_post file_subj{i_subject} filesep];
@@ -1065,7 +1145,7 @@ if flags.do_fig2_suppl
             cfg_game = [];
             data_passation = [];
             load(savegame_path)
-            cfg_game.dir_target = [dir_where filesep 'speech-samples' filesep];
+            cfg_game.dir_target = [dir_where_exp filesep 'speech-samples' filesep];
             
             % Scores
             score(i_subject) = mean(data_passation.is_correct);
@@ -1235,3 +1315,25 @@ switch Cond
         
 end
 file_subj = file_subj(:);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function dir_path = il_get_data_path(path_type, bZenodo,dir_subj_name)
+
+if bZenodo
+    
+else
+    dir_data = fastACI_paths('dir_data');
+end
+
+switch path_type
+    case 'dir_res'
+        if bZenodo
+            dir_path = '';
+        else
+            dir_path = '';
+            
+            dir_subj = [dir_where_exp dir_subj_name filesep];
+            dir_res2 = [dir_subj 'Results' filesep];
+        end
+end
+    
