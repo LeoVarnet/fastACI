@@ -62,6 +62,10 @@ definput.groups.varnet2013 = {'spect','glmfitqp', ...
     'pyramid_script','imresize', ... % this keyval is irrelevant for processing
     'f_limits',[0 4050],'t_limits',[0 0.3425]};
 
+definput.groups.glmfitqp         = {'pyramid_script',[]};
+definput.groups.glm              = {'pyramid_script',[]};
+definput.groups.classic_revcorr  = {'pyramid_script',[]};
+
 %%% Only used in 'spect' is used:
 definput.keyvals.spect_overlap = 0;    % Parametres de calcul du spectrogramme
 definput.keyvals.spect_Nwindow = 512;  %
