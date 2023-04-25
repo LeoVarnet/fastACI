@@ -3,17 +3,17 @@ function data = publ_osses2023a_JASA_EL_figs(varargin)
 %
 % 1. Description: Generates the figures
 %
-% % To display Fig. 1a of Osses et al. (2023, kerAMI) use :::
-%     publ_osses2023a_JASA_EL_figs('fig1a'); % T-F representations /l'amie/, /la mie/
+% % To display Fig. 1 of Osses et al. (2023, kerAMI) use :::
+%     publ_osses2023a_JASA_EL_figs('fig1'); % Proportion of responses
 %
-% % To display Fig. 1b of Osses et al. (2023, kerAMI) use :::
-%     publ_osses2023a_JASA_EL_figs('fig1b'); % Time and frequency kernels
+% % To display Fig. 2 of Osses et al. (2023, kerAMI) use :::
+%     publ_osses2023a_JASA_EL_figs('fig2'); % Spectrograms and kernels for LAMI and LAPEL
 %
-% 'fig1' requires the speech samples from 'S01'
-% 'fig2a','fig2b' require the noise samples from 'S01'
-% 'fig3' does not require any additional data
-% 'fig4','fig5' requires the savegame files from all ('S01'-'S12') participants. 
-%        these data are taken directly from the publ_osses2022b data in fastACI.
+% % To display suppl. Fig. 1 of Osses et al. (2023, kerAMI) use :::
+%     publ_osses2023a_JASA_EL_figs('fig1_suppl'); % Spectrograms and kernels for extra conditions
+%
+% % To display suppl. Fig. 2 of Osses et al. (2023, kerAMI) use :::
+%     publ_osses2023a_JASA_EL_figs('fig2_suppl'); % Target specific kernels
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1231,7 +1231,7 @@ switch Cond
         file_subj = Get_filenames(dir_where,'*S05*');
 
     case 'LAMI_SHIFTED'
-        % SubjectFolders=[dir([dir_where '*S00*']); dir([dir_where '*S01*'])]; %LAMI
+        file_subj = Get_filenames(dir_where,'*S07*'); % LAMI_shifted
         
 end
 file_subj = file_subj(:);

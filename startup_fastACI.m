@@ -111,6 +111,7 @@ if bFastACI_exp == 1
     paths.publ_osses2021c      = [paths.Publications 'publ_osses2021c'     filesep];
     paths.publ_osses2022b      = [paths.Publications 'publ_osses2022b'     filesep];
     paths.publ_osses2022c      = [paths.Publications 'publ_osses2022c'     filesep];
+    paths.publ_osses2023a      = [paths.Publications 'publ_osses2023a'     filesep];
     paths.publ_varnet2013      = [paths.Publications 'publ_varnet2013'     filesep];
     paths.publ_varnet2022a     = [paths.Publications 'publ_varnet2022a'    filesep];
     paths.publ_carranante2023a = [paths.Publications 'publ_carranante2023a' filesep];

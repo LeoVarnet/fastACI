@@ -20,7 +20,8 @@ h = [];
 hname = [];
 
 definput.flags.type={'missingflag','fig2a','fig2b', ...
-    'fig3', ... % supra-threshold
+    'fig3', ... % supra-threshold, model
+    'fig4', ...
     'fig5'}; % ACI
 % definput.keyvals.models=[];
 definput.keyvals.dir_out=[];
@@ -32,13 +33,15 @@ dir_fastACI_results = fastACI_paths('dir_data'); % '/home/alejandro/Documents/Da
 experiment = 'toneinnoise_ahumada1975';
 dir_exp = [dir_fastACI_results experiment filesep];
  
+dir_noise = [dir_exp 'king2019' filesep 'NoiseStims-white' filesep]; % common parameter
+var = load([dir_exp 'king2019/Results-run-1/savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat']);
+cfg_game = var.cfg_game;
+data_passation = var.data_passation;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig2a || flags.do_fig2b  || flags.do_fig3   
-    dir_noise = [dir_exp 'king2019' filesep 'NoiseStims-white' filesep]; 
     files = Get_filenames(dir_noise,'*.wav');
     
-    var = load([dir_exp 'king2019/Results-run-1/savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat']);
-    cfg_game = var.cfg_game;
     tone = cfg_game.signal;
     dBFS = cfg_game.dBFS;
     fs = cfg_game.fs;
@@ -243,6 +246,80 @@ if flags.do_fig3
     
     h(end+1) = gcf;
     hname{end+1} = 'fig3-model-rep';
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if flags.do_fig4
+    expvar = data_passation.expvar;
+    is_correct = data_passation.is_correct;
+    
+    thres = median(expvar);
+    
+    var_min = floor(min(expvar)-.5);
+    var_max = max(expvar);
+    var_step = 2; % dB
+    
+    SNR_edges = var_min:var_step:var_max;
+    
+    % idx = find(expvar<=SNR_edges(1)); % below first edge there is nothing
+    for i_edge = 1:length(SNR_edges)-1
+        idx = find(expvar>=SNR_edges(i_edge) & expvar<SNR_edges(i_edge+1));
+        N_bin(i_edge) = length(idx);
+        correct_bin(i_edge) = sum(is_correct(idx))/N_bin(i_edge);
+        SNR_bin(i_edge) = mean(SNR_edges(i_edge:i_edge+1));
+    end
+    
+    idx = find(expvar>=SNR_edges(i_edge+1));
+    N_bin(i_edge+1) = length(idx);
+    correct_bin(i_edge+1) = sum(is_correct(idx))/N_bin(i_edge+1);
+    SNR_bin(i_edge+1) = SNR_edges(i_edge+1)+var_step/2;
+    
+    SNR_edges(end+1) = SNR_edges(end)+var_step;
+    correct_bin(end+1) = correct_bin(end);
+    
+    figure;
+    stairs(SNR_edges,100*correct_bin,'b-'); grid on; hold on
+    xlim([SNR_edges(1)-2 SNR_edges(end)]);
+    
+    XT = SNR_edges(1):SNR_edges(end);
+    for i = 1:length(XT)
+        if mod(i,2)==1
+            XTL{i} = '';
+        else
+            XTL{i} = num2str(XT(i));
+        end
+    end
+    XT = [SNR_edges(1)-1 XT];
+    set(gca,'XTick',XT);
+    
+    XTL = ['avg',XTL];
+    
+    set(gca,'XTickLabel',XTL);
+    
+    Pos = get(gcf,'Position');
+    Pos(4) = 350; % 250;
+    set(gcf,'Position',Pos);
+    ylabel('Percentage correct (%)');
+    xlabel('expvar, SNR (dB)');
+    
+    YL = get(gca,'YLim');
+    plot(thres*[1 1],YL,'r--');
+    
+    N_session = 400;
+    idx2use = 51:400; % visual inspection
+    
+    expvar_buf = reshape(expvar,[N_session, length(expvar)/N_session]);
+    is_correct_buf = reshape(is_correct,[N_session, length(is_correct)/N_session]);
+    score_session = 100*mean(is_correct_buf(idx2use,:));
+    % x_var = (SNR_edges(end)+1)*ones(size(score_session));
+    % plot(x_var,score_session,'bo-','LineWidth',2);
+    Me = mean(score_session);
+    errL = Me-prctile(score_session,5);
+    errU = prctile(score_session,95)-Me;
+    x_var = SNR_edges(1)-var_step/2;
+    errorbar(x_var,Me,errL,errU,'ro-','LineWidth',2,'MarkerFaceColor','w');
+    
+    h(end+1) = gcf;
+    hname{end+1} = 'fig4-performance';
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig5
