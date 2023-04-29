@@ -1,5 +1,5 @@
-function publ_osses2023b_Forum_Acusticum_1_sim
-% function publ_osses2023b_Forum_Acusticum_1_sim
+function publ_osses2023b_FA_1_sim
+% function publ_osses2023b_FA_1_sim
 %
 % 1. Description:
 %      Script used to generate the simulations presented in publ_osses2023b
@@ -10,8 +10,8 @@ function publ_osses2023b_Forum_Acusticum_1_sim
 
 modelname = 'king2019';
 Conditions = {'white'};
-% experiment = 'toneinnoise_ahumada1975';
-experiment = 'toneinnoise_ahumada1971';
+experiment = 'toneinnoise_ahumada1975';
+% experiment = 'toneinnoise_ahumada1971'; % this experiment is no longer in the fastACI repo
 
 %%%
 dir_here = [fastACI_basepath 'Local' filesep];
@@ -31,12 +31,7 @@ file_dst = fname_cfg;
 dir_src = [fastACI_basepath 'Simulations' filesep 'Stored_cfg' filesep];
 switch run_str
     case {'run-1'}
-        switch experiment
-            case 'toneinnoise_ahumada1975'
-                file_src = [dir_src 'king2019a_osses2023b_Forum_Acusticum.m'];
-            case 'toneinnoise_ahumada1971'
-                file_src = [dir_src 'king2019a_osses2023b_Forum_Acusticum_detlev10.m'];
-        end
+        file_src = [dir_src 'osses2023b_FA_king2019.m'];
 end
 if exist(file_dst,'file')
     fprintf('The configuration file %s exists already, do you want to overwrite it?\n',file_dst);

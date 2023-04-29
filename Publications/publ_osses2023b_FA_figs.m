@@ -1,18 +1,18 @@
-function data = publ_osses2023b_Forum_Acusticum_figs(varargin)
-% function publ_osses2023b_Forum_Acusticum_figs(varargin)
+function data = publ_osses2023b_FA_figs(varargin)
+% function publ_osses2023b_FA_figs(varargin)
 %
 % Generates the figures
 %
 % % To display Fig. 2 of Osses and Varnet, (2023, Forum Acusticum) use :::
-%     publ_osses2023b_Forum_Acusticum_figs('fig2a');
-%     publ_osses2023b_Forum_Acusticum_figs('fig2b');
+%     publ_osses2023b_FA_figs('fig2a');
+%     publ_osses2023b_FA_figs('fig2b');
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all, clc
 
 if nargin == 0
-    help publ_osses2023b_Forum_Acusticum_figs;
+    help publ_osses2023b_FA_figs;
     return
 end
 
@@ -20,9 +20,10 @@ h = [];
 hname = [];
 
 definput.flags.type={'missingflag','fig2a','fig2b', ...
-    'fig3', ... % supra-threshold, model
-    'fig4', ...
-    'fig5'}; % ACI
+    'fig3', ... % Ahumada's data
+    'fig4', ... % supra-threshold, model
+    'fig5', ...
+    'fig6'}; % ACI
 % definput.keyvals.models=[];
 definput.keyvals.dir_out=[];
 
@@ -34,37 +35,33 @@ experiment = 'toneinnoise_ahumada1975';
 dir_exp = [dir_fastACI_results experiment filesep];
  
 dir_noise = [dir_exp 'king2019' filesep 'NoiseStims-white' filesep]; % common parameter
-var = load([dir_exp 'king2019/Results-run-1/savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat']);
+var = load([dir_exp 'king2019' filesep 'Results-run-1' filesep ...
+    'savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat']);
 cfg_game = var.cfg_game;
 data_passation = var.data_passation;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig2a || flags.do_fig2b  || flags.do_fig3   
+if flags.do_fig2a || flags.do_fig2b  || flags.do_fig4   
     files = Get_filenames(dir_noise,'*.wav');
     
     tone = cfg_game.signal;
     dBFS = cfg_game.dBFS;
     fs = cfg_game.fs;
     
-    if flags.do_fig2a || flags.do_fig3
-        N = 1000;
-    end
-    if flags.do_fig2b 
-        N = 100;
-        warning('temporal')
-    end
+    N = 1000;
+    
     Ni = 1600;
     for i = 1:N
         [noises_TN(:,i),fs] = audioread([dir_noise files{i}]);
         
         noises_N(:,i) = audioread([dir_noise files{i+Ni}]);
     end
-    if flags.do_fig3
-        thres = median(var.data_passation.expvar);
-        noises_TN_thres = noises_TN + From_dB(thres)*repmat(tone,[1 N]);
-    end
     
-    noises_TN = noises_TN + repmat(tone,[1 N]);
+    % Obtaining the 'experimental' threshold:
+    thres = median(var.data_passation.expvar);
+    
+    noises_TN_thres = noises_TN + From_dB(thres)*repmat(tone,[1 N]);
+    noises_TN       = noises_TN +                repmat(tone,[1 N]); % SNR=0 dB
 end
 
 if flags.do_fig2a    
@@ -72,31 +69,24 @@ if flags.do_fig2a
     toffset = 12e-3;
     idx = find(t>=.2+toffset & t<=.3-toffset);
             
-    %%% Upsampling:
-    % noises_TN = resample(noises_TN,2*fs,fs);
-    % noises_N  = resample(noises_N ,2*fs,fs);
-    % fs = 2*fs;
-    
-    % [x, x_dB, f]  = freqfft2(tone(idx),K,fs,win_type,dBFS);
     win_type = 'hanning';
     % win_type = 'rectangular';
     for i = 1:N
         K = fs/2; % length(idx); % fs/2;
-        % if i == 1
-        %     
-        % end
-        [x, y_dB_TN(:,i),f] = freqfft2(noises_TN(idx,i),K,fs,win_type,dBFS);
-        [x, y_dB_N(:,i)]    = freqfft2(noises_N(idx,i) ,K,fs,win_type,dBFS);
+        [x, y_dB_TN(:,i),f]   = freqfft2(noises_TN(idx,i),K,fs,win_type,dBFS);
+        [x, y_dB_TN_m18(:,i)] = freqfft2(noises_TN_thres(idx,i),K,fs,win_type,dBFS);
+        [x, y_dB_N(:,i)]      = freqfft2(noises_N(idx,i) ,K,fs,win_type,dBFS);
     end
     
     y_TN = median(y_dB_TN,2);
+    y_TN_m18 = median(y_dB_TN_m18,2); % -18.2
     y_N  = median(y_dB_N,2);
     
     f_ERB = freqtoaud(f);
     
     figure;
-    
-    plot(f_ERB,y_TN,'b-','LineWidth',2); hold on; grid on;
+    plot(f_ERB,y_TN_m18,'m-','LineWidth',2); hold on; grid on;
+    plot(f_ERB,y_TN,'b-','LineWidth',2); 
     plot(f_ERB,y_N,'r--','LineWidth',2);
     % plot(f_ERB,x_dB,'m-','LineWidth',2);
     ylabel('Average amplitude (dB)');
@@ -106,8 +96,23 @@ if flags.do_fig2a
     set(gca,'XTickLabel',XTL);
     xlim(freqtoaud([100 2400]))
     
+    %%%
+    [max_val, idx_max] = max(y_TN_m18);
+    xvar = [f_ERB(idx_max) f_ERB(idx_max)+2.5]; % extending up to +2 ERB_N
+    yvar = max_val*[1 1];
+    plot(xvar,yvar,'m--','LineWidth',2);
+    text(xvar(1)+2,max_val,sprintf('tone at\nSNR=%.1f dB',thres),'Color','m','FontSize',12);
+    
+    
+    [max_val, idx_max] = max(y_TN);
+    xvar = [f_ERB(idx_max) f_ERB(idx_max)+2.5]; % extending up to +2 ERB_N
+    yvar = max_val*[1 1];
+    plot(xvar,yvar,'b--','LineWidth',2);
+    text(xvar(1)+2,max_val,sprintf('tone at\nSNR=0 dB'),'Color','b','FontSize',12);
+    %%%
+    
     Pos = get(gcf,'Position');
-    Pos(4) = 300;
+    Pos(4) = 250;
     set(gcf,'Position',Pos);
     
     h(end+1) = gcf;
@@ -119,6 +124,7 @@ if flags.do_fig2b
     basef = 500;
 	for i = 1:N
         env_TN(:,i) = il_get_hilbert(noises_TN(:,i),fs,basef);
+        env_TN_m18(:,i) = il_get_hilbert(noises_TN_thres(:,i),fs,basef);
         env_N(:,i)  = il_get_hilbert(noises_N(:,i),fs,basef);
     end
     
@@ -128,21 +134,110 @@ if flags.do_fig2b
     figure;
     plot(t,factor_to_Pa*env_TN,'Color',rgb('Gray')); hold on;
     plot(t,factor_to_Pa*env_N,'Color',rgb('Gray')); hold on;
-    plot(t,factor_to_Pa*mean(env_TN,2),'b-','LineWidth',2); hold on; grid on;
+    plot(t,factor_to_Pa*mean(env_TN_m18,2),'m-','LineWidth',2); hold on; grid on;
+    plot(t,factor_to_Pa*mean(env_TN,2),'b-','LineWidth',2); 
     plot(t,factor_to_Pa*mean(env_N,2),'r--','LineWidth',2);
     
     xlabel('Time (s)');
     ylabel('Amplitude (Pa)');
-    
+    YL = get(gca,'YLim');
+    yoff = .003;
+    ylim([YL(1)-yoff YL(2)+yoff])
     Pos = get(gcf,'Position');
-    Pos(4) = 200;
+    Pos(4) = 150;
     set(gcf,'Position',Pos);
     
+    YT = 0:.005:YL(2);
+    set(gca,'YTick',YT);
+    YTL = [];
+    for i=1:length(YT)
+        if mod(i,2)==1
+            YTL{i} = num2str(YT(i));
+        else
+            YTL{i} = '';
+        end
+    end
+    set(gca,'YTickLabel',YTL);
     h(end+1) = gcf;
     hname{end+1} = 'fig2b-Hilbert';
 end
 
-if flags.do_fig3    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if flags.do_fig3
+    % Weights in pixels:
+    Weights_RM = [  18  -9  7 -8 18; ... % 600
+                    0    0  0  0  0; ... % 550
+                   -14   0 67 22 15; ... % 500
+                   -20   9  0  0  0; ... % 450 Hz
+                     0  14  0  0  0];    % 400
+                 
+    Weights_KL = [   0   0 -16  9 13; ... % 600
+                     9   0 -11  0 10; ... % 550
+                     0   9  57 18 25; ... % 500
+                     0   0 -12  0  0; ... % 450 Hz
+                    -4  -3   0  0 -12];   % 400
+                
+    val_max = max([Weights_KL(:); Weights_RM(:)]);
+    val_max = 1.2*val_max;
+    
+    Weights_RM = Weights_RM/val_max;
+    Weights_KL = Weights_KL/val_max;
+    
+    YT  = [0 1 2 3 4];
+    YTL = [400 450 500 550 600];
+    
+    offsety = repmat([4; 3; 2; 1; 0],1,5);
+    
+    ti = [0:.1:.4];
+    figure;
+    tiledlayout(1,2,'tilespacing','compact');
+    nexttile(1);
+    for i = 1:size(Weights_RM,1)
+        y_var = Weights_RM(i,:)+offsety(i,:);
+        plot(ti,y_var,'b-'); hold on; grid on;
+        idx = find(y_var~=offsety(i,1));
+        if ~isempty(idx)
+            plot(ti(idx),y_var(idx),'bo','MarkerFaceColor','b'); hold on; grid on;
+        end
+    end
+    ylim([-.5 4.5]);
+    set(gca,'YTick',YT);
+    set(gca,'YTickLabel',YTL);
+    set(gca,'XTick',ti);
+    title('Participant RM');
+    
+    ylabel('Frequency (Hz)');
+    
+    %%%
+    nexttile(2);
+    for i = 1:size(Weights_KL,1)
+        y_var = Weights_KL(i,:)+offsety(i,:);
+        plot(ti,y_var,'b-'); hold on; grid on;
+        idx = find(y_var~=offsety(i,1));
+        if ~isempty(idx)
+            plot(ti(idx),y_var(idx),'bo','MarkerFaceColor','b'); hold on; grid on;
+        end
+    end
+    ylim([-.5 4.5]);
+    set(gca,'YTick',YT);
+    set(gca,'YTickLabel','');
+    set(gca,'XTick',ti);
+    title('Participant KL');
+            
+    han=axes(gcf,'visible','off'); 
+    han.XLabel.Visible='on';
+    
+    xlabel('Starting time of the segment (s)');
+    
+    Pos = get(gcf,'Position');
+    Pos(3:4) = [650 250];
+    set(gcf,'Position',Pos);
+    
+    h(end+1) = gcf;
+    hname{end+1} = 'fig3-Ahumada-data';
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if flags.do_fig4    
     dur_sil_bef = round(100e-3*fs);
     sil_bef = zeros([dur_sil_bef 1]);
     t_sil_offset = dur_sil_bef/fs;
@@ -245,10 +340,10 @@ if flags.do_fig3
     set(gca,'YTick',[-2:2]);
     
     h(end+1) = gcf;
-    hname{end+1} = 'fig3-model-rep';
+    hname{end+1} = 'fig4-model-rep';
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig4
+if flags.do_fig5
     expvar = data_passation.expvar;
     is_correct = data_passation.is_correct;
     
@@ -274,10 +369,11 @@ if flags.do_fig4
     SNR_bin(i_edge+1) = SNR_edges(i_edge+1)+var_step/2;
     
     SNR_edges(end+1) = SNR_edges(end)+var_step;
-    correct_bin(end+1) = correct_bin(end);
+    % correct_bin(end+1) = correct_bin(end);
     
     figure;
-    stairs(SNR_edges,100*correct_bin,'b-'); grid on; hold on
+    % stairs(SNR_edges,100*correct_bin,'b-'); grid on; hold on
+    bar(SNR_bin,100*correct_bin,'BarWidth',1); grid on; hold on; % BarWidth in relative units
     xlim([SNR_edges(1)-2 SNR_edges(end)]);
     
     XT = SNR_edges(1):SNR_edges(end);
@@ -296,7 +392,7 @@ if flags.do_fig4
     set(gca,'XTickLabel',XTL);
     
     Pos = get(gcf,'Position');
-    Pos(4) = 350; % 250;
+    Pos(4) = 230; % 350;
     set(gcf,'Position',Pos);
     ylabel('Percentage correct (%)');
     xlabel('expvar, SNR (dB)');
@@ -318,11 +414,17 @@ if flags.do_fig4
     x_var = SNR_edges(1)-var_step/2;
     errorbar(x_var,Me,errL,errU,'ro-','LineWidth',2,'MarkerFaceColor','w');
     
+    XL = get(gca,'XLim');
+    plot(XL,50*[1 1],'k--','LineWidth',2);
+    text(x_var-.5,50+4,sprintf('chance'),'FontWeight','Bold','FontSize',9);
     h(end+1) = gcf;
-    hname{end+1} = 'fig4-performance';
+    hname{end+1} = 'fig5-performance';
+    ylim([37 103])
+    set(gca,'YTick',40:10:100);
+    disp('')
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig5
+if flags.do_fig6
 
     N_lambda = 30;
     Lambdas = logspace(-4, -1, N_lambda);
@@ -343,7 +445,7 @@ if flags.do_fig5
 	fname_results = [dir_exp 'king2019' filesep 'Results-run-1' filesep 'savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat'];
     [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(fname_results,TF_type,glmfct,flags_in{:});
     
-    hname{end+1} = 'fig5-ACI';
+    hname{end+1} = 'fig6-ACI';
     h(end+1) = gcf;
     
     title('')
@@ -351,377 +453,6 @@ if flags.do_fig5
     Pos(4) = 300;
     set(gcf,'Position',Pos);
 end
-
-% if flags.do_fig3b
-%     %%% Only the final fits:
-%     model = 'osses2021'; 
-%     noise_types = {'SSN'}; 
-%     folders = {'Results-run-4'};
-% end
-% 
-% if flags.do_fig4
-%     bProceed = publ_osses2021c_DAGA_0_checkdata; % Checking if the experimental data is on disk
-%     
-%     model{1} = 'osses2021c_S01';  folders1 = {'Results'}; 
-%     model{2} = 'osses2021c_S02';  folders2 = {'Results'}; 
-%     model{3} = 'osses2021';       folders3 = {'Results-run-3-m1p55','Results-run-1', ...
-%         'Results-run-3-p0p39','Results-run-3-p0p78','Results-run-4'}; 
-%     
-%     N_plots = (length(folders1)+length(folders2)+length(folders3));
-%     thres = nan(15,N_plots);
-% end
-% 
-% if flags.do_fig1a || flags.do_fig1b || flags.do_fig4
-%     if bProceed == 0
-%         error('Please follow the instructions to download the experimental data before you can successfully run this script again...')
-%     end
-% end
-% 
-% count = 1;
-% 
-% if flags.do_fig1a || flags.do_fig1b || flags.do_fig2 || flags.do_fig3a || flags.do_fig3b
-%     
-%     N_plots = length(folders)*length(noise_types);
-%     thres = nan(13,N_plots);
-% 
-%     bPlot_ACI_norm = 1;
-%     
-%     for k = 1:length(noise_types)
-%         noise_type = noise_types{k};
-% 
-%         filt = ['savegame*' noise_type '*.mat'];
-% 
-%         for i = 1:length(folders)
-% 
-%             data_folder_full = [dir_exp model filesep];
-%             dir_where = [data_folder_full folders{i} filesep];
-% 
-%             files = Get_filenames(dir_where,filt);
-% 
-%             fname_results = [dir_where files{1}];
-%             [cfg_game, data_passation] = Convert_ACI_data_type(fname_results);
-%             
-%             N_sessions = length(data_passation.resume_trial);
-%             for j = 1:N_sessions
-% 
-%                 idxi = data_passation.resume_trial(j);
-%                 if idxi == 0
-%                     idxi = 1;
-%                 end
-%                 if j < N_sessions
-%                     idxf = data_passation.resume_trial(j+1)-1;
-%                 else
-%                     idxf = cfg_game.N;
-%                 end
-% 
-%                 thres(j,count) = prctile(data_passation.expvar(idxi:idxf),50);
-%                 correct_score(j,count) = 100*sum(data_passation.is_correct(idxi:idxf))/(idxf-idxi+1);
-%                 idx = find(data_passation.n_responses(idxi:idxf)==1);
-%                 response_is_one(j,count) = 100*length(idx)/(idxf-idxi+1);
-%                 idx = find(data_passation.n_responses(idxi:idxf)==2);
-%                 response_is_two(j,count) = 100*length(idx)/(idxf-idxi+1);
-%                 fprintf('\thres=%.2f dB, tidxi=%.0f, idxf=%.0f\n',thres(j,count),idxi,idxf);
-% 
-%             end
-% 
-%             Me(count) = prctile(thres(:,count),50);
-%             errL(count) = Me(count) - prctile(thres(:,count),25);
-%             errU(count) = prctile(thres(:,count),75) - Me(count);
-% 
-%             is_correct_all(count,:) = data_passation.is_correct;
-% 
-%             %%% Plotting the thresholds per session and global:
-%             x_var = count;
-%             if count == 1
-%                 h(1) = figure; 
-%             end
-%             set(0, 'CurrentFigure', h(1));
-% 
-%             errorbar(x_var, Me(count),errL(count),errU(count)); hold on;
-% 
-%             plot(x_var*ones(size(thres(:,count))),thres(:,count),'bo');
-% 
-%             hname{1} = 'thres';
-%             xlim([0.5 N_plots+.5]);
-%             XT = 1:N_plots;
-%             set(gca,'XTick',XT);
-% 
-%             count = count+1;
-% 
-%             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%             glmfct = 'lasso';
-%             DimCI = 'gammatone';
-%             add_signal = 0; % '1' to add signal in the ACI assessment, '0' to use noise alone trials
-% 
-%             if isempty(keyvals.dir_out)
-%                 dir_out_ACI = [dir_where 'Results_ACI' filesep];
-%             else
-%                 if cfg_game.is_simulation
-%                     % Creating a new subfolder for each model run. This is 
-%                     %   important because all model runs will produce the same
-%                     %   ACI name.
-%                     dir_out_ACI = [keyvals.dir_out model '-' folders{i} filesep];
-%                     if ~exist(dir_out_ACI,'dir')
-%                         mkdir(dir_out_ACI);
-%                     end
-%                 else
-%                     dir_out_ACI = keyvals.dir_out;
-%                 end
-%             end
-%             if ~exist(dir_out_ACI,'dir')
-%                 mkdir(dir_out_ACI);
-%             end
-%             dir_noise  = cfg_game.dir_noise;
-%             dirname4waveforms = Get_subjectname_from_dirname(dir_noise);
-%             
-%             if ~exist(dir_noise,'dir')
-%                 switch dirname4waveforms
-%                     case {'SLeo','SLeoVarnet2013'} % this folder does not exist anymore:
-%                         dir_new = 'osses2021c_S01';
-%                     case 'SAO-5000-trials'
-%                         dir_new = 'osses2021c_S02';
-%                 end
-%                 idx = strfind(dir_noise,dirname4waveforms);
-%                 idx = idx + length(dirname4waveforms);
-%                 dir_noise = [fastACI_paths('dir_data') experiment filesep dir_new filesep dir_noise(idx+1:end-1) filesep];
-%             end
-%             
-%             if isfield(cfg_game,'dir_speech')
-%                 cfg_game.dir_target = cfg_game.dir_speech;
-%             end
-%             dir_target = cfg_game.dir_target; 
-% 
-%             
-%             if ~exist(dir_noise,'dir')
-%                 idx = strfind(dir_noise,filesep);
-%                 dir_noise = [data_folder_full dir_noise(idx(end-1)+1:end-1) filesep];
-%                 cfg_game.dir_noise = dir_noise;
-%             end
-%             
-%             if ~exist(dir_target,'dir')
-%                 idx = strfind(dir_target,filesep);
-%                 dir_target = [data_folder_full dir_target(idx(end-1)+1:end-1) filesep];
-%                 cfg_game.dir_target = dir_target;
-%             end
-% 
-%             %%% bCalculate:
-%             f_limits = [1 10000];
-%             t_limits = [0 1]; 
-%             %%% end reading folders
-% 
-%             Data_matrix = [];
-%             fname_ACI = [];
-% 
-%             trial_select = 5000; 
-%             ACI_all    = [];
-%             ACI_incorr = [];
-% 
-%             for ii = 1:length(trial_select)
-%                 switch trial_select(ii)
-%                     case 5000
-%                         idx_trialselect = [];
-%                     otherwise
-%                         idx_trialselect = 1:trial_select(ii);
-%                 end
-%                 fg_ACI = {'dir_noise', dir_noise, 'dir_target', dir_target, ...
-%                   'dir_out', dir_out_ACI, 'no_plot', ...
-%                   'idx_trialselect', idx_trialselect, ...
-%                   'f_limits',f_limits, ...
-%                   't_limits',t_limits, ... % 'spect_NFFT',512,'spect_Nwindow',512,'spect_overlap',.75 ... %'spect_NFFT',1024,'spect_Nwindow',1024,'spect_overlap',.5...
-%                   'skip_if_on_disk',1, ...
-%                   'add_signal',add_signal, ...
-%                   'N_perm',20, ...
-%                   'pyramid_script','imresize' ...
-%                 };
-% 
-%                 if isempty(Data_matrix)
-%                     flags_to_use = fg_ACI;
-%                     [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(fname_results,DimCI,glmfct,flags_to_use{:});
-%                     flags_Data_matrix = {'Data_matrix',Data_matrix};
-%                 else
-%                     flags_to_use = [fg_ACI flags_Data_matrix];
-%                     [ACI,cfg_ACI,results] = fastACI_getACI(fname_results,DimCI,glmfct,flags_to_use{:});
-%                 end
-%                 correct_text = '';
-%                 if bPlot_ACI_norm == 1
-%                     ACI = ACI / max(max(abs(ACI)));
-%                 end
-%                 ACI_all(:,:,ii) = ACI;
-%                 htmp = figure;
-%                 figure(htmp); set(0, 'CurrentFigure', htmp)
-%                 [h(end+1),hname{end+1}] = il_plot_the_ACI(ACI, cfg_ACI, cfg_game);
-%                 hname{end} = [hname{end} '-' folders{i}];
-%                 
-%                 xlim([0.05 0.55]); % warning('Temporal here')
-%             end
-% 
-%         end
-%     end
-% 
-%     disp('The response ''1'' was preferred in the following percentage of the times:')
-%     bias = [prctile(response_is_one,75); median(response_is_one); prctile(response_is_one,25)];
-% end
-% 
-% if flags.do_fig4
-%     Pos34 = [700 250];
-%     
-%     for k = 1:length(model)
-%         noise_type = 'SSN';
-% 
-%         filt = ['savegame*' noise_type '*.mat'];
-% 
-%         switch model{k}
-%             case 'osses2021c_S01'
-%                 folders = folders1;
-%             case 'osses2021c_S02'
-%                 folders = folders2;
-%             case 'osses2021'
-%                 folders = folders3;
-%             otherwise
-%                 error('Maybe a mistake?')
-%         end
-% 
-%         for i = 1:length(folders)
-% 
-%             data_folder_full = [dir_exp model{k} filesep];
-%             dir_where = [data_folder_full folders{i} filesep];
-% 
-%             files = Get_filenames(dir_where,filt);
-% 
-%             fname_results = [dir_where files{1}];
-%             cfg_game = [];
-%             data_passation = [];
-%             load(fname_results,'cfg_game','data_passation');
-% 
-%             N_sessions = length(data_passation.resume_trial);
-%             for j = 1:N_sessions
-% 
-%                 idxi = data_passation.resume_trial(j);
-%                 if idxi == 0
-%                     idxi = 1;
-%                 end
-%                 if j < N_sessions
-%                     idxf = data_passation.resume_trial(j+1)-1;
-%                 else
-%                     idxf = cfg_game.N;
-%                 end
-% 
-%                 thres(j,count) = prctile(data_passation.expvar(idxi:idxf),50);
-%                 correct_score(j,count) = 100*sum(data_passation.is_correct(idxi:idxf))/(idxf-idxi+1);
-%                 idx = find(data_passation.n_responses(idxi:idxf)==1);
-%                 response_is_one(j,count) = 100*length(idx)/(idxf-idxi+1);
-%                 idx = find(data_passation.n_responses(idxi:idxf)==2);
-%                 response_is_two(j,count) = 100*length(idx)/(idxf-idxi+1);
-%                 fprintf('\thres=%.2f dB, tidxi=%.0f, idxf=%.0f\n',thres(j,count),idxi,idxf);
-% 
-%             end
-% 
-%             Me(count) = prctile(thres(:,count),50);
-%             errL(count) = Me(count) - prctile(thres(:,count),25);
-%             errU(count) = prctile(thres(:,count),75) - Me(count);
-% 
-%             is_correct_all(count,:) = data_passation.is_correct;
-% 
-%             %%% Plotting the thresholds per session and global:
-%             x_off = .1;
-% 
-%             x_var = count;
-% 
-%             if count == 1
-%                 h(1) = figure; grid on
-%             end
-%             set(0, 'CurrentFigure', h(1));
-% 
-%             plot((x_var-x_off)*ones(size(thres(:,count))),thres(:,count),'o','Color',[.7 .7 .7],'MarkerFaceColor',[.7 .7 .7]); hold on
-%             errorbar(x_var, Me(count),errL(count),errU(count),'ks-','LineWidth',2,'MarkerFaceColor','k'); 
-% 
-%             xlim([0.5 N_plots+.5]);
-%             XT = 1:N_plots;
-%             set(gca,'XTick',XT);
-% 
-%             if count == 1
-%                 ylim([-22 2]); grid on
-% 
-%                 Pos = get(gcf,'Position');
-%                 Pos(3:4) = Pos34;
-%                 set(gcf,'Position',Pos);
-%                 YT = -20:2:0;
-%                 set(gca,'YTick',YT);
-%                 ylabel({'Discrimination threshold';'SNR (dB)'})
-%                 %title('(a)')
-%                 xlabel('Listener ID')
-%                 hname{1} = 'fig4-a-thres';
-%             end
-% 
-%             Meb(count) = prctile(response_is_one(:,count),50);
-%             errLb(count) = Meb(count) - prctile(response_is_one(:,count),25);
-%             errUb(count) = prctile(response_is_one(:,count),75) - Meb(count);
-% 
-%             if count == 1
-%                 h(2) = figure; 
-%             end
-%             set(0, 'CurrentFigure', h(2));
-% 
-%             if count == 1
-%                 plot([0 N_plots+1],[50 50],'r--','LineWidth',2); grid on; hold on
-% 
-%                 Pos = get(gcf,'Position');
-%                 Pos(3:4) = Pos34;
-%                 set(gcf,'Position',Pos);
-%                 YT = 10:10:90;
-%                 set(gca,'YTick',YT);
-%                 for kk = 1:length(YT)
-%                     if kk == 1
-%                         YTL{kk} = [' ' num2str(YT(kk))];
-%                     else
-%                         YTL{kk} = num2str(YT(kk));
-%                     end
-%                 end
-%                 ylim([0 100]);
-%                 set(gca,'YTickLabel',YTL);
-% 
-%                 ylabel({'Response bias';'towards /aba/ (%)'})
-%                 % title('(b)')
-%                 xlabel('Listener ID')
-%                 hname{2} = 'fig4-b-bias';
-%             end
-% 
-%             plot((x_var-x_off)*ones(size(response_is_one(:,count))),response_is_one(:,count),'o','Color',[.7 .7 .7],'MarkerFaceColor',[.7 .7 .7]); hold on
-%             errorbar(x_var, Meb(count),errLb(count),errUb(count),'ks-','LineWidth',2,'MarkerFaceColor','k'); hold on;
-% 
-% 
-%             xlim([0.5 N_plots+.5]);
-%             XT = 1:N_plots;
-%             set(gca,'XTick',XT);
-% 
-%             count = count+1;
-% 
-%         end
-%     end
-%     lab2use = {'S01','S02','-1.55 MU','0 MU','0.39 MU','0.78 MU','Dec2'};
-%     for i = 1:length(h)
-%         set(0, 'CurrentFigure', h(i));
-%         set(gca,'XTickLabels',lab2use);
-%         % xtickangle(-90);
-% 
-%         YL = get(gca,'YLim');
-%         plot(2.5*[1 1],YL,'k-');
-%         plot(6.5*[1 1],YL,'k-');
-% 
-%         switch i
-%             case 1
-%                 lab_here = '(a)';
-%             case 2
-%                 lab_here = '(b)';
-%         end
-%         text(0.02,0.95,lab_here,'Units','Normalized','FontWeight','Bold')
-%         text(0.03,0.88,'Exp.','Units','Normalized','FontWeight','Bold')
-%         text(0.33,0.88,'Decision 1','Units','Normalized','FontWeight','Bold')
-%         text(0.88,0.88,'Dec. 2','Units','Normalized','FontWeight','Bold')
-%     end
-%     disp('The response ''1'' was preferred in the following percentage of the times:')
-%     bias = [prctile(response_is_one,75); median(response_is_one); prctile(response_is_one,25)];
-% end
 
 bSave = 1;
 if nargout ~= 0
