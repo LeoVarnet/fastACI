@@ -555,7 +555,7 @@ if flags.do_plot || nargout == 0
         figure;
         subplot(1,2,1)
         % affichage_tf(results.ACI_norm, 'CI', 'cfg',cfg_ACI); hold on
-        affichage_tf(ACI, 'CI', 'cfg',cfg_ACI);
+        out_affichage = affichage_tf(ACI, 'CI', 'cfg',cfg_ACI);
         title(glmfct)
 
         subplot(1,2,2)
@@ -566,7 +566,7 @@ if flags.do_plot || nargout == 0
     else
         
         figure;
-        affichage_tf(ACI, 'CI', 'cfg',cfg_ACI);
+        out_affichage = affichage_tf(ACI, 'CI', 'cfg',cfg_ACI);
         title(glmfct)
         
         if isfield(cfg_ACI,'t_description')
@@ -580,6 +580,8 @@ if flags.do_plot || nargout == 0
         % affichage_tf(ACI_norm, 'CI', 'cfg',cfg_ACI); affichage_tf(ACI, 'CInorm', 'cfg', cfg_ACI)
         % affichage_tf(ACI, 'tvalue', 'cfg', cfg_ACI); affichage_tf(ACI, 'prob', 'cfg', cfg_ACI)
     end
+    extra_outs.out_affichage = out_affichage;
+    
 end
 
 results.ACI_norm       = ACI_norm;

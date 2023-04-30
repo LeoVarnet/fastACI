@@ -402,6 +402,21 @@ for num_CI = 1:N_CI
             end
             outs.tcolorbar = tcolorbar;
             outs.tcolorbar_description = 'Colour bar handle';
+            
+            %%% To enable automatic colourbar labels
+            % switch type
+            %     case {'CI','ACI'}
+            %         if isfield(cfg,'response_names')
+            %             mymap = Get_colourmap_rgb(colourbar_map);
+            % 
+            %             col_max = mymap(1,:);
+            %             col_min = mymap(end,:);
+            % 
+            %             text(1,1.05,cfg.response_names{1},'Units','Normalized','FontWeight','Bold','Color',col_min);
+            %             text(1,-.05,cfg.response_names{2},'Units','Normalized','FontWeight','Bold','Color',col_max);
+            %         end
+            % end
+            
     end
    
     axis xy;

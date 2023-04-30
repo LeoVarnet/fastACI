@@ -205,6 +205,10 @@ switch TF_type
         flags_gamma = {'basef',basef,'flow',40,'fhigh',fhigh,'bwmul',cfg_inout.bwmul, ...
             'dboffset',100,'no_adt','binwidth',cfg_inout.binwidth, ...
             'no_outerear','no_middleear'};
+        switch cfg_inout.glmfct
+            case 'l1glm'
+                flags_gamma{end+1} = 'fc_nextpow2';
+        end
         [outsig,f,t,extras] = Gammatone_proc(bruit,fs,flags_gamma{:});
         f = f(:); % column array
         

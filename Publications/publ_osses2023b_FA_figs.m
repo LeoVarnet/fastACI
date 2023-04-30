@@ -24,7 +24,9 @@ definput.flags.type={'missingflag','fig2a','fig2b', ...
     'fig4', ... % supra-threshold, model
     'fig5', ...
     'fig6'}; % ACI
-% definput.keyvals.models=[];
+
+definput.flags.local={'local','zenodo'};
+definput.keyvals.dir_zenodo=[];
 definput.keyvals.dir_out=[];
 
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
@@ -39,6 +41,9 @@ var = load([dir_exp 'king2019' filesep 'Results-run-1' filesep ...
     'savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat']);
 cfg_game = var.cfg_game;
 data_passation = var.data_passation;
+
+bZenodo = flags.do_zenodo;
+bLocal = ~bZenodo;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig2a || flags.do_fig2b  || flags.do_fig4   
@@ -440,10 +445,14 @@ if flags.do_fig6
                     'plot', ...
                     'pyramid_script','imresize', ...
                     'pyramid_shape',0, ...
-                    'lambda',Lambdas, ...
-                    'bwmul',0.43};
+                    'lambda',Lambdas}; % , ...
+                    % 'bwmul',0.43};
+    if bZenodo
+        dir_out_ACI = [keyvals.dir_zenodo filesep '03-Post-proc-data' filesep];
+        flags_in(end+1:end+2) = {'dir_out',dir_out_ACI};
+    end
 	fname_results = [dir_exp 'king2019' filesep 'Results-run-1' filesep 'savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat'];
-    [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(fname_results,TF_type,glmfct,flags_in{:});
+    [ACI,cfg_ACI,results,Data_matrix,extra_outs] = fastACI_getACI(fname_results,TF_type,glmfct,flags_in{:});
     
     hname{end+1} = 'fig6-ACI';
     h(end+1) = gcf;
@@ -452,6 +461,18 @@ if flags.do_fig6
     Pos = get(gcf,'Position');
     Pos(4) = 300;
     set(gcf,'Position',Pos);
+    
+    tcolourbar = extra_outs.out_affichage.tcolorbar;
+    set(tcolourbar,'TickLabels','');
+    
+    colourbar_map = 'DG_jet';
+    my_map = Get_colourmap_rgb(colourbar_map);
+    col_max = my_map(1,:);
+    col_min = my_map(end,:);
+    text(.95,1.05,cfg_ACI.response_names{1},'Units','Normalized','FontWeight','Bold','Color',col_min);
+    text(.95,-.05,cfg_ACI.response_names{2},'Units','Normalized','FontWeight','Bold','Color',col_max);
+
+    set(gca,'XTick',.1:.1:.4);
 end
 
 bSave = 1;

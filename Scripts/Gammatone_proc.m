@@ -58,7 +58,17 @@ end
 
 % Apply the auditory filterbank
 [outsig, fc] = auditoryfilterbank(insig,fs,'argimport',flags,keyvals);
-
+if flags.do_fc_nextpow2
+    nfc = 2^nextpow2( length(fc)/2 );
+    % nfc_current = length(fc);
+    idx_i = find(fc>80,1,'first'); % first frequency above 80 Hz
+    idx_f = idx_i+nfc-1;
+    
+    fc = fc(idx_i:idx_f);
+    
+    outsig = outsig(:,idx_i:idx_f);
+end
+    
 if flags.do_ihc
     % 'haircell' envelope extraction
     outsig = ihcenvelope(outsig,fs,'argimport',flags,keyvals);
