@@ -6,10 +6,16 @@ function data = publ_osses2023b_FA_figs(varargin)
 % % To display Fig. 2 of Osses and Varnet, (2023, Forum Acusticum) use :::
 %     publ_osses2023b_FA_figs('fig2a');
 %     publ_osses2023b_FA_figs('fig2b');
+%     publ_osses2023b_FA_figs('fig3');
+%     publ_osses2023b_FA_figs('fig4');
+%     publ_osses2023b_FA_figs('fig5');
+%     publ_osses2023b_FA_figs('fig6');
+%
+% % If you have the data from Zenodo stored locally, you can use:
+%     publ_osses2023b_FA_figs('fig2a','zenodo','dir_zenodo',dir_zenodo);
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-close all, clc
 
 if nargin == 0
     help publ_osses2023b_FA_figs;
@@ -31,19 +37,28 @@ definput.keyvals.dir_out=[];
 
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
+bZenodo = flags.do_zenodo;
+bLocal = ~bZenodo;
+
 dir_fastACI_results = fastACI_paths('dir_data'); % '/home/alejandro/Documents/Databases/data/fastACI/';
 
 experiment = 'toneinnoise_ahumada1975';
-dir_exp = [dir_fastACI_results experiment filesep];
  
-dir_noise = [dir_exp 'king2019' filesep 'NoiseStims-white' filesep]; % common parameter
-var = load([dir_exp 'king2019' filesep 'Results-run-1' filesep ...
-    'savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat']);
-cfg_game = var.cfg_game;
+if bLocal
+    dir_exp = [dir_fastACI_results experiment filesep];
+    dir_noise = [dir_exp 'king2019' filesep 'NoiseStims-white' filesep]; % common parameter
+    dir_savegame = [dir_exp 'king2019' filesep 'Results-run-1' filesep];
+end
+if bZenodo
+    dir_zenodo = keyvals.dir_zenodo;
+    dir_noise = [dir_zenodo '01-Stimuli' filesep 'fastACI_data' filesep ...
+         experiment filesep 'king2019' filesep 'NoiseStims-white' filesep];
+    dir_savegame = [dir_zenodo '02-Raw-data' filesep 'fastACI' filesep 'Publications' filesep ...
+         'publ_osses2023b' filesep 'data_king2019' filesep '1-experimental_results' filesep];
+end
+var = load([dir_savegame 'savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat']);
+cfg_game       = var.cfg_game;
 data_passation = var.data_passation;
-
-bZenodo = flags.do_zenodo;
-bLocal = ~bZenodo;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig2a || flags.do_fig2b  || flags.do_fig4   
@@ -63,7 +78,7 @@ if flags.do_fig2a || flags.do_fig2b  || flags.do_fig4
     end
     
     % Obtaining the 'experimental' threshold:
-    thres = median(var.data_passation.expvar);
+    thres = median(data_passation.expvar);
     
     noises_TN_thres = noises_TN + From_dB(thres)*repmat(tone,[1 N]);
     noises_TN       = noises_TN +                repmat(tone,[1 N]); % SNR=0 dB
@@ -298,17 +313,17 @@ if flags.do_fig4
     
     t = (1:size(out_TN,1))/fs - t_sil_offset;
     
-    figure;
-    plot(t,out_TN_thres,'m-'); hold on;
-    plot(t,out_TN,'b-'); hold on;
-    plot(t,out_N,'r-');
-    
-    factor = 10^4;
-    if factor ~= 1
-        factor_str = sprintf(' x 10^{%.0f}',-log10(factor));
-    else
-        factor_str = '';
-    end
+    % figure;
+    % plot(t,out_TN_thres,'m-'); hold on;
+    % plot(t,out_TN,'b-'); hold on;
+    % plot(t,out_N,'r-');
+    % 
+    % factor = 10^4;
+    % if factor ~= 1
+    %     factor_str = sprintf(' x 10^{%.0f}',-log10(factor));
+    % else
+    %     factor_str = '';
+    % end
     figure;
     Pos = get(gcf,'Position');
     Pos(4) = 300;
@@ -349,7 +364,7 @@ if flags.do_fig4
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig5
-    expvar = data_passation.expvar;
+    expvar     = data_passation.expvar;
     is_correct = data_passation.is_correct;
     
     thres = median(expvar);
@@ -377,7 +392,6 @@ if flags.do_fig5
     % correct_bin(end+1) = correct_bin(end);
     
     figure;
-    % stairs(SNR_edges,100*correct_bin,'b-'); grid on; hold on
     bar(SNR_bin,100*correct_bin,'BarWidth',1); grid on; hold on; % BarWidth in relative units
     xlim([SNR_edges(1)-2 SNR_edges(end)]);
     
@@ -430,7 +444,6 @@ if flags.do_fig5
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig6
-
     N_lambda = 30;
     Lambdas = logspace(-4, -1, N_lambda);
     idx = find(Lambdas >= 2*10^-3);
@@ -451,7 +464,7 @@ if flags.do_fig6
         dir_out_ACI = [keyvals.dir_zenodo filesep '03-Post-proc-data' filesep];
         flags_in(end+1:end+2) = {'dir_out',dir_out_ACI};
     end
-	fname_results = [dir_exp 'king2019' filesep 'Results-run-1' filesep 'savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat'];
+	fname_results = [dir_savegame 'savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat'];
     [ACI,cfg_ACI,results,Data_matrix,extra_outs] = fastACI_getACI(fname_results,TF_type,glmfct,flags_in{:});
     
     hname{end+1} = 'fig6-ACI';
