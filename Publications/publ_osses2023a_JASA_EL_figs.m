@@ -593,9 +593,9 @@ if flags.do_fig2
         mYL = .35; % ylim for the plot
         
         mean_for_H0 = 0;
-        % mean_for_H0 = zeros(size(f0_kernel'));
-        [h_f0_kernel,p_f0_kernel,~,t_f0_kernel]       = ttest(f0_kernel'  ,mean_for_H0,'alpha', alpha);
-        [h_time_kernel,p_time_kernel,~,t_time_kernel] = ttest(time_kernel',mean_for_H0,'alpha', alpha);
+        % [h_f0_kernel,p_f0_kernel,~,t_f0_kernel]       = ttest(f0_kernel'  ,mean_for_H0,'alpha', alpha);
+        [h_f0_kernel,p_f0_kernel,~,t_f0_kernel]       = ttest(f0_kernel'  ,mean_for_H0, alpha);
+        [h_time_kernel,p_time_kernel,~,t_time_kernel] = ttest(time_kernel',mean_for_H0, alpha);
         
         %%%
         fprintf('In the %s condition, the f0 kernel reveals %.0f critical regions\n',Cond,sum(h_f0_kernel));
