@@ -15,8 +15,10 @@ if bExist
         nexttile(N);
     end
 else
-    if N == 1
-        close;
+    if nargin ~=0
+        if N == 1
+            close;
+        end
     end
     figure;
 end

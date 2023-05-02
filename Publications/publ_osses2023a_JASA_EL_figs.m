@@ -275,8 +275,12 @@ if flags.do_fig1
         sigma = 100;
         A    = 90; % arbitrary amplitude
         vo   = 0; % vertical offset
-        area(xvar, gaus(xvar,mu,sigma,A,vo),'FaceColor', [0,0,1] , 'FaceAlpha', 0.1,'EdgeColor','none');
-
+        
+        har = area(xvar, gaus(xvar,mu,sigma,A,vo),'FaceColor', [0,0,1],'EdgeColor','none'); 
+        if isprop(har,'FaceAlpha')
+            set(har,'FaceAlpha',0.1);
+        end
+        
         ylim([0 100])
         xlabel('f0 shift (cents)')
         YT = 0:10:100;
@@ -347,10 +351,13 @@ if flags.do_fig2
         if i_cond == 2
             flags_extra_here = flags_extra;
             flags_extra_here{end} = 'yes';
+            aff_outs = affichage_tf(G_dB, 'pow', t, fc, flags_extra_here{:}); hold on;
+            hc = aff_outs.tcolorbar;
         else
             flags_extra_here = flags_extra;
+            affichage_tf(G_dB, 'pow', t, fc, flags_extra_here{:}); hold on;
         end
-        affichage_tf(G_dB, 'pow', t, fc, flags_extra_here{:}); hold on;
+        
         XTL = 0:.1:.8;
         XT  = XTL; XT(1) = min(t)/2;
         set(gca,'XTick',XT);
@@ -367,8 +374,8 @@ if flags.do_fig2
         
         xlabel('')
         if i_cond == 2
-            hc = get(gca,'Colorbar');
-            CB_Tick = get(hc,'Ticks'); % [-60 -50 -40 -30 -20]
+            % hc = get(gca,'Colorbar');
+            CB_Tick = get(hc,'YTick'); % [-60 -50 -40 -30 -20]
             CB_Tick = [CB_Tick(1)-10 CB_Tick(1):10:CB_Tick(end)]; % 10 dB below
             
             CB_TickLabel = [];
@@ -377,9 +384,10 @@ if flags.do_fig2
                 CB_TickLabel{i_tick} = sprintf('%.0f',CB_Tick(i_tick) - max(CB_Tick));
             end
             
-            
-            set(hc,'Ticks',CB_Tick);
-            set(hc,'TickLabels',CB_TickLabel);
+            % set(hc,'Ticks',CB_Tick);
+            % set(hc,'TickLabels',CB_TickLabel);
+            set(hc,'YTick',CB_Tick);
+            set(hc,'YTickLabel',CB_TickLabel);
         end
         % title(label1); % title(['c''est l''' cfg_game.response_names{1}]);
 

@@ -187,14 +187,14 @@ if flags.do_fig2
     Pos = [50 50 750 650];
     figure('Position', Pos)
     tspacing_style = 'none'; % 'Compact'
-    tlayout = il_tiledlayout(4,4,'TileSpacing',tspacing_style, 'Padding',tspacing_style');
+    tlayout = tiledlayout(4,4,'TileSpacing',tspacing_style, 'Padding',tspacing_style');
 
     fprintf('Pausing for 3 seconds\n')
     pause(3)
     % curr_tile = 0;
     for i_experiment = 1:length(experiments)
         % curr_tile = curr_tile + 1;
-        il_nexttile; % (curr_tile);
+        nexttile; % (curr_tile);
         
         fprintf('Pausing for 1 second\n')
         pause(1)
@@ -337,7 +337,7 @@ if flags.do_fig2
 
                     affichage_tf_add_Praat_metrics_one_sound(fname1,cfg_ACI,par_formants, '-', 'w',LW);
                 end
-                il_nexttile
+                nexttile
                 switch experiments{i_experiment}{1}
                     case 'modulationACI' 
                         affichage_tf(G1, 'pow', t, fc, opts_colourbar{:}); hold on; %, caxis([0 0.01]);
@@ -349,7 +349,7 @@ if flags.do_fig2
                 if bAdd_formants
                     affichage_tf_add_Praat_metrics_one_sound(fname2,cfg_ACI,[], '-', 'w',LW);
                 end
-                il_nexttile
+                nexttile
         end
 
         % display ACI
@@ -390,17 +390,17 @@ if flags.do_fig2
     y_cb(1) = -.05; % position for colourbar, normalised units
 
     flags_common = {'Unit','Normalized','FontWeight','bold','HorizontalAlignment', 'right'};
-    ax=il_nexttile(1);colormap(ax,'hot'); xlabel('');ylabel(YLab); text(posX,posY,'mod. tone'  ,'Color','white',flags_common{:});
-    ax=il_nexttile(2);colormap(ax,'hot'); xlabel('');ylabel('');   text(posX,posY,'unmod. tone','Color','white',flags_common{:});
+    ax=nexttile(1);colormap(ax,'hot'); xlabel('');ylabel(YLab); text(posX,posY,'mod. tone'  ,'Color','white',flags_common{:});
+    ax=nexttile(2);colormap(ax,'hot'); xlabel('');ylabel('');   text(posX,posY,'unmod. tone','Color','white',flags_common{:});
     % set(gca,'YTickLabel',[]);
-    ax=il_nexttile(3);
+    ax=nexttile(3);
     xlabel('');ylabel('');
     i_subj = 1;
     i_exp = 1;
     text(posX,posY    , S01_Lab, flags_common{:});
     text(posX,posY-0.15, sprintf('thres\n%.1f dB',thres(i_subj,i_exp)),'FontSize',FS_thres, flags_common{:});
 
-    ax=il_nexttile(4);
+    ax=nexttile(4);
     xlabel('');ylabel('');
     i_subj = 2;
     text(posX,posY    , S02_Lab, flags_common{:});
@@ -410,22 +410,22 @@ if flags.do_fig2
     text(x_cb,y_cb(1),'unmod','Color','blue','Units','Normalized');
 
     % set(gca,'YTickLabel',[]);
-    ax=il_nexttile(5);colormap(ax,'hot'); 
+    ax=nexttile(5);colormap(ax,'hot'); 
     xlabel('');ylabel(YLab); 
     text(posX,posY,'aba'        ,'Color','white',flags_common{:});
-    ax=il_nexttile(6);colormap(ax,'hot'); 
+    ax=nexttile(6);colormap(ax,'hot'); 
     xlabel('');ylabel('');   
     text(posX,posY,'ada'        ,'Color','white',flags_common{:});
 
     % set(gca,'YTickLabel',[]);
-    ax=il_nexttile(7);
+    ax=nexttile(7);
     xlabel('');ylabel('');   
     i_subj = 1;
     i_exp  = 2; 
     text(posX,posY     , S01_Lab, flags_common{:});
     text(posX,posY-0.15, sprintf('thres\n%.1f dB',thres(i_subj,i_exp)),'FontSize',FS_thres,flags_common{:});
 
-    ax=il_nexttile(8);
+    ax=nexttile(8);
     xlabel('');ylabel('');   
     i_subj = 2;
     text(posX,posY    , S02_Lab, flags_common{:});
@@ -435,10 +435,10 @@ if flags.do_fig2
     text(x_cb,y_cb(1),'ada','Color','blue','Units','Normalized');
 
     % set(gca,'YTickLabel',[]);
-    ax=il_nexttile(9);colormap(ax,'hot'); xlabel('');ylabel(YLab); text(posX,posY,'aba'        ,'Color','white',flags_common{:});
-    ax=il_nexttile(10);colormap(ax,'hot');xlabel('');ylabel('');   text(posX,posY,'ada'        ,'Color','white',flags_common{:});
+    ax=nexttile(9);colormap(ax,'hot'); xlabel('');ylabel(YLab); text(posX,posY,'aba'        ,'Color','white',flags_common{:});
+    ax=nexttile(10);colormap(ax,'hot');xlabel('');ylabel('');   text(posX,posY,'ada'        ,'Color','white',flags_common{:});
     % set(gca,'YTickLabel',[]);
-    ax=il_nexttile(11);                   
+    ax=nexttile(11);                   
     xlabel('');ylabel('');   
     text(posX,posY, S01_Lab                     ,flags_common{:});
     i_subj = 1;
@@ -446,7 +446,7 @@ if flags.do_fig2
     text(posX,posY     , S01_Lab, flags_common{:});
     text(posX,posY-0.15, sprintf('thres\n%.1f dB',thres(i_subj,i_exp)),'FontSize',FS_thres,flags_common{:});
 
-    ax=il_nexttile(12);
+    ax=nexttile(12);
     xlabel('');ylabel('');
     text(posX,posY, S02_Lab                     ,flags_common{:});
     i_subj = 2;
@@ -457,10 +457,10 @@ if flags.do_fig2
     text(x_cb,y_cb(2),'aba','Color','red' ,'Units','Normalized');
     text(x_cb,y_cb(1),'ada','Color','blue','Units','Normalized');
 
-    ax=il_nexttile(13);colormap(ax,'hot');           ylabel(YLab); text(posX,posY,'aba'        ,'Color','white',flags_common{:});
-    ax=il_nexttile(14);colormap(ax,'hot');           ylabel('');   text(posX,posY,'ada'        ,'Color','white',flags_common{:});
+    ax=nexttile(13);colormap(ax,'hot');           ylabel(YLab); text(posX,posY,'aba'        ,'Color','white',flags_common{:});
+    ax=nexttile(14);colormap(ax,'hot');           ylabel('');   text(posX,posY,'ada'        ,'Color','white',flags_common{:});
     % set(gca,'YTickLabel',[]);
-    ax=il_nexttile(15);
+    ax=nexttile(15);
     ylabel('');   
     text(posX,posY, S01_Lab                     ,flags_common{:});
     i_subj = 1;
@@ -468,7 +468,7 @@ if flags.do_fig2
     text(posX,posY     , S01_Lab, flags_common{:});
     text(posX,posY-0.15, sprintf('thres\n%.1f dB',thres(i_subj,i_exp)),'FontSize',FS_thres,flags_common{:});
 
-    ax=il_nexttile(16);
+    ax=nexttile(16);
     ylabel('');   
     text(posX,posY, S02_Lab                     ,flags_common{:});
     i_subj = 2;
@@ -504,41 +504,41 @@ if flags.do_fig2
     Saveas(gcf,fout,opts);
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function handle_tl = il_tiledlayout(N,M,TileSpacing,TileSpacing_option,varargin)
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% function handle_tl = tiledlayout(N,M,TileSpacing,TileSpacing_option,varargin)
+% 
+% handle_tl = [];
+% if nargin < 4
+%     TileSpacing_option = 'Compact';
+% end
+% bExist = exist('tiledlayout','file'); % tiledlayout.p
+% if bExist
+%     if isempty(varargin)
+%         handle_tl = tiledlayout(N,M,TileSpacing,TileSpacing_option);
+%     else
+%         handle_tl = tiledlayout(N,M,TileSpacing,TileSpacing_option,varargin{:});
+%     end
+% else
+%     warning('We programmed this script to use more recent graphic options from MATLAB. It might be that you won''t be able to visualise these results as we have foreseen...')
+% end
 
-handle_tl = [];
-if nargin < 4
-    TileSpacing_option = 'Compact';
-end
-bExist = exist('tiledlayout','file'); % tiledlayout.p
-if bExist
-    if isempty(varargin)
-        handle_tl = tiledlayout(N,M,TileSpacing,TileSpacing_option);
-    else
-        handle_tl = tiledlayout(N,M,TileSpacing,TileSpacing_option,varargin{:});
-    end
-else
-    warning('We programmed this script to use more recent graphic options from MATLAB. It might be that you won''t be able to visualise these results as we have foreseen...')
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function ax = il_nexttile(N)
-
-bExist = exist('nexttile','file'); % nexttile
-if bExist
-    if nargin == 0
-        nexttile;
-    else
-        nexttile(N);
-    end
-else
-    if N == 1
-        close;
-    end
-    figure;
-end
-
-if nargout ~= 0
-    ax = gcf;
-end
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% function ax = nexttile(N)
+% 
+% bExist = exist('nexttile','file'); % nexttile
+% if bExist
+%     if nargin == 0
+%         nexttile;
+%     else
+%         nexttile(N);
+%     end
+% else
+%     if N == 1
+%         close;
+%     end
+%     figure;
+% end
+% 
+% if nargout ~= 0
+%     ax = gcf;
+% end
