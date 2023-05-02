@@ -5,8 +5,16 @@ function publ_carranante2023_FA_figs(varargin)
 %   Carranante, G.; Giavazzi, M.; and Varnet, L. (2023). Auditory reverse 
 %   correlation applied to the study of place and voicing: Four new phoneme-
 %   discrimination tasks. To be presented at Forum Acusticum.
-% This scripts requires that all the raw data (savegame MAT files) are 
-%   stored on disk. These data can be requested to the authors (Leo Varnet).
+% This script reads the savegame (MAT) files for participant S01 and S13. 
+%   the files are attempted to be retrieved from the local fastACI_dir_data
+%   path (where the noises are expected to be in the folder 'NoiseStim-bumpv1p2_10dB',
+%   these folders are strictly needed for Fig. 4). Otherwise, the savegame
+%   files will be retrieved from the fastACI repository (Publications/publ_
+%   carranante2023/). However, we (the fastACI team) have not enabled yet 
+%   the automatic waveform re-generation. This means that in the latter case
+%   only 'fig2' and 'fig3' will be recreated.
+%   As a temporal solution, contact the fastACI team to obtain the noise 
+%   waveforms to obtain the corresponding ACIs.
 %
 % % To display Fig. 2 of Carranante and Varnet (2023) use :::
 %     publ_carranante2023_FA_figs('fig2');
@@ -95,6 +103,8 @@ else
     dir_data_fullpath = fastACI_paths('dir_data');
 end
 
+dir_publ = [fastACI_basepath 'Publications' filesep 'publ_carranante2023' filesep];
+
 % if iswindows
 %     % Leo's local folder
 %     dir_data_fullpath = 'C:\Users\LeoVarnet\ownCloud\Data\fastACI_data\'; % Leo's local folder
@@ -103,31 +113,28 @@ end
 %     dir_out = '/home/alejandro/Documents/Databases/data/fastACI_data_TST/publ_varnet2022b_CFA/';
 % end
 
-% if exist(dir_out,'dir')
-%     flags_for_input{end+1} = 'dir_out';
-%     flags_for_input{end+1} = dir_out;
-%     
-%     dir_out_figs = [dir_out 'Figures-new' filesep]; 
-%     if ~exist(dir_out_figs,'dir')
-%         mkdir(dir_out_figs);
-%     end
-% else
-%     dir_out = ''; % making sure that a non-existing dir_out is set to empty (i.e., defaults will be used)
-% end
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig2
     Pos = [50 50 450 200];
     figure('Position', Pos)
     for i_experiment = 1:length(experiments)
-        dir_expe = [dir_data_fullpath experiments{i_experiment}{1} filesep experiments{i_experiment}{3} filesep];
+        subj_id = experiments{i_experiment}{3};
+        dir_expe = [dir_data_fullpath experiments{i_experiment}{1} filesep subj_id filesep];
         dir_results = [dir_expe 'Results' filesep];%['C:\Users\LSP005\ownCloud\Data\Projet ModulationACI\AM_4Hz_75ms_m\A_king2019' filesep participant];
         
         filtextra = [experiments{i_experiment}{2} '*']; % using the condition as filter
         files = Get_filenames(dir_results,['savegame_*' filtextra '.mat']);
         
+        if isempty(files)
+            % Then the savegames are not locally: we will load the stored results then...
+            dir_results = [dir_publ 'data_' subj_id filesep '1-experimental_results' filesep];
+            files = Get_filenames(dir_results,['savegame_*' filtextra '.mat']);
+        end
+        
         if ~isempty(files)
+            % Now it should always work
             fname_results = [dir_results files{1}];
-            load(fname_results)
+            load(fname_results,'data_passation');
             r = Get_mAFC_reversals(data_passation.expvar);
             SNRthres(i_experiment) = median(r(5:end));
             SNRsd(i_experiment) = std(r(5:end));
@@ -145,32 +152,39 @@ if flags.do_fig2
     legend({'','','','','','','','','S01','S13'})
 end
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig3
     Pos = [50 50 450 600];
     figure('Position', Pos);
     tlayout = tiledlayout(5,2,'TileSpacing','compact', 'Padding','compact');
     
     for i_experiment = 1:length(experiments)
-        dir_expe = [dir_data_fullpath experiments{i_experiment}{1} filesep experiments{i_experiment}{3} filesep];
+        subj_id = experiments{i_experiment}{3};
+        cond = experiments{i_experiment}{1};
+        dir_expe = [dir_data_fullpath cond filesep subj_id filesep];
         dir_results = [dir_expe 'Results' filesep];%['C:\Users\LSP005\ownCloud\Data\Projet ModulationACI\AM_4Hz_75ms_m\A_king2019' filesep participant];
         
         filtextra = [experiments{i_experiment}{2} '*']; % using the condition as filter
         files = Get_filenames(dir_results,['savegame_*' filtextra '.mat']);
         
-         % (curr_tile);
+        if isempty(files)
+            % Then the savegames are not locally: we will load the stored results then...
+            dir_results = [dir_publ 'data_' subj_id filesep '1-experimental_results' filesep];
+            files = Get_filenames(dir_results,['savegame_*' cond '*' filtextra '.mat']);
+        end
         
         if ~isempty(files)
             fname_results = [dir_results files{1}];
-            load(fname_results)
-            
+            cfg_game = []; % loaded next
+            data_passation = []; % loaded next
+            load(fname_results);
             
             data_hist = Script3_AnalysisComplex_functions(cfg_game,data_passation,'histogram-leo',0);
             
             bin_centres = data_hist.bin_centres;
             P_H  = data_hist.H ./(data_hist.H +data_hist.M );
             P_FA = data_hist.FA./(data_hist.CR+data_hist.FA);
-            PC = (data_hist.H + data_hist.CR) ./(data_hist.H + data_hist.M + data_hist.CR + data_hist.FA);
+            PC   = (data_hist.H + data_hist.CR) ./(data_hist.H + data_hist.M + data_hist.CR + data_hist.FA);
             bias = (data_hist.M + data_hist.CR) ./(data_hist.H + data_hist.M + data_hist.CR + data_hist.FA);
             dprime = norminv(P_H)-norminv(P_FA);           % Eq.  9 from Harvey2004
             criterion = -(norminv(P_H) + norminv(P_FA))/2; % Eq. 12 from Harvey2004
