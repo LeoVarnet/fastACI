@@ -322,13 +322,13 @@ if flags.do_fig4
     % plot(t,out_TN_thres,'m-'); hold on;
     % plot(t,out_TN,'b-'); hold on;
     % plot(t,out_N,'r-');
-    % 
-    % factor = 10^4;
-    % if factor ~= 1
-    %     factor_str = sprintf(' x 10^{%.0f}',-log10(factor));
-    % else
-    %     factor_str = '';
-    % end
+    
+    factor = 10^4;
+    if factor ~= 1
+        factor_str = sprintf(' x 10^{%.0f}',-log10(factor));
+    else
+        factor_str = '';
+    end
     figure;
     Pos = get(gcf,'Position');
     Pos(4) = 300;
@@ -356,13 +356,15 @@ if flags.do_fig4
     xlim([-.05 1.205]);
     xlabel('Time (s)');
     
-    han=axes(gcf,'visible','off'); 
-    %han.Title.Visible='on';
-    %han.XLabel.Visible='on';
-    han.YLabel.Visible='on';
+    % han=axes(gcf,'visible','off'); 
+    % han.YLabel.Visible='on';
+    han=axes('visible','off'); 
+    han_ylabel = get(han,'YLabel');
+    set(han_ylabel,'Visible','on');
+    
     ylabel(han,['Amplitude (a.u.' factor_str ')']);
     
-    set(gca,'YTick',[-2:2]);
+    set(gca,'YTick',-2:2);
     
     h(end+1) = gcf;
     hname{end+1} = 'fig4-model-rep';
@@ -481,7 +483,8 @@ if flags.do_fig6
     set(gcf,'Position',Pos);
     
     tcolourbar = extra_outs.out_affichage.tcolorbar;
-    set(tcolourbar,'TickLabels','');
+    % set(tcolourbar,'TickLabels','');
+    set(tcolourbar,'YTickLabel','');
     
     colourbar_map = 'DG_jet';
     my_map = Get_colourmap_rgb(colourbar_map);
