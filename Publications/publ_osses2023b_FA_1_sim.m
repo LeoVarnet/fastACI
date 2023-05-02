@@ -21,6 +21,33 @@ else
 end
 bReproduce = ~bReplicate;
 
+%%%
+dir_here = [fastACI_basepath 'Local' filesep];
+fname_cfg =  [dir_here modelname '_cfg.m'];
+
+runs = {'run-1'};
+Show_cell(runs);
+
+% fprintf('Enter a number from the list before, i.e., between 1 and %.0f\n',length(runs));
+% idx = input('Enter the name of the simulation to be run (you need all these runs to reproduce the figure papers).: ');
+idx = 1;
+run_str = runs{idx};
+
+%%% New way (maybe add an option to check whether the file is up to date):
+% Update_cfg_file(file_src, file_dst);
+file_dst = fname_cfg;
+dir_src = [fastACI_basepath 'Simulations' filesep 'Stored_cfg' filesep];
+switch run_str
+    case {'run-1'}
+        file_src = [dir_src 'osses2023b_FA_king2019.m'];
+end
+if exist(file_dst,'file')
+    fprintf('The configuration file %s exists already, do you want to overwrite it?\n',file_dst);
+    fprintf('\tPress any button to overwrite it and continue, press ctrl+c to abort\n');
+    pause;
+end
+copyfile(file_src,file_dst);
+%%%
 if bReplicate
     % Nothing to do, everything will be generated from the scratch
     fname_template_suffix = '';
@@ -59,33 +86,6 @@ if bReproduce
     dir_dst = [dir_subj 'NoiseStims-white' filesep];
     copyfile(dir_src,dir_dst);
 end
-
-%%%
-dir_here = [fastACI_basepath 'Local' filesep];
-fname_cfg =  [dir_here modelname '_cfg.m'];
-
-runs = {'run-1'};
-Show_cell(runs);
-
-% fprintf('Enter a number from the list before, i.e., between 1 and %.0f\n',length(runs));
-% idx = input('Enter the name of the simulation to be run (you need all these runs to reproduce the figure papers).: ');
-idx = 1;
-run_str = runs{idx};
-
-%%% New way (maybe add an option to check whether the file is up to date):
-% Update_cfg_file(file_src, file_dst);
-file_dst = fname_cfg;
-dir_src = [fastACI_basepath 'Simulations' filesep 'Stored_cfg' filesep];
-switch run_str
-    case {'run-1'}
-        file_src = [dir_src 'osses2023b_FA_king2019.m'];
-end
-if exist(file_dst,'file')
-    fprintf('The configuration file %s exists already, do you want to overwrite it?\n',file_dst);
-    fprintf('\tPress any button to overwrite it and continue, press ctrl+c to abort\n');
-    pause;
-end
-copyfile(file_src,file_dst);
 
 %%% Getting the extra parameters that are not explicit in the cfg files:
 p = il_get_model_config_Forum_Acusticum(run_str, modelname);

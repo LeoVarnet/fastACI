@@ -10,10 +10,10 @@ bFastACI_sim = 1; % only if found... (Leo's or Alejandro's)
 
 dir_fastACI  = [fileparts(which(mfilename)) filesep];
 
-paths = il_get_subpaths(bFastACI_exp,dir_fastACI);
+paths_fastACI = il_get_subpaths(bFastACI_exp,dir_fastACI);
 
-addpath(paths.Utility);
-Add_paths(paths);
+addpath(paths_fastACI.Utility);
+Add_paths(paths_fastACI);
 
 cur_dir = [pwd filesep];
 if bAMT
@@ -93,6 +93,15 @@ if exist(fastACI_path,'dir')
     fprintf('fastACI_sim toolbox found: only the tb_fastACI_AddOns folder will be added...\n');
     addpath([fastACI_path 'MATLAB' filesep 'tb_fastACI_AddOns' filesep]);
 end
+
+if ~exist('tiledlayout.m','file')
+    % This means that this MATLAB version is older than R2019b:
+    
+    dir2add = [paths_fastACI.Plotting 'tiledlayout_forward' filesep];
+    addpath(dir2add);
+    fprintf('%s.m: Your MATLAB seems to have an old version. The path %s has been added\n',mfilename,dir2add);
+end
+    
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp([mfilename '.m: startup file for the fastACI toolbox'])

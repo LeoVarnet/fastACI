@@ -56,9 +56,11 @@ if bZenodo
     dir_savegame = [dir_zenodo '02-Raw-data' filesep 'fastACI' filesep 'Publications' filesep ...
          'publ_osses2023b' filesep 'data_king2019' filesep '1-experimental_results' filesep];
 end
-var = load([dir_savegame 'savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat']);
-cfg_game       = var.cfg_game;
-data_passation = var.data_passation;
+if flags.do_fig3 == 0
+    var = load([dir_savegame 'savegame_2023_04_19_01_08_king2019_toneinnoise_ahumada1975_white.mat']);
+    cfg_game       = var.cfg_game;
+    data_passation = var.data_passation;
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig2a || flags.do_fig2b  || flags.do_fig4   
@@ -244,9 +246,12 @@ if flags.do_fig3
     set(gca,'XTick',ti);
     title('Participant KL');
             
-    han=axes(gcf,'visible','off'); 
-    han.XLabel.Visible='on';
-    
+    % han=axes(gcf,'visible','off');
+    % han.XLabel.Visible='on';
+    han        = axes('visible','off');
+    han_xlabel = get(han,'XLabel');
+    set(han_xlabel,'Visible','on');
+        
     xlabel('Starting time of the segment (s)');
     
     Pos = get(gcf,'Position');
