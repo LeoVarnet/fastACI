@@ -1,17 +1,18 @@
 function cfg_inout = segmentation_init(cfg_inout)
-% function cfg_inout = speechLAMIv2_init(cfg_inout)
+% function cfg_inout = segmentation_init(cfg_inout)
 %
-% This should only be run once, to create the wave files.
-%
+% 1. Description:
+%      This should only be run once, to create the wave files.
+%      The experiment segmentationDebug offers a more extended choice of
+%        conditions to run. The experiment segmentationDebug is hosted in
+%        the fastACI_sim (private) repository.
+% Author: Leo Varnet
+% Author: Alejandro Osses (documentation and code stylisation)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
 dir_speech_orig = [fastACI_basepath 'Stimuli' filesep 'LAMI' filesep];
-% dir_speech_orig = '/home/alejandro/Documents/Documenten/04-Ontvangen/20220512-Leo-LAMIE/'; warning('Temporal solution...')
-% if ~exist(dir_speech_orig,'dir')
-%     dir_speech_orig = [pwd filesep];
-% end
+
 dBFS       = cfg_inout.dBFS;
-% lvl_target = cfg_inout.SPL;
 dur_ramp   = cfg_inout.dur_ramp; 
  
 cfg_inout = Ensure_field(cfg_inout,'Condition','');
@@ -45,29 +46,14 @@ switch lower(cfg_inout.Condition)
     case {'lapel', 'lapel_shifted'}
         files = {'l_appel.wav', 'la_pelle.wav'};
         meanf0 = mean([215.2, 217.7]);
-    case 'lapesanteur'
-        files = {'l_apesanteur.wav', 'la_pesanteur.wav'};
-        meanf0 = mean([212.4, 208]);
-    case 'latension'
-        files = {'l_attention.wav', 'la_tension.wav'};
-        meanf0 = mean([220, 206.5]);
     case 'lacroch'
         files = {'l_accroche.wav', 'la_croche.wav'};
         meanf0 = mean([210.8, 204.3]);
     case 'lalarm'
         files = {'l_alarme.wav', 'la_larme.wav'};
         meanf0 = mean([215.6, 200.1]);
-    case 'alapel1'
-        files = {'v1_l_appel.wav', 'v1_la_pelle.wav'};
-        meanf0 = mean([194.9, 183.3]);
-    case 'alapel2'
-        files = {'v2_l_appel.wav', 'v2_la_pelle.wav'};
-        meanf0 = mean([191, 180]);
-    case 'alapel3'
-        files = {'v3_l_appel.wav', 'v3_la_pelle.wav'};
-        meanf0 = mean([192.1, 177.5]);
     otherwise
-        error('Stimuli condition not recognized. The third argument of fastACI_experiment ''segmentation'' should be one of the following: ''LAMI'', ''LAMI_shifted'', ''LAPEL'',  ''LAPEL_shifted'', ''LAPESANTEUR'', ''LATENSION'', ''LACROCH'', ''LALARM'', ''ALAPEL1'', ''ALAPEL2'', ''ALAPEL3''\n')
+        error('Stimuli condition not recognised. The third argument of fastACI_experiment ''segmentation'' should be one of the following: ''LAMI'', ''LAMI_shifted'', ''LAPEL'',  ''LAPEL_shifted'',  ''LACROCH'', ''LALARM''\n')
 end
 if bGenerate_stimuli
     
@@ -201,15 +187,6 @@ for i = 1:cfg_inout.N
         cfg_inout.timevec(:,i) = timevec;
         cfg_inout.f0vec(:,i)   = f0vec;
         
-        %%% plot and play the result
-        % figure;
-        % sgram(outsig, fs)
-        % sound(outsig, fs);
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % lvls_before_noise(i) = rmsdb(insig)+dBFS;
-        % % insig = scaletodbspl(insig,lvl_target,dBFS);
-        % lvls_after_noise(i) = rmsdb(insig)+dBFS;
-
         fname_part1 = 'Speech-proc'; 
         number = i;
  
