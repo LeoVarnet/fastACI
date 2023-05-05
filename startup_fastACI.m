@@ -94,7 +94,7 @@ if exist(fastACI_path,'dir')
     addpath([fastACI_path 'MATLAB' filesep 'tb_fastACI_AddOns' filesep]);
 end
 
-if ~exist('tiledlayout.m','file')
+if ~exist('tiledlayout.p','file')
     % This means that this MATLAB version is older than R2019b:
     
     dir2add = [paths_fastACI.Plotting 'tiledlayout_forward' filesep];

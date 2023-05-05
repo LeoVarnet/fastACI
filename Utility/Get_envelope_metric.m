@@ -22,14 +22,13 @@ function [metric,description,extra] = Get_envelope_metric(insig,fs,type)
 %
 % Programmed by Alejandro Osses
 % Created on    : 13/09/2021
-% Last update on: 13/09/2021 
-% Last use on   : 13/09/2021 
+% Last update on: 05/05/2023
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 extra = [];
 
 switch type
-    case {'kohlrausch2021_env'}
+    case {'kohlrausch2021_env','kohlrausch2021_env_noDC'}
         fs_env = 1000;
         dBFS = 100; % just a reference
         
@@ -40,30 +39,20 @@ switch type
         yenv = resample(yenv_tmp,fs_env,fs);    
         K = size(yenv,1);
         
-        [~,yenv_dB,f_env] = freqfft2(yenv,K,fs_env,windowtype,dBFS);
+        switch type
+            case 'kohlrausch2021_env_noDC'
+                Me = mean(yenv);
+                description = 'Envelope spectrum (hilbert envelope + FFT) as used by Kohlrausch et al 2021 but excluding the DC';
+            otherwise
+                Me = 0;
+                description = 'Envelope spectrum (hilbert envelope + FFT) as used by Kohlrausch et al 2021';
+        end
+        
+        [~,yenv_dB,f_env] = freqfft2(yenv-Me,K,fs_env,windowtype,dBFS);
         
         metric = yenv_dB;
         extra.fs_env = fs_env;
         extra.f_env = f_env;
-        description = 'Envelope spectrum (hilbert envelope + FFT) as used by Kohlrausch et al 2021';
-        
-    case {'kohlrausch2021_env_noDC'}
-        fs_env = 1000;
-        dBFS = 100; % just a reference
-        
-        % windowtype = 'rectangular';
-        windowtype = 'hanning';
-        yenv_tmp    = abs(hilbert(insig));
-    
-        yenv = resample(yenv_tmp,fs_env,fs);    
-        K = size(yenv,1);
-        
-        [~,yenv_dB,f_env] = freqfft2(yenv-mean(yenv),K,fs_env,windowtype,dBFS);
-        
-        metric = yenv_dB;
-        extra.fs_env = fs_env;
-        extra.f_env = f_env;
-        description = 'Envelope spectrum (hilbert envelope + FFT) as used by Kohlrausch et al 2021 but excluding the DC';
         
     case {'varnet2021_env'}
         basef = 1000;

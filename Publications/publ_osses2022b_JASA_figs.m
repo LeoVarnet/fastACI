@@ -319,13 +319,32 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig2b 
 	N_sounds = 1000; % arbitrary choice
-        
+	% N_sounds = 50; warning('temporal value'); % arbitrary choice for a quick plotting
+    
     % Band levels are always computed
     do_kohlrausch2021_env = 1; % flags.do_fig2c; % Modulation spectrum
-	do_V                  = 0; % flags.do_fig2d; % V metric
-    fmod_xlim = [0 60];
+    % type_env = 'kohlrausch2021_env_noDC'; % as in the preprint
+    type_env = 'kohlrausch2021_env'; % as in the new manuscript
+    switch type_env
+        case 'kohlrausch2021_env_noDC'
+            suff_DC = ''; 
+            fmod_ylim = [10 50];
+            suff_dB = '';
+            
+        case 'kohlrausch2021_env'
+            % With DC but also referenced to 0 dB
+            
+            suff_DC = '-with-DC'; 
+            % fmod_ylim = [10 70];
+            yoff = 70;
+            % fmod_ylim = [10 70]-yoff; % showing the DC
+            fmod_ylim = [10 50]-yoff; % not showing the DC
+            suff_dB = ' re max.';
+            
+    end
+    
+	fmod_xlim = [0 60];
     fc_ylim = [30 70];
-    V_lim = [-6.8 .8];
     %%%
     
     figure('Position',[100 100 650 450]); % before: Pos(4) = 650
@@ -347,9 +366,7 @@ if flags.do_fig2b
 
             if do_kohlrausch2021_env
                 [env_dB_full(:,j),xx,env_extra] = Get_envelope_metric(insig,fs, ...
-                    'kohlrausch2021_env_noDC'); suff_DC = ''; fmod_ylim = [10 50];
-                % [env_dB_full(:,j),xx,env_extra] = Get_envelope_metric(insig,fs, ...
-                %     'kohlrausch2021_env'); suff_DC = '-with-DC'; fmod_ylim = [10 70];
+                    type_env);
             end
  
             [outsig1,fc] = auditoryfilterbank(insig,fs);
@@ -358,15 +375,6 @@ if flags.do_fig2b
             end
             lvls(j,:) = rmsdb(outsig1) + dBFS; % These are the band levels
  
-            for i_fc = 1:length(fc)
-                if do_V
-                    [V1(j,i_fc),description,yenv1] = Get_envelope_metric(outsig1(:,i_fc),fs,'V');
-                end
-            end
-            if do_V
-                V_overall(j) = Get_envelope_metric(insig,fs,'V');
-            end
-            
             if mod(j,50) == 1
                 fprintf('\tProcessing sound %.0f of %.0f\n',j,N_sounds);
             end
@@ -377,14 +385,11 @@ if flags.do_fig2b
         L1me = prctile(lvls,50);
         L1perL = prctile(lvls, 5);
         L1perU = prctile(lvls,95);
-        % errLL1 = L1me - prctile(lvls,5);
-        % errUL1 = prctile(lvls,95)-L1me;
-
+        
         nexttile(i_noise)
         semilogx(fc,L1perU,'Color',rgb('Gray')); hold on;
         plot(fc,L1perL,'Color',rgb('Gray'));
         plot(fc,L1me,'o-','Color',rgb('Maroon'),'MarkerFaceColor',rgb('Maroon')); grid on
-        % errorbar(fc,L1me,errLL1,errUL1,'-','Color',Colours{i});
                
         if i_noise == 1
             data.L1_freq = fc;
@@ -421,57 +426,24 @@ if flags.do_fig2b
         end
         title(noise_types_label{i_noise});
 
-        if do_V
-            %%% Metric V
-            V1me = prctile(V1,50);
-            V1perL = prctile(V1, 5);
-            V1perU = prctile(V1,95);
-            % errL1 = V1me - prctile(V1,5);
-            % errU1 = prctile(V1,95)-V1me;
-
-            nexttile(3+i_noise)
-            semilogx(fc,V1perU,'Color',rgb('Gray'),'LineWidth',2); hold on
-            plot(fc,V1perL,'Color',rgb('Gray'),'LineWidth',2);
-            plot(fc,V1me,'o-','Color',rgb('Maroon'),'MarkerFaceColor',rgb('Maroon')); hold on; grid on
-            % errorbar(fc,V1me,errL1,errU1,'-','Color',Colours{i});
-
-            if i_noise == 1
-                ylabel('V (dB)')
-            else
-                set(gca,'YTickLabel',[]);
-            end
-            if i_noise == 2
-                xlabel('Frequency (Hz)')
-            end
-
-            set(gca,'XTick',XT);
-            set(gca,'XTickLabel',XTL);
-
-            ylim(V_lim);
-            
-            if i_noise == 1
-                text(0,1.05,'C.','Units','Normalize','FontWeight','Bold','FontSize',13);
-            end
-            % title(' ')
-            % title(noise_types_label{i_noise});
-            
-            data.V1me(:,i_noise) = V1me(:);
-            data.V1perL(:,i_noise) = V1perL(:);
-            data.V1perU(:,i_noise) = V1perU(:);
-            if i_noise == 1
-                data.V1_freq = fc;
-            end
-        end
-
         if do_kohlrausch2021_env
             idx_env = find(env_extra.f_env<=fmod_xlim(2));
             
             f_env  = env_extra.f_env(idx_env);
             % extra.fs_env = env_extra.fs_env;
-            env_dB_U = prctile(env_dB_full(idx_env,:),95,2);
             env_dB   = prctile(env_dB_full(idx_env,:),50,2);
+            [DC_empirical(i_noise),idx_DC_empirical(i_noise)] = max(env_dB);
+            if i_noise == 1
+                DC = DC_empirical(i_noise);
+            end
+            switch type_env
+                case 'kohlrausch2021_env'
+                    env_dB = env_dB - DC;
+                    env_dB_full = env_dB_full-DC;
+            end
+            env_dB_U = prctile(env_dB_full(idx_env,:),95,2);
             env_dB_L = prctile(env_dB_full(idx_env,:), 5,2);
-
+            
             nexttile(3+i_noise) % when there were 3 subpanels: (6+i_noise)
             plot(f_env,env_dB_U,'-','Color',rgb('Gray'),'LineWidth',2); hold on;
             plot(f_env,env_dB_L,'-','Color',rgb('Gray'),'LineWidth',2);
@@ -483,9 +455,10 @@ if flags.do_fig2b
             data.env_dB_U(:,i_noise) = env_dB_U(:);
             data.env_dB_L(:,i_noise) = env_dB_L(:);
             data.env_dB(:,i_noise)   = env_dB(:);
+            data.DC_empirical(i_noise) = DC_empirical(i_noise);
             
             if i_noise == 1
-                ylabel('Envelope spectrum (dB)')
+                ylabel(sprintf('Envelope spectrum (dB %s)',suff_dB))
             else
                 set(gca,'YTickLabel',[]);
             end

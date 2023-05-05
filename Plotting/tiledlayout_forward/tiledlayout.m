@@ -12,7 +12,7 @@ handle_tl = [];
 if nargin < 4
     TileSpacing_option = 'Compact';
 end
-bExist = exist('tiledlayout.p','file'); % tiledlayout.p
+bExist = exist('tiledlayout','file'); % tiledlayout.p
 if bExist
     if isempty(varargin)
         handle_tl = tiledlayout(N,M,TileSpacing,TileSpacing_option);
