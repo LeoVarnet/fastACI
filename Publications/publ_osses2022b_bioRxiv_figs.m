@@ -1,25 +1,25 @@
-function data = publ_osses2022b_JASA_figs(varargin)
-% function data = publ_osses2022b_JASA_figs(varargin)
+function data = publ_osses2022b_bioRxiv_figs(varargin)
+% function data = publ_osses2022b_bioRxiv_figs(varargin)
 %
 % 1. Description: Generates the figures
 %
 % % To display Fig. 1 of Osses and Varnet, (2022, BioRxiv) use :::
-%     publ_osses2022b_JASA_figs('fig1'); % T-F representations /aba/, /ada/
+%     publ_osses2022b_bioRxiv_figs('fig1'); % T-F representations /aba/, /ada/
 %
 % % To display Fig. 2a of Osses and Varnet, (2022, BioRxiv) use :::
-%     publ_osses2022b_JASA_figs('fig2a'); % T-F representation of one realisation of each noise type
+%     publ_osses2022b_bioRxiv_figs('fig2a'); % T-F representation of one realisation of each noise type
 %
 % % To display Fig. 2b of Osses and Varnet, (2022, BioRxiv) use :::
-%     publ_osses2022b_JASA_figs('fig2b'); % Acoustic analysis of each noise type
+%     publ_osses2022b_bioRxiv_figs('fig2b'); % Acoustic analysis of each noise type
 %
 % % To display Fig. 3 of Osses and Varnet, (2022, BioRxiv) use :::
-%     publ_osses2022b_JASA_figs('fig3'); % Illustration of the Gaussian basis elements
+%     publ_osses2022b_bioRxiv_figs('fig3'); % Illustration of the Gaussian basis elements
 %
 % % To display Fig. 4 of Osses and Varnet, (2022, BioRxiv) use :::
-%     publ_osses2022b_JASA_figs('fig4'); % SNR thresholds averaged across participants
+%     publ_osses2022b_bioRxiv_figs('fig4'); % SNR thresholds averaged across participants
 %
 % % To display Fig. 5 of Osses and Varnet, (2022, BioRxiv) use :::
-%     publ_osses2022b_JASA_figs('fig5'); % Correct responses, dprime, criterion averaged across participants
+%     publ_osses2022b_bioRxiv_figs('fig5'); % Correct responses, dprime, criterion averaged across participants
 %
 % 'fig1' requires the speech samples from 'S01'
 % 'fig2a','fig2b' require the noise samples from 'S01'
@@ -33,7 +33,7 @@ function data = publ_osses2022b_JASA_figs(varargin)
 % close all, clc
 
 if nargin == 0
-    help publ_osses2022b_JASA_figs;
+    help publ_osses2022b_bioRxiv_figs;
     return
 end
 
@@ -327,24 +327,33 @@ if flags.do_fig2b
     type_env = 'kohlrausch2021_env'; % as in the new manuscript
     switch type_env
         case 'kohlrausch2021_env_noDC'
+            % For preprint
             suff_DC = ''; 
             fmod_ylim = [10 50];
             suff_dB = '';
             
         case 'kohlrausch2021_env'
+            % For JASA paper
             % With DC but also referenced to 0 dB
             
             suff_DC = '-with-DC'; 
             % fmod_ylim = [10 70];
             yoff = 70;
             % fmod_ylim = [10 70]-yoff; % showing the DC
-            fmod_ylim = [10 50]-yoff; % not showing the DC
+            fmod_ylim = [20 45]-yoff; % not showing the DC
             suff_dB = ' re max.';
             
     end
     
 	fmod_xlim = [0 60];
-    fc_ylim = [30 70];
+    fc_ylim = [35 65];
+    percL = 25;
+    percU = 75;
+    
+    % %%% Preprint:
+    % fc_ylim = [30 70];
+    % percL =  5;
+    % percU = 95;
     %%%
     
     figure('Position',[100 100 650 450]); % before: Pos(4) = 650
@@ -383,8 +392,8 @@ if flags.do_fig2b
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%% Band levels:
         L1me = prctile(lvls,50);
-        L1perL = prctile(lvls, 5);
-        L1perU = prctile(lvls,95);
+        L1perL = prctile(lvls,percL);
+        L1perU = prctile(lvls,percU);
         
         nexttile(i_noise)
         semilogx(fc,L1perU,'Color',rgb('Gray')); hold on;
@@ -441,8 +450,8 @@ if flags.do_fig2b
                     env_dB = env_dB - DC;
                     env_dB_full = env_dB_full-DC;
             end
-            env_dB_U = prctile(env_dB_full(idx_env,:),95,2);
-            env_dB_L = prctile(env_dB_full(idx_env,:), 5,2);
+            env_dB_U = prctile(env_dB_full(idx_env,:),percU,2);
+            env_dB_L = prctile(env_dB_full(idx_env,:),percL,2);
             
             nexttile(3+i_noise) % when there were 3 subpanels: (6+i_noise)
             plot(f_env,env_dB_U,'-','Color',rgb('Gray'),'LineWidth',2); hold on;
@@ -475,7 +484,9 @@ if flags.do_fig2b
             deltaf = 10;
             XT = deltaf:deltaf:fmod_xlim(2)-deltaf;
             set(gca,'XTick',XT);
-            set(gca,'YTick',fmod_ylim(1)+5:5:fmod_ylim(2)-5);
+            %%% Preprint:
+            % set(gca,'YTick',fmod_ylim(1)+5:5:fmod_ylim(2)-5);
+            set(gca,'YTick',fmod_ylim(1)+4:4:fmod_ylim(2)-4);
             xlim(fmod_xlim);
             ylim(fmod_ylim);
 
@@ -892,11 +903,9 @@ end % end do_fig4
 
 if flags.do_fig5 
     % Fig. 2: Performance as a function of SNR
-    P_H_resp2 = P_H; % Script3 assumes that the target sound is option '2'
-    resp2_label = [data_hist.H_label '-trials (H)'];
     P_H_resp1 = 1-P_FA; % 'Hits' when the participant response was '1'
-    resp1_label = [data_hist.CR_label '-trials (CR)'];
-
+    P_H_resp2 = P_H; % Script3 assumes that the target sound is option '2'
+    
     figure('Position',[100 100 700 600]);
     tiledlayout(2,2,'TileSpacing','tight');
     
@@ -924,7 +933,7 @@ if flags.do_fig5
             set(gca,'XTickLabel','');
         end
         txt_options = {'Unit','Normalized','FontWeight','Bold','FontSize',14};
-        text(0.05,0.92,'A. /aba/ trials (H)',txt_options{:});
+        text(0.05,0.92,'A. /aba/ trials (CR)',txt_options{:});
         
         nexttile(2)
         
@@ -944,7 +953,7 @@ if flags.do_fig5
             % legend(resp1_label,'Location','SouthEast')
             set(gca,'XTickLabel','');
         end
-        text(0.05,0.92,'B. /ada/ trials (CR)',txt_options{:});
+        text(0.05,0.92,'B. /ada/ trials (H)',txt_options{:});
     end
     
     nexttile(3)
@@ -994,7 +1003,7 @@ if flags.do_fig5
     end
     
     h(end+1) = gcf;
-    hname{end+1} = 'fig5-Rates'; 
+    hname{end+1} = 'fig05-Rates'; 
 end
 
 if flags.do_fig5_stats % Originally by Leo
@@ -1097,9 +1106,9 @@ if flags.do_fig6 || flags.do_fig5_suppl || flags.do_fig5b_suppl
         if bAdd_thres 
             try
                 flags_here = varargin(2:end); % excluding the fig number
-                meanSNR = publ_osses2022b_JASA_figs('fig4','no_plot',flags_here{:});
+                meanSNR = publ_osses2022b_bioRxiv_figs('fig4','no_plot',flags_here{:});
             catch
-                meanSNR = publ_osses2022b_JASA_figs('fig4','no_plot');
+                meanSNR = publ_osses2022b_bioRxiv_figs('fig4','no_plot');
             end
             file_savegame = meanSNR.file_savegame;
             meanSNR = meanSNR.meanSNR; % recycling the variable

@@ -207,7 +207,11 @@ switch TF_type
             'no_outerear','no_middleear'};
         switch cfg_inout.glmfct
             case 'l1glm'
-                flags_gamma{end+1} = 'fc_nextpow2';
+                if fhigh < 8000
+                    flags_gamma{end+1} = 'fc_nextpow2';
+                else
+                    flags_gamma{end+1} = 'no_fc_nextpow2'; % this is the default
+                end 
         end
         [outsig,f,t,extras] = Gammatone_proc(bruit,fs,flags_gamma{:});
         f = f(:); % column array

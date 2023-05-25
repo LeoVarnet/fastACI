@@ -59,14 +59,22 @@ end
 % Apply the auditory filterbank
 [outsig, fc] = auditoryfilterbank(insig,fs,'argimport',flags,keyvals);
 if flags.do_fc_nextpow2
-    nfc = 2^nextpow2( length(fc)/2 );
-    % nfc_current = length(fc);
-    idx_i = find(fc>80,1,'first'); % first frequency above 80 Hz
-    idx_f = idx_i+nfc-1;
+    nfc_original = length(fc);
+    if nfc_original > 64 || round(max(fc)) < 8000
+        nfc = 2^nextpow2( length(fc)/2 ); % reduces one order
+    else
+        nfc = nfc_original;
+    end
     
-    fc = fc(idx_i:idx_f);
-    
-    outsig = outsig(:,idx_i:idx_f);
+    if nfc_original > nfc
+        % Then fc contains a subset of the original fcs:
+        idx_i = find(fc>80,1,'first'); % first frequency above 80 Hz
+        idx_f = min(idx_i+nfc-1, nfc_original);
+
+        fc = fc(idx_i:idx_f);
+
+        outsig = outsig(:,idx_i:idx_f);
+    end
 end
     
 if flags.do_ihc

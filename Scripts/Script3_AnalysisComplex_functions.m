@@ -6,6 +6,10 @@ function data = Script3_AnalysisComplex_functions(cfg_game,data_passation,fct,bP
 %   prctile: preselects the trials having an data_passation.expvar values 
 %       between percentiles 5 and 95.
 %
+% See also: publ_osses2022b_JASA_figs.m (do_fig5)
+%
+% Author: Leo Varnet for ACI v.0
+% Author: Alejandro Osses (2022-2023), style, additional options
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if nargin == 0
