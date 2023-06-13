@@ -9,6 +9,10 @@ function [cfg_inout,s_current,bGenerate_stimuli] = Check_seeds_and_initialise(cf
 %       - cfg_inout.bRove_level = var.cfg_crea.bRove_level;
 %       - cfg_inout.Rove_level  = var.cfg_crea.Rove_level;
 %       - cfg_inout.Rove_range  = var.cfg_crea.Rove_range;
+% Author: Alejandro Osses
+% Date: 2021
+% Date: 13/06/2023, copying f0vec and timevec from the seed participant if 
+%                   the experiment is 'segmentation'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if ~isfield(cfg_inout,'seeds_order') && ~isfield(cfg_inout,'stim_order')
@@ -148,6 +152,16 @@ if bDo_the_check
             cfg_inout.bRove_level = var.cfg_crea.bRove_level;
             cfg_inout.Rove_level  = var.cfg_crea.Rove_level(idx2use);
             cfg_inout.Rove_range  = var.cfg_crea.Rove_range;
+        end
+        %%%
+        switch lower(cfg_inout.experiment)
+            case 'segmentation'
+                if isfield(var.cfg_crea,'f0vec')
+                    cfg_inout.f0vec = var.cfg_crea.f0vec;
+                end
+                if isfield(var.cfg_crea,'timevec')
+                    cfg_inout.timevec= var.cfg_crea.timevec;
+                end
         end
         fprintf('Metadata successfully copied from %s\n',crea_extern);
 

@@ -1,25 +1,28 @@
-function data = publ_osses2022b_JASA_figs(varargin)
-% function data = publ_osses2022b_JASA_figs(varargin)
+function data = publ_osses2023c_JASA_figs(varargin)
+% function data = publ_osses2023c_JASA_figs(varargin)
 %
 % 1. Description: Generates the figures
 %
 % % To display Fig. 1 of Osses and Varnet, (2022, BioRxiv) use :::
-%     publ_osses2022b_JASA_figs('fig1'); % T-F representations /aba/, /ada/
+%     publ_osses2023c_JASA_figs('fig1'); % T-F representations /aba/, /ada/
 %
 % % To display Fig. 2a of Osses and Varnet, (2022, BioRxiv) use :::
-%     publ_osses2022b_JASA_figs('fig2a'); % T-F representation of one realisation of each noise type
+%     publ_osses2023c_JASA_figs('fig2a'); % T-F representation of one realisation of each noise type
 %
 % % To display Fig. 2b of Osses and Varnet, (2022, BioRxiv) use :::
-%     publ_osses2022b_JASA_figs('fig2b'); % Acoustic analysis of each noise type
+%     publ_osses2023c_JASA_figs('fig2b'); % Acoustic analysis of each noise type
 %
 % % To display Fig. 3 of Osses and Varnet, (2022, BioRxiv) use :::
-%     publ_osses2022b_JASA_figs('fig3'); % Illustration of the Gaussian basis elements
+%     publ_osses2023c_JASA_figs('fig3'); % Illustration of the Gaussian basis elements
 %
 % % To display Fig. 4 of Osses and Varnet, (2022, BioRxiv) use :::
-%     publ_osses2022b_JASA_figs('fig4'); % SNR thresholds averaged across participants
+%     publ_osses2023c_JASA_figs('fig4'); % SNR thresholds averaged across participants
 %
 % % To display Fig. 5 of Osses and Varnet, (2022, BioRxiv) use :::
-%     publ_osses2022b_JASA_figs('fig5'); % Correct responses, dprime, criterion averaged across participants
+%     publ_osses2023c_JASA_figs('fig5'); % Correct responses, dprime, criterion averaged across participants
+%
+% % To display Fig. 6 of Osses and Varnet, (2022, BioRxiv) use :::
+%     publ_osses2023c_JASA_figs('fig6'); %  Experimental ACIs for each participant and for the group
 %
 % 'fig1' requires the speech samples from 'S01'
 % 'fig2a','fig2b' require the noise samples from 'S01'
@@ -73,11 +76,6 @@ definput.keyvals.dir_out=[];
 
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
-% dir_fastACI_results = fastACI_paths('dir_data'); % '/home/alejandro/Documents/Databases/data/fastACI/';
-% 
-% experiment = 'speechACI_varnet2013';
-% dir_exp = [dir_fastACI_results experiment filesep];
-
 % Common variables:
 noise_str         = {'white','bumpv1p2_10dB','sMPSv1p3'};
 noise_types_label = {'white','bump','MPS'};
@@ -87,7 +85,6 @@ experiment        = 'speechACI_Logatome-abda-S43M';
 N_maskers = length(noise_str);
 
 type_corr = 'Pearson'; % In the end, Pearson seems to be good enough
-% type_corr = 'Spearman';
 
 do_fig4_stats_N10 = 0; % by default no analysis of N=10 data
 do_fig5_stats_N10 = 0; % by default no analysis of N=10 data
@@ -116,10 +113,7 @@ if bZenodo == 1
 end
 
 % colourbar_map = 'default';
-
 colourbar_map = 'DG_jet';
-% colourbar_map = 'DG_red_blue'; % Double gradient
-% colourbar_map = 'SQ_red'; % Sequential red
 flags_tf = {'colourbar_map',colourbar_map};
 
 if bZenodo == 1
@@ -171,11 +165,6 @@ if flags.do_fig1 || flags.do_fig2a || flags.do_fig2b
     flags_extra = {'NfrequencyTicks',8,'colorbar','no'};
 end
 
-% if flags.do_fig1_old % Speech-in-noise representation
-%     error('Removed from this script on 13/12/2022')
-%     % Originally taken from: l20220602_Figures_ModulationGroup.m (by Leo)
-% end
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig1
     % Taken from: l20220602_Figures_ModulationGroup.m (by Leo)
@@ -216,12 +205,10 @@ if flags.do_fig1
 
     % F0
     par_formants.minpitch = 200; % positive minimum pitch 50 (for intensity)
-    %par_formants.pitchfloor = 100; % previous parameter value (14/10/2022)
     par_formants.pitchfloor = 50; % positive pitch floor 100 (for f0)
     par_formants.pitchceiling = 500; % positive pitch ceiling 500 (for f0)
 
-    % Before 4/11/2021, I_min set to 40 dB:
-    par_formants.I_min = 59;%75; %, arbitrary value
+    par_formants.I_min = 59; % dB, arbitrary value
     
     Add_formants(fname_aba,cfg_in,par_formants);
     %%%
@@ -280,10 +267,7 @@ if flags.do_fig2a
     end
     
     dB_max = max(max(max(G_dB)));
-    % G_dB(find(G_dB> dB_max))= dB_max;
-    % G_dB(:,end,1) = 0;
-    % G_dB(:,end,2) = 0;
-    % G_dB(:,end,3) = 0;
+    
     idx_t = find(t>=0.1 & t<=t(end)-100e-3);
     idx_f = find(round(fc>200));
     for i = 1:3
@@ -314,7 +298,7 @@ if flags.do_fig2a
     
     disp('')
     h(end+1) = gcf;
-    hname{end+1} = 'fig2a-spec-noises';   
+    hname{end+1} = 'fig02a-spec-noises';   
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig2b 
@@ -322,15 +306,10 @@ if flags.do_fig2b
 	% N_sounds = 50; warning('temporal value'); % arbitrary choice for a quick plotting
     
     % Band levels are always computed
-    do_kohlrausch2021_env = 1; % flags.do_fig2c; % Modulation spectrum
-    % type_env = 'kohlrausch2021_env_noDC'; % as in the preprint
     type_env = 'kohlrausch2021_env'; % as in the new manuscript
     switch type_env
         case 'kohlrausch2021_env_noDC'
-            % For preprint
-            suff_DC = ''; 
-            fmod_ylim = [10 50];
-            suff_dB = '';
+            error('This option was used in the preprint version of the paper...')
             
         case 'kohlrausch2021_env'
             % For JASA paper
@@ -350,17 +329,11 @@ if flags.do_fig2b
     percL = 25;
     percU = 75;
     
-    % %%% Preprint:
-    % fc_ylim = [30 70];
-    % percL =  5;
-    % percU = 95;
-    %%%
-    
     figure('Position',[100 100 650 450]); % before: Pos(4) = 650
     tiledlayout(2,3,'TileSpacing','tight');
     
     % i replaced by i_noise
-	for i_noise = 1:length(noise_str)
+    for i_noise = 1:length(noise_str)
         dir_where = [dir_subj_exp 'NoiseStim-' noise_str{i_noise} filesep];
         suff = noise_types_label{i_noise};
         
@@ -373,10 +346,7 @@ if flags.do_fig2b
             file = files1{j};
             [insig,fs] = audioread([dir_where file]);
 
-            if do_kohlrausch2021_env
-                [env_dB_full(:,j),xx,env_extra] = Get_envelope_metric(insig,fs, ...
-                    type_env);
-            end
+            [env_dB_full(:,j),xx,env_extra] = Get_envelope_metric(insig,fs,type_env);
  
             [outsig1,fc] = auditoryfilterbank(insig,fs);
             if j == 1
@@ -435,66 +405,55 @@ if flags.do_fig2b
         end
         title(noise_types_label{i_noise});
 
-        if do_kohlrausch2021_env
-            idx_env = find(env_extra.f_env<=fmod_xlim(2));
-            
-            f_env  = env_extra.f_env(idx_env);
-            % extra.fs_env = env_extra.fs_env;
-            env_dB   = prctile(env_dB_full(idx_env,:),50,2);
-            [DC_empirical(i_noise),idx_DC_empirical(i_noise)] = max(env_dB);
-            if i_noise == 1
-                DC = DC_empirical(i_noise);
-            end
-            switch type_env
-                case 'kohlrausch2021_env'
-                    env_dB = env_dB - DC;
-                    env_dB_full = env_dB_full-DC;
-            end
-            env_dB_U = prctile(env_dB_full(idx_env,:),percU,2);
-            env_dB_L = prctile(env_dB_full(idx_env,:),percL,2);
-            
-            nexttile(3+i_noise) % when there were 3 subpanels: (6+i_noise)
-            plot(f_env,env_dB_U,'-','Color',rgb('Gray'),'LineWidth',2); hold on;
-            plot(f_env,env_dB_L,'-','Color',rgb('Gray'),'LineWidth',2);
-            plot(f_env,env_dB  ,'-','Color',rgb('Maroon'),'LineWidth',2); grid on
-            
-            if i_noise == 1
-                data.f_env = f_env;
-            end
-            data.env_dB_U(:,i_noise) = env_dB_U(:);
-            data.env_dB_L(:,i_noise) = env_dB_L(:);
-            data.env_dB(:,i_noise)   = env_dB(:);
-            data.DC_empirical(i_noise) = DC_empirical(i_noise);
-            
-            if i_noise == 1
-                ylabel(sprintf('Envelope spectrum (dB %s)',suff_dB))
-            else
-                set(gca,'YTickLabel',[]);
-            end
-            if i_noise==2
-                xlabel('Modulation frequency (Hz)')
-            end
+        idx_env = find(env_extra.f_env<=fmod_xlim(2));
 
-            if i_noise == 1
-                text(0,1.05,'C.','Units','Normalize','FontWeight','Bold','FontSize',13);
-            end
-            % title(' ')
-            % title(noise_types_label{i_noise});
-            
-            deltaf = 10;
-            XT = deltaf:deltaf:fmod_xlim(2)-deltaf;
-            set(gca,'XTick',XT);
-            %%% Preprint:
-            % set(gca,'YTick',fmod_ylim(1)+5:5:fmod_ylim(2)-5);
-            set(gca,'YTick',fmod_ylim(1)+4:4:fmod_ylim(2)-4);
-            xlim(fmod_xlim);
-            ylim(fmod_ylim);
-
-            % h(end+1) = gcf;
-            % hname{end+1} = sprintf('Env-N-%.0f%s',N_sounds,suff);
+        f_env  = env_extra.f_env(idx_env);
+        % extra.fs_env = env_extra.fs_env;
+        env_dB   = prctile(env_dB_full(idx_env,:),50,2);
+        [DC_empirical(i_noise),idx_DC_empirical(i_noise)] = max(env_dB);
+        if i_noise == 1
+            DC = DC_empirical(i_noise);
         end
- 
-        % data.V_overall(:,i_noise) = V_overall(:);
+        switch type_env
+            case 'kohlrausch2021_env'
+                env_dB = env_dB - DC;
+                env_dB_full = env_dB_full-DC;
+        end
+        env_dB_U = prctile(env_dB_full(idx_env,:),percU,2);
+        env_dB_L = prctile(env_dB_full(idx_env,:),percL,2);
+
+        nexttile(3+i_noise) % when there were 3 subpanels: (6+i_noise)
+        plot(f_env,env_dB_U,'-','Color',rgb('Gray'),'LineWidth',2); hold on;
+        plot(f_env,env_dB_L,'-','Color',rgb('Gray'),'LineWidth',2);
+        plot(f_env,env_dB  ,'-','Color',rgb('Maroon'),'LineWidth',2); grid on
+
+        if i_noise == 1
+            data.f_env = f_env;
+        end
+        data.env_dB_U(:,i_noise) = env_dB_U(:);
+        data.env_dB_L(:,i_noise) = env_dB_L(:);
+        data.env_dB(:,i_noise)   = env_dB(:);
+        data.DC_empirical(i_noise) = DC_empirical(i_noise);
+
+        if i_noise == 1
+            ylabel(sprintf('Envelope spectrum (dB %s)',suff_dB))
+        else
+            set(gca,'YTickLabel',[]);
+        end
+        if i_noise==2
+            xlabel('Modulation frequency (Hz)')
+        end
+
+        if i_noise == 1
+            text(0,1.05,'C.','Units','Normalize','FontWeight','Bold','FontSize',13);
+        end
+        
+        deltaf = 10;
+        XT = deltaf:deltaf:fmod_xlim(2)-deltaf;
+        set(gca,'XTick',XT);
+        set(gca,'YTick',fmod_ylim(1)+4:4:fmod_ylim(2)-4);
+        xlim(fmod_xlim);
+        ylim(fmod_ylim);
     end
     h(end+1) = gcf;
     hname{end+1} = sprintf('fig2b-analysis-noises-N-%.0f%s',N_sounds,suff_DC);
@@ -562,9 +521,7 @@ if flags.do_fig3
     Pos = get(gcf,'Position');
     Pos(3:4) = [560   300];
     set(gcf,'Position',Pos);
-    % set(gca,'YTick',[]);
-    % set(gca,'XTick',[]);
-
+    s
     colorbar off
 
     there = [0.26,0.4];
@@ -580,7 +537,7 @@ if flags.do_fig3
     text(0.57,0.14,'ex. narrow kernel','Units','Normalized','Color','b','FontWeight','bold');
     
     h(end+1) = gcf;
-    hname{end+1} = 'fig3-Gaussbasis';    
+    hname{end+1} = 'fig03-Gaussbasis';    
 end
 
 %  g20220720_behavstats_from_l20220325
@@ -1634,9 +1591,6 @@ if flags.do_fig7
     for i_masker = 1:N_maskers
         for i_subject = 1:N_subjects
 
-            if i_subject == 9 || i_subject == 10
-                disp('')
-            end
             offx = 0.05*(i_subject - ((N_subjects+2)/2-.5)); %  0.05*i_subject;
             
             y2plot  = G_Devtrial_opt(:,i_subject,i_masker);
@@ -1645,17 +1599,25 @@ if flags.do_fig7
             nexttile(1);
             Me = mean(y2plot);
             EB = 1.64*sem(y2plot);
-            MCol = 'w';
             Me_SEM = [Me+EB Me-EB];
             if max(Me_SEM) >= crit_sig(1) && min(Me_SEM) <= crit_sig(1) % there is a zero crossing, non significant
+                % bSignificant = 0;
+                MCol = 'w';
+            else
+                % bSignificant = 1;
                 MCol = rgb('Gray');
             end
             errorbar(i_masker+offx, Me, EB, 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on
-            
+            % if bSignificant == 1
+            %     % Add asteriks:
+            %     text(i_masker+offx, .005, '*');
+            % end
+
+            MCol = 'w';
+
             nexttile(3);
             Me = mean(y2plot2);
             EB = 1.64*sem(y2plot2);
-            MCol = 'w';
             errorbar(i_masker+offx, Me, EB, 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on
             
             %%% Incorrect trials:
@@ -1665,17 +1627,12 @@ if flags.do_fig7
             nexttile(2);
             Me = mean(y2plot);
             EB = 1.64*sem(y2plot);
-            MCol = 'w';
-            Me_SEM = [Me+EB Me-EB];
-            if max(Me_SEM) >= crit_sig(2) && min(Me_SEM) <= crit_sig(2) % there is a zero crossing, non significant
-                MCol = rgb('Gray');
-            end
+            % Me_SEM = [Me+EB Me-EB]; % used in the preprint to assess significance
             errorbar(i_masker+offx, Me , EB , 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on
 
             nexttile(4);
             Me = mean(y2plot2);
             EB = 1.64*sem(y2plot2);
-            MCol = 'w';
             errorbar(i_masker+offx,Me, EB, 'd', 'Color', masker_colours{i_masker},'MarkerFaceColor',MCol); hold on            
         end
 

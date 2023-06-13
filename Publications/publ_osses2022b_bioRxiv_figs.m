@@ -21,6 +21,9 @@ function data = publ_osses2022b_bioRxiv_figs(varargin)
 % % To display Fig. 5 of Osses and Varnet, (2022, BioRxiv) use :::
 %     publ_osses2022b_bioRxiv_figs('fig5'); % Correct responses, dprime, criterion averaged across participants
 %
+% % To display Fig. 6 of Osses and Varnet, (2022, BioRxiv) use :::
+%     publ_osses2022b_bioRxiv_figs('fig6'); %  Experimental ACIs for each participant and for the group
+%
 % 'fig1' requires the speech samples from 'S01'
 % 'fig2a','fig2b' require the noise samples from 'S01'
 % 'fig3' does not require any additional data
@@ -72,6 +75,15 @@ definput.keyvals.dir_zenodo=[];
 definput.keyvals.dir_out=[];
 
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
+
+if flags.do_fig1 || flags.do_fig2a || flags.do_fig3 || flags.do_fig4 || flags.do_fig5 || flags.do_fig5_stats || ...
+   flags.do_fig6
+    % Exactly as later published in the related journal publication:
+    data = publ_osses2023c_JASA_figs(varargin{:});
+    return;
+end
+
+% Different or slightly different for do_fig2b, do_fig7
 
 % dir_fastACI_results = fastACI_paths('dir_data'); % '/home/alejandro/Documents/Databases/data/fastACI/';
 % 
@@ -147,7 +159,7 @@ dir_savegame_exp = [dir_fastACI 'Publications' filesep 'publ_osses2022b' filesep
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 dir_subj_exp = [dir_data experiment filesep 'S01' filesep];
 
-if flags.do_fig1 || flags.do_fig2a || flags.do_fig2b    
+if flags.do_fig2b    
     %%% Checking the waveforms:
     if ~exist(dir_subj_exp,'dir')
         fprintf('The directory %s is not found on disk\n',dir_subj_exp);
@@ -169,162 +181,12 @@ if flags.do_fig1 || flags.do_fig2a || flags.do_fig2b
     CLim = [-69.5 -39]; % obtained as 20*log10(exp(CLim_base_e))
     
     flags_extra = {'NfrequencyTicks',8,'colorbar','no'};
-end
 
-% if flags.do_fig1_old % Speech-in-noise representation
-%     error('Removed from this script on 13/12/2022')
-%     % Originally taken from: l20220602_Figures_ModulationGroup.m (by Leo)
-% end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig1
-    % Taken from: l20220602_Figures_ModulationGroup.m (by Leo)
-    fname_aba = [dir_subj_exp 'speech-samples' filesep 'S43M_ab_ba.wav'];
-    fname_ada = [dir_subj_exp 'speech-samples' filesep 'S43M_ad_da.wav'];
-    [aba, fs] = audioread(fname_aba);
-    [ada, fs] = audioread(fname_ada);
-    
-    %%% Plot targets + 1 example of noise
-    [G_aba, fc, t, outs] = Gammatone_proc(aba, fs, flags_gamma{:});
-    [G_ada, fc, t, outs] = Gammatone_proc(ada, fs, flags_gamma{:});
-
-    figure('Position',[100 100 500 200]); 
-    tiledlayout(1,2,'TileSpacing','tight');
-    nexttile(1); 
-    G_dB = To_dB(G_aba');
-    affichage_tf(G_dB, 'pow', t, fc, flags_extra{:}); hold on;
-    XTL = 0:.2:.8;
-    XT  = XTL; XT(1) = min(t)/2;
-    set(gca,'XTick',XT);
-    set(gca,'XTickLabel',XTL);
-    caxis(CLim); 
-    title('/aba/ target');
-        
-    cfg_in = [];
-    cfg_in.f = fc;
-    cfg_in.t = t;
-    
-    %%% Parameters for Praat:
-    par_formants = [];
-    par_formants.timestep = 0.01; % positive timestep 0.01
-    par_formants.nformants = 5; % positive nformants 5
-
-    % Formants
-    par_formants.maxformant = 5500; % positive maxformant 5500
-    par_formants.windowlength = 0.025;% 0.025 % positive windowlength 0.025
-    par_formants.dynamicrange = 30; % positive dynamic range 20
-
-    % F0
-    par_formants.minpitch = 200; % positive minimum pitch 50 (for intensity)
-    %par_formants.pitchfloor = 100; % previous parameter value (14/10/2022)
-    par_formants.pitchfloor = 50; % positive pitch floor 100 (for f0)
-    par_formants.pitchceiling = 500; % positive pitch ceiling 500 (for f0)
-
-    % Before 4/11/2021, I_min set to 40 dB:
-    par_formants.I_min = 59;%75; %, arbitrary value
-    
-    Add_formants(fname_aba,cfg_in,par_formants);
-    %%%
-    
-    % flags_extra{end} = 'on';
-    nexttile(2); 
-    G_dB = To_dB(G_ada');
-    affichage_tf(G_dB, 'pow', t, fc, flags_extra{:}); hold on;
-    set(gca,'XTick',XT);
-    set(gca,'XTickLabel',XTL);
-    
-    caxis(CLim); 
-    title('/ada/ target');
-    ylabel('');
-    set(gca,'YTickLabels',[]); %xlabel('')
-
-    % fname1 = [cfg_ACI.dir_target files{1}];
-	% fname2 = [cfg_ACI.dir_target files{2}];
-           
-    Add_formants(fname_ada,cfg_in,par_formants);
-    
-    text(0.52,0.08,'f_0','Color','white','Units','Normalized');
-    text(0.52,0.35,'F_1','Color','white','Units','Normalized');
-    text(0.52,0.48,'F_2','Color','white','Units','Normalized');
-    text(0.52,0.62,'F_3','Color','white','Units','Normalized');
-    text(0.52,0.75,'F_4','Color','white','Units','Normalized');
-    
-    h(end+1) = gcf;
-    hname{end+1} = 'fig1-spec-targets';
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig2a
-    
-    flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',0.5/4, ...
-        'dboffset',100,'no_adt','binwidth',0.01,'no_outerear','no_middleear'};
-    fname = 'Noise_00101.wav';
-    % Taken from: l20220602_Figures_ModulationGroup.m (by Leo)
-    fname_no1 = [dir_subj_exp 'NoiseStim-white'         filesep fname];
-    fname_no2 = [dir_subj_exp 'NoiseStim-bumpv1p2_10dB' filesep fname];
-    fname_no3 = [dir_subj_exp 'NoiseStim-sMPSv1p3'      filesep fname];
-    
-    [insig(:,1),fs] = audioread(fname_no1);
-    insig(:,2) = audioread(fname_no2);
-    insig(:,3) = audioread(fname_no3);
-    
-    figure('Position',[100 100 500 220]); 
-    tiledlayout(1,3,'TileSpacing','tight');
-    
-    for i = 1:3
-        %%% Plot targets + 1 example of noise
-        [G, fc, t, outs] = Gammatone_proc(insig(:,i), fs, flags_gamma{:});
-     
-        dBFS = 100;
-        floor2use = 0;
-        G_dB(:,:,i) = max(20*log10(G)'+dBFS,floor2use); % To_dB(G');
-    end
-    
-    dB_max = max(max(max(G_dB)));
-    % G_dB(find(G_dB> dB_max))= dB_max;
-    % G_dB(:,end,1) = 0;
-    % G_dB(:,end,2) = 0;
-    % G_dB(:,end,3) = 0;
-    idx_t = find(t>=0.1 & t<=t(end)-100e-3);
-    idx_f = find(round(fc>200));
-    for i = 1:3
-        if i ~= 3
-            flags_extra = {'NfrequencyTicks',8,'colorbar','no'};
-        else
-            flags_extra = {'NfrequencyTicks',8,'colorbar','yes'};
-        end
-        
-        nexttile(i); 
-        affichage_tf(G_dB(idx_f,idx_t,i), 'pow', t(idx_t), fc(idx_f), flags_extra{:}); hold on;
-        caxis([0 dB_max])
-        
-        if i == 1
-            text(-0.15,1.07,'A.','Units','Normalized','FontSize',12,'FontWeight','Bold');
-        end
-        if i ~= 1
-            set(gca,'YTickLabel',[]);
-            ylabel('');
-        end
-        if i == 2
-            xlabel('Time (s)')
-        else
-            xlabel('')
-        end
-        title(noise_types_label{i})
-    end
-    
-    disp('')
-    h(end+1) = gcf;
-    hname{end+1} = 'fig2a-spec-noises';   
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig2b 
 	N_sounds = 1000; % arbitrary choice
 	% N_sounds = 50; warning('temporal value'); % arbitrary choice for a quick plotting
     
     % Band levels are always computed
-    do_kohlrausch2021_env = 1; % flags.do_fig2c; % Modulation spectrum
-    % type_env = 'kohlrausch2021_env_noDC'; % as in the preprint
-    type_env = 'kohlrausch2021_env'; % as in the new manuscript
+    type_env = 'kohlrausch2021_env_noDC'; % as in the preprint
     switch type_env
         case 'kohlrausch2021_env_noDC'
             % For preprint
@@ -333,34 +195,21 @@ if flags.do_fig2b
             suff_dB = '';
             
         case 'kohlrausch2021_env'
-            % For JASA paper
-            % With DC but also referenced to 0 dB
-            
-            suff_DC = '-with-DC'; 
-            % fmod_ylim = [10 70];
-            yoff = 70;
-            % fmod_ylim = [10 70]-yoff; % showing the DC
-            fmod_ylim = [20 45]-yoff; % not showing the DC
-            suff_dB = ' re max.';
-            
+            error('This option was used in the main journal paper...')
     end
     
 	fmod_xlim = [0 60];
-    fc_ylim = [35 65];
-    percL = 25;
-    percU = 75;
-    
-    % %%% Preprint:
-    % fc_ylim = [30 70];
-    % percL =  5;
-    % percU = 95;
+    %%% Preprint:
+    fc_ylim = [30 70];
+    percL =  5;
+    percU = 95;
     %%%
     
     figure('Position',[100 100 650 450]); % before: Pos(4) = 650
     tiledlayout(2,3,'TileSpacing','tight');
     
     % i replaced by i_noise
-	for i_noise = 1:length(noise_str)
+    for i_noise = 1:length(noise_str)
         dir_where = [dir_subj_exp 'NoiseStim-' noise_str{i_noise} filesep];
         suff = noise_types_label{i_noise};
         
@@ -373,11 +222,8 @@ if flags.do_fig2b
             file = files1{j};
             [insig,fs] = audioread([dir_where file]);
 
-            if do_kohlrausch2021_env
-                [env_dB_full(:,j),xx,env_extra] = Get_envelope_metric(insig,fs, ...
-                    type_env);
-            end
- 
+            [env_dB_full(:,j),xx,env_extra] = Get_envelope_metric(insig,fs,type_env);
+            
             [outsig1,fc] = auditoryfilterbank(insig,fs);
             if j == 1
                 t = (1:size(outsig1,1))/fs;
@@ -435,152 +281,61 @@ if flags.do_fig2b
         end
         title(noise_types_label{i_noise});
 
-        if do_kohlrausch2021_env
-            idx_env = find(env_extra.f_env<=fmod_xlim(2));
-            
-            f_env  = env_extra.f_env(idx_env);
-            % extra.fs_env = env_extra.fs_env;
-            env_dB   = prctile(env_dB_full(idx_env,:),50,2);
-            [DC_empirical(i_noise),idx_DC_empirical(i_noise)] = max(env_dB);
-            if i_noise == 1
-                DC = DC_empirical(i_noise);
-            end
-            switch type_env
-                case 'kohlrausch2021_env'
-                    env_dB = env_dB - DC;
-                    env_dB_full = env_dB_full-DC;
-            end
-            env_dB_U = prctile(env_dB_full(idx_env,:),percU,2);
-            env_dB_L = prctile(env_dB_full(idx_env,:),percL,2);
-            
-            nexttile(3+i_noise) % when there were 3 subpanels: (6+i_noise)
-            plot(f_env,env_dB_U,'-','Color',rgb('Gray'),'LineWidth',2); hold on;
-            plot(f_env,env_dB_L,'-','Color',rgb('Gray'),'LineWidth',2);
-            plot(f_env,env_dB  ,'-','Color',rgb('Maroon'),'LineWidth',2); grid on
-            
-            if i_noise == 1
-                data.f_env = f_env;
-            end
-            data.env_dB_U(:,i_noise) = env_dB_U(:);
-            data.env_dB_L(:,i_noise) = env_dB_L(:);
-            data.env_dB(:,i_noise)   = env_dB(:);
-            data.DC_empirical(i_noise) = DC_empirical(i_noise);
-            
-            if i_noise == 1
-                ylabel(sprintf('Envelope spectrum (dB %s)',suff_dB))
-            else
-                set(gca,'YTickLabel',[]);
-            end
-            if i_noise==2
-                xlabel('Modulation frequency (Hz)')
-            end
+        idx_env = find(env_extra.f_env<=fmod_xlim(2));
 
-            if i_noise == 1
-                text(0,1.05,'C.','Units','Normalize','FontWeight','Bold','FontSize',13);
-            end
-            % title(' ')
-            % title(noise_types_label{i_noise});
-            
-            deltaf = 10;
-            XT = deltaf:deltaf:fmod_xlim(2)-deltaf;
-            set(gca,'XTick',XT);
-            %%% Preprint:
-            % set(gca,'YTick',fmod_ylim(1)+5:5:fmod_ylim(2)-5);
-            set(gca,'YTick',fmod_ylim(1)+4:4:fmod_ylim(2)-4);
-            xlim(fmod_xlim);
-            ylim(fmod_ylim);
-
-            % h(end+1) = gcf;
-            % hname{end+1} = sprintf('Env-N-%.0f%s',N_sounds,suff);
+        f_env  = env_extra.f_env(idx_env);
+        % extra.fs_env = env_extra.fs_env;
+        env_dB   = prctile(env_dB_full(idx_env,:),50,2);
+        [DC_empirical(i_noise),idx_DC_empirical(i_noise)] = max(env_dB);
+        if i_noise == 1
+            DC = DC_empirical(i_noise);
         end
- 
+        switch type_env
+            case 'kohlrausch2021_env'
+                env_dB = env_dB - DC;
+                env_dB_full = env_dB_full-DC;
+        end
+        env_dB_U = prctile(env_dB_full(idx_env,:),percU,2);
+        env_dB_L = prctile(env_dB_full(idx_env,:),percL,2);
+
+        nexttile(3+i_noise) % when there were 3 subpanels: (6+i_noise)
+        plot(f_env,env_dB_U,'-','Color',rgb('Gray'),'LineWidth',2); hold on;
+        plot(f_env,env_dB_L,'-','Color',rgb('Gray'),'LineWidth',2);
+        plot(f_env,env_dB  ,'-','Color',rgb('Maroon'),'LineWidth',2); grid on
+
+        if i_noise == 1
+            data.f_env = f_env;
+        end
+        data.env_dB_U(:,i_noise) = env_dB_U(:);
+        data.env_dB_L(:,i_noise) = env_dB_L(:);
+        data.env_dB(:,i_noise)   = env_dB(:);
+        data.DC_empirical(i_noise) = DC_empirical(i_noise);
+
+        if i_noise == 1
+            ylabel(sprintf('Envelope spectrum (dB %s)',suff_dB))
+        else
+            set(gca,'YTickLabel',[]);
+        end
+        if i_noise==2
+            xlabel('Modulation frequency (Hz)')
+        end
+
+        if i_noise == 1
+            text(0,1.05,'C.','Units','Normalize','FontWeight','Bold','FontSize',13);
+        end
+
+        deltaf = 10;
+        XT = deltaf:deltaf:fmod_xlim(2)-deltaf;
+        set(gca,'XTick',XT);
+        %%% Preprint:
+        set(gca,'YTick',fmod_ylim(1)+5:5:fmod_ylim(2)-5);
+        xlim(fmod_xlim);
+        ylim(fmod_ylim);
+
         % data.V_overall(:,i_noise) = V_overall(:);
     end
     h(end+1) = gcf;
     hname{end+1} = sprintf('fig2b-analysis-noises-N-%.0f%s',N_sounds,suff_DC);
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig3
-    %%% Creating the frequency matrix:
-    N_freq = 64;
-    fhigh = 8000;
-    fhigh_erb = freqtoaud(fhigh);
-    delta_f = 0.5; % ERB
-    flow_erb = fhigh_erb-delta_f*(N_freq-1);
-
-    cfg_ACI = [];
-    f = audtofreq(flow_erb:delta_f:fhigh_erb);
-    cfg_ACI.f = f(:);
-
-    %%% Creating the time matrix:
-    binwidth = 10e-3; % 10 ms
-    dur = .86;
-    t = (0+binwidth:binwidth:dur);
-    cfg_ACI.t = t;
-
-    %%% Creating a B matrix, with arbitrary bumps located at indexes 'idxs':
-    w = zeros(length(f),length(t));
-    w = w(:);
-    idxs = [10,150,560,1000,1300,2100,2193,2300,2599]; % Arbitrary indexes
-    w(idxs) = 1;
-
-    cfg_ACI.lasso_Nlevelmin = 2;
-    cfg_ACI.lasso_Nlevelmax = 5;
-    cfg_ACI.lasso_Nlevel    = 5;
-    % The following is 'a prori' knowledge: the size of each dimension (freq, time)
-    %    for levels 1 (omited), 2, 3, 4, and 5:
-    cfg_ACI.lasso_Pyra_size = [0 0; 32 64; 16 32; 8 16; 4 8];
-
-    %%% Convertion 'back' into the time-frequency domain:
-    idxlambda = 1; % idle value
-    keyvals.pyramid_script = 'imresize'; % old default value
-    [~, cfg_ACI, sumReWeight] = Convert_lasso_B2ACI(w, cfg_ACI, idxlambda, keyvals);
-
-    [~,~,sizeZ] = size(sumReWeight);
-    switch sizeZ
-        case 1 % then sumReWeight is bidimensional (because one lambda was simulated)
-            % dim_f = 1; dim_t = 2;
-            dim_lambda = [];
-        otherwise % then sumReWeight is tridimensional (because more than one lambda was simulated):
-            % dim_f = 2; dim_t = 3;
-            dim_lambda = 1;
-    end
-
-    %% 5. Plot
-    figure;
-    if dim_lambda == 1
-        affichage_tf( squeeze(sumReWeight(2,:,:)), 'CI', cfg_ACI.t, cfg_ACI.f, flags_tf{:});
-    else
-        affichage_tf( sumReWeight, 'CI', cfg_ACI.t, cfg_ACI.f, flags_tf{:});
-    end
-    ylabel('Frequency (Hz)');
-    xlabel('Time (s)');
-
-    hold on;
-
-    Pos = get(gcf,'Position');
-    Pos(3:4) = [560   300];
-    set(gcf,'Position',Pos);
-    % set(gca,'YTick',[]);
-    % set(gca,'XTick',[]);
-
-    colorbar off
-
-    there = [0.26,0.4];
-    fhere = 5000*[1 1];
-    plot(there,fhere,'b-','LineWidth',2);
-
-    text(0.24,0.58,'ex. wide kernel','Units','Normalized','Color','b','FontWeight','bold');
-
-    there = [0.61,0.65];
-    fhere = 1450*[1 1];
-    plot(there,fhere,'b-','LineWidth',2);
-
-    text(0.57,0.14,'ex. narrow kernel','Units','Normalized','Color','b','FontWeight','bold');
-    
-    h(end+1) = gcf;
-    hname{end+1} = 'fig3-Gaussbasis';    
 end
 
 %  g20220720_behavstats_from_l20220325
@@ -588,7 +343,7 @@ end
 Subjects = {'S01','S02','S03','S04','S05','S06','S07','S08','S09','S10','S11','S12'}; 
 N_subjects = length(Subjects);
 
-if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
+if flags.do_fig5_simu 
     %%% If analysis for the first 10 participants: 
     % % Subjects = {'S01','S02','S03','S04','S05','S07','S08','S09','S10','S11'};
     
@@ -601,7 +356,7 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
     for i_subject = 1:N_subjects
         subject = Subjects{i_subject};
         
-        if flags.do_fig4 || flags.do_fig5 || flags.do_fig5_stats % Human listeners:
+        if flags.do_fig5_stats % Human listeners:
             dir_subject = [dir_savegame_exp 'data_' Subjects{i_subject} filesep '1-experimental_results' filesep];
         end
         if flags.do_fig5_simu
@@ -645,7 +400,6 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
 
             % %%% Preparing for Fig. 1 and 2:
             % data_passation_tmp = data_passation;
-            % 
             % 
             % bPlot_in_Script3 = 0;
             % % with option 'histogram-group' the histograms are defined on a
@@ -746,7 +500,7 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
         data.file_savegame = file_savegame;
     end
     
-    if flags.do_fig4 || flags.do_fig5_simu
+    if flags.do_fig5_simu
         % Summary for the text:
         for i_subject = 1:N_subjects
             perc_here = squeeze(perc_corr_all(i_subject, :, :));
@@ -765,7 +519,7 @@ if flags.do_fig4 || flags.do_fig5_simu || flags.do_fig5 || flags.do_fig5_stats
     end
 end
 
-if flags.do_fig4 || flags.do_fig5_simu
+if flags.do_fig5_simu
     
     meanSNR_part_noise = mean(medianSNR(:,:,:),3); % average across test block
     data.meanSNR = meanSNR_part_noise;
@@ -901,182 +655,9 @@ if flags.do_fig4 || flags.do_fig5_simu
     end
 end % end do_fig4
 
-if flags.do_fig5 
-    % Fig. 2: Performance as a function of SNR
-    P_H_resp1 = 1-P_FA; % 'Hits' when the participant response was '1'
-    P_H_resp2 = P_H; % Script3 assumes that the target sound is option '2'
-    
-    figure('Position',[100 100 700 600]);
-    tiledlayout(2,2,'TileSpacing','tight');
-    
-    XL = [-18.5 -8.5];
-    for i_masker = 1:N_maskers
-        
-        nexttile(1)
-        
-        x_var = bin_centres;
-        Score = 100*squeeze(P_H_resp1(:,i_masker,:));
-        Me  = mean(Score);
-        Sem = std(Score)/sqrt(size(Score,1));
-        
-        offx = 0.15*(i_masker-1);
-        errorbar(x_var+offx,Me,Sem,'o-','Color',masker_colours{i_masker},'MarkerFaceColor',masker_colours{i_masker});
-        hold on; grid on
-        
-        if i_masker == N_maskers
-            % title('PC');
-            % xlabel('SNR (dB)');
-            ylabel('Percentage correct');
-            ylim(100*[0.35 1.05]); 
-            xlim(XL)
-            % legend(resp2_label,'Location','SouthEast')
-            set(gca,'XTickLabel','');
-        end
-        txt_options = {'Unit','Normalized','FontWeight','Bold','FontSize',14};
-        text(0.05,0.92,'A. /aba/ trials (CR)',txt_options{:});
-        
-        nexttile(2)
-        
-        Score = 100*squeeze(P_H_resp2(:,i_masker,:));
-        Me = mean(Score);
-        Sem = std(Score)/sqrt(size(Score,1));
-        offx = 0.15*(i_masker-1);
-        errorbar(x_var+offx,Me,Sem,'o-','Color',masker_colours{i_masker},'MarkerFaceColor', 'w');%maskercolors{i_masker});
-        hold on; grid on
-        
-        if i_masker == N_maskers
-            % title('PC');
-            % xlabel('SNR (dB)');
-            ylabel('Percentage correct');
-            ylim(100*[0.35 1.05]); 
-            xlim(XL)
-            % legend(resp1_label,'Location','SouthEast')
-            set(gca,'XTickLabel','');
-        end
-        text(0.05,0.92,'B. /ada/ trials (H)',txt_options{:});
-    end
-    
-    nexttile(3)
-        
-    for i_masker = 1:N_maskers
-        x_var = bin_centres;
-        Me = squeeze(mean(dprime(:,i_masker,:)));
-        Sem = squeeze(std(dprime(:,i_masker,:)))/sqrt(size(dprime,1));
-        offx = 0.15*(i_masker-1);
-        errorbar(x_var+offx,Me,Sem,'o-','Color',masker_colours{i_masker},'MarkerFaceColor',masker_colours{i_masker});
-        hold on; grid on;
-        if i_masker == N_maskers
-            % title('d prime');
-            xlabel('SNR (dB)');
-            ylabel('d''');
-            xlim(XL)
-            legend(noise_types_label, 'interpreter', 'none','Location','SouthEast')
-        end
-        
-        ylim([-0.1 2.3]);
-        set(gca,'YTick',0:0.2:2.2);
-        
-        text(0.05,0.92,'C. d''',txt_options{:});
-    end
-
-    nexttile(4)
-        
-    for i_masker = 1:N_maskers
-        x_var = bin_centres;
-        Me = squeeze(mean(criterion(:,i_masker,:)));
-        Sem = squeeze(std(criterion(:,i_masker,:)))/sqrt(size(criterion,1));
-        offx = 0.15*(i_masker-1);
-        errorbar(x_var+offx,Me,Sem,'o-','Color',masker_colours{i_masker},'MarkerFaceColor',masker_colours{i_masker});
-        hold on; grid on;
-        %plot(bin_centres, criterion ,'-o','Color',colour_here); hold on, grid on;
-        if i_masker == N_maskers
-            xlim(XL)
-            % title('criterion');
-            xlabel('SNR (dB)');
-            ylabel('c');
-            
-            ylim([-0.17 0.23]);
-            set(gca,'YTick',-0.15:0.05:0.20);
-        
-            text(0.05,0.92,'D. Criterion c',txt_options{:});
-        end
-    end
-    
-    h(end+1) = gcf;
-    hname{end+1} = 'fig05-Rates'; 
-end
-
-if flags.do_fig5_stats % Originally by Leo
-    % Run mixed models on dprime & criterion
-    
-    % First we need to select a subset of SNRs where all 3 conditions are defined
-    idx_SNR2analyse = 5:9; SNR2analyze = bin_centres(idx_SNR2analyse);
-    dprime2analyse = dprime(:,:,idx_SNR2analyse);
-    criterion2analyse = criterion(:,:,idx_SNR2analyse);
-   
-    [F_subjects,F_maskers,F_SNR] = ndgrid(1:N_subjects,1:N_maskers,SNR2analyze);
-    [p,tbl,stats] = anovan(dprime2analyse(:),{F_maskers(:),F_SNR(:),F_subjects(:)},'varnames',{'maskers','SNR','subjects'},'random',3,'continuous',2,'display','off');
-    fprintf(['\n*Results of Mixed ANOVA on dprime with factors Masker and SNR (and random factor subject)*\n'])
-    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{2,1}, tbl{2,3}, tbl{5,3}, tbl{2,6}, tbl{2,7})
-    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{3,1}, tbl{3,3}, tbl{5,3}, tbl{3,6}, tbl{3,7})
-    % multcompare(stats,'display','off')
-    
-    [p,tbl,stats] = anovan(criterion2analyse(:),{F_maskers(:),F_SNR(:),F_subjects(:)},'varnames',{'maskers','SNR','subjects'},'random',3,'continuous',2,'display','off');
-    fprintf(['\n*Results of Mixed ANOVA on criterion with factors Masker and SNR (and random factor subject)*\n'])
-    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{2,1}, tbl{2,3}, tbl{5,3}, tbl{2,6}, tbl{2,7})
-    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{3,1}, tbl{3,3}, tbl{5,3}, tbl{3,6}, tbl{3,7})
-    %multcompare(stsats,'display','off')
-    % Fig. 3: Performance as a function of SNR
-    
-    %%% Results on 9/09/2022:
-    % *Results of Mixed ANOVA on dprime with factors Masker and SNR (and random factor subject)*
-    % maskers: F(2,165) = 10.39, p = 0.000
-    % SNR: F(1,165) = 1017.65, p = 0.000
-    % 
-    % *Results of Mixed ANOVA on criterion with factors Masker and SNR (and random factor subject)*
-    % maskers: F(2,165) = 1.75, p = 0.178
-    % SNR: F(1,165) = 9.77, p = 0.002   
-    
-    do_fig5_stats_N10 = input('Show analysis for 10 participants? (1=yes; 0=no): ');
-end
-
-if do_fig5_stats_N10 % requires that flags.do_fig5 = 1
-    % Repeat the mixed ANOVAs on dprime & criterion, if requested
-    
-    idx_N = 1:N_subjects;
-    idx_N([6 12]) = [];
-    
-    % First we need to select a subset of SNRs where all 3 conditions are defined
-    dprime2analyse = dprime(idx_N,:,idx_SNR2analyse);
-    criterion2analyse = criterion(idx_N,:,idx_SNR2analyse);
-   
-    fprintf('\tAnalysis using N=10\n');
-    [F_subjects,F_maskers,F_SNR] = ndgrid(idx_N,1:N_maskers,SNR2analyze);
-    [p,tbl,stats] = anovan(dprime2analyse(:),{F_maskers(:),F_SNR(:),F_subjects(:)},'varnames',{'maskers','SNR','subjects'},'random',3,'continuous',2,'display','off');
-    fprintf(['\n*Results of Mixed ANOVA on dprime with factors Masker and SNR (and random factor subject)*\n'])
-    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{2,1}, tbl{2,3}, tbl{5,3}, tbl{2,6}, tbl{2,7})
-    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{3,1}, tbl{3,3}, tbl{5,3}, tbl{3,6}, tbl{3,7})
-    % multcompare(stats,'display','off')
-    
-    [p,tbl,stats] = anovan(criterion2analyse(:),{F_maskers(:),F_SNR(:),F_subjects(:)},'varnames',{'maskers','SNR','subjects'},'random',3,'continuous',2,'display','off');
-    fprintf(['\n*Results of Mixed ANOVA on criterion with factors Masker and SNR (and random factor subject)*\n'])
-    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{2,1}, tbl{2,3}, tbl{5,3}, tbl{2,6}, tbl{2,7})
-    fprintf('%s: F(%d,%d) = %.2f, p = %.3f\n', tbl{3,1}, tbl{3,3}, tbl{5,3}, tbl{3,6}, tbl{3,7})
-    %multcompare(stsats,'display','off')
-    % Fig. 3: Performance as a function of SNR
-    
-    %%% Results on 4/10/2022:
-    % *Results of Mixed ANOVA on dprime with factors Masker and SNR (and random factor subject)*
-    % maskers: F(2,137) = 10.24, p = 0.000
-    % SNR: F(1,137) = 788.09, p = 0.000
-    % 
-    % *Results of Mixed ANOVA on criterion with factors Masker and SNR (and random factor subject)*
-    % maskers: F(2,137) = 1.41, p = 0.249
-    % SNR: F(1,137) = 13.02, p = 0.000   
-end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if flags.do_fig6 || flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || ...
+if flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || ...
    flags.do_fig3_suppl || flags.do_fig4_suppl || flags.do_fig5_suppl
     glmfct = 'l1glm';
     
@@ -1096,24 +677,10 @@ if flags.do_fig6 || flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || ...
 
 end
 
-if flags.do_fig6 || flags.do_fig5_suppl || flags.do_fig5b_suppl
+if flags.do_fig5_suppl || flags.do_fig5b_suppl
     
     N_noises = length(noise_str);
     flags_text = {'FontWeight','Bold','Units','Normalized'};
-    
-    if flags.do_fig6
-        bAdd_thres = 1; % Option added on 10/10/2022
-        if bAdd_thres 
-            try
-                flags_here = varargin(2:end); % excluding the fig number
-                meanSNR = publ_osses2022b_bioRxiv_figs('fig4','no_plot',flags_here{:});
-            catch
-                meanSNR = publ_osses2022b_bioRxiv_figs('fig4','no_plot');
-            end
-            file_savegame = meanSNR.file_savegame;
-            meanSNR = meanSNR.meanSNR; % recycling the variable
-        end
-    end
      
     Pos4 = [800 800];
     N_subjs2plot = [6 6];
@@ -1145,103 +712,6 @@ if flags.do_fig6 || flags.do_fig5_suppl || flags.do_fig5b_suppl
  
                 % Copying the ACI to the group values:
                 Group_ACIs{count_curr_subject,i_noise} = ACI;
-
-                if flags.do_fig6
-                    bBox = 0;
-                    switch Subjects{i_subj}
-                        case 'S10'
-                            if i_noise == 1
-                                bBox = 1;
-                            end
-                        case 'S11'
-                            if i_noise == 1
-                                bBox = 1;
-                            end
-                        otherwise
-                            % Nothing to do
-                    end
-                
-                    if i_noise == 3
-                        bColourbar = 1;
-                    else
-                        bColourbar = 0;
-                    end
-                    flags_opts = {'NfrequencyTicks',5,'colorbar',bColourbar}; 
-                    flags_opts = [flags_opts flags_tf];
-                
-                    nexttile(N_noises*(i_subj-1)+i_noise);
-                    plot_outs = affichage_tf(ACI,'CInorm', cfg_ACI.t, cfg_ACI.f,flags_opts{:}); hold on
-                
-                    if i_subj ~= N_subj2plot
-                        xlabel('')
-                        set(gca,'XTickLabel','');
-                    end
-                    if i_noise ~= 1
-                        ylabel('');
-                        set(gca,'YTickLabel','');
-                    end
-
-                    %%% Adding a box to the null ACIs
-                    if bBox
-                        YL_box = get(gca,'YLim');
-                        XL_box = get(gca,'XLim');
-                        xcoor = mean(XL_box);
-                        ycoor = mean(YL_box);
-                        offx = 0.98*abs(diff(XL_box)/2);
-                        offy = 0.98*abs(diff(YL_box)/2);
-                        il_plot_square_XY(xcoor,ycoor,'m',offx,offy,'--',4);
-                    end
-
-                    if i_subj == 1
-                        title(noise_types_label{i_noise});
-                        switch i_noise
-                            case 1
-                                if i_repeat == 1
-                                    text2show = 'A.';
-                                else
-                                    text2show = 'D.';
-                                end
-                            case 2
-                                if i_repeat == 1
-                                    text2show = 'B.';
-                                else
-                                    text2show = 'E.';
-                                end
-                            case 3
-                                if i_repeat == 1
-                                    text2show = 'C.';
-                                else
-                                    text2show = 'F.';
-                                end
-                        end
-                        text(0,1.15,text2show,flags_text{:},'FontSize',14);
-                    end
-                    if i_noise == 3
-                        text2show = Subjects{i_subj};
-                        text(.7,.90,text2show,flags_text{:},'FontSize',12);
-                    end
-                    text2show = sprintf('%.1f',meanSNR(i_subj,i_noise));
-                    text(.7,.75,text2show,flags_text{:},'FontSize',10,'Color',rgb('Gray'));
-
-                    if bColourbar
-                        hcl = plot_outs.tcolorbar;
-                        set(hcl,'Ticks',[]);
-                    end
-                    if i_subj == 1
-                        % Put 'aba'
-                        if bColourbar
-                            [xx,colour_max,colour_min] = Get_colourmap_rgb(colourbar_map);
-                            text(1.1,1.15,'aba','FontSize',12,flags_text{:},'Color',colour_max);
-                        end
-                    end
-
-                    if i_subj == N_subj2plot
-                        if bColourbar
-                            text(1.1,-.15,'ada','FontSize',12,flags_text{:},'Color',colour_min);
-                        end
-                    end
-
-                end % end: do_fig6
             end
             count_curr_subject = count_curr_subject + 1; % incrementing the counter for the corresponding participant
         end
@@ -1249,62 +719,15 @@ if flags.do_fig6 || flags.do_fig5_suppl || flags.do_fig5b_suppl
         if flags.do_fig6
             meanSNR(1:N_subj2plot,:) = [];
         end
-        
-        if flags.do_fig6
-            h(end+1) = gcf;
-            hname{end+1} = ['fig06' suff '-ACI-exp'];
-        end
     end
     
-    if flags.do_fig6
-        figure('Position',[100 100 2*600 250]);
-        tiledlayout(1,N_noises,'TileSpacing','tight');
-    end
     for i_noise = 1:N_noises
-        if flags.do_fig6
-            nexttile(i_noise);
-        end
         G_ACI = Group_ACIs{1,i_noise}; % ACI from the first participant
         N_ACIs = length(Group_ACIs);
         for i_ACI = 2:N_ACIs
             G_ACI = G_ACI + Group_ACIs{i_ACI,i_noise};
         end
         G_ACI = G_ACI/N_ACIs;
-        
-        if flags.do_fig6
-            % Using the cfg_ACI of the last participant:
-            affichage_tf(G_ACI,'CI', cfg_ACI.t, cfg_ACI.f,flags_opts{:}); hold on
-        
-            dir_targets = [dir_subj_exp 'speech-samples' filesep]; % this is the folder of participant S01, arbitrarily chosen
-
-            LineStyles = {'-','-.'};
-            Colours = {'r','b'}; % {[0.6,0,0],[0,0,0.6]};
-            LineWidth = 1.5;
-            outs_aff = affichage_tf_add_Praat_metrics(dir_targets,cfg_ACI,[],LineStyles,Colours,LineWidth);
-            if i_noise ~= N_maskers
-                set(outs_aff.hl,'Visible','off'); % Removes the legend
-            end
-
-            title(noise_types_label{i_noise});
-        
-            switch i_noise
-                case 1
-                    text2show = 'G.';
-                case 2
-                    text2show = 'H.';
-                case 3
-                    text(1.2,1,'aba','FontSize',12,flags_text{:},'Color',colour_max);
-                    text(1.2,0,'ada','FontSize',12,flags_text{:},'Color',colour_min);
-
-                    text2show = 'I.';
-            end
-            text(0,1.08,text2show,'FontWeight','Bold','Units','Normalized','FontSize',14); 
-            suff = 'gi';
-        end % do_flag6
-    end
-    if flags.do_fig6
-        h(end+1) = gcf;
-        hname{end+1} = ['fig06' suff '-ACI-exp'];
     end
 end % end do_fig6
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
