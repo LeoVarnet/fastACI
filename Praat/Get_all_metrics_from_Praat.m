@@ -18,7 +18,7 @@ params = Ensure_field(params,'nformants',5); % positive nformants 5
 params = Ensure_field(params,'maxformant',6000); % positive maxformant 5500
 params = Ensure_field(params,'windowlength',0.01); % positive windowlength 0.025
 params = Ensure_field(params,'dynamicrange',20); % positive dynamic range 20
-params = Ensure_field(params,'minpitch',200); % positive minimum pitch 50 (for intensity)
+params = Ensure_field(params,'minpitch',50); % positive minimum pitch 50 (for intensity)
 params = Ensure_field(params,'pitchfloor',50); % positive pitch floor 100 (for f0)
 params = Ensure_field(params,'pitchceiling',500); % positive pitch ceiling 500 (for f0)
 
@@ -39,7 +39,14 @@ if Nsounds ~= 0
         [t_F{i} ,F{i}]  = Get_formants_from_txt([dir_where filesF{i}]);
 
         try
-            minIforF = max(max(I{i})-20, params.I_min); % In case the user requests
+            minIforF = max(max(I{i})-9.3, params.I_min); % In case the user requests
+                % an I_min value that is too low, then the limit is set to 20 dB
+                % below the maximum assessed intensity value
+            %max(nanmean(I{i})+10.5, params.I_min); % In case the user requests
+                % an I_min value of 0, then the limit is set to 10.5 dB
+                % above the mean intensity
+            % old version
+            %max(max(I{i})-9, params.I_min); % In case the user requests
                 % an I_min value that is too low, then the limit is set to 20 dB
                 % below the maximum assessed intensity value
         catch
@@ -48,7 +55,7 @@ if Nsounds ~= 0
 
         idxs = find(I{i}<minIforF | isnan(I{i}));
         F{i}(idxs,:) = nan;
-        f0{i}(idxs) = nan;
+        %f0{i}(idxs) = nan;
 
     end
 
