@@ -148,7 +148,7 @@ if flags.do_fig2
     set(gca,'XTick',1:5)
     set(gca,'XTickLabels',{'ABDA22','ADGA23','APTA23','ABPA23','ADTA23'})
     xlabel('experiment'); 
-    ylabel('SRT (dB)');
+    ylabel('SNR threshold (dB)');
     legend({'','','','','','','','','S01','S13'})
 end
 
