@@ -190,11 +190,11 @@ if flags.do_mfb
             %     a_lp_150_Hz: [1 -0.9789]
             
         case 'modfilterbank'
-            if nargout >= 4
+            %if nargout >= 4
                 [outsig,mfc,params] = modfilterbank(outsig,subfs,fc,'argimport',flags,keyvals);
-            else
-                [outsig,mfc] = modfilterbank(outsig,subfs,fc,'argimport',flags,keyvals);
-            end
+            %else
+            %    [outsig,mfc] = modfilterbank(outsig,subfs,fc,'argimport',flags,keyvals);
+            %end
     end
 end
 
