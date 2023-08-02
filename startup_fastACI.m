@@ -1,12 +1,15 @@
-function startup_fastACI
-% function startup_fastACI
+function startup_fastACI(bAMT, bFastACI_sim)
+% function startup_fastACI(bAMT, bFastACI_sim)
 %
 % Programmed by Alejandro Osses, ENS 2021-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-bAMT         = 1;
-bFastACI_exp = 1;
-bFastACI_sim = 1; % only if found... (Leo's or Alejandro's)
+bFastACI_exp = 1; % actual fastACI toolbox, always added
+if nargin == 0
+    bAMT = 1;
+end
+if nargin < 1
+    bFastACI_sim = 1; % only if found... (Leo's or Alejandro's)
+end
 
 dir_fastACI  = [fileparts(which(mfilename)) filesep];
 
@@ -88,10 +91,12 @@ if bAFC
     end
 end
 
-fastACI_path = [fileparts(fileparts(fastACI_basepath)) filesep 'fastACI_sim' filesep];
-if exist(fastACI_path,'dir')
-    fprintf('fastACI_sim toolbox found: only the tb_fastACI_AddOns folder will be added...\n');
-    addpath([fastACI_path 'MATLAB' filesep 'tb_fastACI_AddOns' filesep]);
+if bFastACI_sim
+    fastACI_path = [fileparts(fileparts(fastACI_basepath)) filesep 'fastACI_sim' filesep];
+    if exist(fastACI_path,'dir')
+        fprintf('fastACI_sim toolbox found: only the tb_fastACI_AddOns folder will be added...\n');
+        addpath([fastACI_path 'MATLAB' filesep 'tb_fastACI_AddOns' filesep]);
+    end
 end
 
 if ~exist('tiledlayout.p','file')
