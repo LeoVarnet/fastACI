@@ -1,4 +1,4 @@
-function [outsig, fc, mfc, params] = osses2022a(insig, fs, varargin);
+function [outsig, fc, mfc, params] = osses2022a(insig, fs, varargin)
 %OSSES2022A   Monaural perceptual similarity
 %
 %   Usage: [outsig, fc] = osses2022a(insig,fs);
@@ -190,11 +190,19 @@ if flags.do_mfb
             %     a_lp_150_Hz: [1 -0.9789]
             
         case 'modfilterbank'
-            %if nargout >= 4
+            % if nargout >= 4
                 [outsig,mfc,params] = modfilterbank(outsig,subfs,fc,'argimport',flags,keyvals);
-            %else
+            % else
+            %    % @Leo: for optimal use, the variable 'params' is ideally
+            %    %   only assigned to the outputs when requested by the user,
+            %    %   i.e., when osses2022a is called with four output 
+            %    %   parameters. I do not see why you by-passed the default
+            %    %   The variable 'params' contains otherwise, the modfilterbank
+            %    %   params that are always the same as long as 'subfs' is the same.
+            %    %   In other words, I recommend to reverse the change to this
+            %    %   function from commit 3dbab5d (in Mid July 2023).
             %    [outsig,mfc] = modfilterbank(outsig,subfs,fc,'argimport',flags,keyvals);
-            %end
+            % end
     end
 end
 
