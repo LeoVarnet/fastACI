@@ -238,11 +238,13 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
     if (data_passation.i_current ~= cfg_game.N && bCalculation) || (data_passation.i_current ~= cfg_game.N && bCrossPred) || flags.do_force_dataload
         if data_passation.i_current ~= cfg_game.N
             fprintf('%s: Less trials have been tested by this participant than the expected cfg_game.N=%.0f trials\n',upper(mfilename),cfg_game.N);
-            fprintf('\tPress ctrl+C to cancel the current ACI calculation, otherwise, the ACI will be obtained for less trials...\n');
-            fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-            pause(10);
-            
-            fprintf('\tToo late: ACI will be assessed using %.0f trials only\n',data_passation.i_current);
+            %Ale's version
+%             fprintf('\tPress ctrl+C to cancel the current ACI calculation, otherwise, the ACI will be obtained for less trials...\n');
+%             fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+%             pause(10);
+%             fprintf('\tToo late: ACI will be assessed using %.0f trials only\n',data_passation.i_current);
+            %Leo's version
+            fprintf('\tThe ACI will be assessed using %.0f trials only\n',data_passation.i_current);
         end
         
         N = data_passation.i_current;
