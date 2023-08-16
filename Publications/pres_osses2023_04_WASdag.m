@@ -83,12 +83,11 @@ flags_tf = {'colourbar_map',colourbar_map};
 if bZenodo == 1
     dir_zenodo = keyvals.dir_zenodo;
     dir_ACI_exp = [dir_zenodo '03-Post-proc-data' filesep 'ACI_exp' filesep];
-%     dir_ACI_sim = [dir_zenodo '03-Post-proc-data' filesep 'ACI_sim' filesep]; % Copied from /20220715_sim_Q1_osses2022a/';
-%     
-%     dir_data = [dir_zenodo '01-Stimuli' filesep 'fastACI_data' filesep];
-%     dir_fastACI      = [dir_zenodo '02-Raw-data' filesep 'fastACI' filesep];
-%     dir_savegame_sim = [dir_zenodo '02-Raw-data' filesep 'ACI_sim' filesep];
-% 
+    % dir_ACI_sim = [dir_zenodo '03-Post-proc-data' filesep 'ACI_sim' filesep]; % Copied from /20220715_sim_Q1_osses2022a/';
+    % 
+    % dir_data = [dir_zenodo '01-Stimuli' filesep 'fastACI_data' filesep];
+    % dir_fastACI      = [dir_zenodo '02-Raw-data' filesep 'fastACI' filesep];
+    % dir_savegame_sim = [dir_zenodo '02-Raw-data' filesep 'ACI_sim' filesep];
 else
     if ~isempty(dir_out)
         dir_ACI_exp = dir_out;

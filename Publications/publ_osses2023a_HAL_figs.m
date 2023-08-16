@@ -1,37 +1,31 @@
-function data = publ_osses2023a_JASA_EL_figs(varargin)
-% function data = publ_osses2023a_JASA_EL_figs(varargin)
+function data = publ_osses2023a_HAL_figs(varargin)
+% function data = publ_osses2023a_HAL_figs(varargin)
 %
 % 1. Description: Generates the figures
 %
-% % To display Fig. 1 of Osses et al. (2023, kerAMI) use :::
-%     publ_osses2023a_JASA_EL_figs('fig1'); % Spectrograms and kernels for LAMI and LAPEL
-%     publ_osses2023a_JASA_EL_figs('fig1','zenodo','dir_zenodo',dir_zenodo);
+% % To display Fig. 1 of Osses et al. (2023, kerAMI, preprint) use :::
+%     publ_osses2023a_HAL_figs('fig1'); % Proportion of responses
+%     publ_osses2023a_HAL_figs('fig1','zenodo','dir_zenodo',dir_zenodo);
 %
-% % To display Fig. 2 of Osses et al. (2023, kerAMI) use :::
-%     publ_osses2023a_JASA_EL_figs('fig2'); % Proportion of responses
-%     publ_osses2023a_JASA_EL_figs('fig2','zenodo','dir_zenodo',dir_zenodo);
+% % To display Fig. 2 of Osses et al. (2023, kerAMI, preprint) use :::
+%     publ_osses2023a_HAL_figs('fig2'); % Spectrograms and kernels for LAMI and LAPEL
+%     publ_osses2023a_HAL_figs('fig2','zenodo','dir_zenodo',dir_zenodo);
 %
-% % To display suppl. Fig. 1 of Osses et al. (2023, kerAMI) use :::
-%     publ_osses2023a_JASA_EL_figs('fig1_suppl'); % Spectrograms and kernels for extra conditions
-%     publ_osses2023a_JASA_EL_figs('fig1_suppl','zenodo','dir_zenodo',dir_zenodo);
+% % To display suppl. Fig. 1 of Osses et al. (2023, kerAMI, preprint) use :::
+%     publ_osses2023a_HAL_figs('fig1_suppl'); % Spectrograms and kernels for extra conditions
+%     publ_osses2023a_HAL_figs('fig1_suppl','zenodo','dir_zenodo',dir_zenodo);
 %
-% % To display suppl. Fig. 2 of Osses et al. (2023, kerAMI) use :::
-%     publ_osses2023a_JASA_EL_figs('fig2_suppl'); % Target specific kernels
-%     publ_osses2023a_JASA_EL_figs('fig2_suppl','zenodo','dir_zenodo',dir_zenodo);
-%
-% % To display suppl. Table 1 (and some extra analyses) of Osses et al. 
-% %   (2023, kerAMI) use :::
-%     publ_osses2023a_JASA_EL_figs('table1_suppl'); 
+% % To display suppl. Fig. 2 of Osses et al. (2023, kerAMI, preprint) use :::
+%     publ_osses2023a_HAL_figs('fig2_suppl'); % Target specific kernels
+%     publ_osses2023a_HAL_figs('fig2_suppl','zenodo','dir_zenodo',dir_zenodo);
 %
 % Author: Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all
 data = [];
 
-% close all, clc
-
 if nargin == 0
-    help publ_osses2023a_JASA_EL_figs;
+    help publ_osses2023a_HAL_figs;
     return
 end
 
@@ -41,8 +35,6 @@ hname = [];
 definput.flags.type={'missingflag', ...
     'fig1', ...
     'fig2', ...
-    'fig2b', ...
-    'table1_suppl', ...
     'fig1_suppl', ...
     'fig2_suppl'}; 
 definput.flags.plot={'plot','no_plot'};
@@ -53,10 +45,7 @@ definput.keyvals.dir_out=[];
 
 [flags,keyvals]  = ltfatarghelper({},definput,varargin);
 
-% dir_fastACI_results = fastACI_paths('dir_data'); % '/home/alejandro/Documents/Databases/data/fastACI/';
- 
 experiment = 'segmentation';
-% dir_exp = [dir_fastACI_results experiment filesep];
 
 bZenodo = flags.do_zenodo;
 bLocal = ~bZenodo;
@@ -69,47 +58,39 @@ else
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Common configuration for all figures:
-basef = 8000;
-flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',0.5, ...
-    'dboffset',100,'no_adt','binwidth',0.01,'no_outerear','no_middleear'};
-x_offset = 0.03;
-
-Condition_list = {  'LAMI','LAPEL', ... main conditions
-                    'LACROCH','LALARM','LAMI_SHIFTED'};
-N_participants_expected = [16 18 5 5 3];
-
-if bZenodo
-    dir_where_exp  = dir_data;
-    dir_where_stim = [dir_zenodo '01-Stimuli' filesep];
-    dir_where_post = [dir_zenodo '03-Post-proc-data' filesep];
-    if ~exist(dir_where_post,'dir')
-        mkdir(dir_where_post);
+if flags.do_fig1 || flags.do_fig2 || flags.do_fig1_suppl || flags.do_fig2_suppl
+    %%%
+    basef = 8000;
+    flags_gamma = {'basef',basef,'flow',40,'fhigh',8000,'bwmul',0.5, ...
+        'dboffset',100,'no_adt','binwidth',0.01,'no_outerear','no_middleear'};
+    x_offset = 0.03;
+    
+    Condition_list = {  'LAMI','LAPEL', ... main conditions
+                        'LACROCH','LALARM','LAMI_SHIFTED'};
+    N_participants_expected = [16 18 5 5 3];
+    
+    if bZenodo
+        dir_where_exp  = dir_data;
+        dir_where_stim = [dir_zenodo '01-Stimuli' filesep];
+        dir_where_post = [dir_zenodo '03-Post-proc-data' filesep];
+        if ~exist(dir_where_post,'dir')
+            mkdir(dir_where_post);
+        end
+    end
+    if bLocal
+        dir_where_exp  = [dir_data experiment filesep]; 
+        % dir_where_stim = dir_where_exp;
+        dir_where_post = [fastACI_dir_datapost experiment filesep];
     end
 end
-if bLocal
-    dir_where_exp  = [dir_data experiment filesep]; 
-    % dir_where_stim = dir_where_exp;
-    dir_where_post = [fastACI_dir_datapost experiment filesep];
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if flags.do_fig1 || flags.do_fig1_suppl || flags.do_fig2_suppl
+if flags.do_fig2 || flags.do_fig1_suppl || flags.do_fig2_suppl
     colourbar_map = 'hot_reversed'; % single gradient
-    % colourbar_map = 'DG_jet'; % double gradient
-    % colourbar_map = 'DG_red_blue'; % Double gradient
-    % colourbar_map = 'SQ_red'; % Sequential red
     flags_extra = {'NfrequencyTicks',8,'colourbar_map',colourbar_map, ...
             'colorbar','no'};
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig2 || flags.do_fig2b
-    bin_step = 50;
-    hist_bin_edges  = -175:bin_step:175;
-    hist_bin_centre = -200:bin_step:200;
-end
-
-if flags.do_fig2
+if flags.do_fig1
     Show_cell(Condition_list);
 
     idx_conds = 1:2;
@@ -117,6 +98,10 @@ if flags.do_fig2
     
     Perc = nan(N_max,length(idx_conds));
     Rf0 = nan([N_max,9,length(idx_conds)]); % memory allocation
+    
+    bin_step = 50;
+    hist_bin_edges  = -175:bin_step:175;
+    hist_bin_centre = -200:bin_step:200;
     
     for i_cond = idx_conds
         bInput = i_cond; % Always LAMI
@@ -131,8 +116,6 @@ if flags.do_fig2
             pause(10);
         end
         for i_subject = 1:N_participants
-            % dir_res = il_get_data_path('dir_res', bZenodo,file_subj{i_subject});
-            
             dir_subj = [dir_where_exp file_subj{i_subject} filesep]; 
             if bZenodo == 0
                 dir_res = [dir_subj 'Results' filesep];
@@ -215,14 +198,6 @@ if flags.do_fig2
             end
 
             Data_f0_subset = Data_matrix(:,segment_nr,dim_f0);
-            
-            % %%% Correction by Alejandro: '<' replaced by '<='
-            % Rate of responses for high- mid- and low-f0s:
-            %   The responses could be ''l'aX'' (1) or ''la X'' (2). The average
-            %   minus one indicate the rate for which 'la X' is chosen, because
-            %   the closer to 0, the more l'aX was chosen and the closer to 1
-            %   the more 'la X'.
-            
             Perc(i_subject,i_cond) = 100*sum(data_passation.is_correct)/length(data_passation.is_correct);
             
             %%% Generating the histograms:
@@ -303,10 +278,10 @@ if flags.do_fig2
     end
     
     h(end+1) = gcf;
-    hname{end+1} = 'fig2-hist';
+    hname{end+1} = 'fig1-hist';
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if flags.do_fig1
+if flags.do_fig2
     %%%
     for i_cond = 1:2
         switch i_cond
@@ -316,11 +291,6 @@ if flags.do_fig1
                 fname2 = 'la_mie.wav';
                 label1 = 'A. C''est l''amie';
                 label2 = '   C''est la mie';
-                phonetic1    ={'s'   ,'$$\\varepsilon$$','l'   ,'a'   ,'m'   ,'i'};
-                interpreter = {'none','latex'           ,'none','none','none','none'};
-                % phonetic1={'s','e','l','a','m','i'};
-                pho_loc1 =[0.18 0.275 0.35 0.405 0.489 0.58];
-                pho_loc2 =[0.16 0.28  0.34 0.41  0.491  0.61];
                 t_seg1 = [.11  .305  .4507 0.6425]; sentence1 = {'C''est','l''a -','mie'}; % manually from Praat
                 t_seg2 = [.104 .2935 .4507 0.71];   sentence2 = {'C''est','la','mie'}; % manually from Praat 
                 
@@ -330,11 +300,6 @@ if flags.do_fig1
                 fname2 = 'la_pelle.wav';
                 label1 = 'B. C''est l''appel';
                 label2 = '   C''est la pelle';
-                phonetic1   ={'s'    ,'$$\\varepsilon$$','l'   ,'a'   ,'p'   ,'$$\\varepsilon$$','l'};
-                interpreter = {'none','latex'           ,'none','none','none','latex'           ,'none'};
-                %phonetic1={'s','e','l','a','p','e','l'};
-                pho_loc1 =[0.165 0.27 0.32  0.38  0.54  0.588 0.68];
-                pho_loc2 =[0.16  0.245 0.29  0.345 0.515 0.585 0.685];
                 t_seg1 = [.105  .2818  .4567 0.77]; sentence1 = {'C''est','l''a -','ppel'}; % manually from Praat
                 t_seg2 = [.11  .264 .463 0.77];     sentence2 = {'C''est','la','pelle'}; % manually from Praat 
                 
@@ -401,13 +366,10 @@ if flags.do_fig1
                 CB_TickLabel{i_tick} = sprintf('%.0f',CB_Tick(i_tick) - max(CB_Tick));
             end
             
-            % set(hc,'Ticks',CB_Tick);
-            % set(hc,'TickLabels',CB_TickLabel);
             set(hc,'YTick',CB_Tick);
             set(hc,'YTickLabel',CB_TickLabel);
         end
-        % title(label1); % title(['c''est l''' cfg_game.response_names{1}]);
-
+        
         time_dly_compensation = 25e-3; % 30e-3; % 2*5.2e-3; % from Osses2019, pp. 1026
         YL_here = get(gca,'YLim');
         DR = YL_here(2)-YL_here(1); 
@@ -425,14 +387,6 @@ if flags.do_fig1
             x_text = .25*(t_seg(idxf)-t_seg(idxi))+t_seg(idxi);
             y_text = YL_here(2) + .1*DR;
             text(x_text,y_text,sentence1{i_sent},'FontWeight','Bold','FontSize',11,'Color','m');
-        end
-        for i_sent = 1:length(phonetic1)
-            % phonetic1={'s','\varepsilon','l','a','m','i'};
-            
-            loc = pho_loc1; % pho_loc1 =[0.19 0.28  0.35 0.405 0.49  0.58];
-            x_text = loc(i_sent);
-            y_text = YL_here(2) - .1*DR;
-            text(x_text,y_text,sprintf(phonetic1{i_sent}),'FontSize',12,'Color','k','interpreter',interpreter{i_sent}); % 'FontWeight','Bold'
         end
         
         if i_cond == 1
@@ -487,15 +441,6 @@ if flags.do_fig1
             text(x_text,y_text,sentence2{i_sent},'FontWeight','Bold','FontSize',11,'Color','m');
         end
 
-        for i_sent = 1:length(phonetic1)
-            % phonetic1={'s','\varepsilon','l','a','m','i'};
-            loc = pho_loc2; % pho_loc2 =[0.17 0.285 0.34 0.41  0.495 0.62];
-            
-            x_text = loc(i_sent);
-            y_text = YL_here(2) - .1*DR;
-            text(x_text,y_text,sprintf(phonetic1{i_sent}),'FontSize',12,'Color','k','interpreter',interpreter{i_sent}); % 'FontWeight','Bold'
-        end
-        
         if i_cond == 1
             text(x_panel_label,y_panel_label,'B.','FontWeight','Bold','FontSize',14,'Unit','Normalized');
         end
@@ -614,9 +559,7 @@ if flags.do_fig1
             end
 
             [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(savegame_path,'glm',flags_in_here{:});
-            % [ACI_t1,cfg_ACI_t1,results_t1]    = fastACI_getACI(savegame_path,'glm','trialtype_analysis','t1',flags_in{:});
-            % [ACI_t2,cfg_ACI_t2,results_t2]    = fastACI_getACI(savegame_path,'glm','trialtype_analysis','t2',flags_in{:});
-
+            
             f0_kernel(:,i_subject) = ACI(:,1);
             time_kernel(:,i_subject) = ACI(:,2);
         end
@@ -627,6 +570,7 @@ if flags.do_fig1
         mYL = .35; % ylim for the plot
         
         mean_for_H0 = 0;
+        % [h_f0_kernel,p_f0_kernel,~,t_f0_kernel]       = ttest(f0_kernel'  ,mean_for_H0,'alpha', alpha);
         [h_f0_kernel,p_f0_kernel,~,t_f0_kernel]       = ttest(f0_kernel'  ,mean_for_H0, alpha);
         [h_time_kernel,p_time_kernel,~,t_time_kernel] = ttest(time_kernel',mean_for_H0, alpha);
         
@@ -695,10 +639,6 @@ if flags.do_fig1
         set(gca,'YTick',YT);
 
         nexttile(2+tile_start+(i_cond));
-        % plot(t_edge,zeros(size(t_edge)),'k--');
-        % errorbar(t_edge,mean(time_kernel_t1,2),1.96*sem(time_kernel_t1,[],2)/2,'r','LineWidth',1); hold on
-        % errorbar(t_edge,mean(time_kernel_t2,2),1.96*sem(time_kernel_t2,[],2)/2,'b','LineWidth',1); hold on
-        
         % Horizontal line:
         plot([min(t_edge) max(t_edge)],[0 0],'k--'); hold on
         
@@ -734,7 +674,7 @@ if flags.do_fig1
     end
     
     h(end+1) = gcf;
-    hname{end+1} = 'fig1-LAMI+LAPEL';
+    hname{end+1} = 'fig2-LAMI+LAPEL';
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig1_suppl
@@ -806,19 +746,7 @@ if flags.do_fig1_suppl
             file_save = Get_filenames(dir_res,'*savegame*.mat');
             if length(file_save)~=1
                 error('More than one savegame found...');
-            end
-                        
-            % dir_subj = [dir_data experiment filesep Subject_ID filesep];
-            % dir_res = [dir_subj 'Results' filesep];
-            % dir_res_post = [dir_where_post Subject_ID filesep];
-            % if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
-            % dir_res_post = [dir_res_post 'Results' filesep];
-            % if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
-            % %%% Load data
-            % file_save = Get_filenames(dir_res,'*savegame*.mat');
-            % if length(file_save)~=1
-            %     error('More than one savegame found...');
-            % end
+            end            
             savegame_path = [dir_res file_save{end}];
         
             cfg_game = [];
@@ -839,12 +767,6 @@ if flags.do_fig1_suppl
             %%% End load data
 
             if i_subject == 1
-                % N_segment = XT_max/.1; % Prior knowledge
-                % t_edge = (0:N_segment)/10;
-
-                % fname1 = [dir_subj 'speech-samples' filesep wave1];
-                % fname2 = [dir_subj 'speech-samples' filesep wave2];
- 
                 if bLocal
                     dir_subj = [dir_data experiment filesep Subject_ID filesep];
                     dir_stim = [dir_subj 'speech-samples' filesep];
@@ -1008,7 +930,6 @@ if flags.do_fig1_suppl
 
             flags_in = {'no_plot','dir_out',dir_res_post};
  
-            % dir_noise = [dir_subj 'Stim-processed' filesep];
             if exist(dir_noise,'dir')
                 flags_in(end+1:end+2) = {'dir_noise',dir_noise};
             end
@@ -1072,7 +993,7 @@ if flags.do_fig1_suppl
         grid on
         % box on
         text(.85,.9,['N = ' num2str(N_participants)],'Units','normalized')
-        % YL  = ylim; 
+        
         mYL = 0.45; % 1.4*max(abs(YL));
         ylim(mYL*[-1 1]);
         % set(gca,'YTick',YT);
@@ -1110,11 +1031,7 @@ if flags.do_fig1_suppl
         set(gca,'XTick',t_edge)
         xlim([0-x_offset t_edge(end)+x_offset])
         grid on
-        % box on
-        % text(.85,.8,['N = ' num2str(i_subject)],'Units','normalized')
-        % YL = ylim; 
-        % mYL=max(abs(YL));
-        % ylim([-1.4 1.4]*mYL);
+        
         ylim(mYL*[-1 1]);
         
         if i_cond == 1
@@ -1207,13 +1124,6 @@ if flags.do_fig2_suppl
             end
 
             % GLM-based revcorr
-            % % flags_in_here = flags_in;
-            % % 
-            % % bForce_dataload = 0;
-            % % if bForce_dataload
-            % %     flags_in_here{end+1} = 'force_dataload';
-            % % end
-
             [ACI_t1,cfg_ACI_t1,results_t1]    = fastACI_getACI(savegame_path,'glm','trialtype_analysis','t1',flags_in{:});
             [ACI_t2,cfg_ACI_t2,results_t2]    = fastACI_getACI(savegame_path,'glm','trialtype_analysis','t2',flags_in{:});
 
@@ -1251,11 +1161,6 @@ if flags.do_fig2_suppl
         errorbar(t_edge,Me1,errLU1,'b','LineWidth',1); 
         errorbar(t_edge,mean(f0_kernel_t2_here,2),1.96*sem(f0_kernel_t2_here,[],2)/2,'r','LineWidth',1); 
         
-        % Me = mean(f0_kernel,2);
-        % errL = 1.96*sem(f0_kernel,[],2)/2;
-        % errU = 1.96*sem(f0_kernel,[],2)/2;
-        % errorbar(t_edge,Me,errL,errU,'k','LineWidth',2); hold on
-
         if i_cond == 1
             pref = 'Target-specific f_0 kernels';
             title(pref);
@@ -1325,105 +1230,6 @@ if flags.do_fig2_suppl
     h(end+1) = gcf;
     hname{end+1} = 'suppl-fig2-target-kernel';
 end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Test for all conditions, starting with LAMI:
-if flags.do_table1_suppl
-    for i_cond = 1:5
-        bInput = i_cond;
-        Cond = Condition_list{bInput};
-        N_part_expected_cond = N_participants_expected(bInput);
-
-        file_subj = il_get_filenames_cond(Cond,dir_where_exp);
-
-        N_participants = length(file_subj);
-
-        disp('')
-        pos_coeff_each = [];
-
-        for i_subject = 1:N_participants
-            %%% First we obtained the pooled ACIs (f0kernel and tkernel):
-            if bLocal
-                dir_res_post = [dir_where_post file_subj{i_subject} filesep];
-                if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
-                dir_res_post = [dir_res_post 'Results' filesep];
-                if ~exist(dir_res_post,'dir'); mkdir(dir_res_post); end
-            end
-            if bZenodo
-                dir_res_post = dir_where_post;
-            end
-
-            ACI_file = Get_filenames(dir_res_post,['ACI*' Cond '*.mat']);
-            if length(ACI_file) > 1
-                warning('Multiple ACI files found...');
-            end
-            varACI(i_subject) = load([dir_res_post ACI_file{1}]);
-            if i_subject == 1
-                ACI_pool = varACI(i_subject).ACI; % sort of memory allocation
-            else
-                ACI_pool = ACI_pool + varACI(i_subject).ACI;
-            end
-            pos_coeff_each(i_subject) = varACI(i_subject).results.B(1);
-        end
-        ACI_pool = ACI_pool / N_participants;
-        pos_coeff = mean(pos_coeff_each);
-
-        B_pool = [pos_coeff; ACI_pool(:)];
-
-        fprintf('Condition %s\n',Cond);
-        B_rounded = round(10000*B_pool)/10000;
-        var2latex(B_rounded')
-        % var = load('/home/alejandro/Documents/MATLAB/outputs/kernels.mat');
-        % 
-        % figure;
-        % plot(ACI_pool(:,1),'b'); hold on;
-        % plot(mean(var.f0_kernel,2),'r--');
-        % 
-        % figure;
-        % plot(ACI_pool(:,2),'b'); hold on;
-        % plot(mean(var.time_kernel,2),'r--');
-
-        PA_each = [];
-
-        for i_subject = 1:N_participants
-            %%% Now we load the data and try to predict it:
-            dir_subj = [dir_where_exp file_subj{i_subject} filesep]; 
-            if bZenodo == 0
-                dir_res = [dir_subj 'Results' filesep];
-            else
-                dir_res = [dir_subj '1-experimental_results' filesep];
-            end
-
-            savegame_file = Get_filenames(dir_res,['savegame*' Cond '*.mat']);
-            if length(savegame_file) > 1
-                error('Multiple savegame files found...')
-            end
-            var = load([dir_res savegame_file{1}]);
-
-            % size(X): 800 x 18
-            % size(y): 800 x  1
-            % size(B, i.e., the ACI before reshaping): 19 x 1, the first one is the position coeff
-            % y_ground_truth = [var.
-            Data_matrix = transpose([var.cfg_game.f0vec; var.cfg_game.timevec]);
-            Data_matrix = Data_matrix(var.data_passation.n_stim,:);
-
-            [y, y_correct, Data_matrix_norm, U, cfg_ACI] = fastACI_getACI_preprocess(varACI(i_subject).cfg_ACI, var.data_passation, Data_matrix);
-
-            y_hat = glmval(B_pool,Data_matrix_norm,'logit'); 
-            y_hat = round(y_hat);
-
-            N_trials = length(y);
-            PA_each(i_subject) = 100*sum(y_hat==y)/N_trials;
-        end
-        % SE_here = 1.96*sem(PA_each)/2;
-        SD_here = std(PA_each);
-        fprintf('Cond %s: Prediction success between %.1f and %.1f (mean=%.1f, SD=%.1f)\n', ...
-            Cond,min(PA_each),max(PA_each),mean(PA_each),SD_here);
-    end
-end
-
-disp('')
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 data.h = h;
 data.hname = hname;
@@ -1458,25 +1264,3 @@ switch Cond
         
 end
 file_subj = file_subj(:);
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% function dir_path = il_get_data_path(path_type, bZenodo,dir_subj_name)
-% 
-% if bZenodo
-%     
-% else
-%     dir_data = fastACI_paths('dir_data');
-% end
-% 
-% switch path_type
-%     case 'dir_res'
-%         if bZenodo
-%             dir_path = '';
-%         else
-%             dir_path = '';
-%             
-%             dir_subj = [dir_where_exp dir_subj_name filesep];
-%             dir_res2 = [dir_subj 'Results' filesep];
-%         end
-% end
-    

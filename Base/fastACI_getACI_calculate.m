@@ -74,10 +74,9 @@ switch glmfct
             results.ACI_perm_CI_high  = ACI_perm_CI_high;
         end
 
-        % The following warning appears when using the Optimization
-        %   toolbox of MATLAB in version R2020a and it seems to
-        %   have originated as of version R2018a (according to
-        %   some forums on the internet).
+        % The following warning appears when using the Optimisation toolbox 
+        %   of MATLAB in version R2020a and it seems to have originated as 
+        %   of version R2018a (according to some forums on the internet).
         [msg,warnID] = lastwarn;
         msg_ref='The quasi-newton algorithm does not use analytic Hessian. Hessian flag in options will be ignored (supplied Hessian will not be used).';
         warnID_ref = 'optim:fminunc:HessIgnored';
@@ -88,12 +87,20 @@ switch glmfct
         % results.evaluation.opts
 
     case 'classic_revcorr'
+        % The following fitting uses all elements of y and X (instead of 
+        %     splitting the elements into training and test trials):
         [ACI, pval_ACI] = corr(y,X);
         ACI = reshape(ACI, [N_f,N_t]);
         pval_ACI = reshape(pval_ACI, [N_f,N_t]);
         
         for i_folds = 1:10
-            % Added by Alejandro on 20/04/2023
+            % Added by Alejandro on 20/04/2023, see pres_osses2023_04_WASdag('fig3a') % and 'fig3b'
+            % Because the fitting stored in ACI was obtained from all trials, 
+            %     the fitting is performed again using 90% of the data for 
+            %     training and 10% of the data for test. These fittings are
+            %     stored in ACI_subset and are purely used to obtain an 
+            %     appropriate goodness-of-fit metric (NOT overestimated).
+            %     ACI_subset is overwritten in every 'i_folds'-cycle:
             idx90 = round(.9*size(X,1));
             idx_random = randperm(size(X,1));
             idx_test = idx_random(idx90+1:end);
@@ -126,13 +133,14 @@ switch glmfct
             results.ACI_perm_CI_low   = ACI_perm_CI_low;
             results.ACI_perm_CI_high  = ACI_perm_CI_high;
         end
-    case {'glm'}
+    case 'glm'
         % Implementation by Leo Varnet on 15/11/2023. It requires the 
         %   statistical toolbox. This fitting was used for our 'segmentation'
         %   experiment (segmentation_user.m, 2022-2023).
         tic
         [B,Dev,Stat] = glmfit(X,y,'binomial','link','logit');
-        ACI = reshape(B(2:end),[length(cfg_ACI.f),length(cfg_ACI.t)]); % AO: Why is B(1) excluded?
+        ACI_size = [length(cfg_ACI.f),length(cfg_ACI.t)];
+        ACI = reshape(B(2:end),ACI_size); % AO: Why is B(1) excluded?
         results.B = B;
         results.Dev = Dev;
         results.dfe = Stat.dfe;
@@ -142,7 +150,26 @@ switch glmfct
         results.t = Stat.t;
         results.p = Stat.p;
         
-    case {'lassoglm_original'}
+        for i_folds = 1:10
+            % Added by Alejandro on 9/08/2023
+            % Because the fitting stored in ACI was obtained from all trials, 
+            %     the fitting is performed again using 90% of the data for 
+            %     training and 10% of the data for test. These fittings are
+            %     stored in ACI_subset and are purely used to obtain an 
+            %     appropriate goodness-of-fit metric (NOT overestimated).
+            %     ACI_subset is overwritten in every 'i_folds'-cycle:
+            warning_id = 'stats:glmfit:IllConditioned';
+            warning('off',warning_id);
+
+            FitInfo_local = Get_PA_for_glm(X,y); % FitInfo from trials that were not used to obtain ACI_subset
+            FitInfo.PC(i_folds,1) = FitInfo_local.PC;
+            FitInfo.idx_test(i_folds,:) = FitInfo_local.idx_test;
+            
+            warning('on',warning_id);
+        end
+        results.FitInfo = FitInfo;
+        
+    case 'lassoglm_original'
         % Implementation by Leo Varnet on 13/01/2023
         error('The GLM fitting using %s has not been validated yet using fastACI',glmfct);
         tic
