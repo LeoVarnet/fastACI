@@ -83,13 +83,19 @@ if bCalculation == 0
     if keyvals.skip_if_on_disk == 0
         disp('ACI found on disk:')
         bCalculation = input('  Enter 1 to re-calculate (overwrite) or 0 to read stored results:');
+    elseif keyvals.skip_if_on_disk == 1
+        bCalculation = 0;
+    elseif keyvals.skip_if_on_disk == 2
+        bCalculation = 1;
+    else 
+        error('Unrecognized value for parameter skip_if_on_disk\n')
     end
     
     if bCalculation == 1
         fname_old = [fnameACI(1:end-4) '-old.mat'];
-        if exist(fname_old,'file')
-            error('%s: Trying to back up your old-exsiting results, but there is already a file named %s',upper(mfilename),fname_old);
-        end
+%         if exist(fname_old,'file')
+%             error('%s: Trying to back up your old-exsiting results, but there is already a file named %s',upper(mfilename),fname_old);
+%         end
         movefile(fnameACI,fname_old);
         fprintf('%s: Old mat file successfully backed up as: %s\n',upper(mfilename),fname_old);
     end
