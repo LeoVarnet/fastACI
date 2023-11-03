@@ -60,7 +60,7 @@ end
 
 
 %%% 3. Loading hearing thresholds
-HT_path = [fastACI_paths('dir_data') 'HearingThresholds\'];
+HT_path = [fastACI_paths('dir_data') 'HearingThresholds' filesep];
 fileID = fopen([HT_path cfg_inout.Subject_ID '.txt'],'r'); 
 dataHL2 = fscanf(fileID,'%d %d %d %d %d %d %d %d %d', [9,3]); dataHL2=dataHL2';
 if size(dataHL2,1) == 2
