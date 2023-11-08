@@ -68,11 +68,15 @@ elseif isunix
     % Directories for Alejandro:
     paths.praat       = '/usr/bin/praat';
     paths.dir_amtoolbox = fastACI_dir_amtoolbox;
-    up = userpath;
-    if strcmp(up(end),':')
-        up = up(1:end-1);
+    dir_up = userpath;
+    if isempty(dir_up)
+        % Always empty on Linux
+        dir_up = [pwd filesep];
     end
-    paths.dir_output  = [up filesep 'outputs' filesep]; % '/home/alejandro/Documents/MATLAB/outputs/'
+    if strcmp(dir_up(end),':')
+        dir_up = dir_up(1:end-1);
+    end
+    paths.dir_output  = [dir_up filesep 'outputs' filesep]; % '/home/alejandro/Documents/MATLAB/outputs/'
     
     paths.dir_output_fastACI2021_JASA     = '/home/alejandro/Documents/Databases/data/Osses-Varnet-2021-JASA/';
     paths.dir_output_fastACI2021_JASA_eps = '/home/alejandro/Documents/Documenten-ENS/01-Text/05-Doc/pr2021-05-20-ideas-4-paper/Figures-new/';
