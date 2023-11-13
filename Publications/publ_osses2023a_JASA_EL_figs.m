@@ -316,8 +316,10 @@ if flags.do_fig1
                 fname2 = 'la_mie.wav';
                 label1 = 'A. C''est l''amie';
                 label2 = '   C''est la mie';
-                phonetic1    ={'s'   ,'$$\\varepsilon$$','l'   ,'a'   ,'m'   ,'i'};
-                interpreter = {'none','latex'           ,'none','none','none','none'};
+                % phonetic1    ={'s'   ,'$$\\varepsilon$$','l'   ,'a'   ,'m'   ,'i'};
+                % interpreter = {'none','latex'           ,'none','none','none','none'};
+                phonetic1    ={'s'   ,'e'   ,'l'   ,'a'   ,'m'   ,'i'};
+                interpreter = {'none','none','none','none','none','none'};
                 % phonetic1={'s','e','l','a','m','i'};
                 pho_loc1 =[0.18 0.275 0.35 0.405 0.489 0.58];
                 pho_loc2 =[0.16 0.28  0.34 0.41  0.491  0.61];
@@ -330,8 +332,10 @@ if flags.do_fig1
                 fname2 = 'la_pelle.wav';
                 label1 = 'B. C''est l''appel';
                 label2 = '   C''est la pelle';
-                phonetic1   ={'s'    ,'$$\\varepsilon$$','l'   ,'a'   ,'p'   ,'$$\\varepsilon$$','l'};
-                interpreter = {'none','latex'           ,'none','none','none','latex'           ,'none'};
+                % phonetic1   ={'s'    ,'$$\\varepsilon$$','l'   ,'a'   ,'p'   ,'$$\\varepsilon$$','l'};
+                % interpreter = {'none','latex'           ,'none','none','none','latex'           ,'none'};
+                phonetic1   ={'s'    ,'e'   ,'l'   ,'a'   ,'p'   ,'e'   ,'l'};
+                interpreter = {'none','none','none','none','none','none','none'};
                 %phonetic1={'s','e','l','a','p','e','l'};
                 pho_loc1 =[0.165 0.27 0.32  0.38  0.54  0.588 0.68];
                 pho_loc2 =[0.16  0.245 0.29  0.345 0.515 0.585 0.685];

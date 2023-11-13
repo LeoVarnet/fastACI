@@ -24,6 +24,10 @@ function data = publ_osses2023c_JASA_figs(varargin)
 % % To display Fig. 6 of Osses and Varnet, (2022, BioRxiv) use :::
 %     publ_osses2023c_JASA_figs('fig6'); %  Experimental ACIs for each participant and for the group
 %
+% % To display Fig. 8 of Osses and Varnet, (2022, BioRxiv) use :::
+%     publ_osses2023c_JASA_figs('fig8');  %  Cross predictions from the experimental data
+%     publ_osses2023c_JASA_figs('fig8b'); %  Cross predictions from the simulated data
+%
 % 'fig1' requires the speech samples from 'S01'
 % 'fig2a','fig2b' require the noise samples from 'S01'
 % 'fig3' does not require any additional data
@@ -127,6 +131,7 @@ if bZenodo == 1
 
 else
     dir_ACI_exp = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc_Leo/'; % My run: dir_where = '/home/alejandro/Desktop/fastACI_today/fastACI_dataproc/';
+    % dir_ACI_exp = '/home/alejandro/Documents/Databases/data/fastACI_datapost/speechACI_Logatome-abda-S43M/S01/ACI-S01-speechACI_Logatome-white-nob-gt-l1glm+pyrga-rev4.mat
         % Run-S01/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
         % Run-S02/ACI-osses2022a-speechACI_Logatome-white-nob-gt-l1glm-rev4.mat
         % ...
@@ -279,7 +284,10 @@ if flags.do_fig2a
         
         nexttile(i); 
         affichage_tf(G_dB(idx_f,idx_t,i), 'pow', t(idx_t), fc(idx_f), flags_extra{:}); hold on;
-        caxis([0 dB_max])
+        if i == 3
+            hc = colorbar;
+        end
+        caxis([0 dB_max]);
         
         if i == 1
             text(-0.15,1.07,'A.','Units','Normalized','FontSize',12,'FontWeight','Bold');
@@ -295,6 +303,16 @@ if flags.do_fig2a
         end
         title(noise_types_label{i})
     end
+    YT = get(hc,'Ticks');
+    YTL = [];
+    for i = 1:length(YT)
+        if YT(i) ~= 0
+            YTL{i} = num2str(YT(i));
+        else
+            YTL{i} = [num2str(YT(i)) ' dB'];
+        end
+    end
+    set(hc,'TickLabels',YTL);
     
     disp('')
     h(end+1) = gcf;
@@ -303,8 +321,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flags.do_fig2b 
 	N_sounds = 1000; % arbitrary choice
-	% N_sounds = 50; warning('temporal value'); % arbitrary choice for a quick plotting
-    
+	
+    extra_params.K = 500; % A priori knowledge, fs_env by 'kohlrausch2021_env' is 1000 Hz
+                          %  this parameter ensures a delta f = 1 Hz in the FFT
     % Band levels are always computed
     type_env = 'kohlrausch2021_env'; % as in the new manuscript
     switch type_env
@@ -346,7 +365,7 @@ if flags.do_fig2b
             file = files1{j};
             [insig,fs] = audioread([dir_where file]);
 
-            [env_dB_full(:,j),xx,env_extra] = Get_envelope_metric(insig,fs,type_env);
+            [env_dB_full(:,j),xx,env_extra] = Get_envelope_metric(insig,fs,type_env,extra_params);
  
             [outsig1,fc] = auditoryfilterbank(insig,fs);
             if j == 1
@@ -378,7 +397,7 @@ if flags.do_fig2b
         data.LperU(:,i_noise) = L1perU(:);
         
         if i_noise == 1
-            ylabel('Band level (dB)')
+            ylabel('Band level (dB SPL)')
         else
             set(gca,'YTickLabel',[]);
         end
@@ -1435,6 +1454,8 @@ if flags.do_fig7 || flags.do_fig8 || flags.do_fig9 || flags.do_fig3_suppl || ...
                             fname_crosspred{ii} = [dir_ACI_exp 'ACI-' Subjects{ii} '-speechACI_Logatome-' masker '-nob-gt-' glmfct '+pyrga-rev4.mat'];
                             if exist(fname_crosspred{ii},'file')
                                 bInclude(ii) = 1;
+                            else
+                                error('fname_crosspred %s does not exist. Make sure you are providing the rigth dir_ACI_exp (%s)',fname_crosspred{ii}, dir_ACI_exp);
                             end    
                         end
                     end
@@ -2223,12 +2244,8 @@ if flags.do_fig10       || flags.do_fig8b || flags.do_fig9b || ...
    flags.do_fig5b_suppl || flags.do_fig6_suppl
     
     % All simulation results were stored in one output folder
-    if isunix
-        dir_results = dir_ACI_sim;
-    else
-        error('Leo put your folder here...')
-        dir_results = [];
-    end
+    dir_results = dir_ACI_sim;
+    
     Subjects_ID = {'Results-S01-v1','Results-S02-v1','Results-S03-v1','Results-S04-v1', ...
                    'Results-S05-v1','Results-S06-v1','Results-S07-v1','Results-S08-v1', ...
                    'Results-S09-v1','Results-S10-v1','Results-S11-v1','Results-S12-v1'};
@@ -2414,7 +2431,7 @@ if flags.do_fig5b_suppl % correlation simulations
     FS_here = 10;
      
     nexttile(4);
-    ylabel('ACISI from');
+    ylabel('Simulated ACI from');
     set(gca,'YTickLabel',YTL);
     set(gca,'XTickLabel',XTL);
     set(gca,'FontSize',FS_here);
@@ -2447,7 +2464,7 @@ if flags.do_fig5b_suppl % correlation simulations
         nexttile(i_masker+3);
         ht = title(noise_types_label{i_masker});
         set(ht,'FontSize',FS_here);
-        xlabel('ACISI from');
+        xlabel('Simulated ACI from');
     end
     
     %%%
@@ -2683,7 +2700,7 @@ if flags.do_fig8b || flags.do_fig3b_suppl
         nexttile(i_masker+offset_column);
         ht = title(noise_types_label{i_masker});
         set(ht,'FontSize',FS_here);
-        xlabel('ACISI from');
+        xlabel('Simulated ACI from');
     end
     if ~bDo_with_fig8a
         h(end+1) = gcf;
@@ -2778,7 +2795,7 @@ if flags.do_fig9b || flags.do_fig4b_suppl % between noise
         caxis(YL_PA)
         set(gca,'FontSize',10);
 
-        xlabel('ACISI from condition');
+        xlabel('Simulated ACI from condition');
         % ylabel(''); % ylabel('Data from condition');
         
         caxis(YL_PA)
@@ -2849,8 +2866,8 @@ if flags.do_fig9b || flags.do_fig4b_suppl % between noise
         set(gca,'XTickLabel',XTL);
         set(gca,'YTickLabel',YTL);
  
-        xlabel('ACISI from condition');
-        ylabel('ACISI from condition');
+        xlabel('Simulated ACI from condition');
+        ylabel('Simulated ACI from condition');
 
         text4label = 'H.';
         text(-0.14,0.94,text4label,'Units','Normalized','FontSize',14,'FontWeight','Bold');
@@ -2928,7 +2945,7 @@ if flags.do_fig9b || flags.do_fig4b_suppl % between noise
         set(gca,'XTickLabel',XTL);
         set(gca,'YTickLabel',YTL);
 
-        xlabel('ACISI from condition');
+        xlabel('Simulated ACI from condition');
         ylabel('Data from condition');
 
         text(0,1.05,'B.','Units','Normalized','FontSize',14,'FontWeight','Bold');

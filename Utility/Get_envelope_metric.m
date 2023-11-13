@@ -1,7 +1,22 @@
-function [metric,description,extra] = Get_envelope_metric(insig,fs,type)
-% function [metric,description,extra] = Get_envelope_metric(insig,fs,type)
+function [metric,description,extra] = Get_envelope_metric(insig,fs,type,extra_params)
+% function [metric,description,extra] = Get_envelope_metric(insig,fs,type,extra_params)
 %
 % 1. Description:
+%  Inputs:
+%    insig - Input signal
+%    fs - sampling frequency used for insig
+%    type - type of metric to be obtained. This is a flag that can adopt the
+%      following values:
+% (1) 'kohlrausch2021_env'
+% (2) 'kohlrausch2021_env_noDC', same as 'kohlrausch2021_env' but removing the DC component
+% (3) 'varnet2021_env'
+% (4) 'varnet2021_env_BB'
+% (5) 'varnet2017_AMi'
+% (6) 'V' (alternatively, 'v') metric defined by Kohlrausch et al (1997)
+% (7) 'W' (alternatively, 'w') metric defined by Kohlrausch et al (1997)
+%     extra_params - optional parameters. So far, only metrics (1) and (2) 
+%       can be set to use an extra parameter, namely, the number of K points
+%       for the envelope FFT.
 %       Assesses one of the measures of envelope fluctuations.
 %
 %       'V': ratio between the standard deviation and the mean of the envelope
@@ -26,7 +41,9 @@ function [metric,description,extra] = Get_envelope_metric(insig,fs,type)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 extra = [];
-
+if nargin < 4
+    extra_params = [];
+end    
 switch type
     case {'kohlrausch2021_env','kohlrausch2021_env_noDC'}
         fs_env = 1000;
@@ -36,8 +53,12 @@ switch type
         windowtype = 'hanning';
         yenv_tmp    = abs(hilbert(insig));
     
-        yenv = resample(yenv_tmp,fs_env,fs);    
-        K = size(yenv,1);
+        yenv = resample(yenv_tmp,fs_env,fs);  
+        if ~isfield(extra_params,'K')
+            K = size(yenv,1); % default, high-resolution FFT
+        else
+            K = extra_params.K; 
+        end
         
         switch type
             case 'kohlrausch2021_env_noDC'

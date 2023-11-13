@@ -70,7 +70,7 @@ elseif isunix
     paths.dir_amtoolbox = fastACI_dir_amtoolbox;
     dir_up = userpath;
     if isempty(dir_up)
-        % Always empty on Linux
+        % If empty:
         dir_up = [pwd filesep];
     end
     if strcmp(dir_up(end),':')
