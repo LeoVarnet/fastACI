@@ -86,7 +86,7 @@ end
 %     end
 % end
 
-cfg.N_presentation = 10%N_presentation; % number of stimuli / condition
+cfg.N_presentation = N_presentation; % number of stimuli / condition
 cfg.N_target  = 2;     % Number of conditions
 cfg.N         = cfg.N_target*cfg.N_presentation;
 
