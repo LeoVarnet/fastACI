@@ -39,7 +39,7 @@ if Nsounds ~= 0
         [t_F{i} ,F{i}]  = Get_formants_from_txt([dir_where filesF{i}]);
 
         try
-            minIforF = max(max(I{i})-9.3, params.I_min); % In case the user requests
+            minIforF = max(max(I{i})-8.3, params.I_min); % In case the user requests
                 % an I_min value that is too low, then the limit is set to 20 dB
                 % below the maximum assessed intensity value
             %max(nanmean(I{i})+10.5, params.I_min); % In case the user requests
