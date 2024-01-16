@@ -445,7 +445,13 @@ if cfg_game.adapt
     
     outs_trial.stepsize   = str_inout.stepsize;
     isbreak    = str_inout.isbreak;
+else
+    isbreak = 0;
+    expvar = cfg_game.startvar;
+    i_current = debut_i;
+
 end
+
 %%% Ends: Initialises
 
 data_passation_init = [];
