@@ -185,10 +185,7 @@ data_passation.response_time(i_current) = trial_end_time-time_before_response;
 data_passation.trial_time(i_current) = trial_end_time;
 
 switch response
-    case 3.14 % Pause: Moved out of fastACI_trial_current
-        % Nothing to do
-        
-    case 3 % play again (if warm-up) or take a break (if main experiment)
+    case length(cfg_game.response_names)+1 % play again (if warm-up) or take a break (if main experiment)
         if is_warmup
             % It is the training session:
             outs_trial = ins_trial;
@@ -198,7 +195,7 @@ switch response
             i_current = i_current-1; % to start with this same trial when resuming the experiment
             data_passation.i_current = i_current;
         end
-    case 4 % play pure tone
+    case length(cfg_game.response_names)+2 % play pure tone
         str_stim = [];
         data_passation_tmp = data_passation;
         idx = find(cfg_game.n_response_correct_target_sorted == 1); % looks for all '1's
@@ -220,7 +217,7 @@ switch response
         pause;
         outs_trial = ins_trial;
 
-    case 5 % play modulated tone
+    case length(cfg_game.response_names)+3 % play modulated tone
         str_stim = [];
         data_passation_tmp = data_passation;
         idx = find(cfg_game.n_response_correct_target_sorted == 2); % looks for all '2's
@@ -241,7 +238,7 @@ switch response
         pause;
         outs_trial = ins_trial;
 
-    case 6 % escape training
+    case length(cfg_game.response_names)+4 % escape training
         is_warmup = 0;
         clc
 
@@ -266,11 +263,17 @@ switch response
             data_passation.reversal_current = str_inout.reversal_current;
         end
         
-    case {1,2} % responded 1 or 2
+    case num2cell(1:length(cfg_game.response_names)) % gave a response
 
         data_passation.n_response_correct_target(i_current) = cfg_game.n_response_correct_target_sorted(n_stim);
         resp_num = data_passation.n_response_correct_target(i_current);
-        iscorrect = (response == resp_num);
+        if length(cfg_game.response_names) == cfg_game.N_target % general case: there is one possible response per target 
+            iscorrect = (response == resp_num);
+        else % special case, the number of possible responses is different from the number of targets
+            iscorrect = (cfg_game.correctness_matrix(response) == resp_num);
+            response_scale = response;
+            response = cfg_game.correctness_matrix(response);
+        end
 
         % save trial data
         if ~is_warmup
@@ -278,6 +281,9 @@ switch response
             data_passation.n_targets(i_current)   = cfg_game.n_targets_sorted(n_stim);
             data_passation.n_response_correct_target(i_current) = resp_num;
             data_passation.is_correct(i_current) = iscorrect;
+            if length(cfg_game.response_names) ~= cfg_game.N_target % special case, the number of possible responses is different from the number of targets
+                data_passation.n_response_scale(i_current) = response_scale;
+            end
         end
         if is_warmup || cfg_game.feedback % || cfg_game.displayN
             % ListStim(n_stim).response 
@@ -369,6 +375,15 @@ switch response
             
             outs_trial.stepsize = stepsize;
             outs_trial.n_correctinarow = n_correctinarow;
+        else
+            if isfield(cfg_game,'probe_periodicity') && cfg_game.probe_periodicity > 0
+                %%% Defining whether the next trial is a probe
+                if mod(i_current+1,cfg_game.probe_periodicity) == 0
+                    expvar = cfg_game.startvar + 10;
+                else
+                    expvar = cfg_game.startvar;
+                end
+            end
         end
 
         i_current = i_current+1; 
