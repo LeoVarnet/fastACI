@@ -158,11 +158,11 @@ if ~isfield(cfg_game,'Language')
     warning('Using the default language (''EN''). Please specify in the *_cfg.m file another interface language if required.');
 end
 
+exp2filter = ['savegame*' filter2use '.mat'];
 switch cfg_game.resume
     case {1,'oui','yes'}
         if isfield(cfg_game,'load_name')
             if isempty(cfg_game.load_name)
-                exp2filter = ['savegame*' filter2use '.mat'];
                 try
                     load_name = Get_savenames(dir_results, exp2filter, dir_results_completed);
                 catch
@@ -578,6 +578,7 @@ if i_current > N
     
     % 1. Then Get_savenames is run once more and only the last save file will 
     %    be kept in the 'Results' directory:
+
     Get_savenames(dir_results, exp2filter, dir_results_completed);
 end
 
