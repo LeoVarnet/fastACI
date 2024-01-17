@@ -378,7 +378,7 @@ switch response
         else
             if isfield(cfg_game,'probe_periodicity') && cfg_game.probe_periodicity > 0
                 %%% Defining whether the next trial is a probe
-                if mod(i_current+1,cfg_game.probe_periodicity) == 0
+                if mod(i_current+1,cfg_game.probe_periodicity) == 1
                     expvar = cfg_game.startvar + 10;
                 else
                     expvar = cfg_game.startvar;
