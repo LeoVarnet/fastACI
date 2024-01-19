@@ -68,10 +68,10 @@ N_trialselect = cfg_ACI.N_trialselect;
 
 select_n_trials = (1:N_trialselect>=cfg_ACI.n_trials_analysis(1) & 1:N_trialselect<=cfg_ACI.n_trials_analysis(2));
 
-if ~isempty(kv.idx_trialselect)
-    idx_set_zero = setxor(1:length(select_n_trials), kv.idx_trialselect);
-    select_n_trials(idx_set_zero) = 0;
-end
+% if ~isempty(kv.idx_trialselect)
+%     idx_set_zero = setxor(1:length(select_n_trials), kv.idx_trialselect);
+%     select_n_trials(idx_set_zero) = 0;
+% end
 
 expvar_trialselect = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_analysis(2));
 
