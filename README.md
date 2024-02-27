@@ -1,7 +1,7 @@
 # fastACI toolbox
 This is the repository of the fast Auditory Classification Images (fastACI) project. The toolbox is controlled using the command line of MATLAB. It does not have (yet) a graphical interface.
 
-With this toolbox you can run listening experiments as used in the studies **varnet2013**, **varnet2015**, **varnet2021**, **osses2021c**, **osses2022b**,  **varnet2022a**, **osses2023a**, **osses2022b**, and **carranante2023** (see the full citations in the section "_References_"). You can also reproduce some of the figures contained in the mentioned references.
+With this toolbox you can run listening experiments as used in the studies **varnet2013**, **varnet2015**, **varnet2021**, **osses2021c**, **osses2022b**,  **varnet2022a**, **osses2023a**, **osses2022b**, **osses2024**, and **carranante2023** (see the full citations in the section "_References_"). You can also reproduce some of the figures contained in the mentioned references.
 
 | Citation key   | fastACI experiment name     | Type of background noise     | Target sounds |
 | :------------- | :----------: | :-----------: | :-----------: |
@@ -9,10 +9,10 @@ With this toolbox you can run listening experiments as used in the studies **var
 | **varnet2015** | `speechACI_varnet2015`   | white  | /alda/-/alga/-/arda/-/arga/, male speaker |
 | **osses2021c** | `speechACI_varnet2013`   | speech shaped noise (SSN) |  /aba/-/ada/, female speaker |
 | **varnet2022a**| `modulationACI`          | white  | modulated or unmodulated tones |
-| **osses2022b** | `speechACI_Logatome`     | white, bump, MPS | /aba/-/ada/, male speaker (S43M) from the OLLO database |
+| **osses2024** | `speechACI_Logatome`     | white, bump, MPS | /aba/-/ada/, male speaker (S43M) from the OLLO database |
 | **carranante2023** | `speechACI_Logatome` | bump | Pairs of contrasts using /aba/, /ada/, /aga/, /apa/, /ata/ from the same male speaker (S43M) in OLLO |
 | **osses2023a** | `segmentation`           | random prosody | Pairs of contrasts: /l'amie/-/la mie/, /l'appel/-/la pelle/, /l'accroche/-/la croche/, /l'alarme/-/la larme/ |
-| **osses2023b** | `toneinnoise_ahumada1975` | white | Tone-in-noise experiment with 100-ms 500-Hz sinusoids temporally centred in Gaussian noises of 500 ms|
+| **osses2023b** | `toneinnoise_ahumada1975` | white | Tone-in-noise experiment with 100-ms 500-Hz sinusoids temporally centred in Gaussian noises of 500 ms |
 
 Make sure that you follow the steps indicated in the section **Installation** (below) the first time you use the toolbox. 
 
@@ -102,8 +102,9 @@ The following are the general instructions to get the fastACI toolbox for MATLAB
 # References for the fastACI toolbox
 The references are sorted alphabetically (first author's last name) and then more recent first.
 |    |  |
-| :------------- | :---------- | 
-| **carranante2023** | G. Carranante, M. Giavazzi, & L. Varnet (2023). **Auditory reverse correlation applied to the study of place and voicing: Four new phoneme-discrimination tasks**. To be presented at Forum Acusticum 2023. |
+| :------------- | :---------- |
+| **osses2024** | A. Osses, & L. Varnet (2024). **A microscopic investigation of the effect of random envelope fluctuations on phoneme-in-noise perception**. J. Acoust. Soc. Am. 155, p. 1469-1485 (doi: [10.1121/10.0024469](https://pubmed.ncbi.nlm.nih.gov/38364046/), [Download paper](https://hal.science/hal-03950586/))
+| **carranante2023** | G. Carranante, M. Giavazzi, & L. Varnet (2023). **Auditory reverse correlation applied to the study of place and voicing: Four new phoneme-discrimination tasks**. Forum Acusticum 2023. |
 | **king2019**   | A. King, L. Varnet, & C. Lorenzi (2019). **Accounting for masking of frequency modulation by amplitude modulation with the modulation filter-bank concept**. J. Acoust. Soc. Am. 145, p. 2277-2293 (doi: [10.1121/1.5094344](http://dx.doi.org/10.1121/1.5094344), [Download paper](https://hal.archives-ouvertes.fr/hal-02993025))|
 | **osses2023a** | A. Osses, E. Spinelli, F. Meunier, E. Gaudrain, & L. Varnet (2023). **Prosodic cues to word boundaries in a segmentation task using reverse correlation**. To be submitted. |
 | **osses2023a_data** | A. Osses, E. Spinelli, F. Meunier, E. Gaudrain, & L. Varnet (2023). **Raw and post-processed data for the study of prosodic cues to word boundaries in a segmentation task using reverse correlation** (doi: [10.5281/zenodo.7865424](https://doi.org/10.5281/zenodo.7865424))| 
