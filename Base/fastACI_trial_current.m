@@ -66,6 +66,16 @@ end
 
 tic
 
+%%%%% NOT WORKING %%%%%%
+if isfield(cfg_game,'probe_periodicity') && cfg_game.probe_periodicity > 0
+    %%% Defining whether this trial is a probe
+    if mod(i_current,cfg_game.probe_periodicity) == 1
+        expvar = cfg_game.startvar + 10;
+    else
+        expvar = cfg_game.startvar;
+    end
+end
+
 str_stim = [];
 str2eval = sprintf('[str_stim,data_passation]=%s_user(cfg_game,data_passation);',cfg_game.experiment);
 eval(str2eval);
