@@ -66,13 +66,45 @@ end
 
 tic
 
-%%%%% NOT WORKING %%%%%%
-if isfield(cfg_game,'probe_periodicity') && cfg_game.probe_periodicity > 0
+if bExperiment && isfield(cfg_game,'probe_periodicity') && cfg_game.probe_periodicity > 0
     %%% Defining whether this trial is a probe
     if mod(i_current,cfg_game.probe_periodicity) == 1
-        expvar = cfg_game.startvar + 10;
-    else
-        expvar = cfg_game.startvar;
+        switch cfg_game.Language
+            case 'EN'
+                clc
+                fprintf('\n*** Probe sound ***\n');
+            case 'FR'
+                clc
+                fprintf('\n*** Son test ***\n');
+        end
+
+        % generating a dummy data/cfg
+        data_probe = data_passation;
+        cfg_probe = cfg_game;
+        data_probe.i_current = 1;
+        data_probe.n_stim = 1;
+        data_probe.expvar = 0;
+        cfg_probe.n_targets_sorted = 1;
+
+        str_stim = [];
+        str2eval = sprintf('[str_stim,data_probe]=%s_user(cfg_probe,data_probe);',cfg_game.experiment);
+        eval(str2eval);
+        stim_normal = str_stim.tuser;
+
+        sil4playing = zeros(0.1*cfg_game.fs,size(stim_normal,2));
+        player = audioplayer(cfg_game.gain_play*[sil4playing; stim_normal],cfg_game.fs);
+        N_samples_stim = size(stim_normal,1) + size(sil4playing,1);
+
+        play(player)
+        pause(N_samples_stim/cfg_game.fs);
+
+        switch cfg_game.Language
+            case 'EN'
+                fprintf('\n    Press any key\n');
+            case 'FR'
+                fprintf('\n    Appuyez sur une touche\n');
+        end
+        pause;
     end
 end
 
@@ -386,14 +418,14 @@ switch response
             outs_trial.stepsize = stepsize;
             outs_trial.n_correctinarow = n_correctinarow;
         else
-            if isfield(cfg_game,'probe_periodicity') && cfg_game.probe_periodicity > 0
-                %%% Defining whether the next trial is a probe
-                if mod(i_current+1,cfg_game.probe_periodicity) == 1
-                    expvar = cfg_game.startvar + 10;
-                else
-                    expvar = cfg_game.startvar;
-                end
-            end
+%             if isfield(cfg_game,'probe_periodicity') && cfg_game.probe_periodicity > 0
+%                 %%% Defining whether the next trial is a probe
+%                 if mod(i_current+1,cfg_game.probe_periodicity) == 1
+%                     expvar = cfg_game.startvar + 10;
+%                 else
+%                     expvar = cfg_game.startvar;
+%                 end
+%             end
         end
 
         i_current = i_current+1; 
