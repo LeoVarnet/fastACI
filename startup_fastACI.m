@@ -144,6 +144,7 @@ if bFastACI_exp == 1
     paths.speechACI_varnet2013 = [paths.Experiments 'speechACI_varnet2013' filesep];
     paths.speechACI_varnet2015 = [paths.Experiments 'speechACI_varnet2015' filesep];
     paths.toneinnoise_ahumada1975 = [paths.Experiments 'toneinnoise_ahumada1975' filesep];
+    paths.replication_ahumada1975 = [paths.Experiments 'replication_ahumada1975' filesep];
     paths.segmentation         = [paths.Experiments 'segmentation'         filesep];
     paths.Scripts              = [dir_fastACI       'Scripts'              filesep];
     paths.Simulations          = [dir_fastACI       'Simulations'          filesep];

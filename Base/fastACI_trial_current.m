@@ -75,7 +75,7 @@ if bExperiment && isfield(cfg_game,'probe_periodicity') && cfg_game.probe_period
                 fprintf('\n*** Probe sound ***\n');
             case 'FR'
                 clc
-                fprintf('\n*** Son test ***\n');
+                fprintf('\n\t*** Son de r\351f\351rence ***\n');
         end
 
         % generating a dummy data/cfg
