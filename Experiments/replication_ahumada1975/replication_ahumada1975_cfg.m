@@ -22,8 +22,7 @@ cfg_inout.probe_periodicity = 10; % insert a probe (easy) stimulus every Nth tri
 %%
 cfg_inout.warmup = 0; % No warm-up phase for this particular experiment
 
-%%%%% ADD TRUE SNR %%%%%%%%
-cfg_inout.startvar = -3;%-15;  % -5 dB SNR
+cfg_inout.startvar = -21.19;% so that E/N_0 = 11.8 dB % -15;  % dB SNR
 cfg_inout.expvar_description = 'SNR (dB)'; % Optional, but related to startvar
 
 % % 2. Optional fields (if omitted, the defaults will be assigned later):
