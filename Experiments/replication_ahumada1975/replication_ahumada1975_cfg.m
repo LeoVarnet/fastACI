@@ -12,7 +12,7 @@ cfg_inout.response_names = {'ton dans le bruit','bruit seul'};%{'Tone certainly 
 %cfg_inout.correctness_matrix = [2 2 1 1]; % correspondence between Likert scale and actual targets
 %cfg_inout.response_names = {'Tone present', 'Tone absent'}; % arbitrary string, make sure it coincides with filename_target
 cfg_inout.Language = 'FR';%'EN'; % 
-cfg_inout.feedback = 0;
+cfg_inout.feedback = 1;
 cfg_inout.sessionsN = 400; % arbitrary number
 % cfg_in.randorder = 1; 1 is the default
 
@@ -22,7 +22,7 @@ cfg_inout.probe_periodicity = 10; % insert a probe (easy) stimulus every Nth tri
 %%
 cfg_inout.warmup = 0; % No warm-up phase for this particular experiment
 
-cfg_inout.startvar = -21.19;% so that E/N_0 = 11.8 dB % -15;  % dB SNR
+cfg_inout.startvar = -21.19;% so that E/N_0 = 11.8 dB % % dB SNR
 cfg_inout.expvar_description = 'SNR (dB)'; % Optional, but related to startvar
 
 % % 2. Optional fields (if omitted, the defaults will be assigned later):
