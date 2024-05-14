@@ -25,14 +25,15 @@ switch cfg_game.Language
 
     case 'FR'
         % Text by Leo:
-        fprintf('\t Vous allez entendre des sons dans un bruit de fond. Votre t\342che consiste \340\n');
-        fprintf('\t indiquer apr\350s chaque \351coute si le son contenait un bip ("%s", appuyez sur 1) ou \n',cfg_game.response_names{1});
-        fprintf('\t non ("%s", appuyez sur 2).\n',cfg_game.response_names{2});
-        fprintf('\t L''exp\351rience comporte %.0f \351coutes au total, et elle est divis\351e en %.0f sessions de \n',cfg_game.N,cfg_game.N/cfg_game.sessionsN); 
-        fprintf('\t %.0f minutes environ. Vous pouvez prendre une pause en cours de session si n\351cessaire.\n',dur_estimated);
-        fprintf('\t L''exp\351rience comporte le m\352me nombre de "%s" et de "%s" au total. Dans l''id\351al, vous \n',cfg_game.response_names{1},cfg_game.response_names{2});
-        fprintf('\t devriez donc r\351pondre "%s" 50 %% du temps.',cfg_game.response_names{1});
-        fprintf('\t Pour vous aider, un son de r\351f\351rence contenant un ton clairement audible sera jou\351 toutes les 10 \351coutes')
+        fprintf('  Vous allez entendre des sons dans un bruit de fond. Votre t\342che consiste \340\n');
+        fprintf('  indiquer apr\350s chaque \351coute si le son contenait un bip ("%s",\n',cfg_game.response_names{1});
+        fprintf('  appuyez sur 1) ou non ("%s", appuyez sur 2).\n',cfg_game.response_names{2});
+        fprintf('  L''exp\351rience comporte %.0f \351coutes au total, et elle est divis\351e en %.0f sessions de \n',cfg_game.N,cfg_game.N/cfg_game.sessionsN); 
+        fprintf('  %.0f minutes environ. Vous pouvez prendre une pause en cours de session si n\351cessaire.\n',dur_estimated);
+        fprintf('  L''exp\351rience comporte le m\352me nombre de "%s" et de "%s" au \n',cfg_game.response_names{1},cfg_game.response_names{2});
+        fprintf('  total. Dans l''id\351al, vous devriez donc r\351pondre "%s" 50 %% du temps.\n',cfg_game.response_names{1});
+        fprintf('  Pour vous aider, un son de r\351f\351rence contenant un ton clairement audible sera jou\351\n')
+        fprintf('  toutes les 10 \351coutes.\n')
        % fprintf('\t ponses "%s" et "%s" sera affich\351 si votre biais devient trop important.\n', cfg_game.response_names{1},cfg_game.response_names{2});
        % fprintf('\t Apr\350s chaque tentative, la r\351ponse correcte vous sera indiqu\351e. Si vous n''entendez \n');
       %  fprintf('\t plus l''un ou l''autre des deux sons pendant une longue p\351riode, il est peut-\352tre \n');
