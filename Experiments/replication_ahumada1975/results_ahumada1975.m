@@ -4,7 +4,7 @@ expename = 'replication_ahumada1975';
 dir_data = fastACI_dir_data();
 dir_savegame = [dir_data expename filesep participantname filesep 'Results' filesep];
 D = dir([dir_savegame 'savegame*.mat']);
-load([dir_savegame D(1).name])
+load([dir_savegame D(end).name])
 
 percentcorrect = mean(data_passation.is_correct);
 bias = mean(data_passation.n_responses==2);

@@ -83,7 +83,7 @@ if bExperiment && isfield(cfg_game,'probe_periodicity') && cfg_game.probe_period
         cfg_probe = cfg_game;
         data_probe.i_current = 1;
         data_probe.n_stim = 1;
-        data_probe.expvar = 0;
+        data_probe.expvar = -10;
         cfg_probe.n_targets_sorted = 1;
 
         str_stim = [];
@@ -105,6 +105,7 @@ if bExperiment && isfield(cfg_game,'probe_periodicity') && cfg_game.probe_period
                 fprintf('\n    Appuyez sur une touche\n');
         end
         pause;
+        pause(0.5)
     end
 end
 
