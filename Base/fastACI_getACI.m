@@ -137,18 +137,17 @@ switch cfg_ACI.glmfct
     case 'glmfitqp'
         check_cfg(cfg_ACI, 'prior','lambda0', 'stepsize', 'maxiter', 'nobreak', 'minDiffSecondRound');
         cfg_ACI.N_folds   = cfg_ACI.keyvals.N_folds;
-        
     case {'lassoglm','lasso','l1lm','l1glm'}
         cfg_ACI.lambda0   = [];
-        cfg_ACI.N_folds    = cfg_ACI.keyvals.N_folds; 
-        
+        cfg_ACI.N_folds    = cfg_ACI.keyvals.N_folds;
     case 'classic_revcorr'
         
 end
+
 if cfg_ACI.zscore == 0
     error('%s: the glmfct options require that cfg_ACI.zscore is 1',upper(mfilename))
 end
- 
+
 cfg_ACI.f_limits = cfg_ACI.keyvals.f_limits; % bande de frequences pour analyse
 cfg_ACI.t_limits = cfg_ACI.keyvals.t_limits; % bande de temps pour analyse
  
