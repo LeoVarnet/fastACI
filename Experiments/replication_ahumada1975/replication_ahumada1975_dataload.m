@@ -14,6 +14,14 @@ n_stim  = cfg_game.stim_order; % data_passation.n_stim; % should be the same, re
 numerase = 0; % to refresh the screen after fprintf (see below)
 
 SNR = cfg_game.startvar; % dB
+WithSNR    = cfg_ACI.keyvals.apply_SNR;
+WithSignal = cfg_ACI.keyvals.add_signal;
+
+if WithSignal & ~WithSNR
+    error('Combination of parameters undefined for this experiment: apply_SNR = 0 and add_signal = 1.')
+elseif ~WithSignal & WithSNR
+    error('Combination of parameters undefined for this experiment: add_signal should be = 1 to use apply_SNR = 1.')
+end
 
 dBFS =  93.6139; % based on cal signal which is 72.6 dB using Sennheiser HD650
 
@@ -26,7 +34,8 @@ for i_trial=1:N_trialselect
     fprintf(msg);
     numerase=numel(msg);
 
-    % generating a dummy data/cfg
+if WithSignal
+    %generating a dummy data/cfg
     data_dummy = data_passation;
     cfg_dummy = cfg_game;
     data_dummy.i_current = i_trial;
@@ -36,9 +45,9 @@ for i_trial=1:N_trialselect
     eval(str2eval);
     noise = str_stim.tuser;
     fs = cfg_game.fs;
-
-    %[noise, fs] = audioread([dir_noise ListStim(n_stim(i_trial)).name ]);
-
+else
+    [noise, fs] = audioread([dir_noise ListStim(n_stim(i_trial)).name ]);
+end
     Nsamples = length(noise);
     Nsample_seg = 0.1*fs;
     Nseg = floor(Nsamples/Nsample_seg);
