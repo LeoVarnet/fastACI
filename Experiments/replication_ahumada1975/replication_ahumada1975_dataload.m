@@ -66,7 +66,7 @@ for i_trial=1:N_trialselect
     end
 
 end
-cfg_ACI.t = [0.5:4]*0.1;
+cfg_ACI.t = [0.5:4.5]*0.1;
 cfg_ACI.t_description = 'Time (s)';
 cfg_ACI.f = [400 450 500 550 600];
 cfg_ACI.f_description = 'Frequency (Hz)';
