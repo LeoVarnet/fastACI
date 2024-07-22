@@ -37,11 +37,24 @@ while test_boucle
         if idx == length(Liste_Reponses)
             switch cfg.Language
                 case 'EN'
-                    Response = input('    then press Enter\n','s');
+                    fprintf('    then press Enter\n');
                 case 'FR'
-                    fprintf('    puis appuyez sur Entr\351e');
-                    Response = input('\n','s');
+                    fprintf('    puis appuyez sur Entr\351e\n');
             end
+                    delta_time = 0;
+                    while delta_time<0.01
+                        responsetic=tic;
+                        %switch cfg.Language
+                        %    case 'EN'
+                        %        Response = input('    then press Enter\n','s');
+                        %    case 'FR'
+                        %        fprintf('    puis appuyez sur Entr\351e');
+                                Response = input('\n','s');
+                        %end
+                        delta_time = toc(responsetic);
+                    end
+                    
+                
         end
     end
     Response=str2double(Response);

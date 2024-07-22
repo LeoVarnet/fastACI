@@ -1,5 +1,5 @@
 function [Data_matrix,cfg_ACI] = replication_ahumada1975_dataload(cfg_ACI, ListStim, cfg_game, data_passation)
-% function [Data_matrix,cfg_ACI] = modulationACI_dataload(cfg_ACI, ListStim, cfg_game, data_passation)
+% function [Data_matrix,cfg_ACI] = replication_ahumada1975_dataload(cfg_ACI, ListStim, cfg_game, data_passation)
 %
 % data_passation is an input parameter to keep the same function structure as
 %   fastACI_getACI_dataload.m
@@ -13,25 +13,17 @@ n_stim  = cfg_game.stim_order; % data_passation.n_stim; % should be the same, re
 
 numerase = 0; % to refresh the screen after fprintf (see below)
 
-if isfield(cfg_game,'SNR')
-    SNR = cfg_game.SNR; % dB
-    lvl = cfg_game.SPL; % dB SPL
-else
-    cfg_tmp = modulationACI_set(cfg_game);
-    SNR = cfg_tmp.SNR;
-    lvl = cfg_tmp.SPL; 
+SNR = cfg_game.startvar; % dB
+WithSNR    = cfg_ACI.keyvals.apply_SNR;
+WithSignal = cfg_ACI.keyvals.add_signal;
+
+if WithSignal & ~WithSNR
+    error('Combination of parameters undefined for this experiment: apply_SNR = 0 and add_signal = 1.')
+elseif ~WithSignal & WithSNR
+    error('Combination of parameters undefined for this experiment: add_signal should be = 1 to use apply_SNR = 1.')
 end
+
 dBFS =  93.6139; % based on cal signal which is 72.6 dB using Sennheiser HD650
-% 
-% switch cfg_ACI.flags.TF_type
-%     case 'spect'
-%         
-%     case 'gammatone'
-%         method = 'Gammatone_proc';
-%         fcut = [40 8000]; % Hz, fixed parameter, related to the processing 'gammatone'
-% end
-%     
-%Nchannel = length(fcut)-1;
 
 N_trialselect = length(n_stim);
 
@@ -42,16 +34,24 @@ for i_trial=1:N_trialselect
     fprintf(msg);
     numerase=numel(msg);
 
-    [noise, fs] = audioread([dir_noise ListStim(n_stim(i_trial)).name ]);
+if WithSignal
+    %generating a dummy data/cfg
+    data_dummy = data_passation;
+    cfg_dummy = cfg_game;
+    data_dummy.i_current = i_trial;
 
+    str_stim = [];
+    str2eval = sprintf('[str_stim,data_dummy]=%s_user(cfg_dummy,data_dummy);',cfg_game.experiment);
+    eval(str2eval);
+    noise = str_stim.tuser;
+    fs = cfg_game.fs;
+else
+    [noise, fs] = audioread([dir_noise ListStim(n_stim(i_trial)).name ]);
+end
     Nsamples = length(noise);
     Nsample_seg = 0.1*fs;
     Nseg = floor(Nsamples/Nsample_seg);
     f = (0:Nsample_seg/2-1)*fs/Nsample_seg;
-    %%% TODO %%%
-    %     %   Creating the trial (but always using the non-modulated sound)
-    %     S = il_Addition_RSB(tone,noise,SNR);
-    %     S = scaletodbspl(S,lvl,dBFS); % same as dBlvl(S,lvl) with 72.6 as lvl_ref
 
     for i_seg = 1:Nseg
         noise_seg = noise((i_seg-1)*Nsample_seg+1:i_seg*Nsample_seg);
