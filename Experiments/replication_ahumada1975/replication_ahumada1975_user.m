@@ -22,23 +22,12 @@ fname_noise = [cfg.dir_noise cfg.ListStim(n_stim).name];
  
 noise = audioread(fname_noise);
  
-%%%% ADD FILTERING BETWEEN 20 Hz and 4000 Hz %%%%%
-%Kron-Hite filter replaced by a 4th order Butterworth
+% Filtering between 20 Hz and 4000 Hz -- Kron-Hite filter replaced by a 4th order Butterworth
 [B,A] = butter(4,[20 4000]/(cfg.fs/2));
 noise = filter(B,A,noise);
 
-bTone_level_variable = 1;
-bNoise_level_variable = ~bTone_level_variable;
-
-if bTone_level_variable
-    gain_snr = 10^(expvar/20);
-    signal = gain_snr * signal;
-end
-if bNoise_level_variable
-    error('Not validated yet...')
-    % gain_snr = 10^(-SNR/20);
-    % noise = gain_snr * noise;
-end
+gain_snr = 10^(expvar/20);
+signal = gain_snr * signal;
 
 tuser_cal = noise+signal;
  

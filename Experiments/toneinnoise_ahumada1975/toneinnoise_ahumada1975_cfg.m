@@ -9,6 +9,7 @@ if nargin == 0
 end
 
 %% Uncomment/comment the following fields to customise this experiment:
+
 cfg_inout.response_names = {'ton dans le bruit','bruit seul'};%{'Tone present', 'noise only'}; % arbitrary string, make sure it coincides with filename_target
 cfg_inout.Language = 'FR';%'EN'; % 
 cfg_inout.feedback = 1; % 0

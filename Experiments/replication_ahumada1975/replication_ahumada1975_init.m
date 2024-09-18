@@ -4,12 +4,11 @@ function cfg_inout = replication_ahumada1975_init(cfg_inout)
 % Function comparable to *_init.m functions from AFC toolbox
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if nargin == 0
-    help toneinnoise_ahumada1975_init;
+    help replication_ahumada1975_init;
     return;
 end
 
-% cfg_inout = Check_cfg_crea_dirs(cfg_inout); % updates the folders to the local computer if
-%                                             % crea comes from another computer
+% cfg_inout = Check_cfg_crea_dirs(cfg_inout); % updates the folders to the local computer if crea comes from another computer
 dir_subject = Get_fastACI_subject_dir(cfg_inout.experiment_full,cfg_inout.Subject_ID);
 if ~exist(dir_subject,'dir')
     mkdir(dir_subject);
@@ -17,46 +16,19 @@ end
 
 dBFS       = cfg_inout.dBFS;
 fs         = cfg_inout.fs; 
-%%% 1. Speech sounds:
-% dir_target = [dir_subject 'tone-alone' filesep];
-% lvl_target = cfg_inout.lvl_target;
+
+%% 1. Target sounds:
+
 ramp_dur   = cfg_inout.ramp_dur_noise;
 N_ramp     = round(ramp_dur*fs);
  
-% if isfield(cfg_inout,'dir_target')
-%     if ~exist(cfg_inout.dir_target,'dir')
-%         cfg_inout.dir_target = dir_target;
-%     end
-% else
-%     cfg_inout.dir_target = dir_target;
-% end
- 
-% if exist(dir_target,'dir')
-%     bGenerate_stimuli = 0;
-% else
-%     % The original speech sounds are zero padded:
-%     bGenerate_stimuli = 1;
-% 
-%     % If you are in this part of the code, 'dir_target' does not exist
-%     mkdir(dir_target);
-% end
-
-% %%% Target does not need to be created
-% if bGenerate_stimuli
-%        
-% else
-%     
-% end
-
-% dur_target = size(insig,1)/fs;
-% cfg_inout.dur_target = dur_target;
-% 
-% dur_target = cfg_inout.dur_target;
 noise_type = cfg_inout.Condition;
 N_presentation = cfg_inout.N_presentation;
 N_target   = cfg_inout.N_target;
 N          = cfg_inout.N; % N_presentation*N_target; 
-%%% 1. Background noises:
+
+%% 2. Background noises:
+
 dir_noise  = [dir_subject 'NoiseStims-' noise_type filesep];
 cfg_inout.dir_noise = dir_noise;
 lvl_noise  = cfg_inout.lvl_noise;
