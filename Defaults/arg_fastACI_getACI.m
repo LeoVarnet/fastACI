@@ -79,6 +79,12 @@ definput.keyvals.logspect_unit = 'dB'; % 'linear'
 definput.keyvals.bwmul    = .5; % recommended either 0.5 or 1 ERB
 definput.keyvals.binwidth = 10e-3; % 10 ms, time resolution for ACI
 
+%%% Only used in 'l1glm'
 definput.keyvals.lambda = [];
+
+%%% Only used in 'glmfitqp'
+definput.keyvals.lambda0 = [];
+definput.keyvals.precision = [];
+definput.keyvals.stepsize = [];
 
 definput.keyvals.script_dataload = ''; % fastACI_getACI_dataload
