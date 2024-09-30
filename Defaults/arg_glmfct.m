@@ -24,10 +24,31 @@ switch glmfct
     case {'glmfitqp','glm_L2'}
         
         prior = 'smoothness';
-        lambda0 = 5;
-        stepsize = 1.5; % Progression step for lambda
-        maxiter  = 30; % Number of iterations
-        nobreak  = 1;
+        if ~isfield(keyvals,'lambda0')
+            lambda0 = 5;
+        else
+            lambda0 = keyvals.lambda0;
+        end
+        if ~isfield(keyvals,'stepsize')
+            stepsize = 1.5; % Progression step for lambda
+        else
+            stepsize = keyvals.stepsize;
+        end
+        if ~isfield(keyvals,'maxiter')
+            maxiter  = 30; % Number of iterations
+        else
+            maxiter = keyvals.maxiter;
+        end
+        if ~isfield(keyvals,'nobreak')
+            nobreak  = 1;
+        else
+            nobreak = keyvals.nobreak;
+        end
+        if ~isfield(keyvals,'precision')
+            %%%%TODO : default precision
+        else
+            precision = keyvals.precision;
+        end
         minDiffSecondRound = 10;
         
         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'prior',prior); 
@@ -69,6 +90,13 @@ switch glmfct
         if bAssigned == 0
             if ~strcmp(cfg_inout.minDiffSecondRound,minDiffSecondRound)
                 fprintf('\t%s: non-default value for field ''minDiffSecondRound'' is being used\n',glmfct);
+            end
+        end
+
+        [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'precision',precision);
+        if bAssigned == 0
+            if ~strcmp(cfg_inout.precision,precision)
+                fprintf('\t%s: non-default value for field ''precision'' is being used\n',glmfct);
             end
         end
         
