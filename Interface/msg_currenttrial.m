@@ -14,7 +14,7 @@ clc
 switch cfg_game.Language
     case 'EN'
         fprintf('\n\t*** MAIN EXPERIMENT ***\n\n');
-        fprintf('\tPlaying stimulus # %.0f of %.0f (Next session stop in %.0f trials)\n',i_current,cfg_game.N,N_for_next_stop);
+        fprintf('\tPlaying stimulus # %.0f of %.0f (Next session stop in %.0f trials)\n',i_current,cfg_game.N_trials,N_for_next_stop);
         if cfg_game.feedback == 1
             fprintf('\tDependent variable: expvar = %.2f%s \n',expvar,expvar_description);
         end
@@ -49,7 +49,7 @@ switch cfg_game.Language
         
     case 'FR'
         fprintf('\n\t*** EXP\311RIENCE PRINCIPALE ***\n\n');
-        fprintf('\t\311coute num\351ro %.0f sur %.0f -- Prochaine pause dans %.0f \351coutes\n',i_current,cfg_game.N,N_for_next_stop);
+        fprintf('\t\311coute num\351ro %.0f sur %.0f -- Prochaine pause dans %.0f \351coutes\n',i_current,cfg_game.N_trials,N_for_next_stop);
         if cfg_game.feedback == 1
             fprintf('\tVolume relatif de la voix : %.2f dB\n',expvar);
         end

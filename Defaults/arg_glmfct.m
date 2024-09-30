@@ -21,11 +21,7 @@ end
 
 % Default number of permutations N_perm (if do_permutation == 1):
 switch glmfct
-    case {'glmfitqp','CI_glmqpoptim_fct'}
-        
-        if strcmp(glmfct,'CI_glmqpoptim_fct')
-            warning('glmfct name ''%s'' will be soon deprecated, please use ''glmfitqp'' instead...',glmfct)
-        end
+    case {'glmfitqp','glm_L2'}
         
         prior = 'smoothness';
         lambda0 = 5;
@@ -76,7 +72,7 @@ switch glmfct
             end
         end
         
-    case {'lasso','lassoglm','l1lm','l1glm'}
+    case {'lasso','lassoglm','l1lm','l1glm','glm_L1_GB','lm_L1_GB'}
         
         Nlevel    = keyvals.lasso_Nlevel; % 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
         Nlevelmin = 2; % minimum level considered in the analysis 
@@ -94,5 +90,10 @@ switch glmfct
             end
         end
         
-    case 'classic_revcorr'
+    case 'glm'
+        % no additional parameter
+    case {'classic_revcorr','correlation'}
+        % no additional parameter
+    case 'weighted_sum'
+        % no additional parameter
 end

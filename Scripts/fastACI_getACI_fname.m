@@ -21,6 +21,16 @@ end
 [cfg_game, data_passation, ListStim] = Convert_ACI_data_type(savegame_file,keyvals);
 N = cfg_game.N;
 
+% default parameters -- should already be there at this point
+% this is only to ensure compatibility
+if ~isfield(cfg_game, 'intervalnum')
+    cfg_game.intervalnum = 1; % default experiment is a yes-no
+end
+
+if ~isfield(cfg_game, 'N_trials')
+    cfg_game.N_trials = cfg_game.N/cfg_game.intervalnum;
+end
+
 if isempty(keyvals.dir_out)
     % curr_dir = [pwd filesep]; % current directory
     [path,name,ext]=fileparts(which(savegame_file));
