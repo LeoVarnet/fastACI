@@ -296,7 +296,7 @@ if dimonly == 0
     %%%
 
     for i=1:N_trialselect
-        n_stim = cfg_inout.stim_order(cfg_inout.idx_trialselect(i));
+        n_stim = data_passation.n_stim(cfg_inout.idx_trialselect(i));%cfg_inout.stim_order(cfg_inout.idx_trialselect(i));
         fprintf(repmat('\b',1,numerase));
         msg=sprintf('Loading stim no %.0f of %.0f\n', i,N_trialselect);
         fprintf(msg);

@@ -133,15 +133,31 @@ switch glmfct
             results.ACI_perm_CI_low   = ACI_perm_CI_low;
             results.ACI_perm_CI_high  = ACI_perm_CI_high;
         end
+
     case 'weighted_sum'
-        X_11 = mean(X(y==1 & y_correct == 1,:));
+        X_11 = mean(X(y==1 & y_correct == 1,:)); 
         X_10 = mean(X(y==1 & y_correct == 0,:));
         X_01 = mean(X(y==0 & y_correct == 1,:));
         X_00 = mean(X(y==0 & y_correct == 0,:));
 
-        ACI = X_11 - X_01 + X_10 -X_00;
+        % this is for computing the target-present and target-absent kernels
+        if any(isnan(X_11(:)))
+            X_11 = zeros(size(X_11));
+        end
+        if any(isnan(X_10(:)))
+            X_10 = zeros(size(X_10));
+        end
+        if any(isnan(X_01(:)))
+            X_01 = zeros(size(X_01));
+        end
+        if any(isnan(X_00(:)))
+            X_00 = zeros(size(X_00));
+        end
+
+        ACI = X_11 - X_01 + X_10 - X_00;
         ACI = reshape(ACI, [N_f,N_t]);
         results.ACI     = ACI;
+
     case 'glm'
         % Implementation by Leo Varnet on 15/11/2023. It requires the 
         %   statistical toolbox. This fitting was used for our 'segmentation'
