@@ -58,7 +58,7 @@ TF_type = flags.TF_type;
 glmfct  = flags.glmfct;
 % END: From argument function:
 
-if isempty(keyvals.idx_trialselect) && (data_passation.i_current == cfg_game.N)
+if isempty(keyvals.idx_trialselect) && (data_passation.i_current == cfg_game.N_trials)
     keyvals.idx_trialselect = 1:N;
     str_last_trial = '';
 else

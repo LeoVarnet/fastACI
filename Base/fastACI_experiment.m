@@ -147,6 +147,7 @@ else
 	error('Not validated yet...')
 end
 
+% default parameters 1
 if ~isfield(cfg_game,'load_name')
     cfg_game.load_name = [];
 else
@@ -235,6 +236,7 @@ end
 % Simulation parameters
 if cfg_game.is_simulation == 1
     
+
     %%% Calibrate the model if keyvals.thres_for_bias is not specified:
     if isempty(keyvals.thres_for_bias)
         bDo = 1;
@@ -304,7 +306,7 @@ if cfg_game.is_simulation == 1
             pause(10);
             
         else
-            error('Not validated recently (message by AO on 13/04)')
+%            error('Not validated recently (message by AO on 13/04)')
             def_sim = [];
             def_sim.modelname = Subject_ID;
 
@@ -383,9 +385,20 @@ if cfg_game.is_simulation == 1
     end
 end
 
+% default parameters 2
 if ~isfield(cfg_game,'feedback')
     cfg_game.feedback = 0; % feedback is disabled by default
 end
+
+if ~isfield(cfg_game, 'intervalnum') 
+    cfg_game.intervalnum = 1; % default experiment is a yes-no
+end
+
+if ~isfield(cfg_game, 'N_trials') 
+    cfg_game.N_trials = cfg_game.N/cfg_game.intervalnum;
+end
+
+%%% TODO LEO : check if other defaults are necessary
 
 %% Load stims, create templates for simulation
 if cfg_game.resume == 0
@@ -408,11 +421,12 @@ end
 %% Experiment
 if cfg_game.resume == 0
     if ~isfield(cfg_game,'stim_order')
-        warning('Assigning the stimulus order, this option has been moved to the _init file and will be removed from script %s soon',upper(mfilename))
+        warning('Assigning the stimulus order, if this has not been done in the _init file or in the Check_seeds_and_initialize')
         if cfg_game.randorder == 1
-            cfg_game.stim_order = randperm(cfg_game.N); 
+            cfg_game.stim_order = randperm(cfg_game.N/cfg_game.intervalnum);
+            % if two-interval paradigm, only the first half is ordered, the second interval in each trial is automatically associated with the corresponding stim in the second half
         else
-            cfg_game.stim_order = 1:cfg_game.N; 
+            cfg_game.stim_order = 1:cfg_game.N/cfg_game.intervalnum; 
         end
     end
     debut_i=1;
@@ -467,8 +481,12 @@ if cfg_game.is_experiment == 1
         msg_mainexp
     end
 end
- 
-N = cfg_game.N;
+
+if ~isfield(cfg_game, 'intervalnum') || cfg_game.intervalnum == 1
+    N_trials = cfg_game.N;
+elseif cfg_game.intervalnum == 2
+    N_trials = cfg_game.N/2;
+end
 
 % cfg_game.dir_path    = dir_main;
 if isfield(cfg_game,'dir_results')
@@ -519,7 +537,7 @@ else
 end
 %%% End checking the calibration
 
-while i_current <= N && i_current~=data_passation.next_session_stop && isbreak == 0
+while i_current <= N_trials && i_current~=data_passation.next_session_stop && isbreak == 0
     
     ins_trial = [];
     if cfg_game.adapt
@@ -567,13 +585,25 @@ while i_current <= N && i_current~=data_passation.next_session_stop && isbreak =
 end
  
 %% Save game
+
+% NO, RATHER USE n_stim
+% if i_current > N_trials
+%     % if experiment is finished, complete the stim_order vector in the case
+%     % of a forced-choice
+%      if cfg_game.intervalnum == 2 && length(cfg_game.stim_order)<cfg_game.N % to make sure that this is done only once
+%          cfg_game.stim_order = [cfg_game.stim_order cfg_game.stim_order+cfg_game.N/cfg_game.intervalnum];
+%      elseif cfg_game.intervalnum > 2
+%          error('more than 2 intervals: not implemented yet')
+%      end
+% end
+
 clock_str = Get_date_and_time_str;
 data_passation.date_end{length(data_passation.date_start)} = clock_str;
 savename = il_get_savename(experiment_full, Subject_ID_full, Condition, clock_str);
 save([dir_results savename],'cfg_game', 'data_passation');
 msg_close
 
-if i_current > N
+if i_current > N_trials
     % So, the sessions are complete now. 
     
     % 1. Then Get_savenames is run once more and only the last save file will 

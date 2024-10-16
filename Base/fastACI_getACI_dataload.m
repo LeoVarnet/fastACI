@@ -23,7 +23,7 @@ function [Data_matrix, cfg_inout] = fastACI_getACI_dataload(cfg_inout, ListStim,
 % Authors: Leo Varnet and Alejandro Osses
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%% Tell to Leo:
+%%% TODO:
 %     - Less or equal in assignment of frequencies
 %     - There are frequencies were no bin is counted
 %          step_df = fs/NFFT = 5.7422 Hz

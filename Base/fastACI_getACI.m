@@ -55,7 +55,7 @@ if isempty(keyvals.dir_noise)
     if ~exist(cfg_game.dir_noise,'dir') && isempty(keyvals.Data_matrix)
         % Prepare ACI analysis
         cfg_game = Check_cfg_crea_dirs(cfg_game);
-        
+
         if bCalculation == 1
             files = Get_filenames(cfg_game.dir_noise,'*.wav');
             if isempty(files) % then dir_noise does not exist yet...
@@ -134,14 +134,18 @@ cfg_ACI.idx_trialselect   = cfg_ACI.keyvals.idx_trialselect; % numeros des essai
 cfg_ACI.withU             = 1; % 'yes'; % Ajouter deux paramètres U au modèle
  
 switch cfg_ACI.glmfct
-    case 'glmfitqp'
+    case {'glmfitqp','glm_L2'}
         check_cfg(cfg_ACI, 'prior','lambda0', 'stepsize', 'maxiter', 'nobreak', 'minDiffSecondRound');
         cfg_ACI.N_folds   = cfg_ACI.keyvals.N_folds;
-    case {'lassoglm','lasso','l1lm','l1glm'}
+    case {'lassoglm','lasso','l1lm','l1glm','glm_L1_GB','lm_L1_GB'}
         cfg_ACI.lambda0   = [];
         cfg_ACI.N_folds    = cfg_ACI.keyvals.N_folds;
-    case 'classic_revcorr'
-        
+    case 'glm'
+        % no additional parameter
+    case {'classic_revcorr','correlation'}
+        % no additional parameter
+    case 'weighted_sum'
+        % no additional parameter
 end
 
 if cfg_ACI.zscore == 0
@@ -240,25 +244,37 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
         pause(10)
     end
     
-    if (data_passation.i_current ~= cfg_game.N && bCalculation) || (data_passation.i_current ~= cfg_game.N && bCrossPred) || flags.do_force_dataload
-        if data_passation.i_current ~= cfg_game.N
-            fprintf('%s: Less trials have been tested by this participant than the expected cfg_game.N=%.0f trials\n',upper(mfilename),cfg_game.N);
+    if (data_passation.i_current ~= cfg_game.N_trials && bCalculation) || (data_passation.i_current ~= cfg_game.N_trials && bCrossPred) || flags.do_force_dataload
+        if data_passation.i_current ~= cfg_game.N_trials
+            fprintf('%s: Less trials have been tested by this participant than the expected cfg_game.N=%.0f trials\n',upper(mfilename),cfg_game.N_trials);
             
-            % Ale's version:
             fprintf('\tPress ctrl+C to cancel the current ACI calculation, otherwise, the ACI will be obtained for less trials...\n');
             fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
             pause(5);
             fprintf('\tToo late: ACI will be assessed using %.0f trials only\n',data_passation.i_current);
-            
-            % % Leo's version (Leo: I recommend to just wait 10 s!, but to keep the user aware - I reduced the 10 s to 5)
-            % fprintf('\tThe ACI will be assessed using %.0f trials only\n',data_passation.i_current);
         end
-        
-        N = data_passation.i_current;
-        cfg_ACI.N = N;
-        cfg_ACI.stim_order = cfg_ACI.stim_order(1:N);
-        cfg_ACI.idx_trialselect = 1:N;
-        cfg_ACI.N_trialselect = N;
+
+        if cfg_game.intervalnum == 1
+            N = data_passation.i_current;
+            cfg_ACI.N = N;
+            cfg_ACI.stim_order = cfg_ACI.stim_order(1:N);
+            cfg_ACI.idx_trialselect = 1:N;
+            cfg_ACI.N_trialselect = N;
+        elseif cfg_game.intervalnum == 2
+            N = data_passation.i_current;
+            cfg_ACI.N = N*cfg_game.intervalnum;
+            cfg_ACI.stim_order = [cfg_ACI.stim_order(1:N) cfg_game.N/cfg_game.intervalnum+cfg_ACI.stim_order(1:N)];
+            cfg_ACI.idx_trialselect = [1:N*cfg_game.intervalnum];
+            cfg_ACI.N_trialselect = N*cfg_game.intervalnum;
+            data_passation.n_stim = [data_passation.n_stim(1:N) data_passation.n_stim(1600+(1:N))];
+            data_passation.expvar = [data_passation.expvar(1:N) data_passation.expvar(1600+(1:N))];
+            data_passation.n_responses = [data_passation.n_responses(1:N) data_passation.n_responses(1600+(1:N))];
+            data_passation.n_targets = [data_passation.n_targets(1:N) data_passation.n_targets(1600+(1:N))];
+            data_passation.n_response_correct_target = [data_passation.n_response_correct_target(1:N) data_passation.n_response_correct_target(1600+(1:N))];
+            data_passation.is_correct = [data_passation.is_correct(1:N) data_passation.is_correct(1600+(1:N))];
+        else
+            error('experiments with more than 2 intervals are not supported')
+        end
     end
     
     if isempty(keyvals.Data_matrix)
@@ -271,7 +287,7 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
                     fprintf('%s: dataload script found for this experiment (%s.m)\n',upper(mfilename),script4dataload);
                     fprintf('\t If you want to use the default fastACI_getACI_dataload.m file instead, abort this\n');
                     fprintf('\t processing now (press ctrl+c) and enter a new keyval called ''force_default_dataload'' to 1 \n');
-                    pause(10); % Leo: I put this pause for a reason, don't remove or modify this please
+                    pause(5);
                 end
                 exp2eval = sprintf('[Data_matrix,cfg_ACI] = %s(cfg_ACI, ListStim, cfg_game, data_passation);',script4dataload);
                 eval(exp2eval);
@@ -488,7 +504,7 @@ if bCrossPred
             crosspred(i).ACI_crosspred = ACI_crosspred{i};
             %%%%TODO%%%%
             switch glmfct
-                case 'l1glm'
+                case {'lassoglm','lasso','l1lm','l1glm','glm_L1'}
                     bFolds_from_ref_ACI = 1; 
                     if bFolds_from_ref_ACI
                         % This is the default
@@ -565,18 +581,18 @@ if flags.do_plot || nargout == 0
         subplot(1,2,1)
         % affichage_tf(results.ACI_norm, 'CI', 'cfg',cfg_ACI); hold on
         out_affichage = affichage_tf(ACI, 'CI', 'cfg',cfg_ACI);
-        title(glmfct)
+        title(glmfct,'interpreter','none')
 
         subplot(1,2,2)
         % affichage_tf(results.ACI_norm, 'CI', 'cfg',cfg_ACI); hold on
         affichage_tf(ACI_ex, 'CI', 'cfg',cfg_ACI);
-        title([glmfct ' (only within CI)'])
+        title([glmfct ' (only within CI)'],'interpreter','none')
         %%% End plotting permutation test
     else
         
         figure;
         out_affichage = affichage_tf(ACI, 'CI', 'cfg',cfg_ACI);
-        title(glmfct)
+        title(glmfct,'interpreter','none')
         
         if isfield(cfg_ACI,'t_description')
             xlabel(cfg_ACI.t_description);

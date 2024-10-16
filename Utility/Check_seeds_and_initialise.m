@@ -23,6 +23,11 @@ else
     bGenerate_stimuli = Check_if_dir_is_empty(cfg_inout.dir_noise,'*.wav');
 end
 
+% at this stage, intervalnum should be specified. If not, we assume a yes-no task
+if ~isfield(cfg_inout, 'intervalnum') 
+    cfg_inout.intervalnum = 1; % default experiment is a yes-no
+end
+
 %%%
 s_current = rng; % gets current seed
 %%%
@@ -72,11 +77,12 @@ if bDo_the_check
         cfg_inout.seeds_order_method = method;
 
         if cfg_inout.randorder == 1
-            cfg_inout.stim_order = randperm(cfg_inout.N); 
+            cfg_inout.stim_order = randperm(cfg_inout.N/cfg_inout.intervalnum);
+            % if two-interval paradigm, only the first half is ordered, the second interval in each trial is automatically associated with the corresponding stim in the second half
         else
-            error('Not tested recently')
+            cfg_inout.stim_order = 1:cfg_inout.N/cfg_inout.intervalnum;
         end
-
+                
         bGenerate_stimuli = 1; % not changed
     else
 
