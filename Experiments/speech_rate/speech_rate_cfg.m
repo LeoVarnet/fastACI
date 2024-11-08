@@ -1,4 +1,4 @@
-function cfg_out = segmentation_cfg(cfg_in)
+function cfg_out = speech_rate_cfg(cfg_in)
 % function str_stim = speechLAMIv2_cfg(cfg_in)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -12,15 +12,25 @@ cfg_out = cfg_in; % copying input to output struct
 
 cfg.filename_target = Get_filenames(cfg_in.dir_target,'*.wav'); %Get_filenames(cfg_in.dir_target,[cfg_in.Cond_extra_2 '*.wav']);
 
-if ~isempty(cfg.filename_target)
-    for i = 1:length(cfg.filename_target)
-        ftarget = strsplit(cfg.filename_target{i}(1:end-4),'_'); % excludes the '.wav'
-        cfg.response_names{i} = ftarget{end}; % second syllable
-        % cfg.response_names   = {'pa', 'ta'}; 
-    end
+switch cfg_in.Condition
+    case {'bean_knowledge','bean_knowledge_2'}
+        cfg.response_names = {'bee knowledge','bean knowledge'};
+    case {'lime_mile','lime_mile_2'}
+        cfg.response_names = {'lime aisle','lime mile'};
+    case {'place_sometime','place_sometime_2'}
+        cfg.response_names = {'play sometime','place sometime'};
 end
-cfg.response_correct_target = [1,2];
-cfg.warmup         = 1; % 'oui', CAUTION: Overwritten in the case of simulation
+
+% if ~isempty(cfg.filename_target)
+%     for i = 1:length(cfg.filename_target)
+%         ftarget = strsplit(cfg.filename_target{i}(1:end-4),'_'); % excludes the '.wav'
+%         cfg.response_names{i} = ftarget{end}; % second syllable
+%         % cfg.response_names   = {'pa', 'ta'}; 
+%     end
+% end
+cfg.correctness_matrix = [1 1];
+cfg.response_correct_target = 1; % [1,2];
+cfg.warmup         = 0; % 'oui', CAUTION: Overwritten in the case of simulation
  
 % cfg.Language       = 'FR'; % or 'EN'
 

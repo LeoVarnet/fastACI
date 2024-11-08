@@ -24,13 +24,13 @@ for i_trial=1:N_trialselect
     fprintf(msg);
     numerase=numel(msg);
     
-    randomvectors = [cfg_game.f0vec(:,n_stim(i_trial)) cfg_game.timevec(:,n_stim(i_trial))];
+    randomvectors = [cfg_game.scalevec(:,n_stim(i_trial))];
 
     Data_matrix(i_trial,:,:) = randomvectors;%[noise, fs] = audioread([dir_noise ListStim(n_stim(i_trial)).name ]);
 
 end
 
-cfg_ACI.t = [1,2];
+cfg_ACI.t = [1];
 cfg_ACI.t_description = 'Dimension';
-cfg_ACI.f = 1:size(cfg_game.timevec,1);
+cfg_ACI.f = 1:size(cfg_game.scalevec,1);
 cfg_ACI.f_description = 'Segment edge number';

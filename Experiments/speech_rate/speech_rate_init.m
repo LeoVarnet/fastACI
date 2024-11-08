@@ -1,4 +1,4 @@
-function cfg_inout = segmentation_init(cfg_inout)
+function cfg_inout = speech_rate_init(cfg_inout)
 % function cfg_inout = segmentation_init(cfg_inout)
 %
 % 1. Description:
@@ -39,11 +39,78 @@ else
     mkdir(dir_target);
 end
   
-
-files = {'6BPA_tiger_rages_80_100.wav'};
+switch cfg_inout.Condition
+    % Pilot conditions
+    case 'tiger'
+        files = {'6BPA_tiger_rages_80_100.wav','6BPA_tiger_rages_80_100.wav'};
+        Nseg = 13;
+        shift = 0.1; % shift the onset of the first segment by X sec
+    case 'tiger2'
+        files = {'6BPN_tiger_rages_80_100.wav','6BPN_tiger_rages_80_100.wav'};
+        Nseg = 14;
+        shift = 0.185; % shift the onset of the first segment by X sec
+    case 'her'
+        files = {'6BPN_her_rage_80_100.wav','6BPN_her_rage_80_100.wav'};
+        Nseg = 12;
+        shift = 0.15; % shift the onset of the first segment by X sec
+    case 'knowledge'
+        files = {'5BPN_bean_knowledge_80_100.wav','5BPN_bean_knowledge_80_100.wav'};
+        Nseg = 9;
+        shift = 0.12; % shift the onset of the first segment by X sec
+    case 'sometime'
+        files = {'4BPN_place_sometime_80_100.wav','4BPN_place_sometime_80_100.wav'};
+        Nseg = 13;
+        shift = 0.15; % shift the onset of the first segment by X sec
+    case 'lime'
+        files = {'4BPN_lime_mile_80_100.wav','4BPN_lime_mile_80_100.wav'};
+        Nseg = 10;
+        shift = 0.1; % shift the onset of the first segment by X sec
+    % Real conditions
+    case 'bean_knowledge'
+        files = {'5BPN_bean_knowledge_80_100_L.wav','5BPN_bean_knowledge_80_100_L.wav'};
+        targetposition = 1.07;
+        %Nseg = 9;
+        %shift = 0.02; % shift the onset of the first segment by X sec
+    case 'bean_knowledge_2'
+        files = {'5BPA_bean_knowledge_80_100_L.wav','5BPA_bean_knowledge_80_100_L.wav'};
+        targetposition = 0.955;
+        %Nseg = 8;
+        %shift = 0.008; % shift the onset of the first segment by X sec
+    case 'lime_mile'
+        files = {'4BPN_lime_mile_80_100_L.wav','4BPN_lime_mile_80_100_L.wav'};
+        targetposition = 1.18;
+        %Nseg = 10;
+        %shift = 0.06; % shift the onset of the first segment by X sec
+    case 'lime_mile_2'
+        files = {'4BPA_lime_mile_80_100_L.wav','4BPA_lime_mile_80_100_L.wav'};
+        targetposition = 1.20;
+        %Nseg = 9;
+        %shift = 0.05; % shift the onset of the first segment by X sec
+        %Nseg = 11;
+        %shift = 0.0; % shift the onset of the first segment by X sec
+    case 'place_sometime'
+        files = {'4BPN_place_sometime_80_100_L.wav','4BPN_place_sometime_80_100_L.wav'};
+        targetposition = 1.45;
+        %Nseg = 13;
+        %shift = 0.05; % shift the onset of the first segment by X sec
+    case 'place_sometime_2'
+        files = {'4BPA_place_sometime_80_100_L.wav','4BPA_place_sometime_80_100_L.wav'};
+        targetposition = 1.29;
+        %Nseg = 11;
+        %shift = 0.085; % shift the onset of the first segment by X sec
+   
+    otherwise
+        error(['Undefined condition: ' cfg_inout.Condition])
+end
 
 if bGenerate_stimuli
-    
+
+    if ~exist('Nseg')
+        % Real conditions
+        Nseg = floor((targetposition-0.150)/0.1);
+        shift = mod((targetposition-0.150),0.1);
+    end
+
     for i = 1:length(files)
         [insig,fs]  = audioread([dir_speech_orig files{i}]);
                  
@@ -103,8 +170,7 @@ end
 ListStim = [];
 if bGenerate_stimuli
     Nsamp_in_seg = 0.1*fs;
-    Nseg = floor(N_samples/Nsamp_in_seg);
-
+    %Nseg = floor(N_samples/Nsamp_in_seg);
     cfg_inout.scalevec = nan(Nseg,cfg_inout.N);      % initialisation
 end
 for i = 1:cfg_inout.N
@@ -130,26 +196,10 @@ for i = 1:cfg_inout.N
             error('Sounds do not have the same sampling frequency as specified in the %s_set.m file');
         end
 
-        %%% Random modification, parameters by Leo
-
-        switch lower(cfg_inout.Condition)
-            case 'lami_shifted'
-                do_shift = 1;
-            otherwise
-                do_shift = 0;
-        end
-
-        % % f0vec is the random vector of f0 shifts (in cents). Burr et al. used a
-        % % S.D. of 100 cents, clipped at +/-2.2 S.D.
-        % f0vec = il_randn_clipped(Nseg+1,1,2.2); % Nseg+1 because we want one f0 shift at each segment edge
-        % f0vec = 100*f0vec;
-        % % timevec is the random vector of time shifts (in sec). I chose a S.D. of
-        % % 15 ms (remember that each segment is ~800 ms long and that very compressed
-        % % segments sound unnatural), clipped at +/-2.2 S.D.
-        % timevec = [0; il_randn_clipped(Nseg-1,1,2.2); 0]; % Nseg-1 because we want one time shift at each segment edge except the onset and offset
-        % timevec = 0.015*timevec;
-
-        scalevec = [il_randn_clipped(Nseg,1,1)]; % Nseg-1 because we want one time shift at each segment edge except the onset and offset
+        scalevec = [il_randn_clipped(Nseg,1,1)]; % independent scaling of each segment
+        % scalevec = [zeros(Nseg-1,1); il_randn_clipped(1,1,1)]; % only last segment
+        % scalevec = [il_randn_clipped(1,1,1)]*ones(Nseg,1); % uniform scaling
+        
         scalevec = 1.5+scalevec;
 
         % Calling WORLD. 
@@ -167,12 +217,12 @@ for i = 1:cfg_inout.N
                     suff_here = ['-0p' num2str(100*factor)];
                 end
                 %scalevec = 0.8*ones([1, length(timevec)-1]);
-                outsig = il_WorldSynthesiser(insig, fs, scalevec);
+                outsig = il_WorldSynthesiser(insig, fs, scalevec, shift);
                 dir_target_new = [dir_target(1:end-1) '-idle' filesep]; mkdir(dir_target_new);
                 fname_here = [dir_target_new files{idx_target}(1:end-4) '-idle' suff_here '.wav'];
                 audiowrite(fname_here,outsig,fs);
         end
-        outsig = il_WorldSynthesiser(insig, fs, scalevec);
+        outsig = il_WorldSynthesiser(insig, fs, scalevec, shift);
         cfg_inout.scalevec(:,i) = scalevec;
         %cfg_inout.f0vec(:,i)   = f0vec;
         
@@ -237,19 +287,12 @@ end
 %%% 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function y = il_WorldSynthesiser(insig, fs, scale_param, do_shift)
-% function y = il_WorldSynthesiser(insig, fs, scale_param)
-%
-% WorldSynthesizer_Leo(x, fs, 1, 1, 1);
+function y = il_WorldSynthesiser(insig, fs, scale_param, shift_seg)
+% function y = il_WorldSynthesiser(insig, fs, scale_param, shift_seg)
 %
 % scale_param is the scale factor
 %
-% Adapted from WorldSynthesizer_Leo.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-if nargin<6
-    do_shift = 0; % if do_shift = 1, then the first segment edge is not zero
-end
 
 if ~exist('Harvest.m','file')
     script2look = 'fastACI_dir_world';
@@ -295,18 +338,19 @@ time_vect = src_params.temporal_positions;
 
 
     % scale factor version
-    in2=0;
+    in2=shift_seg;
     for i_segment=1:Nseg
-        idx_i = (i_segment-1)*Nsamp_in_seg+1;
-        idx_f = i_segment*Nsamp_in_seg+1;
+        idx_i = round(shift_seg*fs_world + (i_segment-1)*Nsamp_in_seg+1);
+        idx_f = round(shift_seg*fs_world + i_segment*Nsamp_in_seg+1);
         num_steps_in = Nsamp_in_seg+1;
 
         % original duration of the segment
-        segment_dur = src_params.temporal_positions(i_segment*Nsamp_in_seg) - src_params.temporal_positions((i_segment-1)*Nsamp_in_seg+1);
+        segment_dur = src_params.temporal_positions(idx_f) - src_params.temporal_positions(idx_i);
         in1 = in2; % end of previous segment %src_params.temporal_positions((i_segment-1)*Nsamp_in_seg+1)+time_param(i_segment);
         in2 = in1 + segment_dur*scale_param(i_segment);%src_params.temporal_positions(i_segment*Nsamp_in_seg)+time_param(i_segment+1);
         time_vect(idx_i:idx_f) = linspace(in1,in2,num_steps_in);
     end
+time_vect(idx_f+1:end) = time_vect(idx_f+1:end)-time_vect(idx_f+1)+in2+1/fs_world;
 
 % f0 kept
 %source_parameter.f0 = source_parameter.f0 .* 2.^(f0_vect/1200);

@@ -1,4 +1,4 @@
-function cfg_inout = segmentation_set(cfg_inout)
+function cfg_inout = speech_rate_set(cfg_inout)
 % function cfg_out = speechLAMIv2_set(cfg_inout)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,7 +35,7 @@ else
 end
 cfg.Language = Language; % or 'EN'
 
-cfg.N_presentation = 10; % number of stimuli / condition
+cfg.N_presentation = 400; % number of stimuli / condition
 cfg.N_target  = 1;     % Number of conditions
 cfg.N         = cfg.N_target*cfg.N_presentation;
 

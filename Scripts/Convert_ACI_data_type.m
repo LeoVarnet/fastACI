@@ -92,7 +92,9 @@ switch version
         if length(cfg_pass.response_names) == cfg_pass.N_target
             cfg_pass.target_names = cfg_pa.response_names;
         else
-            error('Continue here...') % Automate this to be read from experiment scripts...
+            cfg_pass.target_names = cfg_pa.response_names;
+            % TODO
+            %error('Continue here...') % Automate this to be read from experiment scripts...
             % cfg_pass.NameTarget = {'Alda','Alga','Arda','Arga'}; % manually put
         end
         cfg_pass.N_response = length(cfg_pa.response_names);
