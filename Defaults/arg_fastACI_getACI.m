@@ -6,9 +6,10 @@ function definput = arg_fastACI_getACI(definput)
 % Old name: arg_Script4_Calcul_ACI.m (changed on 21/05/2021)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-definput.flags.TF_type = {'spect','lyon','noise_logspect','gammatone','adapt','tf'}; 
-definput.flags.glmfct = {'glmfitqp','lassoglm_original','lassoglm','lasso','lassoslow','l1glm','l1lm','classic_revcorr',...
-    'glm','glm_L1_GB','glm_L2','lm_L1_GB','correlation','weighted_sum'};
+definput.flags.TF_type = {'gammatone','spect','lyon','noise_logspect','adapt','tf'}; 
+definput.flags.glmfct = {'correlation','glm','glm_L1_GB','glm_L2','lm_L1_GB','weighted_sum',...
+    'glmfitqp','lassoglm_original','lassoglm','lasso','lassoslow','l1glm','l1lm','classic_revcorr',...
+};
 % new names (26/09/2024): 'l1glm' is now 'glm_L1_GB'; 'glmfitqp' is now
 % 'glm_L2', 'classic_revcorr' is now 'correlation'
 definput.flags.permutation = {'no_permutation','permutation'};

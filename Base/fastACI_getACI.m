@@ -504,7 +504,7 @@ if bCrossPred
             crosspred(i).ACI_crosspred = ACI_crosspred{i};
             %%%%TODO%%%%
             switch glmfct
-                case {'lassoglm','lasso','l1lm','l1glm','glm_L1'}
+                case {'lassoglm','lasso','l1lm','l1glm','glm_L1','glm_L2','glm_L1_GB','lm_L1_GB'}
                     bFolds_from_ref_ACI = 1; 
                     if bFolds_from_ref_ACI
                         % This is the default
