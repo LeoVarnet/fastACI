@@ -33,6 +33,8 @@ definput.keyvals.skip_if_on_disk = 1;
 definput.keyvals.consistency_check = 1;
 definput.keyvals.Data_matrix = [];
 
+definput.keyvals.zscore = 1;
+
 definput.keyvals.ACI_crosspred = [];
 definput.keyvals.suffix_crosspred = ''; % if empty (default) generates Crosspred.mat
                                         % if non empty generates Crosspred-noise.mat (if suffix_crosspred == 'noise') 
