@@ -37,7 +37,11 @@ if isempty(keyvals.dir_out)
     if isempty(path)
         [path,name,ext]=fileparts( savegame_file );
     end
-    path = [path filesep 'Results_ACI' filesep]; 
+    if ~isempty(path)
+        path = [path filesep 'Results_ACI' filesep];
+    else
+        path = ['Results_ACI' filesep];
+    end
     if ~exist(path,'dir')
         mkdir(path);
     end

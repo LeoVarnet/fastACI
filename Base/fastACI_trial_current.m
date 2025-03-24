@@ -204,10 +204,10 @@ if bExperiment
         if is_warmup
             switch cfg_game.Language
                 case 'EN'
-                    FCresponses = {[cfg_game.response_names{1} ' first ' cfg_game.response_names{2} ' second'], [cfg_game.response_names{2} ' first and ' cfg_game.response_names{1} ' second']};
+                    FCresponses = {[cfg_game.response_names{1} ' first and ' cfg_game.response_names{2} ' second'], [cfg_game.response_names{2} ' first and ' cfg_game.response_names{1} ' second']};
                     text2show = {'to play the stim again' ['to play a ' cfg_game.response_names{1}] ['to play a ' cfg_game.response_names{2}] 'to leave the warm-up phase'};
                 case 'FR'
-                    FCresponses = {[cfg_game.response_names{1} ' first ' cfg_game.response_names{2} ' second'], [cfg_game.response_names{2} ' first and ' cfg_game.response_names{1} ' second']};
+                    FCresponses = {[cfg_game.response_names{1} ' en premier et ' cfg_game.response_names{2} ' en second'], [cfg_game.response_names{2} ' en premier et ' cfg_game.response_names{1} ' en second']};
                     text2show = {'pour rejouer le son' ['pour \351couter un ' cfg_game.response_names{1}] ['pour \351couter un ' cfg_game.response_names{2}] 'pour quitter l''\351chauffement'};
             end
             response = Response_keyboard([FCresponses text2show], cfg_game);
