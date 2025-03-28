@@ -83,9 +83,12 @@ definput.keyvals.binwidth = 10e-3; % 10 ms, time resolution for ACI
 %%% Only used in 'l1glm'
 definput.keyvals.lambda = [];
 
-%%% Only used in 'glmfitqp'
-definput.keyvals.lambda0 = [];
-definput.keyvals.precision = [];
-definput.keyvals.stepsize = [];
+%%% Only used in 'glmfitqp'. These are the defaults from Patrick Mineault's
+%%% cvglmfitqp function
+definput.keyvals.lambda0 = 5; % starting value for hyperparameter
+definput.keyvals.precision = .05; % targeted precision
+definput.keyvals.stepsize = 5; % Progression step for lambda
+definput.keyvals.maxiter = 30; % Max number of iterations
+definput.keyvals.nobreak  = 1;
 
 definput.keyvals.script_dataload = ''; % fastACI_getACI_dataload

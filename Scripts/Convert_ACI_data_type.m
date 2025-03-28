@@ -374,3 +374,8 @@ end
 if ~isfield(data_passation,'resume_trial')
     data_passation.resume_trial = 1;
 end
+
+%%%% New 28/03/2025 to make it compatible with older versions
+if ~isfield(data_passation,'n_stim')
+    data_passation.n_stim = cfg_pass.stim_order;
+end
