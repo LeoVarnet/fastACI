@@ -148,9 +148,18 @@ switch cfg_ACI.glmfct
         % no additional parameter
 end
 
-if cfg_ACI.zscore == 0
-    error('%s: the glmfct options require that cfg_ACI.zscore is 1',upper(mfilename))
+if isfield(keyvals,'zscore')
+    cfg_ACI.zscore = keyvals.zscore;
+    fprintf('Non-default value for field ''zscore'' is being used\n');
 end
+
+% if cfg_ACI.zscore == 0
+%     error('%s: the glmfct options require that cfg_ACI.zscore is 1',upper(mfilename))
+% end
+
+% if cfg_ACI.zscore == 0
+%     error('%s: the glmfct options require that cfg_ACI.zscore is 1',upper(mfilename))
+% end
 
 cfg_ACI.f_limits = cfg_ACI.keyvals.f_limits; % bande de frequences pour analyse
 cfg_ACI.t_limits = cfg_ACI.keyvals.t_limits; % bande de temps pour analyse
