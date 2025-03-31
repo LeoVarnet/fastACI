@@ -44,7 +44,7 @@ if ispc
         case '9.10.0.1684407 (R2021a) Update 3' % Leo's new PC
             paths.praat = 'C:\Users\LSP005\Desktop\Programmes\praatcon5353_win64\praatcon.exe';
             paths.dir_output = [];
-            warning('Path not set up.\n')
+            warning('Path not set up.')
         otherwise
             paths.dir_output = [pwd filesep];
     end

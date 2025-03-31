@@ -86,8 +86,8 @@ definput.keyvals.binwidth = 10e-3; % 10 ms, time resolution for ACI
 definput.keyvals.lambda = [];
 
 %%% Only used in 'glmfitqp'
-definput.keyvals.lambda0 = [];
+definput.keyvals.lambda0 = 5;
 definput.keyvals.precision = [];
-definput.keyvals.stepsize = [];
+definput.keyvals.stepsize = 1.5;
 
 definput.keyvals.script_dataload = ''; % fastACI_getACI_dataload
