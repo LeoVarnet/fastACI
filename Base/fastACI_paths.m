@@ -41,10 +41,10 @@ if ispc
             paths.dir_output = [];
             paths.dir_output_fastACI2021_JASA =  'C:\Users\Varnet L�o\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
             paths.dir_output_fastACI2021_JASA_eps = 'C:\Users\Varnet L�o\Dropbox\Professionnel\Publications et communications\2020-x - ANR fastACI\2021 - JASA\';
-        case '9.10.0.1684407 (R2021a) Update 3' % Leo's new PC
+        case '24.1.0.2689473 (R2024a) Update 6' % Leo's new PC
             paths.praat = 'C:\Users\LSP005\Desktop\Programmes\praatcon5353_win64\praatcon.exe';
             paths.dir_output = [];
-            warning('Path not set up.\n')
+            warning('Path not set up.')
         otherwise
             paths.dir_output = [pwd filesep];
     end

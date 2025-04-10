@@ -103,9 +103,16 @@ switch glmfct
         % end
         
     case {'lasso','lassoglm','l1lm','l1glm','glm_L1_GB','lm_L1_GB'}
-        
-        Nlevel    = keyvals.lasso_Nlevel; % 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
-        Nlevelmin = 2; % minimum level considered in the analysis 
+        if ~isfield(keyvals,'lasso_Nlevel')
+            Nlevel = 5;
+        else
+            Nlevel    = keyvals.lasso_Nlevel; % 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
+        end
+        if ~isfield(keyvals,'lasso_Nlevelmin')
+            Nlevelmin = 2; % minimum level considered in the analysis
+        else
+            Nlevelmin    = keyvals.lasso_Nlevelmin; % 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
+        end
         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'lasso_Nlevel',Nlevel);
         if bAssigned == 0
             if cfg_inout.lasso_Nlevel~=Nlevel

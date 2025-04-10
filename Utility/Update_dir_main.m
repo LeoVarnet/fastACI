@@ -24,6 +24,22 @@ if isfield(cfg_inout,'dir_speech')
 end
 
 %%%
+if isfield(cfg_inout,'dir_target')
+    if strcmp(cfg_inout.dir_target(end),'/') || strcmp(cfg_inout.dir_target(end),'\')
+        dir_check = fileparts(fileparts(fileparts( cfg_inout.dir_target )));
+        dir_check = [dir_check filesep];
+    else
+        %%% Nothing to do, but an error will raise
+    end
+    if ~isfield(cfg_inout,'dir_main_old') || strcmp(dir_check,cfg_inout.dir_main_old)
+        L = length(dir_check);
+        cfg_inout.dir_target = [dir_new cfg_inout.dir_target(L+1:end-1) filesep];
+        disp('dir_target updated...')
+    end
+end
+
+
+%%%
 if isfield(cfg_inout,'dir_noise')
     if strcmp(cfg_inout.dir_noise(end),'/') || strcmp(cfg_inout.dir_noise(end),'\')
         dir_check = fileparts(fileparts(fileparts( cfg_inout.dir_noise )));
