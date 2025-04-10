@@ -20,7 +20,7 @@ if length(y) <= 2 && length(y) ~= 0
             fname = strsplit(y{i},'_');
             Speaker_ID = fname{1};
             Sample = fname{2};
-            Sample2 = fname{2}([2 1]);
+            Sample2 = fname{2}([2:end 1]);
 
             extra_text = '';
             switch Speaker_ID
@@ -29,7 +29,9 @@ if length(y) <= 2 && length(y) ~= 0
                 case 'S43M'
                     switch Sample
                         case {'ab','ad'}
-                            extra_text = ' (as used in Osses2022b)';
+                            extra_text = ' (as used in Osses and Varnet 2024)';
+                        case {'ag','ap','at','ak'}
+                            extra_text = ' (as used in Carranante et al. 2024)';
                     end
                     fprintf('\t\t%s_%s from  Male  French speaker S43M%s\n',Sample,Sample2,extra_text);
                 case 'S46M'
