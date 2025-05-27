@@ -68,10 +68,10 @@ N_trialselect = cfg_ACI.N_trialselect;
 
 select_n_trials = (1:N_trialselect>=cfg_ACI.n_trials_analysis(1) & 1:N_trialselect<=cfg_ACI.n_trials_analysis(2));
 
-if ~isempty(kv.idx_trialselect)
-    idx_set_zero = setxor(1:length(select_n_trials), kv.idx_trialselect);
-    select_n_trials(idx_set_zero) = 0;
-end
+% if ~isempty(kv.idx_trialselect)
+%     idx_set_zero = setxor(1:length(select_n_trials), kv.idx_trialselect);
+%     select_n_trials(idx_set_zero) = 0;
+% end
 
 expvar_trialselect = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_analysis(2));
 
@@ -238,11 +238,11 @@ switch fg.glmfct
             warning('Nlevelmin > 2, this option has not been comprehensively tested yet');
             i_level_start = 2;
             
-            % Comment from Leo, via Slack on 15/11/2021:
+            % TODO:
             %     Nlevelmin >= 3 could be useful in the long run if we want 
             %     to use ACIs with higher resolution but the same size of 
-            %     gaussian elements in the Pyramid basis. But with our 
-            %     current resolution I agree that Nlevelmin should be 1 or 2
+            %     gaussian elements in the Pyramid basis. But with the 
+            %     current resolution Nlevelmin should be 1 or 2
         end
         
         for i_level = i_level_start:Nlevel
@@ -303,13 +303,6 @@ if do_permutation
     cfg_ACI.cfg_perm = cfg_perm;
 end
     
-% warning('Temporal')
-%%% Commented by Leo on 28/04/2021
-% if cfg_ACI.zscore
-%     X=(X-mean(X(:)))/std(X(:)); % Again a normalisation...
-% end
-%%% End commented by Leo on 28/04/2021
-
 if cfg_ACI.zscore
     %%%% Added by Leo on 28/04/2021:
     % Here each row of X (along dimension 1, each trial) is 

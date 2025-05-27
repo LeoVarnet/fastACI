@@ -41,10 +41,11 @@ while jj < maxiter
     jj = jj + 1;
 
     lambda = lambdas(jj);
-    if lambda > 1e6 || lambda < 1e-6
-        jj = jj - 1;
-        break; %too big | too small
-    end
+    % LEO: I removed this arbitrary parameter
+%     if lambda > 1e6 || lambda < 1e-6
+%         jj = jj - 1;
+%         break; %too big | too small
+%     end
 
     printfun('  %10.2g    ',lambda);
 

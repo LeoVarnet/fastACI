@@ -66,6 +66,7 @@ if sum(experiment=='-') % Checking whether it contains an hyphen
 end
 %%%
 
+
 % -------------------------------------------------------------------------
 % 1. Loading set-up: 
 %    1.1. Loads cfgcrea*.mat
@@ -94,10 +95,24 @@ else
     error('%s: No init file will be run, please run a staircase first\n',upper(mfilename));
 end
 
+% default parameters 2
 if ~isfield(cfg_game,'resume')
     cfg_game.resume = []; % 'no' -> new game, 'yes' -> load last saved game, [] -> load last saved game if exists or start a new game
 end
 
+if ~isfield(cfg_game,'feedback')
+    cfg_game.feedback = 0; % feedback is disabled by default
+end
+
+if ~isfield(cfg_game, 'intervalnum') 
+    cfg_game.intervalnum = 1; % default experiment is a yes-no
+end
+
+if ~isfield(cfg_game, 'N_trials') 
+    cfg_game.N_trials = cfg_game.N/cfg_game.intervalnum;
+end
+
+%%% TODO LEO : check if other defaults are necessary
 % -------------------------------------------------------------------------
 %     1.2. Loading parameters: Looks for an existing 'game' (or previous 
 %          session for the same participant)
@@ -394,6 +409,14 @@ cfg_game.adapt = 0;
 isbreak = 0;
 %%% Ends: Initialises
 
+
+if ~isfield(cfg_game, 'intervalnum') || cfg_game.intervalnum == 1
+    N_trials = cfg_game.N;
+elseif cfg_game.intervalnum == 2
+    N_trials = cfg_game.N/2;
+end
+
+
 data_passation_init = [];
 is_warmup = cfg_game.warmup;
 if cfg_game.is_experiment == 1
@@ -446,7 +469,7 @@ else
 end
 %%% End checking the calibration
 
-while i_current <= N && i_current~=data_passation.next_session_stop && isbreak == 0
+while i_current <= N_trials && i_current~=data_passation.next_session_stop && isbreak == 0
      
     ins_trial = [];
     if cfg_game.adapt

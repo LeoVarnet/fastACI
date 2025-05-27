@@ -99,7 +99,7 @@ if isfield(cfg,'maxvar')
             case 'EN'
                 fprintf('Reaching the limits of the experimental variable, expvar set to maxvar=%.1f\n',cfg.maxvar);
             case 'FR'
-                fprintf('Reaching the limits of the experimental variable, expvar set to maxvar=%.1f\n',cfg.maxvar);
+                fprintf('Limite supérieure (maxvar) atteinte pour la variable expérimentale, expvar=%.1f\n',cfg.maxvar);
         end
     end
 end
@@ -110,7 +110,7 @@ if isfield(cfg,'minvar')
             case 'EN'
                 fprintf('Reaching the limits of the experimental variable, expvar set to minvar=%.1f\n',cfg.minvar);
             case 'FR'
-                fprintf('Reaching the limits of the experimental variable, expvar set to minvar=%.1f\n',cfg.minvar);
+                fprintf('Limite inférieure (minvar) atteinte pour la variable expérimentale, expvar=%.1f\n',cfg.minvar);
         end
     end
 end

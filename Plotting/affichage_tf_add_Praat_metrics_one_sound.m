@@ -31,15 +31,13 @@ dir_where = [dir_where filesep];
 if isempty(outs_from_Praat)
     warning('Praat results not found on disk, Praat will be run again using default values')
     
-    %%% I still need to spot the exact values:
-    par_formants.timestep = 0.01; % positive timestep 0.01
-    par_formants.nformants = 6; % positive nformants 5
+    par_formants.timestep = 0.005; % positive timestep 0.01
+    par_formants.nformants = 5; % positive nformants 5
     
-    %%% Unsure:
     % Formants
-    par_formants.maxformant = 6500; % positive maxformant 5500
+    par_formants.maxformant = 5250; % positive maxformant 5500
     par_formants.windowlength = 0.025;% 0.025 % positive windowlength 0.025
-    par_formants.dynamicrange = 30; % positive dynamic range 20
+    par_formants.dynamicrange = 20;%30; % positive dynamic range 20
     
     % F0
     %par_formants.minpitch = 200; % previous parameter value (14/10/2022)
@@ -80,16 +78,17 @@ for kk = 1:Nsounds
     end
     % end
 
+    delay = cfg_ACI.t(1); %compensation for the gammatone delay 
     if bPlot
         if bAdd_traces(kk)
             [f2plot,cfg_ACI] = affichage_get_freq_resolution(outs_from_Praat.f0{kk},cfg_ACI); % figure; plot(outs.t_f0{1},outs.f0{1},'k--');
-            pl(kk) = plot(outs_from_Praat.t_f0{kk},f2plot,'LineStyle',Style,'Color',Colour,'LineWidth',LineWidth);
+            pl(kk) = plot(outs_from_Praat.t_f0{kk}+delay,f2plot,'LineStyle',Style,'Color',Colour,'LineWidth',LineWidth);
 
             for ii = 1:size(outs_from_Praat.F{kk},2)
                 % Adding each formant:
                 f2plot = affichage_get_freq_resolution(outs_from_Praat.F{kk}(:,ii),cfg_ACI);
                 hold on; % figure; plot(t_F{kk},F{kk}(:,ii),Style{kk});
-                plot(outs_from_Praat.t_F{kk},f2plot,'LineStyle',Style,'Color',Colour,'LineWidth',LineWidth);
+                plot(outs_from_Praat.t_F{kk}+delay,f2plot,'LineStyle',Style,'Color',Colour,'LineWidth',LineWidth);
             end
         end
     end

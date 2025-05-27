@@ -36,5 +36,6 @@ end
 
 tuser_cal = noise+signal;
  
-str_stim.tuser            = AmplifyNALR(presentation_gain*tuser_cal, fs, cfg.HL2, cfg.HLF);
+% amplified sound, monoral presentation
+str_stim.tuser            = [AmplifyNALR(presentation_gain*tuser_cal, fs, cfg.HL2, cfg.HLF) zeros(size(presentation_gain*tuser_cal))];
 str_stim.stim_tone_alone  = signal;

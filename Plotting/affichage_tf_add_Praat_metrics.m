@@ -23,15 +23,13 @@ end
 if isempty(outs_from_Praat)
     warning('Praat results not found on disk, Praat will be run again using default values')
     
-    %%% I still need to spot the exact values:
-    par_formants.timestep = 0.01; % positive timestep 0.01
-    par_formants.nformants = 6; % positive nformants 5
+    par_formants.timestep = 0.005; % positive timestep 0.01
+    par_formants.nformants = 5; % positive nformants 5
     
-    %%% Unsure:
     % Formants
-    par_formants.maxformant = 6500; % positive maxformant 5500
+    par_formants.maxformant = 5250; % positive maxformant 5500
     par_formants.windowlength = 0.025;% 0.025 % positive windowlength 0.025
-    par_formants.dynamicrange = 30; % positive dynamic range 20
+    par_formants.dynamicrange = 20;%30; % positive dynamic range 20
     
     % F0
     %par_formants.minpitch = 200; % previous parameter value (14/10/2022)

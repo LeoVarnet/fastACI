@@ -66,22 +66,91 @@ end
 
 tic
 
+if bExperiment && isfield(cfg_game,'probe_periodicity') && cfg_game.probe_periodicity > 0
+    %%% Defining whether this trial is a probe
+    if mod(i_current,cfg_game.probe_periodicity) == 1
+        switch cfg_game.Language
+            case 'EN'
+                clc
+                fprintf('\n*** Probe sound ***\n');
+            case 'FR'
+                clc
+                fprintf('\n\t*** Son de r\351f\351rence ***\n');
+        end
+
+        % generating a dummy data/cfg
+        data_probe = data_passation;
+        cfg_probe = cfg_game;
+        data_probe.i_current = 1;
+        data_probe.n_stim = 1;
+        data_probe.expvar = -10;
+        cfg_probe.n_targets_sorted = 1;
+
+        str_stim = [];
+        str2eval = sprintf('[str_stim,data_probe]=%s_user(cfg_probe,data_probe);',cfg_game.experiment);
+        eval(str2eval);
+        stim_normal = str_stim.tuser;
+
+        sil4playing = zeros(0.1*cfg_game.fs,size(stim_normal,2));
+        player = audioplayer(cfg_game.gain_play*[sil4playing; stim_normal],cfg_game.fs);
+        N_samples_stim = size(stim_normal,1) + size(sil4playing,1);
+
+        play(player)
+        pause(N_samples_stim/cfg_game.fs);
+
+        switch cfg_game.Language
+            case 'EN'
+                fprintf('\n    Press any key\n');
+            case 'FR'
+                fprintf('\n    Appuyez sur une touche\n');
+        end
+        pause;
+        pause(0.5)
+    end
+end
+
 str_stim = [];
 str2eval = sprintf('[str_stim,data_passation]=%s_user(cfg_game,data_passation);',cfg_game.experiment);
 eval(str2eval);
 stim_normal = str_stim.tuser;
 
-% stim_normal = il_user(str_inout,cfg_game);
-%%% Create signal: end
-
 if bExperiment
     sil4playing = zeros(0.1*cfg_game.fs,size(stim_normal,2));
-    player = audioplayer(cfg_game.gain_play*[sil4playing; stim_normal],cfg_game.fs);
+    if ~isfield(cfg_game, 'intervalnum') || cfg_game.intervalnum == 1
+        % one single sound is played
+        player = audioplayer(cfg_game.gain_play*[sil4playing; stim_normal],cfg_game.fs);
+    elseif cfg_game.intervalnum == 2
+        % two sounds in random order
+
+        % first determine the random positions 
+        randpos = randperm(cfg_game.intervalnum);
+        if randpos(1) == 1
+            stim_1 = str_stim.tuser;
+            stim_2 = str_stim.tref;
+        else
+            stim_1 = str_stim.tref;
+            stim_2 = str_stim.tuser;
+        end
+        data_passation.randpos(:,i_current) = randpos;
+
+        % then plays the two sounds
+        player = audioplayer(cfg_game.gain_play*[sil4playing; stim_1; sil4playing; stim_2],cfg_game.fs);
+    else
+        error('For the moment the toolbox can only handle experiments with two intervals or less...')
+    end
+
+    if cfg_game.intervalnum == 1
+        N_samples_stim = size(stim_normal,1) + size(sil4playing,1);
+    elseif cfg_game.intervalnum == 2
+        N_samples_stim = size(stim_1,1) + size(sil4playing,1) + size(stim_2,1) + size(sil4playing,1);
+    end
 end
 if bSimulation
     sil4playing = [];
 end
-N_samples_stim = size(stim_normal,1) + size(sil4playing,1);
+
+%%% TODO : change the response names 'target present/absent' to
+% 'first/second interval'
 
 % Display message, play sound and ask for response
 
@@ -99,7 +168,7 @@ if is_warmup
             end
     end
 else
-    N_for_next_stop = min(data_passation.next_session_stop,cfg_game.N+1)-i_current-1;
+    N_for_next_stop = min(data_passation.next_session_stop,cfg_game.N_trials+1)-i_current-1;
     msg_currenttrial
 end
 
@@ -108,33 +177,65 @@ if bExperiment
     play(player)
     pause(N_samples_stim/cfg_game.fs);
     time_before_response = toc;
-    if is_warmup
 
-        switch cfg_game.Language
-            case 'EN'
-                text2show = {'to play the stim again' ['to play a ' cfg_game.response_names{1}] ['to play a ' cfg_game.response_names{2}] 'to leave the warm-up phase'};
-            case 'FR'
-                text2show = {'pour rejouer le son' ['pour \351couter un ' cfg_game.response_names{1}] ['pour \351couter un ' cfg_game.response_names{2}] 'pour quitter l''\351chauffement'};
-        end
-        response = Response_keyboard([cfg_game.response_names text2show], cfg_game);
+    if cfg_game.intervalnum == 1 
+        % simple case: each response is the name of an experiment
+        if is_warmup
+            switch cfg_game.Language
+                case 'EN'
+                    text2show = {'to play the stim again' ['to play a ' cfg_game.response_names{1}] ['to play a ' cfg_game.response_names{2}] 'to leave the warm-up phase'};
+                case 'FR'
+                    text2show = {'pour rejouer le son' ['pour \351couter un ' cfg_game.response_names{1}] ['pour \351couter un ' cfg_game.response_names{2}] 'pour quitter l''\351chauffement'};
+            end
+            response = Response_keyboard([cfg_game.response_names text2show], cfg_game);
 
-    else
-        switch cfg_game.Language
-            case 'EN'
-                text2show = {'to take a break'};
-            case 'FR'
-                text2show = {'pour prendre une pause'};
+        else
+            switch cfg_game.Language
+                case 'EN'
+                    text2show = {'to take a break'};
+                case 'FR'
+                    text2show = {'pour prendre une pause'};
+            end
+            response = Response_keyboard([cfg_game.response_names text2show], cfg_game);
         end
-        response = Response_keyboard([cfg_game.response_names text2show], cfg_game, 3.14);
+
+    elseif cfg_game.intervalnum == 2
+        % in forced choice the responses should be about the interval
+        if is_warmup
+            switch cfg_game.Language
+                case 'EN'
+                    FCresponses = {[cfg_game.response_names{1} ' first and ' cfg_game.response_names{2} ' second'], [cfg_game.response_names{2} ' first and ' cfg_game.response_names{1} ' second']};
+                    text2show = {'to play the stim again' ['to play a ' cfg_game.response_names{1}] ['to play a ' cfg_game.response_names{2}] 'to leave the warm-up phase'};
+                case 'FR'
+                    FCresponses = {[cfg_game.response_names{1} ' en premier et ' cfg_game.response_names{2} ' en second'], [cfg_game.response_names{2} ' en premier et ' cfg_game.response_names{1} ' en second']};
+                    text2show = {'pour rejouer le son' ['pour \351couter un ' cfg_game.response_names{1}] ['pour \351couter un ' cfg_game.response_names{2}] 'pour quitter l''\351chauffement'};
+            end
+            response = Response_keyboard([FCresponses text2show], cfg_game);
+
+        else
+            switch cfg_game.Language
+                case 'EN'
+                    FCresponses = {[cfg_game.response_names{1} ' first ' cfg_game.response_names{2} ' second'], [cfg_game.response_names{2} ' first and ' cfg_game.response_names{1} ' second']};
+                    text2show = {'to take a break'};
+                case 'FR'
+                    FCresponses = {[cfg_game.response_names{1} ' en premier et ' cfg_game.response_names{2} ' en second'], [cfg_game.response_names{2} ' en premier et ' cfg_game.response_names{1} ' en second']};
+                    text2show = {'pour prendre une pause'};
+            end
+            response = Response_keyboard([FCresponses text2show], cfg_game);
+        end
+        % and now the 
     end
     stop(player)
     
 elseif bSimulation
-    
+    if cfg_game.intervalnum == 2
+        error('Simulations for forced choice are not implemented yet');
+        randpos = [1,2];
+    end
     time_before_response = toc;
     
     switch def_sim.decision_script
-        case 'aci_detect' 
+        case 'aci_detect'
             % Default for 'dau1997', 'osses2021', 'osses2022a'
             [response,sim_work,def_sim] = aci_detect(cfg_game,data_passation,def_sim,sim_work, ...
                 'argimport',flags,keyvals); 
@@ -185,10 +286,7 @@ data_passation.response_time(i_current) = trial_end_time-time_before_response;
 data_passation.trial_time(i_current) = trial_end_time;
 
 switch response
-    case 3.14 % Pause: Moved out of fastACI_trial_current
-        % Nothing to do
-        
-    case 3 % play again (if warm-up) or take a break (if main experiment)
+    case length(cfg_game.response_names)+1 % play again (if warm-up) or take a break (if main experiment)
         if is_warmup
             % It is the training session:
             outs_trial = ins_trial;
@@ -198,7 +296,7 @@ switch response
             i_current = i_current-1; % to start with this same trial when resuming the experiment
             data_passation.i_current = i_current;
         end
-    case 4 % play pure tone
+    case length(cfg_game.response_names)+2 % play pure tone
         str_stim = [];
         data_passation_tmp = data_passation;
         idx = find(cfg_game.n_response_correct_target_sorted == 1); % looks for all '1's
@@ -220,7 +318,7 @@ switch response
         pause;
         outs_trial = ins_trial;
 
-    case 5 % play modulated tone
+    case length(cfg_game.response_names)+3 % play modulated tone
         str_stim = [];
         data_passation_tmp = data_passation;
         idx = find(cfg_game.n_response_correct_target_sorted == 2); % looks for all '2's
@@ -241,7 +339,7 @@ switch response
         pause;
         outs_trial = ins_trial;
 
-    case 6 % escape training
+    case length(cfg_game.response_names)+4 % escape training
         is_warmup = 0;
         clc
 
@@ -266,19 +364,67 @@ switch response
             data_passation.reversal_current = str_inout.reversal_current;
         end
         
-    case {1,2} % responded 1 or 2
+    case num2cell(1:length(cfg_game.response_names)) % gave a response
 
-        data_passation.n_response_correct_target(i_current) = cfg_game.n_response_correct_target_sorted(n_stim);
-        resp_num = data_passation.n_response_correct_target(i_current);
-        iscorrect = (response == resp_num);
+        if cfg_game.intervalnum == 1
+            % this is the simple case
+            resp_num = cfg_game.n_response_correct_target_sorted(n_stim);
+            if length(cfg_game.response_names) == cfg_game.N_target % general case: there is one possible response per target
+                iscorrect = (response == resp_num);
+            else % special case, the number of possible responses is different from the number of targets
+                iscorrect = (cfg_game.correctness_matrix(response) == resp_num);
+                response_scale = response;
+                response = cfg_game.correctness_matrix(response);
+            end
 
-        % save trial data
-        if ~is_warmup
-            data_passation.n_responses(i_current) = response;
-            data_passation.n_targets(i_current)   = cfg_game.n_targets_sorted(n_stim);
-            data_passation.n_response_correct_target(i_current) = resp_num;
-            data_passation.is_correct(i_current) = iscorrect;
+            % save trial data
+            if ~is_warmup
+                data_passation.n_responses(i_current) = response;
+                data_passation.n_targets(i_current)   = cfg_game.n_targets_sorted(n_stim);
+                data_passation.n_response_correct_target(i_current) = resp_num;
+                data_passation.is_correct(i_current) = iscorrect;
+                if length(cfg_game.response_names) ~= cfg_game.N_target % special case, the number of possible responses is different from the number of targets
+                    data_passation.n_response_scale(i_current) = response_scale;
+                end
+            end
+        elseif cfg_game.intervalnum == 2
+            %in the case of a forced choice the responses should be
+            %recoded: the datapassation does not store the selected
+            %interval but the selected identity of the stim. Index
+            %i_current corresponds to the first interval, index
+            %i_current+cfg_game.N/2 to the second interval
+            resp_num = find(randpos==1);
+            iscorrect = (response == resp_num);
+            % save trial data for both intervals
+            if ~is_warmup
+                if response == 1
+                    data_passation.n_responses(i_current) = randpos(1);
+                    data_passation.n_responses(i_current+cfg_game.N/2) = randpos(2);
+                elseif response == 2
+                    data_passation.n_responses(i_current) = randpos(2);
+                    data_passation.n_responses(i_current+cfg_game.N/2) = randpos(1);
+                else
+                    error('The toolbox can only handle 2AFC at this time, not 3AFC or more')
+                end
+                data_passation.n_targets(i_current)   = randpos(1);
+                data_passation.n_targets(i_current+cfg_game.N/2)   = randpos(2);
+                %%% TODO: at the moment, the combination of options
+                %%% forced-choice + complex responses is not allowed
+                data_passation.n_response_correct_target(i_current) = randpos(1);
+                data_passation.n_response_correct_target(i_current+cfg_game.N/2) = randpos(2);
+                data_passation.is_correct(i_current) = iscorrect;
+                data_passation.is_correct(i_current+cfg_game.N/2) = iscorrect;
+                data_passation.expvar(i_current+cfg_game.N/2) = expvar;
+                data_passation.n_stim(i_current+cfg_game.N/2) = data_passation.n_stim(i_current)+cfg_game.N/2;
+
+                if length(cfg_game.response_names) ~= cfg_game.N_target % special case, the number of possible responses is different from the number of targets
+                    error('at the moment, the combination of options forced-choice + complex responses is not allowed')
+                    data_passation.n_response_scale(i_current) = response_scale;
+                    data_passation.n_response_scale(i_current+cfg_game.N/2) = response_scale;
+                end
+            end
         end
+
         if is_warmup || cfg_game.feedback % || cfg_game.displayN
             % ListStim(n_stim).response 
             switch iscorrect
@@ -298,11 +444,21 @@ switch response
                     end
             end
 
-            if isfield(cfg_game,'response_names')
-                resp_name = cfg_game.response_names{cfg_game.n_response_correct_target_sorted(n_stim)};
+            if cfg_game.intervalnum == 2
+
+                switch cfg_game.Language
+                    case 'EN'
+                        resp_name  = [cfg_game.response_names{randpos(1)} ' first ' cfg_game.response_names{randpos(2)} ' second'];
+                    case 'FR'
+                        resp_name = [cfg_game.response_names{randpos(1)} ' en premier et ' cfg_game.response_names{randpos(2)} ' en second'];
+                end
             else
-                error('Continue validating here...')
-                resp_name = num2str(cfg_game.n_response_correct_target(n_stim));
+                if isfield(cfg_game,'response_names')
+                    resp_name = cfg_game.response_names{cfg_game.n_response_correct_target_sorted(n_stim)};
+                else
+                    error('Continue validating here...')
+                    resp_name = num2str(cfg_game.n_response_correct_target(n_stim));
+                end
             end
             % feedback
             switch cfg_game.Language
@@ -369,6 +525,15 @@ switch response
             
             outs_trial.stepsize = stepsize;
             outs_trial.n_correctinarow = n_correctinarow;
+        else
+%             if isfield(cfg_game,'probe_periodicity') && cfg_game.probe_periodicity > 0
+%                 %%% Defining whether the next trial is a probe
+%                 if mod(i_current+1,cfg_game.probe_periodicity) == 1
+%                     expvar = cfg_game.startvar + 10;
+%                 else
+%                     expvar = cfg_game.startvar;
+%                 end
+%             end
         end
 
         i_current = i_current+1; 

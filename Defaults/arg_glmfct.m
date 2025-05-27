@@ -21,18 +21,37 @@ end
 
 % Default number of permutations N_perm (if do_permutation == 1):
 switch glmfct
-    case {'glmfitqp','CI_glmqpoptim_fct'}
+    case {'glmfitqp','glm_L2'}
         
-        if strcmp(glmfct,'CI_glmqpoptim_fct')
-            warning('glmfct name ''%s'' will be soon deprecated, please use ''glmfitqp'' instead...',glmfct)
-        end
+        % extract relevant parameters from keyval, or default values
         
         prior = 'smoothness';
-        lambda0 = 5;
-        stepsize = 1.5; % Progression step for lambda
-        maxiter  = 30; % Number of iterations
-        nobreak  = 1;
-        minDiffSecondRound = 10;
+        % if ~isfield(keyvals,'lambda0')
+        %     lambda0 = 5;
+        % else
+             lambda0 = keyvals.lambda0;
+        % end
+        % if ~isfield(keyvals,'stepsize')
+        %     stepsize = 1.5; % Progression step for lambda
+        % else
+             stepsize = keyvals.stepsize;
+        % end
+        % if ~isfield(keyvals,'maxiter')
+        %     maxiter  = 30; % Number of iterations
+        % else
+             maxiter = keyvals.maxiter;
+        % end
+        % if ~isfield(keyvals,'nobreak')
+        %     nobreak  = 1;
+        % else
+             nobreak = keyvals.nobreak;
+        % end
+        % if ~isfield(keyvals,'precision')
+        %     %%%TODO : default precision
+        % else
+             precision = keyvals.precision;
+        % end
+        minDiffSecondRound = 3;
         
         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'prior',prior); 
         if bAssigned == 0
@@ -41,33 +60,33 @@ switch glmfct
             end
         end
         
-        [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'lambda0',lambda0); 
-        if bAssigned == 0
-            if ~strcmp(cfg_inout.lambda0,lambda0)
-                fprintf('\t%s: non-default value for field ''lambda0'' is being used\n',glmfct);
-            end
-        end
-        
-        [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'stepsize',stepsize); 
-        if bAssigned == 0
-            if ~strcmp(cfg_inout.stepsize,stepsize)
-                fprintf('\t%s: non-default value for field ''stepsize'' is being used\n',glmfct);
-            end
-        end
-        
-        [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'maxiter',maxiter); 
-        if bAssigned == 0
-            if ~strcmp(cfg_inout.maxiter,maxiter)
-                fprintf('\t%s: non-default value for field ''maxiter'' is being used\n',glmfct);
-            end
-        end
-        
-        [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'nobreak',nobreak); 
-        if bAssigned == 0
-            if ~strcmp(cfg_inout.nobreak,nobreak)
-                fprintf('\t%s: non-default value for field ''nobreak'' is being used\n',glmfct);
-            end
-        end
+         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'lambda0',lambda0); 
+        % if bAssigned == 0
+        %     if ~strcmp(cfg_inout.lambda0,lambda0)
+        %         fprintf('\t%s: non-default value for field ''lambda0'' is being used\n',glmfct);
+        %     end
+        % end
+        % 
+         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'stepsize',stepsize); 
+        % if bAssigned == 0
+        %     if ~strcmp(cfg_inout.stepsize,stepsize)
+        %         fprintf('\t%s: non-default value for field ''stepsize'' is being used\n',glmfct);
+        %     end
+        % end
+        % 
+         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'maxiter',maxiter); 
+        % if bAssigned == 0
+        %     if ~strcmp(cfg_inout.maxiter,maxiter)
+        %         fprintf('\t%s: non-default value for field ''maxiter'' is being used\n',glmfct);
+        %     end
+        % end
+        % 
+         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'nobreak',nobreak); 
+        % if bAssigned == 0
+        %     if ~strcmp(cfg_inout.nobreak,nobreak)
+        %         fprintf('\t%s: non-default value for field ''nobreak'' is being used\n',glmfct);
+        %     end
+        % end
         
         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'minDiffSecondRound',minDiffSecondRound);
         if bAssigned == 0
@@ -75,11 +94,25 @@ switch glmfct
                 fprintf('\t%s: non-default value for field ''minDiffSecondRound'' is being used\n',glmfct);
             end
         end
+
+         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'precision',precision);
+        % if bAssigned == 0
+        %     if ~strcmp(cfg_inout.precision,precision)
+        %         fprintf('\t%s: non-default value for field ''precision'' is being used\n',glmfct);
+        %     end
+        % end
         
-    case {'lasso','lassoglm','l1lm','l1glm'}
-        
-        Nlevel    = keyvals.lasso_Nlevel; % 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
-        Nlevelmin = 2; % minimum level considered in the analysis 
+    case {'lasso','lassoglm','l1lm','l1glm','glm_L1_GB','lm_L1_GB'}
+        if ~isfield(keyvals,'lasso_Nlevel')
+            Nlevel = 5;
+        else
+            Nlevel    = keyvals.lasso_Nlevel; % 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
+        end
+        if ~isfield(keyvals,'lasso_Nlevelmin')
+            Nlevelmin = 2; % minimum level considered in the analysis
+        else
+            Nlevelmin    = keyvals.lasso_Nlevelmin; % 5; % number of levels (= degrees of filtering) in the Gaussian pyramid
+        end
         [cfg_inout,bAssigned] = Ensure_field(cfg_inout,'lasso_Nlevel',Nlevel);
         if bAssigned == 0
             if cfg_inout.lasso_Nlevel~=Nlevel
@@ -94,5 +127,10 @@ switch glmfct
             end
         end
         
-    case 'classic_revcorr'
+    case 'glm'
+        % no additional parameter
+    case {'classic_revcorr','correlation'}
+        % no additional parameter
+    case 'weighted_sum'
+        % no additional parameter
 end

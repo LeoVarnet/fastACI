@@ -21,13 +21,27 @@ end
 [cfg_game, data_passation, ListStim] = Convert_ACI_data_type(savegame_file,keyvals);
 N = cfg_game.N;
 
+% default parameters -- should already be there at this point
+% this is only to ensure compatibility
+if ~isfield(cfg_game, 'intervalnum')
+    cfg_game.intervalnum = 1; % default experiment is a yes-no
+end
+
+if ~isfield(cfg_game, 'N_trials')
+    cfg_game.N_trials = cfg_game.N/cfg_game.intervalnum;
+end
+
 if isempty(keyvals.dir_out)
     % curr_dir = [pwd filesep]; % current directory
     [path,name,ext]=fileparts(which(savegame_file));
     if isempty(path)
         [path,name,ext]=fileparts( savegame_file );
     end
-    path = [path filesep 'Results_ACI' filesep]; 
+    if ~isempty(path)
+        path = [path filesep 'Results_ACI' filesep];
+    else
+        path = ['Results_ACI' filesep];
+    end
     if ~exist(path,'dir')
         mkdir(path);
     end
@@ -48,7 +62,7 @@ TF_type = flags.TF_type;
 glmfct  = flags.glmfct;
 % END: From argument function:
 
-if isempty(keyvals.idx_trialselect) && (data_passation.i_current == cfg_game.N)
+if isempty(keyvals.idx_trialselect) && (data_passation.i_current == cfg_game.N_trials)
     keyvals.idx_trialselect = 1:N;
     str_last_trial = '';
 else

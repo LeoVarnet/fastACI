@@ -242,6 +242,9 @@ elseif length(files) > 2
     if length(Cond) == 4
         Cond1 = Cond(1:2);
         Cond2 = Cond(3:4);
+    elseif length(Cond) == 5
+        Cond1 = Cond(1:2);
+        Cond2 = Cond(3:5);
     end
     files = Get_filenames(dir_speech_orig,[Speaker_ID '_*' Cond1 '*.wav']);
     

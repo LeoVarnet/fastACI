@@ -138,13 +138,15 @@ if bFastACI_exp == 1
     paths.modulationACI        = [paths.Experiments 'modulationACI'        filesep];
     paths.modulationFM         = [paths.Experiments 'modulationFM'         filesep];
     paths.Praat                = [dir_fastACI       'Praat'                filesep];
-    % paths.exampleExperiment    = [paths.Experiments 'exampleExperiment'    filesep];
     paths.speechACI_Logatome   = [paths.Experiments 'speechACI_Logatome'   filesep];
     paths.speechACI_Audika     = [paths.Experiments 'speechACI_Audika'   filesep];
     paths.speechACI_varnet2013 = [paths.Experiments 'speechACI_varnet2013' filesep];
     paths.speechACI_varnet2015 = [paths.Experiments 'speechACI_varnet2015' filesep];
     paths.toneinnoise_ahumada1975 = [paths.Experiments 'toneinnoise_ahumada1975' filesep];
+    paths.replication_ahumada1975 = [paths.Experiments 'replication_ahumada1975' filesep];
     paths.segmentation         = [paths.Experiments 'segmentation'         filesep];
+    paths.FC_segmentation         = [paths.Experiments 'FC_segmentation'         filesep];
+    paths.speech_rate         = [paths.Experiments 'speech_rate'         filesep];
     paths.Scripts              = [dir_fastACI       'Scripts'              filesep];
     paths.Simulations          = [dir_fastACI       'Simulations'          filesep];
     paths.Model                = [paths.Simulations 'Model'                filesep];

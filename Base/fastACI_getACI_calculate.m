@@ -49,7 +49,7 @@ if do_permutation
 end
 
 switch glmfct
-    case 'glmfitqp'
+    case {'glmfitqp','glm_L2'}
         [ACI, results, cfg_ACI] = CI_glmqpoptim_fct(cfg_ACI, y, y_correct, X, U); 
 
         if do_permutation
@@ -86,7 +86,7 @@ switch glmfct
 
         % results.evaluation.opts
 
-    case 'classic_revcorr'
+    case {'classic_revcorr','correlation'}
         % The following fitting uses all elements of y and X (instead of 
         %     splitting the elements into training and test trials):
         [ACI, pval_ACI] = corr(y,X);
@@ -133,6 +133,31 @@ switch glmfct
             results.ACI_perm_CI_low   = ACI_perm_CI_low;
             results.ACI_perm_CI_high  = ACI_perm_CI_high;
         end
+
+    case 'weighted_sum'
+        X_11 = mean(X(y==1 & y_correct == 1,:)); 
+        X_10 = mean(X(y==1 & y_correct == 0,:));
+        X_01 = mean(X(y==0 & y_correct == 1,:));
+        X_00 = mean(X(y==0 & y_correct == 0,:));
+
+        % this is for computing the target-present and target-absent kernels
+        if any(isnan(X_11(:)))
+            X_11 = zeros(size(X_11));
+        end
+        if any(isnan(X_10(:)))
+            X_10 = zeros(size(X_10));
+        end
+        if any(isnan(X_01(:)))
+            X_01 = zeros(size(X_01));
+        end
+        if any(isnan(X_00(:)))
+            X_00 = zeros(size(X_00));
+        end
+
+        ACI = X_11 - X_01 + X_10 - X_00;
+        ACI = reshape(ACI, [N_f,N_t]);
+        results.ACI     = ACI;
+
     case 'glm'
         % Implementation by Leo Varnet on 15/11/2023. It requires the 
         %   statistical toolbox. This fitting was used for our 'segmentation'
@@ -184,7 +209,7 @@ switch glmfct
         % results.t = Stat.t;
         % results.p = Stat.p;
 
-    case {'lassoglm','lasso','l1lm','l1glm'}
+    case {'lassoglm','lasso','l1lm','l1glm','glm_L1_GB','lm_L1_GB'}
         N_folds = cfg_ACI.N_folds; % k_folds validation
         % cfg_ACI = Ensure_field(cfg_ACI,'lambda0',[]);
         lambda0 = cfg_ACI.lambda0;
@@ -200,7 +225,7 @@ switch glmfct
                 [B,FitInfo] = lasso(X,y,'CV',N_folds);
                 idxlambda = FitInfo.IndexMinMSE;
                 
-            case 'l1lm'
+            case {'l1lm','lm_L1_GB'}
                 lambda0 = cfg_ACI.keyvals.lambda;
                 if isempty(lambda0)
                     [B,FitInfo] = lassoslow(X,y,N_folds); % default lambdas will be tested
@@ -209,7 +234,7 @@ switch glmfct
                 end
                 [~, idxlambda] = min(mean(FitInfo.MSE_test,2));
                 
-            case 'l1glm'
+            case {'l1glm','glm_L1_GB'}
                 lambda0 = cfg_ACI.keyvals.lambda;
                 if isempty(lambda0)
                     [B,FitInfo] = lassoglmslow(X,y,N_folds); % default lambdas will be tested
@@ -239,6 +264,8 @@ switch glmfct
                         
                     case 'lasso'
                         [B_perm,FitInfo_perm] = lasso(X,cfg_perm.y_perm(:,i),'CV',N_folds,'Lambda',Lambda);
+                    otherwise
+                        error('permutation test not available yet for this option')
                 end
                 ACI_perm(:,:,i) = Convert_lasso_B2ACI(B_perm, cfg_ACI, cfg_ACI.keyvals);
             end

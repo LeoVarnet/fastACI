@@ -6,11 +6,12 @@ function definput = arg_fastACI_getACI(definput)
 % Old name: arg_Script4_Calcul_ACI.m (changed on 21/05/2021)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-definput.flags.TF_type = {'spect','lyon','noise_logspect','gammatone','adapt','tf', ...
-    'gammatone2', ... % This is a temporal name
-    'modulationACI_proc'}; % This name will be removed
-definput.flags.glmfct = {'glmfitqp','glm','lassoglm_original'         ,'lassoglm','lasso','lassoslow','l1glm', 'l1lm'   ,'classic_revcorr'};
-% Old names:   glmfct = {'CI_glmqpoptim_fct','lassoglm','lasso','lassoslow','lassoglmslow','classic_revcorr'};
+definput.flags.TF_type = {'gammatone','spect','lyon','noise_logspect','adapt','tf'}; 
+definput.flags.glmfct = {'correlation','glm','glm_L1_GB','glm_L2','lm_L1_GB','weighted_sum',...
+    'glmfitqp','lassoglm_original','lassoglm','lasso','lassoslow','l1glm','l1lm','classic_revcorr',...
+};
+% new names (26/09/2024): 'l1glm' is now 'glm_L1_GB'; 'glmfitqp' is now
+% 'glm_L2', 'classic_revcorr' is now 'correlation'
 definput.flags.permutation = {'no_permutation','permutation'};
 definput.flags.force_dataload = {'no_force_dataload','force_dataload'};
 definput.flags.bias   = {'bias'  ,'no_bias'};
@@ -32,6 +33,8 @@ definput.keyvals.add_signal = 0; % old: WithSignal
 definput.keyvals.skip_if_on_disk = 1;
 definput.keyvals.consistency_check = 1;
 definput.keyvals.Data_matrix = [];
+
+definput.keyvals.zscore = 1;
 
 definput.keyvals.ACI_crosspred = [];
 definput.keyvals.suffix_crosspred = ''; % if empty (default) generates Crosspred.mat
@@ -79,6 +82,15 @@ definput.keyvals.logspect_unit = 'dB'; % 'linear'
 definput.keyvals.bwmul    = .5; % recommended either 0.5 or 1 ERB
 definput.keyvals.binwidth = 10e-3; % 10 ms, time resolution for ACI
 
+%%% Only used in 'l1glm'
 definput.keyvals.lambda = [];
+
+%%% Only used in 'glmfitqp'. These are the defaults from Patrick Mineault's
+%%% cvglmfitqp function
+definput.keyvals.lambda0 = 5; % starting value for hyperparameter
+definput.keyvals.precision = .05; % targeted precision
+definput.keyvals.stepsize = 5; % Progression step for lambda
+definput.keyvals.maxiter = 30; % Max number of iterations
+definput.keyvals.nobreak  = 1;
 
 definput.keyvals.script_dataload = ''; % fastACI_getACI_dataload
