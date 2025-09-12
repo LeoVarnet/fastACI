@@ -38,7 +38,7 @@ SubjectsAKTA = {'S01','S13','S18B','S31','S34','S38B','S40B'}; %akta
 SubjectsAPTA = {'S01B','S13','S16','S25B','S26','S28','S29'}; %apta
 Subjects = unique([SubjectsABDA(:); SubjectsABPA(:); SubjectsADGA(:); SubjectsADTA(:); SubjectsAGKA(:); SubjectsAKTA(:); SubjectsAPTA(:)]);
 
-Conditions = {'speechACI_Logatome-abda-S43M','speechACI_Logatome-adga-S43M','speechACI_Logatome-apta-S43M','speechACI_Logatome-akta-S43M','speechACI_Logatome-abpa-S43M','speechACI_Logatome-adta-S43M','speechACI_Logatome-agka-S43M'}; Condition_names = {'abda','adga','apta','akta','abpa','adta','agka'};
+Conditions = {'speechACI_Logatome-abda-S43M','speechACI_Logatome-adga-S43M'};%,'speechACI_Logatome-apta-S43M','speechACI_Logatome-akta-S43M','speechACI_Logatome-abpa-S43M','speechACI_Logatome-adta-S43M','speechACI_Logatome-agka-S43M'}; Condition_names = {'abda','adga','apta','akta','abpa','adta','agka'};
 glmfct = 'l1glm';
 
 N_subjects = length(Subjects);
