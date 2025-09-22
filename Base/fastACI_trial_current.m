@@ -183,9 +183,9 @@ if bExperiment
         if is_warmup
             switch cfg_game.Language
                 case 'EN'
-                    text2show = {'to play the stim again' ['to play a ' cfg_game.response_names{1}] ['to play a ' cfg_game.response_names{2}] 'to leave the warm-up phase'};
+                    text2show = ['to play the stim again' append('to play a ', cfg_game.response_names) 'to leave the warm-up phase'];
                 case 'FR'
-                    text2show = {'pour rejouer le son' ['pour \351couter un ' cfg_game.response_names{1}] ['pour \351couter un ' cfg_game.response_names{2}] 'pour quitter l''\351chauffement'};
+                    text2show = ['pour rejouer le son' append('pour \351couter un ', cfg_game.response_names) 'pour quitter l''\351chauffement'];
             end
             response = Response_keyboard([cfg_game.response_names text2show], cfg_game);
 
@@ -205,10 +205,10 @@ if bExperiment
             switch cfg_game.Language
                 case 'EN'
                     FCresponses = {[cfg_game.response_names{1} ' first and ' cfg_game.response_names{2} ' second'], [cfg_game.response_names{2} ' first and ' cfg_game.response_names{1} ' second']};
-                    text2show = {'to play the stim again' ['to play a ' cfg_game.response_names{1}] ['to play a ' cfg_game.response_names{2}] 'to leave the warm-up phase'};
+                    text2show = ['to play the stim again' append('to play a ', cfg_game.response_names) 'to leave the warm-up phase'];
                 case 'FR'
                     FCresponses = {[cfg_game.response_names{1} ' en premier et ' cfg_game.response_names{2} ' en second'], [cfg_game.response_names{2} ' en premier et ' cfg_game.response_names{1} ' en second']};
-                    text2show = {'pour rejouer le son' ['pour \351couter un ' cfg_game.response_names{1}] ['pour \351couter un ' cfg_game.response_names{2}] 'pour quitter l''\351chauffement'};
+                    text2show = ['pour rejouer le son' append('pour \351couter un ', cfg_game.response_names) 'pour quitter l''\351chauffement'];
             end
             response = Response_keyboard([FCresponses text2show], cfg_game);
 
@@ -223,7 +223,6 @@ if bExperiment
             end
             response = Response_keyboard([FCresponses text2show], cfg_game);
         end
-        % and now the 
     end
     stop(player)
     
@@ -296,10 +295,11 @@ switch response
             i_current = i_current-1; % to start with this same trial when resuming the experiment
             data_passation.i_current = i_current;
         end
-    case length(cfg_game.response_names)+2 % play pure tone
+    case num2cell((1:length(cfg_game.response_names))+length(cfg_game.response_names)+1) %length(cfg_game.response_names)+2 % asked to play specific sounds
+        play_again = response-(length(cfg_game.response_names)+1); % playing again response number
         str_stim = [];
         data_passation_tmp = data_passation;
-        idx = find(cfg_game.n_response_correct_target_sorted == 1); % looks for all '1's
+        idx = find(cfg_game.n_response_correct_target_sorted == play_again); % looks for all '1's
         data_passation_tmp.n_stim(i_current) = idx(round( (length(idx)-1)*random('unif',0,1) )+1); % picks up one randomly
 
         exp2eval = sprintf('str_stim =  %s_user(cfg_game,data_passation_tmp);',cfg_game.experiment);
@@ -318,28 +318,7 @@ switch response
         pause;
         outs_trial = ins_trial;
 
-    case length(cfg_game.response_names)+3 % play modulated tone
-        str_stim = [];
-        data_passation_tmp = data_passation;
-        idx = find(cfg_game.n_response_correct_target_sorted == 2); % looks for all '2's
-        data_passation_tmp.n_stim(i_current) = idx(round( (length(idx)-1)*random('unif',0,1) )+1); % picks up one randomly
-        exp2eval = sprintf('str_stim =  %s_user(cfg_game,data_passation_tmp);',cfg_game.experiment);
-        eval(exp2eval);
-        stim_normal = str_stim.stim_tone_alone;
-
-        player = audioplayer(cfg_game.gain_play*[sil4playing; stim_normal],cfg_game.fs);
-        playblocking(player)
-
-        switch cfg_game.Language
-            case 'EN'
-                fprintf('\n    Press any key\n');
-            case 'FR'
-                fprintf('\n    Appuyez sur une touche\n');
-        end
-        pause;
-        outs_trial = ins_trial;
-
-    case length(cfg_game.response_names)+4 % escape training
+    case 2*length(cfg_game.response_names)+2 % escape training
         is_warmup = 0;
         clc
 
@@ -425,6 +404,7 @@ switch response
             end
         end
 
+        %%% give feedback, if requested
         if is_warmup || cfg_game.feedback % || cfg_game.displayN
             % ListStim(n_stim).response 
             switch iscorrect
@@ -460,7 +440,7 @@ switch response
                     resp_name = num2str(cfg_game.n_response_correct_target(n_stim));
                 end
             end
-            % feedback
+            
             switch cfg_game.Language
                 case 'EN'
                     fprintf('\n ** %s => Correct answer was : %.0f (%s) ** \n\n',txt_extra,resp_num,resp_name);

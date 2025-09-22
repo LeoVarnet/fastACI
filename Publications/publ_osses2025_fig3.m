@@ -82,7 +82,7 @@ type = 'correlation';
 figure('Position', [100 100 400 300])
 affichage_tf(ACI,'CI', 'cfg', cfg_ACI); hold on
 %affichage_tf_add_Praat_metrics(cfg_game.dir_target,cfg_ACI,[], {'-','-.'},{[0.6,0,0],[0,0,0.6]},1.5);
-title(['ACI ' type], 'interpreter','none')
+title(['correlation'], 'interpreter','none')
 
 %% Calculate and plot revcorr ACI - weighted sum
 
@@ -95,10 +95,22 @@ type = 'weighted_sum';
 figure('Position', [100 100 400 300])
 affichage_tf(ACI,'CI', 'cfg', cfg_ACI); hold on
 %affichage_tf_add_Praat_metrics(cfg_game.dir_target,cfg_ACI,[], {'-','-.'},{[0.6,0,0],[0,0,0.6]},1.5);
-title(['ACI ' type], 'interpreter','none')
+title(['weighted sum'], 'interpreter','none')
+% 
+% %% Calculate and plot revcorr ACI - weighted sum
+% 
+% flags_for_input(1:2) = {'idx_trialselect', 1:10000};
+% 
+% type = 'glm';
+% [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(fname_results, opts_ACI.DimCI, type, flags_for_input{:},'Data_matrix',Data_matrix);
+% 
+% % display ACI
+% figure('Position', [100 100 400 300])
+% affichage_tf(ACI,'CI', 'cfg', cfg_ACI); hold on
+% %affichage_tf_add_Praat_metrics(cfg_game.dir_target,cfg_ACI,[], {'-','-.'},{[0.6,0,0],[0,0,0.6]},1.5);
+% title(['glm'], 'interpreter','none')
 
 %% Calculate and plot revcorr ACI - weighted sum without zscore
-
 
 type = 'weighted_sum';
 [ACI,cfg_ACI,results,Data_matrix] = fastACI_getACI(fname_results, opts_ACI.DimCI, type, flags_for_input{:},'zscore',0,'Data_matrix',Data_matrix,'skip_if_on_disk',0);
@@ -107,7 +119,7 @@ type = 'weighted_sum';
 figure('Position', [100 100 400 300])
 affichage_tf(ACI,'CI', 'cfg', cfg_ACI); hold on
 %affichage_tf_add_Praat_metrics(cfg_game.dir_target,cfg_ACI,[], {'-','-.'},{[0.6,0,0],[0,0,0.6]},1.5);
-title(['ACI ' type ' - no zscore'], 'interpreter','none')
+title(['weighted sum, no z-scoring'], 'interpreter','none')
 
 %% Calculate and plot revcorr ACI - glmfitqp
 

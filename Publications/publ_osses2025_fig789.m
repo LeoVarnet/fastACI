@@ -233,6 +233,7 @@ ylabel('Pearson''s correlation')
 xlabel('Number of trial')
 grid on
 plegend = plot(0,0,maskercolor{1},0,0,maskercolor{2},0,0,maskercolor{3},0,0,['k' glmline{1}],0,0,['k' glmline{2}],0,0,['k' glmline{3}]);
+set(gca,'FontSize',13)
 %legend(plegend,[Maskers GLMfcts],'interpreter','none')
 
 %just Classic-revcorr
@@ -305,7 +306,7 @@ if fig<3
     xlabel('Number of trial')
     plegend = plot(0,0,maskercolor{1},0,0,maskercolor{2},0,0,maskercolor{3},0,0,['k' glmline{1}],0,0,['k' glmline{2}],0,0,['k' glmline{3}],'LineWidth',1.5);
     legend(plegend,[Maskers_titles GLMfcts_titles],'interpreter','none','Location','northwest')
-
+    set(gca,'FontSize',13)
     %%
     % just classic_revcorr
     figure('Position',[100 100 500 300]);
