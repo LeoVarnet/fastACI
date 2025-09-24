@@ -41,7 +41,7 @@ if do_permutation
     N_perm = kv.N_perm; 
 end 
 
-%cfg_ACI.trialtype_analysis = [];
+% Select trials based on target presented or correctness of the answer
 switch kv.trialtype_analysis
     case 'incorrect'
         select_trialtype = ~is_correct;
@@ -66,15 +66,14 @@ cfg_ACI = set_default_cfg(cfg_ACI, ...
 
 N_trialselect = cfg_ACI.N_trialselect;
 
+% select only a chunck of the experiment from trial n_trials_analysis(1) to
+% trial n_trials_analysis(2)
 select_n_trials = (1:N_trialselect>=cfg_ACI.n_trials_analysis(1) & 1:N_trialselect<=cfg_ACI.n_trials_analysis(2));
 
-% if ~isempty(kv.idx_trialselect)
-%     idx_set_zero = setxor(1:length(select_n_trials), kv.idx_trialselect);
-%     select_n_trials(idx_set_zero) = 0;
-% end
-
+% select trials based on the experimental variable (e.g. range of SNR)
 expvar_trialselect = (expvar>=cfg_ACI.SNR_analysis(1) & expvar<=cfg_ACI.SNR_analysis(2));
 
+% remove first trials in the staircase
 select_after_reversal = ones(size(idx_trialselect)); % It will be overwritten if kv.expvar_after_reversal
 if isfield(kv,'expvar_after_reversal')
     if kv.expvar_after_reversal > 0
@@ -94,10 +93,9 @@ if do_no_bias
 else
     label_expvar_no_bias = ''; % empty label
 end
-%%% END do_no_bias
 
 if length(idx_analysis) ~= size(Data_matrix,1)
-    
+    % If some filters have been applied, display a summary
     label_actual_expvar = sprintf('\t\t\t(Actual expvar values between %.1f and %.1f)\n', ...
         min(expvar(idx_analysis)),max(expvar(idx_analysis)));
     
@@ -115,7 +113,8 @@ end
 cfg_ACI.idx_analysis = idx_analysis;
 
 cfg_ACI.N_trials = length(idx_analysis);
-y_all     = double((n_responses==1)'); % all trials that for which target 1 has been chosen
+% TODO in the future: introduce the reference as a parameter
+y_all     = double((n_responses==1)'); % all trials that for which target 1 has been chosen. Response 1 is our reference which will be associated with positive weights, response 2 with negative weights.
 y         = y_all(idx_analysis);
 
 n_targets_select = n_targets(idx_analysis); % idx = find(n_targets_select==0); n_targets_select(idx) = 1;
@@ -166,13 +165,14 @@ switch fg.glmfct
         %% Create Gaussian pyramid (modified_impyramid)
         %computes a Gaussian pyramid reduction of preX. 
 
-        % The following step ensures that Nf and Nt have M*2^(Nlevel) elements (with M
-        % integer) by discarding samples (or adding dummy samples if needed). This
-        % is mandatory for accurate reconstruction of the pyramid.
+        % The following step ensures that Nf and Nt have M*2^(Nlevel)
+        % elements (with M integer) by discarding samples (or adding dummy
+        % samples if needed). This is mandatory for accurate reconstruction
+        % of the pyramid. 
 
         Nt_input = size(Data_matrix,3);
         
-        Nt_X = 2*2^5; %256; % 2^7;%
+        Nt_X = 2*2^5;
         if Nt_input < Nt_X
             % Nothing to do
         else
@@ -181,7 +181,7 @@ switch fg.glmfct
             end
         end
         
-        Nf_X = 2*2^5;%= 128;%2^7;%
+        Nf_X = 2*2^5;
         t_X = cfg_ACI.t;
         f_X = cfg_ACI.f;
 
@@ -199,7 +199,7 @@ switch fg.glmfct
                     % Nothing to do
             case 'imresize'
                 % The use of this function requires that the time and frequency
-                % dimensions are multiples of a poiwer of 2, so, zero padding
+                % dimensions are multiples of a power of 2, so, zero padding
                 % is needed:
                 
                 %%% Time dimension:

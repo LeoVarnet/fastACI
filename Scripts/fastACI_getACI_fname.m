@@ -2,7 +2,6 @@ function [fnameACI, cfg_game, data_passation, ListStim, flags, keyvals, bCalcula
 % function [fnameACI, cfg_game, data_passation, ListStim, flags, keyvals, bCalculation] = fastACI_getACI_fname(savegame_file,varargin)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Condition can be renamed to NameCond
 
 if nargin == 0
     error('%s: Please spefify the identifier of the subject from whom you want to process the data',upper(mfilename));
