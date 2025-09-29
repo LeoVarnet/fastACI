@@ -183,10 +183,18 @@ if bExperiment
         if is_warmup
             switch cfg_game.Language
                 case 'EN'
-                    text2show = ['to play the stim again' append('to play a ', cfg_game.response_names) 'to leave the warm-up phase'];
+                    message_pre = 'to play the stim again';
+                    message_during = 'to play a ';
+                    message_post = 'to leave the warm-up phase';
+                    % text2show = ['to play the stim again' append('to play a ', cfg_game.response_names) 'to leave the warm-up phase'];
                 case 'FR'
-                    text2show = ['pour rejouer le son' append('pour \351couter un ', cfg_game.response_names) 'pour quitter l''\351chauffement'];
+                    message_pre = 'pour rejouer le son';
+                    message_during = 'pour \351couter un ';
+                    message_post = 'pour quitter l''\351chauffement';
+                    % text2show = ['pour rejouer le son' append('pour \351couter un ', cfg_game.response_names) 'pour quitter l''\351chauffement'];
             end
+            text2show = Append_text_from_cell(cfg_game.response_names, message_pre, message_during, message_post);
+                    
             response = Response_keyboard([cfg_game.response_names text2show], cfg_game);
 
         else
