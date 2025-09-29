@@ -21,7 +21,13 @@ if nargin < 3
 end
 if exist(dir_results,'dir')
     fname_out = [dir_results fname];
-    exp2eval = sprintf('save(''%s'',%s);',fname_out,vars);
+    if ~isoctave
+        % If MATLAB is used:
+        exp2eval = sprintf('save(''%s'',%s);',fname_out,vars);
+    else
+        % If GNU Octave is used:
+        exp2eval = sprintf('save(''%s'',%s,''-mat7-binary'');',fname_out,vars);
+    end
     eval(exp2eval);
 else
     error('No %s directory was found, please create it and re-run this script',dir_results);
