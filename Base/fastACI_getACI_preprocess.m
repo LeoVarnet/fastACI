@@ -154,7 +154,7 @@ end
 %%% End: Testing Alejandro on 27/04/2021
     
 switch fg.glmfct
-    case {'lassoglm','lasso', 'l1lm','l1glm'}
+    case {'lassoglm','lasso', 'l1lm','l1glm', 'glm_L1_GB'}
         
         %%% Loading defaults for 'lassoglm' or 'lasso', if not previously loaded
         cfg_ACI   = arg_glmfct(cfg_ACI,fg,kv);
