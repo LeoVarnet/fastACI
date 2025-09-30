@@ -93,7 +93,7 @@ if N_Ch == 1
     % cfg_sim.ir_reference_new = templ_ref;
     % cfg_sim.ir_signal_new    = templ_tar;
 else
-    error('Not validated yet for binaural signals')
+    error('Not validated yet for binaural signals. We have one diotic experiment though, have a look at localisationILD.m');
     % templ_ref = [];
     % templ_tar = [];
     % for n = 1:N_Ch

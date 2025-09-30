@@ -371,11 +371,23 @@ if bCalculation
     end
     info_toolbox = Get_toolbox_info(mfilename);
     try
-        save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+        if ~isoctave
+            % If MATLAB is used:
+            save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+        else
+            % If GNU Octave is used:
+            save_options = {'-mat7-binary'};
+            save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox',save_options{:});
+        end
     catch
         [dir_where,file,ext] = fileparts(fnameACI);
         mkdir(dir_where);
-        save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+        if ~isoctave
+            save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+        else
+            save_options = {'-mat7-binary'};
+            save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox',save_options{:});
+        end            
     end
     results.fnameACI = fnameACI;
     results.fnameACI_description = 'File name where the fastACI results were stored...';

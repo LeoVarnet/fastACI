@@ -25,6 +25,10 @@ function paths = fastACI_paths(type)
 %    dir_output  = fastACI_paths('dir_output');
 %    fprintf('The current fastACI folder is: %s\n',dir_fastACI);
 %    fprintf('The current dir_output is: %s\n',dir_output);
+%
+% Author: The fastACI team
+% Date: 2021
+% Date: 30/09/2025, small change to ensure MATLAB / GNU Octave compatibility
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 paths.dir_data = fastACI_dir_data;
@@ -68,7 +72,12 @@ elseif isunix
     % Directories for Alejandro:
     paths.praat       = '/usr/bin/praat';
     paths.dir_amtoolbox = fastACI_dir_amtoolbox;
-    dir_up = userpath;
+    try
+        dir_up = userpath;
+    catch
+        % This is also valid for GNU Octave:
+        dir_up = [pwd filesep];
+    end    
     if isempty(dir_up)
         % If empty:
         dir_up = [pwd filesep];
