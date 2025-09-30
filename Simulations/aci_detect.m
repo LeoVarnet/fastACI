@@ -138,7 +138,13 @@ if (isempty(sim_work.templ_tar) == 1 || cfg_sim.template_every_trial == 1 )
             disp('A template was found on disk. Press ctrl+c to abort or press any button to continue (and overwrite) the previous template')
             pause
         end
-        save(fname,'templ_tar','templ_ref','cfg_sim');
+        if ~isoctave
+            % If MATLAB is used:
+            save(fname,'templ_tar','templ_ref','cfg_sim');
+        else
+            save_options = {'-mat7-binary'};
+            save(fname,'templ_tar','templ_ref','cfg_sim',save_options{:});
+        end
         
     end
     

@@ -8,6 +8,10 @@ function cfg_crea = fastACI_experiment_init(experiment_full,Subject_ID, Conditio
 %
 % Changes by AO:
 %   - cfg_crea.color_noise changed by cfg_crea.noise_type
+%
+% Author: The fastACI team
+% Date: 2021
+% Date: 30/09/2025, Compatibility with GNU Octave
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Loading the same defaults as for fastACI_experiment.m:
@@ -162,5 +166,12 @@ cfg_crea.bCrea = 0; % Creation finished (new on 10/02/2023)
 % dir_results_subj = [dir_results Subject_ID filesep];
 mkdir(dir_results); % makes sure the folder for the participant exists...
 info_toolbox = Get_toolbox_info(mfilename);
-save([dir_results savename], 'cfg_crea','info_toolbox');
+if ~isoctave
+    % If MATLAB is used:
+    save([dir_results savename '.mat'], 'cfg_crea','info_toolbox');
+else
+    % If GNU Octave is used:
+    save_options = {'-mat7-binary'};
+    save([dir_results savename '.mat'], 'cfg_crea','info_toolbox',save_options{:});
+end
 fprintf(['cfg file saved: ' savename '.mat\n\n']);

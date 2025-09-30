@@ -120,11 +120,7 @@ if N_stored_cfg==1
 elseif N_stored_cfg > 1
     error('Multiple participants option: has not been validated yet (To do by AO)')
 else
-    % try
-        cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
-    % catch me
-    %     error('%s: fastACI_experiment_init failed\n\t%s',upper(mfilename),me.message);
-    % end
+    cfg_game = fastACI_experiment_init(experiment_full,Subject_ID, Condition);
 end
 
 if ~isfield(cfg_game,'resume')
@@ -576,7 +572,14 @@ while i_current <= N_trials && i_current~=data_passation.next_session_stop && is
                 clock_str = Get_date_and_time_str;
                 data_passation.date_end{length(data_passation.date_start)} = clock_str;
                 savename = il_get_savename(experiment_full,Subject_ID,clock_str);
-                save([dir_results savename], 'i_current', 'ListStim', 'cfg_game', 'data_passation');
+                if ~isoctave
+                    % If MATLAB:
+                    save([dir_results savename '.mat'], 'i_current', 'ListStim', 'cfg_game', 'data_passation');
+                else
+                    % If GNU Octave:
+                    save_options = {'-mat7-binary'};
+                    save([dir_results savename '.mat'], 'i_current', 'ListStim', 'cfg_game', 'data_passation',save_options{:});
+                end
                 fprintf('  Saving game to "%s.mat" (folder path: %s)\n',savename,dir_results);
         end
     end
@@ -600,7 +603,13 @@ end
 clock_str = Get_date_and_time_str;
 data_passation.date_end{length(data_passation.date_start)} = clock_str;
 savename = il_get_savename(experiment_full, Subject_ID_full, Condition, clock_str);
-save([dir_results savename],'cfg_game', 'data_passation');
+if ~isoctave
+    save([dir_results savename '.mat'],'cfg_game', 'data_passation');
+else
+    % If GNU Octave:
+    save_options = {'-mat7-binary'};
+    save([dir_results savename '.mat'],'cfg_game', 'data_passation',save_options{:});
+end
 msg_close
 
 if i_current > N_trials

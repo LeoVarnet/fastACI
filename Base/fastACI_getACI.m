@@ -1,19 +1,10 @@
 function [ACI,cfg_ACI,results,Data_matrix,extra_outs] = fastACI_getACI(savegame_file,varargin)
 % function [ACI,cfg_ACI,results,Data_matrix,extra_outs] = fastACI_getACI(savegame_file,varargin)
 %
-% 1. Description (FR):
-%       Se placer dans le dossier contenant le dossier contenant les donnees 
-%       du participant a analyser
-%
-%    For shortening the calculation process in this script, the following 
-%       simplifications can be done (please run with NO simplification when
-%       preparing data for publication):
-%         - IdxTrialsLoad set to a lower range (e.g. IdxTrialsLoad = 1:1000)
-%         - cfg_ACI.lambda0   = 85; % Valeur initiale de lambda
-%
-% To set:
-%       DimCI: ('tf' or 'lyon') - Choice of auditory model: Lyon or something else (see Varnet2015: 'Cochleograms')
-%       opts_ACI.glmfct (default: glm)
+% - savegame_file: name of the savegame file. Make sure it is in the Matlab
+% path. 
+% - varargin: additional optional parameters for the computation, see
+% fastACI paper, Table 3
 %
 % 1. Reading data from a MAT file and check compatibility (il_convert_tb_ACI_data)
 % 2. Reading/setting options for calculation
@@ -40,15 +31,13 @@ function [ACI,cfg_ACI,results,Data_matrix,extra_outs] = fastACI_getACI(savegame_
 % Old name: Script4_Calcul_ACI.m (changed on 7 July 2021)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Condition can be renamed to NameCond
-
 if nargin == 0
     error('%s: Please spefify the identifier of the subject from whom you want to process the data',upper(mfilename));
 end
 
 Data_matrix = [];
 
-%%%
+% load the savegame file
 [fnameACI, cfg_game, data_passation, ListStim, flags, keyvals] = fastACI_getACI_fname(savegame_file,varargin{:});
 bCalculation = ~exist(fnameACI,'file');
 if isempty(keyvals.dir_noise)
@@ -62,6 +51,10 @@ if isempty(keyvals.dir_noise)
                 if isfield(cfg_game,'Condition')
                     fprintf('Please indicate the folder where the stimuli can be found (dir_noise)\n');
                     str_here = sprintf('Experiment=%s, subject=%s, condition=%s',cfg_game.experiment_full,cfg_game.Subject_ID, cfg_game.Condition);
+                    cfg_game.dir_noise = uigetdir([pwd filesep],str_here);
+                else
+                    fprintf('Please indicate the folder where the stimuli can be found (dir_noise)\n');
+                    str_here = sprintf('Experiment=%s, subject=%s',cfg_game.experiment_full,cfg_game.Subject_ID);
                     cfg_game.dir_noise = uigetdir([pwd filesep],str_here);
                 end
                 cfg_game.dir_noise = [cfg_game.dir_noise filesep];
@@ -94,7 +87,7 @@ if bCalculation == 0
     if bCalculation == 1
         fname_old = [fnameACI(1:end-4) '-old.mat'];
 %         if exist(fname_old,'file')
-%             error('%s: Trying to back up your old-exsiting results, but there is already a file named %s',upper(mfilename),fname_old);
+%             error('%s: Trying to back up your old-existing results, but there is already a file named %s',upper(mfilename),fname_old);
 %         end
         movefile(fnameACI,fname_old);
         fprintf('%s: Old mat file successfully backed up as: %s\n',upper(mfilename),fname_old);
@@ -270,17 +263,18 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
             cfg_ACI.idx_trialselect = 1:N;
             cfg_ACI.N_trialselect = N;
         elseif cfg_game.intervalnum == 2
+            warning("intervalnum == 2 option not fully validated yet \n")
             N = data_passation.i_current;
             cfg_ACI.N = N*cfg_game.intervalnum;
             cfg_ACI.stim_order = [cfg_ACI.stim_order(1:N) cfg_game.N/cfg_game.intervalnum+cfg_ACI.stim_order(1:N)];
             cfg_ACI.idx_trialselect = [1:N*cfg_game.intervalnum];
             cfg_ACI.N_trialselect = N*cfg_game.intervalnum;
-            data_passation.n_stim = [data_passation.n_stim(1:N) data_passation.n_stim(1600+(1:N))];
-            data_passation.expvar = [data_passation.expvar(1:N) data_passation.expvar(1600+(1:N))];
-            data_passation.n_responses = [data_passation.n_responses(1:N) data_passation.n_responses(1600+(1:N))];
-            data_passation.n_targets = [data_passation.n_targets(1:N) data_passation.n_targets(1600+(1:N))];
-            data_passation.n_response_correct_target = [data_passation.n_response_correct_target(1:N) data_passation.n_response_correct_target(1600+(1:N))];
-            data_passation.is_correct = [data_passation.is_correct(1:N) data_passation.is_correct(1600+(1:N))];
+            data_passation.n_stim = [data_passation.n_stim(1:N) data_passation.n_stim(cfg_game.N/2+(1:N))];
+            data_passation.expvar = [data_passation.expvar(1:N) data_passation.expvar(cfg_game.N/2+(1:N))];
+            data_passation.n_responses = [data_passation.n_responses(1:N) data_passation.n_responses(cfg_game.N/2+(1:N))];
+            data_passation.n_targets = [data_passation.n_targets(1:N) data_passation.n_targets(cfg_game.N/2+(1:N))];
+            data_passation.n_response_correct_target = [data_passation.n_response_correct_target(1:N) data_passation.n_response_correct_target(cfg_game.N/2+(1:N))];
+            data_passation.is_correct = [data_passation.is_correct(1:N) data_passation.is_correct(cfg_game.N/2+(1:N))];
         else
             error('experiments with more than 2 intervals are not supported')
         end
@@ -325,7 +319,7 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
             end
         end
         switch flags.TF_type
-            case {'spect','gammatone'} % Then Data_matrix is checked for consistency
+            case {'spect','gammatone'} % then Data_matrix is checked for consistency
                 if keyvals.consistency_check
                     N_ref = 10;
                     N = cfg_ACI.N;
@@ -355,8 +349,6 @@ if bCalculation || do_recreate_validation || flags.do_force_dataload || bCrossPr
                 cfg_ACI.t = 1:size(Data_matrix,3);
                 cfg_ACI.t_description = 'Time bin';
             end
-            % cfg_ACI.N_t = lengt;
-            % N_f = cfg_ACI.N_f;
             warning('flags.TF_type=%s seems to be a custom T-F configuration. No Data_matrix consistency will be checked...',flags.TF_type);
         end
     end
@@ -379,12 +371,23 @@ if bCalculation
     end
     info_toolbox = Get_toolbox_info(mfilename);
     try
-        save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+        if ~isoctave
+            % If MATLAB is used:
+            save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+        else
+            % If GNU Octave is used:
+            save_options = {'-mat7-binary'};
+            save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox',save_options{:});
+        end
     catch
         [dir_where,file,ext] = fileparts(fnameACI);
         mkdir(dir_where);
-        % warning('No destination folder could be created...')
-        save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+        if ~isoctave
+            save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox');
+        else
+            save_options = {'-mat7-binary'};
+            save(fnameACI, 'ACI', 'cfg_ACI', 'results','info_toolbox',save_options{:});
+        end            
     end
     results.fnameACI = fnameACI;
     results.fnameACI_description = 'File name where the fastACI results were stored...';
@@ -424,10 +427,6 @@ else
             cfg_ACI.dir_target = dir_target;
         end
     end
-    % if isfield(results,'lambdas')
-    %     % This data display is just to make the user aware what for data are being loaded
-    %     [round(results.lambdas') round(10*results.cvgofs')/10]
-    % end
 end
  
 results.fnameACI = fnameACI;
@@ -571,7 +570,7 @@ end
 
 %% 7. Preparing final output and plotting:
  
-% affichage de l'ACI
+% display ACI
 
 Max_here = max(max(ACI));
 Min_here = min(min(ACI));

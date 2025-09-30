@@ -43,7 +43,7 @@ if exist(dir_where,'dir')
         
         for i = 1:N_crosspred
             %%% Second check - The existing crosspred is nonempty:
-            if ~isempty(var.crosspred(i).PC_test)
+            if isfield(var.crosspred(i),'PC_test') && ~isempty(var.crosspred(i).PC_test)
                 idx(i) = 1;
             else
                 idx(i) = nan;

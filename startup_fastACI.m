@@ -1,7 +1,17 @@
 function startup_fastACI(bAMT, bFastACI_sim)
 % function startup_fastACI(bAMT, bFastACI_sim)
 %
+% The fastACI toolbox has been developed using MATLAB, however, the toolbox
+% remains largely compatible with GNU Octave.
+% Note, however, that we have tested the compatibility with the toolbox 
+% using GNU Octave together with AMT toolbox version 1.0. We identified
+% that as of AMT version 1.5 presents some incompatibilities with GNU 
+% Octave that impede the correct initialisation of AMT and, thus, the 
+% initialisation of fastACI.
+%
 % Programmed by Alejandro Osses, ENS 2021-
+% Date: 2021
+% Date: 30/09/2025, some extra documentation added.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 bFastACI_exp = 1; % actual fastACI toolbox, always added
 if nargin == 0
@@ -182,6 +192,3 @@ paths.experiments = [path 'experiments' filesep];
 paths.gui    = [path 'gui' filesep];
 paths.models = [path 'models' filesep];
 paths.scripts = [path 'scripts' filesep];
-% addpath([fileparts(which(mfilename)), filesep, 'soundmexpro', filesep, 'bin'])
-% addpath([fileparts(which(mfilename)), filesep, 'procedures'])
-% addpath([fileparts(which(mfilename)), filesep, 'sessions'])  
