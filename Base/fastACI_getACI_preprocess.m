@@ -114,7 +114,7 @@ cfg_ACI.idx_analysis = idx_analysis;
 
 cfg_ACI.N_trials = length(idx_analysis);
 % TODO in the future: introduce the reference as a parameter
-y_all     = double((n_responses==1)'); % all trials that for which target 1 has been chosen. Response 1 is our reference which will be associated with positive weights, response 2 with negative weights.
+y_all     = double((n_responses==3)'); % all trials that for which target 1 has been chosen. Response 1 is our reference which will be associated with positive weights, response 2 with negative weights.
 y         = y_all(idx_analysis);
 
 n_targets_select = n_targets(idx_analysis); % idx = find(n_targets_select==0); n_targets_select(idx) = 1;
@@ -153,7 +153,7 @@ end
 %%% End: Testing Alejandro on 27/04/2021
     
 switch fg.glmfct
-    case {'lassoglm','lasso', 'l1lm','l1glm'}
+    case {'lassoglm','lasso', 'l1lm', 'lm_L1_GB', 'l1glm', 'glm_L1_GB'}
         
         %%% Loading defaults for 'lassoglm' or 'lasso', if not previously loaded
         cfg_ACI   = arg_glmfct(cfg_ACI,fg,kv);

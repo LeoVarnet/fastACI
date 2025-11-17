@@ -47,7 +47,21 @@ switch keyvals.pyramid_script
                 % zero-padding
                 Azeroed = zeros(FinalSize);
                 idx_step = round(size(Azeroed,1)/size(A,1)); % idx_step = 2^(i_level-1+pyramid_shape);
-                Azeroed(1:idx_step:end,1:idx_step:end,:) = A;
+                % just making sure that the two matrices have exactly the
+                % same size
+                if size(Azeroed(1:idx_step:end,1:idx_step:end,:),1) == size(A,1)
+                    if size(Azeroed(1:idx_step:end,1:idx_step:end,:),2) == size(A,2)
+                        Azeroed(1:idx_step:end,1:idx_step:end,:) = A;
+                    else
+                        Azeroed(1:idx_step:end,1:idx_step:end-1,:) = A;
+                    end
+                else
+                    if size(Azeroed(1:idx_step:end,1:idx_step:end,:),2) == size(A,2)
+                        Azeroed(1:idx_step:end-1,1:idx_step:end,:) = A;
+                    else
+                        Azeroed(1:idx_step:end-1,1:idx_step:end-1,:) = A;
+                    end
+                end
                 % blur
                 if exist('imgaussfilt','file')
                     UR = imgaussfilt(1,sigma,'Padding',keyvals.pyramid_padding);
