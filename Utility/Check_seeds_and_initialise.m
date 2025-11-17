@@ -12,7 +12,9 @@ function [cfg_inout,s_current,bGenerate_stimuli] = Check_seeds_and_initialise(cf
 % Author: Alejandro Osses
 % Date: 2021
 % Date: 13/06/2023, copying f0vec and timevec from the seed participant if 
-%                   the experiment is 'segmentation'
+%                   the experiment is 'segmentation'.
+% Date: 30/09/2025, bugfix: if cfg_inout.Condition is empty, this function
+%                   will not throw an error.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if ~isfield(cfg_inout,'seeds_order') && ~isfield(cfg_inout,'stim_order')
@@ -35,7 +37,12 @@ if bDo_the_check
     list_other_subjects = Get_filenames(cfg_inout.dir_data_experiment,'*');
     for i = length(list_other_subjects):-1:1
         crea_extern = [cfg_inout.dir_data_experiment list_other_subjects{i} filesep 'Results' filesep];
-        files = Get_filenames(crea_extern,['cfgcrea*' cfg_inout.Condition '*.mat']);
+        if ~isempty(cfg_inout.Condition)
+            filter_to_use = ['cfgcrea*' cfg_inout.Condition '*.mat'];
+        else
+            filter_to_use = 'cfgcrea*.mat';
+        end    
+        files = Get_filenames(crea_extern,filter_to_use);
 
         if isempty(files)
             list_other_subjects(i) = [];
