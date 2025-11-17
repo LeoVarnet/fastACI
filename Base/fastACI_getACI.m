@@ -143,7 +143,7 @@ end
 
 if isfield(keyvals,'zscore')
     cfg_ACI.zscore = keyvals.zscore;
-    fprintf('Non-default value for field ''zscore'' is being used\n');
+    %fprintf('Non-default value for field ''zscore'' is being used\n');
 end
 
 % if cfg_ACI.zscore == 0
