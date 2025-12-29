@@ -1,7 +1,7 @@
 # fastACI toolbox
 This is the repository of the fast Auditory Classification Images (fastACI) project. The toolbox is controlled using the command line of MATLAB. It does not have (yet) a graphical interface.
 
-With this toolbox you can run listening experiments as used in the studies **varnet2013**, **varnet2015**, **varnet2021**, **osses2021c**, **osses2022b**,  **varnet2022a**, **osses2023a**, **osses2022b**, **osses2024**, and **carranante2023** (see the full citations in the section "_References_"). You can also reproduce some of the figures contained in the mentioned references.
+With this toolbox you can run listening experiments as used in the studies **varnet2013**, **varnet2015**, **varnet2021**, **osses2021c**, **osses2022b**,  **varnet2022a**, **osses2023a**, **osses2022b**, **osses2024**, **carranante2023**, **lebagousse2025** and **osses2025** (see the full citations in the section "_References_"). You can also reproduce some of the figures contained in the mentioned references.
 
 | Citation key   | fastACI experiment name     | Type of background noise     | Target sounds |
 | :------------- | :----------: | :-----------: | :-----------: |
@@ -10,9 +10,10 @@ With this toolbox you can run listening experiments as used in the studies **var
 | **osses2021c** | `speechACI_varnet2013`   | speech shaped noise (SSN) |  /aba/-/ada/, female speaker |
 | **varnet2022a**| `modulationACI`          | white  | modulated or unmodulated tones |
 | **osses2024** | `speechACI_Logatome`     | white, bump, MPS | /aba/-/ada/, male speaker (S43M) from the OLLO database |
-| **carranante2023** | `speechACI_Logatome` | bump | Pairs of contrasts using /aba/, /ada/, /aga/, /apa/, /ata/ from the same male speaker (S43M) in OLLO |
+| **carranante2023**, **carranante2024** | `speechACI_Logatome` | bump | Pairs of contrasts using /aba/, /ada/, /aga/, /apa/, /ata/ from the same male speaker (S43M) in OLLO |
 | **osses2023a** | `segmentation`           | random prosody | Pairs of contrasts: /l'amie/-/la mie/, /l'appel/-/la pelle/, /l'accroche/-/la croche/, /l'alarme/-/la larme/ |
 | **osses2023b** | `toneinnoise_ahumada1975` | white | Tone-in-noise experiment with 100-ms 500-Hz sinusoids temporally centred in Gaussian noises of 500 ms |
+| **osses2025**, **lebagousse2025** | `replication_ahumada1975` | white | Tone-in-noise experiment with 100-ms 500-Hz sinusoids temporally centred in Gaussian noises of 500 ms |
 
 Make sure that you follow the steps indicated in the section **Installation** (below) the first time you use the toolbox. 
 
@@ -28,6 +29,9 @@ A. Osses & L. Varnet (2022). "fastACI toolbox: the MATLAB toolbox for investigat
 A. Osses & L. Varnet (2022). "fastACI toolbox: the MATLAB toolbox for investigating auditory perception using reverse correlation," Github commit cc9d9cf.
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a>.
+
+# User manual
+Readers may consult the paper introducing the toolbox (**osses2025**, [Download paper](https://hal.science/hal-05387608v1/file/fpsyg-16-1668690.pdf)) for a detailed guide on how to use the toolbox. Below, we describe briefly how to install the toolbox, run an experiment, or run a simulation.
 
 # Running a listening experiment
 Next we present the command line required to run each of the ACI experiments that are available in our toolbox. These examples assume that the listener will be named `S01` (standing for Subject 01), however any character-based name can be used instead.
@@ -103,6 +107,9 @@ The following are the general instructions to get the fastACI toolbox for MATLAB
 The references are sorted alphabetically (first author's last name) and then more recent first.
 |    |  |
 | :------------- | :---------- |
+| **osses2025** | A. Osses, A. Le Bagousse, & L. Varnet (2025). **FastACI: a toolbox for investigating auditory perception using reverse correlation**. Frontiers in Psychology, 2025, 16, pp.1668690. (doi: [10.3389/fpsyg.2025.1668690](https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2025.1668690/full), [Download paper](https://hal.science/hal-05387608v1/file/fpsyg-16-1668690.pdf))
+| **lebagousse2025** | A. Le Bagousse & L. Varnet (2025). **50 Years of Reverse Correlation: Replicating Ahumada et al.’s Pioneering Study**. CFA 2025 - 17e Congrès Français d'Acoustique, France. pp.297-303. ([Download paper](https://hal.science/hal-05060148/file/LeBagousse_Varnet_CFA_2025.pdf)) |
+| **carranante2024** | G. Carranante, C. Cany, P. Farri, M. Giavazzi, & L. Varnet (2024). **Mapping the spectrotemporal regions influencing perception of French stop consonants in noise**. Scientific Reports, 14 (1), pp.27183. (doi: [10.1038/s41598-024-77634-w](https://doi-org.insb.bib.cnrs.fr/10.1038/s41598-024-77634-w), [Download paper](https://hal.science/hal-04774563v1/file/Carranante_et_al-2024-Scientific_Reports.pdf)⟩ |
 | **osses2024** | A. Osses, & L. Varnet (2024). **A microscopic investigation of the effect of random envelope fluctuations on phoneme-in-noise perception**. J. Acoust. Soc. Am. 155, p. 1469-1485 (doi: [10.1121/10.0024469](https://pubmed.ncbi.nlm.nih.gov/38364046/), [Download paper](https://hal.science/hal-03950586/))
 | **carranante2023** | G. Carranante, M. Giavazzi, & L. Varnet (2023). **Auditory reverse correlation applied to the study of place and voicing: Four new phoneme-discrimination tasks**. Forum Acusticum 2023. |
 | **king2019**   | A. King, L. Varnet, & C. Lorenzi (2019). **Accounting for masking of frequency modulation by amplitude modulation with the modulation filter-bank concept**. J. Acoust. Soc. Am. 145, p. 2277-2293 (doi: [10.1121/1.5094344](http://dx.doi.org/10.1121/1.5094344), [Download paper](https://hal.archives-ouvertes.fr/hal-02993025))|
