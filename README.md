@@ -1,7 +1,7 @@
 # fastACI toolbox
-This is the repository of the fast Auditory Classification Images (fastACI) project. The toolbox is controlled using the command line of MATLAB. It does not have (yet) a graphical interface.
+This is the repository of the fast Auditory Classification Images (fastACI) project. The toolbox is controlled using the command line of MATLAB. It does not have (yet) a graphical interface. A detailed introduction to the toolbox is provided in [**osses2025**](https://hal.science/hal-05387608v1/file/fpsyg-16-1668690.pdf) (see the full citations in the section "_References_").
 
-With this toolbox you can run listening experiments as used in the studies **varnet2013**, **varnet2015**, **varnet2021**, **osses2021c**, **osses2022b**,  **varnet2022a**, **osses2023a**, **osses2022b**, **osses2024**, **carranante2023**, **lebagousse2025** and **osses2025** (see the full citations in the section "_References_"). You can also reproduce some of the figures contained in the mentioned references.
+With this toolbox you can design and run auditory revcorr experiments, and analyzed the collected data. You can also replicate the experiments from studies **varnet2013**, **varnet2015**, **varnet2021**, **osses2021c**, **osses2022b**,  **varnet2022a**, **osses2023a**, **osses2022b**, **osses2024**, **carranante2023**, **lebagousse2025** and **osses2025**. Finally, you can reproduce most of the figures and analyses contained in the mentioned references. 
 
 | Citation key   | fastACI experiment name     | Type of background noise     | Target sounds |
 | :------------- | :----------: | :-----------: | :-----------: |
