@@ -37,9 +37,9 @@ if nargin < 8
     warning('Default full-scale convention of 100 dBFS will be used')
 end
 
-if fs ~= 16000
-    error('Bump noise so far validated for a sampling frequency of 16 kHz')
-end
+% if fs ~= 16000
+%     error('Bump noise so far validated for a sampling frequency of 16 kHz')
+% end
 
 switch version
     case 1
@@ -54,9 +54,9 @@ if offset_t > 0
 end
 
 % built-in parameters
-nF = 1024; % floor(0.064*fs); % 512; % number of points in the FFT
+nF = floor(0.064*fs); % 1024; %  number of points in the FFT
 nW = gausswin(nF) ; % window
-nH = nF/8; % 512/8; % offset between successive windows (in samples)
+nH = floor(nF/8); % 512/8; % offset between successive windows (in samples)
 n_it = 5; % number of iterations for the phase reconstruction algorithm.
 
 t = (0:nH:Ns-nF)/fs;
