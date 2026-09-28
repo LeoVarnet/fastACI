@@ -76,6 +76,18 @@ switch cfg_inout.Condition
         targetposition = 0.955;
         %Nseg = 8;
         %shift = 0.008; % shift the onset of the first segment by X sec
+    case 'bean_knowledge_3'
+        files = {'5BPN_bean_knowledge_80_100_L.wav','5BPN_bean_knowledge_80_100_L.wav'};
+        targetposition = 1.07;
+        Nseg = 3;
+        shift = 0.02; % shift the onset of the first segment by X sec
+        seg_dur = 0.1*3;
+    case 'bean_knowledge_4'
+        files = {'5BPN_bean_knowledge_80_100_L.wav','5BPN_bean_knowledge_80_100_L.wav'};
+        targetposition = 1.07;
+        Nseg = 18;
+        shift = 0.02; % shift the onset of the first segment by X sec
+        seg_dur = 0.1/2;
     case 'lime_mile'
         files = {'4BPN_lime_mile_80_100_L.wav','4BPN_lime_mile_80_100_L.wav'};
         targetposition = 1.18;
@@ -169,7 +181,10 @@ end
  
 ListStim = [];
 if bGenerate_stimuli
-    Nsamp_in_seg = 0.1*fs;
+    if ~exist('seg_dur')
+        seg_dur = 0.1;
+    end
+    Nsamp_in_seg = seg_dur*fs;
     %Nseg = floor(N_samples/Nsamp_in_seg);
     cfg_inout.scalevec = nan(Nseg,cfg_inout.N);      % initialisation
 end
@@ -217,12 +232,12 @@ for i = 1:cfg_inout.N
                     suff_here = ['-0p' num2str(100*factor)];
                 end
                 %scalevec = 0.8*ones([1, length(timevec)-1]);
-                outsig = il_WorldSynthesiser(insig, fs, scalevec, shift);
+                outsig = il_WorldSynthesiser(insig, fs, scalevec, shift, seg_dur);
                 dir_target_new = [dir_target(1:end-1) '-idle' filesep]; mkdir(dir_target_new);
                 fname_here = [dir_target_new files{idx_target}(1:end-4) '-idle' suff_here '.wav'];
                 audiowrite(fname_here,outsig,fs);
         end
-        outsig = il_WorldSynthesiser(insig, fs, scalevec, shift);
+        outsig = il_WorldSynthesiser(insig, fs, scalevec, shift, seg_dur);
         cfg_inout.scalevec(:,i) = scalevec;
         %cfg_inout.f0vec(:,i)   = f0vec;
         
@@ -287,12 +302,16 @@ end
 %%% 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function y = il_WorldSynthesiser(insig, fs, scale_param, shift_seg)
+function y = il_WorldSynthesiser(insig, fs, scale_param, shift_seg, seg_dur)
 % function y = il_WorldSynthesiser(insig, fs, scale_param, shift_seg)
 %
 % scale_param is the scale factor
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if nargin < 5
+    seg_dur = 0.1;
+end
 
 if ~exist('Harvest.m','file')
     script2look = 'fastACI_dir_world';
@@ -315,7 +334,7 @@ fs_world = 1/(f0_parameter.temporal_positions(2)-f0_parameter.temporal_positions
 Nsamples = length(f0_parameter.temporal_positions);
 Ninput = length(scale_param);
 Nseg = Ninput;
-Nsamp_in_seg = 0.1*fs_world;%floor(Nsamples/Nseg);
+Nsamp_in_seg = seg_dur*fs_world;%floor(Nsamples/Nseg);
 
 time_vect = src_params.temporal_positions;
 

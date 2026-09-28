@@ -40,7 +40,7 @@ definput.keyvals.ACI_crosspred = [];
 definput.keyvals.suffix_crosspred = ''; % if empty (default) generates Crosspred.mat
                                         % if non empty generates Crosspred-noise.mat (if suffix_crosspred == 'noise') 
 % Default number of permutations N_perm (if do_permutation == 1):
-definput.keyvals.N_perm = 20; % default number of ACI assessments for the permutation test
+definput.keyvals.N_perm = 100; % default number of ACI assessments for the permutation test
 definput.keyvals.N_folds = 10; 
 
 definput.keyvals.dir_noise = []; 

@@ -32,12 +32,12 @@ if isempty(outs_from_Praat)
     warning('Praat results not found on disk, Praat will be run again using default values')
     
     par_formants.timestep = 0.005; % positive timestep 0.01
-    par_formants.nformants = 5; % positive nformants 5
+    par_formants.nformants = 4;%5; % positive nformants 5
     
     % Formants
-    par_formants.maxformant = 5250; % positive maxformant 5500
-    par_formants.windowlength = 0.025;% 0.025 % positive windowlength 0.025
-    par_formants.dynamicrange = 20;%30; % positive dynamic range 20
+    par_formants.maxformant = 5000;%5250;%6000;% % positive maxformant 5500
+    par_formants.windowlength = 0.1;%0.025; % positive windowlength 0.025
+    par_formants.dynamicrange = 30;%20;% positive dynamic range 20
     
     % F0
     %par_formants.minpitch = 200; % previous parameter value (14/10/2022)
@@ -47,7 +47,7 @@ if isempty(outs_from_Praat)
     par_formants.pitchceiling = 500; % positive pitch ceiling 500 (for f0)
     
     % Before 4/11/2021, I_min set to 40 dB:
-    par_formants.I_min = 0;%59;%75; %, arbitrary value
+    par_formants.I_min = 57;%59;%75; %, arbitrary value
     outs_from_Praat = Get_all_metrics_from_Praat(dir_where,par_formants);
 else
     % Nothing to do: just using the information in outs_from_Praat
