@@ -7,12 +7,6 @@ else
     expvar_description = '';
 end
 
-switch cfg_game.Language
-    case 'EN'
-        
-    case 'FR'
-        
-end
 clc
 switch cfg_game.Language
     case 'EN'
@@ -89,6 +83,45 @@ switch cfg_game.Language
                 end
             end
         end
+
+    case 'IT'
+        fprintf('\n\t*** STUDIO PRINCIPALE ***\n\n');
+        fprintf('\tParola # %.0f su %.0f (Prossima pausa tra %.0f trial)\n',i_current,cfg_game.N_trials,N_for_next_stop);
+        if cfg_game.feedback == 1
+            fprintf('\tVariabile dipendente: expvar = %.2f%s \n',expvar,expvar_description);
+        end %% should extend to bias?
+        fprintf('\n');
+        
+        if cfg_game.adapt
+            N_here = min(i_current-1,100);
+            if i_current>10 && cfg_game.intervalnum == 1 % don't plot information about bias if more than one interval
+                if N_here < 100 && cfg_game.is_simulation
+                    fprintf('Calcolare la media dei primi %.0f trial\n',N_here);
+                end
+                response_biases = 100*sum(data_passation.n_responses(end-N_here+1:end)==[1 2 3]',2)/N_here;
+                if cfg_game.is_simulation == 1
+                    % Extra info for the simulations:
+                    for i_responses = 1:length(cfg_game.response_names)
+                        fprintf('\tPercentuale di risposte "%s": %.1f %%\n',cfg_game.response_names{i_responses},response_biases(i_responses));% plot all biases
+                    end
+                    fprintf('\t Percentuale di risposte corrette: %.1f %%\n',100*sum(data_passation.is_correct(end-N_here+1:end)==1)/N_here);
+                else
+                    if i_current > 100
+                        [max_response_bias,i_max] = max(response_biases);
+                        [min_response_bias,i_min] = min(response_biases);
+                        targeted_bias = 100/length(cfg_game.response_names);
+                        if max_response_bias>targeted_bias+10 % previously: bias_r1>60
+                            fprintf('\t Percentuale di risposte "%s"= %.0f %% (too much "%s") \n',cfg_game.response_names{i_max},max_response_bias,cfg_game.response_names{i_max});
+                        elseif min_response_bias<targeted_bias-10 % previously: bias_r1<40
+                            fprintf('\tPercentuale di risposte "%s" = %.0f %% (not enough "%s") \n',cfg_game.response_names{i_min},min_response_bias,cfg_game.response_names{i_min});
+                        else
+                            %fprintf('\tResponses are normally balanced \n');
+                        end
+                    end
+                end
+            end
+        end
+        
 
 end
 fprintf('\n');

@@ -10,6 +10,9 @@ if i_current==cfg_game.N_trials
         case 'FR'
             fprintf('\n   *** FIN DE L''EXP\311RIENCE ! *** \n\n');
             fprintf('   Merci pour votre participation ! \n');
+        case 'IT'
+            fprintf('\n   *** LO STUDIO È TERMINATO! *** \n\n');
+            fprintf('   Grazie di aver partecipato! \n');
     end
 else
     switch cfg_game.Language
@@ -19,6 +22,9 @@ else
         case 'FR'
             fprintf('\n   *** PAUSE *** \n\n');
             fprintf('   Vous avez \351cout\351 %.0f sons sur un total de %.0f.\n',i_current-1,cfg_game.N_trials);
+        case 'IT'
+            fprintf('\n   *** PAUSA *** \n\n');
+            fprintf('   Hai già risposto a %.0f parole su %.0f.\n',i_current-1,cfg_game.N_trials);
     end
 end
 switch cfg_game.Language
@@ -26,4 +32,6 @@ switch cfg_game.Language
         fprintf('   Saving game to %s.\n',savename);
     case 'FR'
         fprintf('   Sauvegarde dans le fichier %s.\n',savename);
+    case 'IT'
+        fprintf('   Salva nel file to %s.\n',savename);
 end

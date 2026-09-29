@@ -26,6 +26,8 @@ while test_boucle
             fprintf('    Press:\n');
         case 'FR'
             fprintf('    Appuyez sur :\n');
+        case 'IT'
+            fprintf('    Premi:\n');
     end
     for idx=1:length(Liste_Reponses)
         switch cfg.Language
@@ -33,6 +35,8 @@ while test_boucle
                 fprintf(['     - ' num2str(idx) ' ' Liste_Reponses{idx} '\n']);
             case 'FR'
                 fprintf(['     - ' num2str(idx) ' pour ' Liste_Reponses{idx} '\n']);
+            case 'IT'
+                fprintf(['     - ' num2str(idx) ' ' Liste_Reponses{idx} '\n']);
         end
         if idx == length(Liste_Reponses)
             switch cfg.Language
@@ -40,6 +44,8 @@ while test_boucle
                     fprintf('    then press Enter\n');
                 case 'FR'
                     fprintf('    puis appuyez sur Entr\351e\n');
+                case 'IT'
+                    fprintf('    poi premi Enter\n');
             end
                     delta_time = 0;
                     while delta_time<0.01

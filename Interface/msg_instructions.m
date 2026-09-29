@@ -9,7 +9,14 @@ function msg_instructions(cfg_game)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Display instructions
-fprintf('\n   *** INSTRUCTIONS *** \n\n');
+switch cfg_game.Language
+    case 'EN'
+        fprintf('\n   *** INSTRUCTIONS *** \n\n');
+    case 'FR'
+        fprintf('\n   *** INSTRUCTIONS *** \n\n');
+    case 'IT'
+        fprintf('\n   *** INSTRUZIONI *** \n\n');
+end
 
 script2run = [cfg_game.experiment '_instructions'];
 if exist(script2run,'file')
@@ -43,5 +50,15 @@ else
             fprintf('   Apr\350s chaque tentative, la r\351ponse correcte vous sera indiqu\351e. Si vous n''entendez \n');
             fprintf('   plus l''un ou l''autre des deux sons pendant une longue p\351riode, il est peut-\352tre \n');
             fprintf('   temps de faire une pause...\n')
+        case 'IT'
+            fprintf('   Sentirete dei toni con un rumore di sottofondo. Il tuo compito è quello di indicare \n');
+            fprintf('ad ogni trial se il tono era fluttuante ("tono modulato") o stabile ("tono puro").\n');
+            fprintf('   Lo studio (%.0f trial) é suddiviso in %.0f sessioni, ciascuna di %.0f trial. but\n',cfg_game.N_trials,cfg_game.N_trials/cfg_game.sessionsN,cfg_game.sessionsN);
+            fprintf('   Potrai fare una piccola pausa in qualsiasi momento tu ne senta il bisogno.\n');
+            fprintf('   La difficoltà della task viene aggiustata automaticamente in funzione della tua performance \n');
+            fprintf('  durante lo studio. È perciò normale che la modulazione di sembri sempre più difficile da individuare. \n');
+            fprintf('   Lo studio include lo stesso numero di toni modulati e di toni puri. Se non riesci a sentire \n');
+            fprintf(' più una delle due categorie di tono, forse è arrivato il momento di fare una piccolo pausa! \n');
+
     end 
 end

@@ -76,6 +76,10 @@ if bExperiment && isfield(cfg_game,'probe_periodicity') && cfg_game.probe_period
             case 'FR'
                 clc
                 fprintf('\n\t*** Son de r\351f\351rence ***\n');
+            case 'IT'
+                clc
+                fprintf('\n*** Suono di prova ***\n');
+
         end
 
         % generating a dummy data/cfg
@@ -103,6 +107,8 @@ if bExperiment && isfield(cfg_game,'probe_periodicity') && cfg_game.probe_period
                 fprintf('\n    Press any key\n');
             case 'FR'
                 fprintf('\n    Appuyez sur une touche\n');
+            case 'IT'
+                fprintf('\n    Premi un tasto qualsiasi\n');
         end
         pause;
         pause(0.5)
@@ -166,6 +172,12 @@ if is_warmup
             if cfg_game.feedback == 1
                 fprintf('\tNiveau %s = %.2f \n\n',cfg_game.expvar_description,expvar);
             end
+        case 'IT'
+            fprintf('\n    * RISCALDAMENTO *\n\n');
+            if cfg_game.feedback == 1
+                fprintf('\tDependent variable: %s = %.2f\n\n',cfg_game.expvar_description,expvar);
+            end
+
     end
 else
     N_for_next_stop = min(data_passation.next_session_stop,cfg_game.N_trials+1)-i_current-1;
@@ -186,6 +198,8 @@ if bExperiment
                     text2show = ['to play the stim again' append('to play a ', cfg_game.response_names) 'to leave the warm-up phase'];
                 case 'FR'
                     text2show = ['pour rejouer le son' append('pour \351couter un ', cfg_game.response_names) 'pour quitter l''\351chauffement'];
+                case 'IT'
+                    text2show = ['per riascoltare il suono' append('per ascoltare un ', cfg_game.response_names) 'per abbandonare la fase di riscaldamento'];
 
                 %     message_pre = 'to play the stim again';
                 %     message_during = 'to play a ';
@@ -208,6 +222,8 @@ if bExperiment
                     text2show = {'to take a break'};
                 case 'FR'
                     text2show = {'pour prendre une pause'};
+                case 'IT'
+                    text2show = {'per fare una pausa'};
             end
             response = Response_keyboard([cfg_game.response_names text2show], cfg_game);
         end
@@ -222,6 +238,9 @@ if bExperiment
                 case 'FR'
                     FCresponses = {[cfg_game.response_names{1} ' en premier et ' cfg_game.response_names{2} ' en second'], [cfg_game.response_names{2} ' en premier et ' cfg_game.response_names{1} ' en second']};
                     text2show = ['pour rejouer le son' append('pour \351couter un ', cfg_game.response_names) 'pour quitter l''\351chauffement'];
+                case 'IT'
+                    FCresponses = {[cfg_game.response_names{1} ' per primo e ' cfg_game.response_names{2} 'per secondo'], [cfg_game.response_names{2} ' per primo ' cfg_game.response_names{1} ' per secondo']};
+                    text2show = ['per riascoltare il suono' append('per ascoltare un ', cfg_game.response_names) 'per abbandonare la fase di riscaldamento'];
             end
             response = Response_keyboard([FCresponses text2show], cfg_game);
 
@@ -233,6 +252,9 @@ if bExperiment
                 case 'FR'
                     FCresponses = {[cfg_game.response_names{1} ' en premier et ' cfg_game.response_names{2} ' en second'], [cfg_game.response_names{2} ' en premier et ' cfg_game.response_names{1} ' en second']};
                     text2show = {'pour prendre une pause'};
+                case 'IT'
+                    FCresponses = {[cfg_game.response_names{1} ' per primo e ' cfg_game.response_names{2} 'per secondo'], [cfg_game.response_names{2} ' per primo e ' cfg_game.response_names{1} 'per secondo']};
+                    text2show = {'per fare una pausa'};
             end
             response = Response_keyboard([FCresponses text2show], cfg_game);
         end
@@ -327,6 +349,9 @@ switch response
                 fprintf('\n    Press any key\n');
             case 'FR'
                 fprintf('\n    Appuyez sur une touche\n');
+            case 'IT'
+                fprintf('\n    Premi un tasto qualunque\n');
+
         end
         pause;
         outs_trial = ins_trial;
@@ -427,6 +452,9 @@ switch response
                             txt_extra = 'You were right';
                         case 'FR'
                             txt_extra = 'Correct';
+                        case 'IT'
+                            txt_extra = 'Corretto';
+
                     end
                 case 0
                     switch cfg_game.Language
@@ -434,6 +462,9 @@ switch response
                             txt_extra = 'You were wrong';
                         case 'FR'
                             txt_extra = 'Erreur';
+                        case 'IT'
+                            txt_extra = 'Sbagliato';
+
                     end
             end
 
@@ -444,6 +475,9 @@ switch response
                         resp_name  = [cfg_game.response_names{randpos(1)} ' first ' cfg_game.response_names{randpos(2)} ' second'];
                     case 'FR'
                         resp_name = [cfg_game.response_names{randpos(1)} ' en premier et ' cfg_game.response_names{randpos(2)} ' en second'];
+                    case 'IT'
+                        resp_name  = [cfg_game.response_names{randpos(1)} ' per primo e ' cfg_game.response_names{randpos(2)} ' per secondo '];
+
                 end
             else
                 if isfield(cfg_game,'response_names')
@@ -459,6 +493,9 @@ switch response
                     fprintf('\n ** %s => Correct answer was : %.0f (%s) ** \n\n',txt_extra,resp_num,resp_name);
                 case 'FR'
                     fprintf('\n ** %s => La bonne reponse \351tait : %.0f (%s) **\n\n',txt_extra,resp_num,resp_name);
+                case 'IT'
+                    fprintf('\n ** %s => La risposta corretta era : %.0f (%s) ** \n\n',txt_extra,resp_num,resp_name);
+
             end
             pause(1); 
             if ~cfg_game.is_simulation

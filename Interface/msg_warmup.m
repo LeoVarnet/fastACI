@@ -16,6 +16,14 @@ switch cfg_game.Language
         fprintf('   et la t\342che. Lorsque vous vous sentirez pr\352t, appuyez sur 6 pour passer \340 l''exp\351rience.\n\n');
         
         fprintf('   Appuyez sur n''importe quelle touche pour commencer.\n');
+
+    case 'IT'
+        fprintf('\t Lo studio incomincia con una fase di riscaldamento. A differenza della fase di test, in questa fase \n');
+        fprintf('\t potrai riascoltare lo stimolo e I toni target. La risposta corretta ti verrà indicata \n');
+        fprintf('\t dopo ogni trial.\n\n');
+        
+        fprintf('\t Premi un tasto qualsiasi per incominciare.\n');
+
 end        
 pause
 clc

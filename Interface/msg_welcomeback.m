@@ -11,6 +11,12 @@ switch cfg_game.Language
         fprintf('   Chargement %s...\n',cfg_game.load_name);
         fprintf('   Progression : \351coute num\351ro %.0f sur un total de %.0f.\n\n',i_current-1,cfg_game.N);
         fprintf('   Appuyez sur n''importe quelle touche pour commencer.\n')
+    case 'IT'
+        fprintf('\n   *** CONTINUAZIONE DELLO STUDIO! *** \n\n');
+        fprintf('   Caricamento %s...\n',cfg_game.load_name);
+        fprintf(['   Avanzamento: suono # %.0f su %.0f.\n\n'],i_current-1,cfg_game.N);
+        fprintf('   Premi un tasto qualsiasi per incominciare.\n')
+
 end
 pause
 clc

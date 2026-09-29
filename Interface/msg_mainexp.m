@@ -8,6 +8,8 @@ switch cfg_game.Language
         fprintf('   Press any key to start.\n')
     case 'FR'
         fprintf('   Appuyez sur n''importe quelle touche pour commencer.\n')
+    case 'IT'
+        fprintf('   Premi un tasto qualsiasi per incominciare.\n')
 end
 pause
 clc

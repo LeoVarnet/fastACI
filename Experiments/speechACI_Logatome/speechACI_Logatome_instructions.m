@@ -40,4 +40,22 @@ switch cfg_game.Language
         fprintf('\t Apr\350s chaque tentative, la r\351ponse correcte vous sera indiqu\351e. Si vous n''entendez \n');
         fprintf('\t plus l''un ou l''autre des deux sons pendant une longue p\351riode, il est peut-\352tre \n');
         fprintf('\t temps de faire une pause...\n')
+
+    case 'IT'
+        % Text by Maria Giavazzi, based on the French and English text provided by Leo::
+        fprintf('\t Sentirete delle parole con un rumore di sottofondo. Il tuo compito è quello di rispondere ad ogni \n');
+        fprintf('\t trial se la parola termina con la sillaba %s (premi 1) oppure \n',cfg_game.response_names{1});
+        fprintf('\t con la sillaba %s (premi 2). \n',cfg_game.response_names{2});
+        fprintf('\t Questo studio ha un totale di %.0f parole, suddivise in %.0f sessioni di\n' parole,cfg_game.N,cfg_game.N/cfg_game.sessionsN);
+        fprintf('\t che durano circa %.0f minuti ciascuna. Potrai fare una piccola pausa in qualsiasi momento tu ne senta il bisogno.\n',dur_estimated);
+        fprintf('\t Il livello sonoro della voce (il ''volume'') verrà aggiustato automaticamente in funzione \n');
+        fprintf('\t della tua performance durante lo studio. È perciò normale che \n');
+        fprintf('\t le parole diventino più difficili da capire a mano a mano che avanzi. Se non riesci a capire le parole \n');
+        fprintf('\t puoi rispondere in modo aleatorio.\n');
+        fprintf('\t Lo studio include un numero uguale di parole che finiscono in  of %s e in %s, il che significa che idealmente dovresti rispondere \n',cfg_game.response_names{1},cfg_game.response_names{2});
+        fprintf('\t %s circa 50%% delle volte. Per aiutarti ti faremo vedere \n',cfg_game.response_names{1});
+        fprintf('\t la tua percentuale di risposte "%s" qualora il tuo bias di risposta diventasse troppo grande.\n',cfg_game.response_names{1});
+        fprintf('\t Dopo ogni risposta ti faremo vedere la risposta corretta. Se ti rendi conto che da qualche trial non sei più in grado \n');
+        fprintf('\t di ricordare quale delle due parole hai appena sentito, \n');
+        fprintf('\t forse è arrivato il momento di fare una piccola pausa!\n');
 end 
