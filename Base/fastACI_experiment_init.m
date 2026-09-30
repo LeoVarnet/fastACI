@@ -126,7 +126,7 @@ end
 if ~isfield(cfg_crea,'response_correct_target')
     if cfg_crea.N_target > 2
         if ~isfield(cfg_crea,'response_correct_target')
-            error('A maximum of two alternatives ''1'' and ''2'' can be asked to the participants. Your experiment seems to use %.0f sounds, but they should be mapped to only two responses. Specify the field ''response_correct_target''.',cfg_game.N_target);
+            error('A maximum of two alternatives ''1'' and ''2'' can be asked to the participants. Your experiment seems to use %.0f sounds, but they should be mapped to only two responses. Specify the field ''response_correct_target''.',cfg_crea.N_target);
         end
     elseif cfg_crea.N_target == 2
         cfg_crea.response_correct_target = [1 2];
