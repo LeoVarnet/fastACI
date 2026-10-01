@@ -13,10 +13,10 @@ cfg = [];
 cfg_out = cfg_in; % copying input to output struct
 
 %cfg.filename_target = Get_filenames(cfg_in.dir_target,[cfg_in.Cond_extra_2 '*.wav']);
-cfg.filename_target  = {'bìfachi_4_ending.wav','bifàci_3_ending.wav','dipàchi_4_ending.wav','dìpaci_3_ending.wav'};
+cfg.filename_target  = {'v1_close_chi.wav','v1_close_ci.wav','v1_far_chi.wav','v1_far_ci.wav','v2_close_chi.wav','v2_close_ci.wav','v2_far_chi.wav','v2_far_ci.wav'};
 cfg.response_names = {'ci','chi'};
-cfg.response_correct_target = [2,1,2,1];
-cfg.correctness_matrix = [1,2]; %LEO: check why duplicate
+cfg.response_correct_target = [2,1,2,1,2,1,2,1];
+cfg.correctness_matrix = [1,2];
 
 cfg.warmup         = 1; % 'oui'
 

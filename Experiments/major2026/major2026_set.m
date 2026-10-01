@@ -74,7 +74,7 @@ cfg.Language = 'IT'; % or 'EN'
 % end
 
 cfg.N_presentation = 2;%N_presentation; % number of stimuli / condition
-cfg.N_target  = 4;     % Number of conditions
+cfg.N_target  = 8;     % Number of conditions
 cfg.N         = cfg.N_target*cfg.N_presentation;
 
 cfg_inout.dir_data_experiment = dir_data_experiment;

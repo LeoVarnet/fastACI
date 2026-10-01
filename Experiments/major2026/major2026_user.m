@@ -1,5 +1,5 @@
-function [str_stim,data_passation] = speechACI_Logatome_user(cfg,data_passation)
-% function [str_stim,data_passation] = speechACI_Logatome_user(cfg,data_passation)
+function [str_stim,data_passation] = major2026_user(cfg,data_passation)
+% function [str_stim,data_passation] = major2026_user(cfg,data_passation)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

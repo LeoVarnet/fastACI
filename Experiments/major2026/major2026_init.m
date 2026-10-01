@@ -71,9 +71,14 @@ end
  
 if bGenerate_stimuli
     
-    %files = il_get_waveforms_from_Cond_extra(dir_speech_orig,cfg_inout);
-    files  = {'bìfachi_4_ending.wav','bifàci_3_ending.wav','dipàchi_4_ending.wav','dìpaci_3_ending.wav'};
-
+    % files = il_get_waveforms_from_Cond_extra(dir_speech_orig,cfg_inout);
+    files = cfg_inout.filename_target; % {'v1_close_chi.wav','v1_close_ci.wav','v1_far_chi.wav','v1_far_ci.wav.wav','v2_close_chi.wav','v2_close_ci.wav','v2_far_chi.wav','v2_far_ci.wav.wav'};
+    
+    max_targetlength = 0;
+    for i = 1:length(files)
+        [insig,fs]  = audioread([dir_speech_orig files{i}]);
+        max_targetlength = max(max_targetlength, length(insig));
+    end
 
     for i = 1:length(files)
         [insig,fs]  = audioread([dir_speech_orig files{i}]);
@@ -92,7 +97,7 @@ if bGenerate_stimuli
                  
         lvls_after(i) = rmsdb(insig)+dBFS;
         
-        sil_comp = zeros(7353-length(insig),1); % this is to equalize stim duration to the longest (24438 samples)
+        sil_comp = zeros(max_targetlength-length(insig),1); % this is to equalize stim duration to the longest (24438 samples)
         sil_ramp = zeros(round(dur_ramp*fs),1);
         sil_end = zeros(round(0.1*fs),1);
         insig  = [sil_ramp; sil_comp; insig; sil_end; sil_ramp];
