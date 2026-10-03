@@ -111,10 +111,12 @@ switch cfg_game.Language
                         [min_response_bias,i_min] = min(response_biases);
                         targeted_bias = 100/length(cfg_game.response_names);
                         if max_response_bias>targeted_bias+10 % previously: bias_r1>60
-                            fprintf('\t Percentuale di risposte "%s"= %.0f %% (too much "%s") \n',cfg_game.response_names{i_max},max_response_bias,cfg_game.response_names{i_max});
+                            %TO FIX (and in other languages as well
+%                            fprintf('\t Percentuale di risposte "%s"= %.0f %% (too much "%s") \n',cfg_game.response_names{i_max},max_response_bias,cfg_game.response_names{i_max});
                         elseif min_response_bias<targeted_bias-10 % previously: bias_r1<40
-                            fprintf('\tPercentuale di risposte "%s" = %.0f %% (not enough "%s") \n',cfg_game.response_names{i_min},min_response_bias,cfg_game.response_names{i_min});
+%                            fprintf('\t Percentuale di risposte "%s" = %.0f %% (not enough "%s") \n',cfg_game.response_names{i_min},min_response_bias,cfg_game.response_names{i_min});
                         else
+                            %TO FIX
                             %fprintf('\tResponses are normally balanced \n');
                         end
                     end

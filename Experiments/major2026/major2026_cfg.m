@@ -14,7 +14,7 @@ cfg_out = cfg_in; % copying input to output struct
 
 %cfg.filename_target = Get_filenames(cfg_in.dir_target,[cfg_in.Cond_extra_2 '*.wav']);
 cfg.filename_target  = {'v1_close_chi.wav','v1_close_ci.wav','v1_far_chi.wav','v1_far_ci.wav','v2_close_chi.wav','v2_close_ci.wav','v2_far_chi.wav','v2_far_ci.wav'};
-cfg.response_names = {'ci','chi'};
+cfg.response_names = {'bifaci','bifachi'};
 cfg.response_correct_target = [2,1,2,1,2,1,2,1];
 cfg.correctness_matrix = [1,2];
 
