@@ -33,7 +33,7 @@ if isfield(cfg_in,'Condition')
     cfg.expvar_description = 'SNR (dB)';
     cfg.step_resolution = 'linear';
     cfg.start_stepsize = 2; % dB
-    cfg.maxvar = 10;
+    cfg.maxvar = 15;
 end
 
 cfg.adapt_stepsize = 50/100;

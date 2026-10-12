@@ -53,6 +53,13 @@ switch kv.trialtype_analysis
         if kv.trialtype_analysis(1) == 't' 
             if str2double(kv.trialtype_analysis(2:end))<=cfg_ACI.N_target
                 select_trialtype = (n_targets == str2double(kv.trialtype_analysis(2:end)));
+            elseif strfind(kv.trialtype_analysis,'+')
+                pluspositions = strfind(kv.trialtype_analysis,'+');
+                targetlist = str2double(kv.trialtype_analysis(pluspositions(1)-1));
+                for i_targetlist = 1:length(pluspositions)
+                    targetlist = [targetlist, str2double(kv.trialtype_analysis(pluspositions(i_targetlist)+1))];
+                end
+                select_trialtype = ismember(n_targets,targetlist);
             else
                 error(['Trialtype condition unrecognised: ' cfg_ACI.trialtype_analysis ' (but there are only ' num2str(cfg_ACI.N_target) ' targets)\n'])
             end
@@ -114,7 +121,7 @@ cfg_ACI.idx_analysis = idx_analysis;
 
 cfg_ACI.N_trials = length(idx_analysis);
 % TODO in the future: introduce the reference as a parameter
-y_all     = double((n_responses==3)'); % all trials that for which target 1 has been chosen. Response 1 is our reference which will be associated with positive weights, response 2 with negative weights.
+y_all     = double((n_responses==1)'); % all trials that for which target 1 has been chosen. Response 1 is our reference which will be associated with positive weights, response 2 with negative weights.
 y         = y_all(idx_analysis);
 
 n_targets_select = n_targets(idx_analysis); % idx = find(n_targets_select==0); n_targets_select(idx) = 1;
