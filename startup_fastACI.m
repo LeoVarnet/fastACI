@@ -150,6 +150,7 @@ if bFastACI_exp == 1
     paths.Praat                = [dir_fastACI       'Praat'                filesep];
     paths.speechACI_Logatome   = [paths.Experiments 'speechACI_Logatome'   filesep];
     paths.major2026            = [paths.Experiments 'major2026'   filesep];
+    paths.zhang2026            = [paths.Experiments 'zhang2026'   filesep];
     paths.major2026b            = [paths.Experiments 'major2026b'   filesep];
     paths.speechACI_Audika     = [paths.Experiments 'speechACI_Audika'   filesep];
     paths.speechACI_varnet2013 = [paths.Experiments 'speechACI_varnet2013' filesep];

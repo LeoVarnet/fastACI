@@ -23,7 +23,7 @@ switch cfg_game.Language
                 if N_here < 100 && cfg_game.is_simulation
                     fprintf('Averaging first %.0f trials\n',N_here);
                 end
-                response_biases = 100*sum(data_passation.n_responses(end-N_here+1:end)==[1 2 3]',2)/N_here;
+                response_biases = 100*sum(data_passation.n_responses(end-N_here+1:end)==[1 2]',2)/N_here;
                 if cfg_game.is_simulation == 1
                     % Extra info for the simulations:
                     for i_responses = 1:length(cfg_game.response_names)
@@ -60,7 +60,8 @@ switch cfg_game.Language
                 if N_here < 100 && cfg_game.is_simulation
                     fprintf('Moyenner %.0f essais avant de calculer le biais\n',N_here);
                 end
-                response_biases = 100*sum(data_passation.n_responses(end-N_here+1:end)==[1 2 3]',2)/N_here;
+                % TODO: currently limited to 2 responses
+                response_biases = 100*sum(data_passation.n_responses(end-N_here+1:end)==[1 2]',2)/N_here;
                 if cfg_game.is_simulation == 1
                     % Extra info for the simulations:
                     for i_responses = 1:length(cfg_game.response_names)
@@ -98,7 +99,7 @@ switch cfg_game.Language
                 if N_here < 100 && cfg_game.is_simulation
                     fprintf('Calcolare la media dei primi %.0f trial\n',N_here);
                 end
-                response_biases = 100*sum(data_passation.n_responses(end-N_here+1:end)==[1 2 3]',2)/N_here;
+                response_biases = 100*sum(data_passation.n_responses(end-N_here+1:end)==[1 2]',2)/N_here;
                 if cfg_game.is_simulation == 1
                     % Extra info for the simulations:
                     for i_responses = 1:length(cfg_game.response_names)
